@@ -109,7 +109,7 @@ export async function exportOfflineBackup() {
   return new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
 }
 
-export type BackupMergeResult = { imported: number; conflicts: Array<{ id: string; local: OfflineRecord; incoming: OfflineRecord }>; invalid: string[]; manifests: Array<{ file: string; deviceId?: string; userId?: string; recordCount?: number; exportedAt?: string; maxRecordVersion?: number; latestSyncAt?: string; verified: boolean }>; pendingRecords: OfflineRecord[] };
+export type BackupMergeResult = { imported: number; conflicts: Array<{ id: string; local: OfflineRecord; incoming: OfflineRecord }>; invalid: string[]; manifests: Array<{ file: string; deviceId?: string; userId?: string; recordCount?: number; exportedAt?: string; maxRecordVersion?: number; latestSyncAt?: string; checksumVerified?: boolean; signatureVerified?: boolean; verified: boolean }>; pendingRecords: OfflineRecord[] };
 
 export async function mergeOfflineBackups(files: File[]): Promise<BackupMergeResult> {
   const localRecords = new Map((await listOfflineRecords()).map((record) => [record.id, record]));
@@ -124,8 +124,8 @@ export async function mergeOfflineBackups(files: File[]): Promise<BackupMergeRes
       if (payload.format !== "global1881-offline-v1" || !Array.isArray(payload.records) || !payload.checksum || !payload.signature || !payload.publicKey) throw new Error("manifest");
       const { checksum: receivedChecksum, signature: receivedSignature, publicKey, ...data } = payload;
       const canonical = JSON.stringify(data);
-      if (await checksum(canonical) !== receivedChecksum || !(await verify(canonical, receivedSignature, publicKey))) throw new Error("signature");
-      manifests.push({ file: file.name, deviceId: payload.deviceId, userId: payload.userId, recordCount: payload.recordCount, exportedAt: payload.exportedAt, maxRecordVersion: Math.max(0, ...payload.records.map((record) => record.recordVersion ?? 0)), latestSyncAt: payload.records.map((record) => record.lastSyncAt).filter(Boolean).sort().at(-1), verified: true });
+      const checksumVerified = await checksum(canonical) === receivedChecksum; const signatureVerified = await verify(canonical, receivedSignature, publicKey); if (!checksumVerified || !signatureVerified) throw new Error("signature");
+      manifests.push({ file: file.name, deviceId: payload.deviceId, userId: payload.userId, recordCount: payload.recordCount, exportedAt: payload.exportedAt, maxRecordVersion: Math.max(0, ...payload.records.map((record) => record.recordVersion ?? 0)), latestSyncAt: payload.records.map((record) => record.lastSyncAt).filter(Boolean).sort().at(-1), checksumVerified, signatureVerified, verified: true });
       for (const incoming of payload.records) {
         const local = localRecords.get(incoming.id);
         if (local && JSON.stringify(local) !== JSON.stringify(incoming)) conflicts.push({ id: incoming.id, local, incoming });

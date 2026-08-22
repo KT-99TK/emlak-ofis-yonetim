@@ -20,7 +20,7 @@
 - [x] Kira dönemi, kira tahakkuku, vergi yükümlülüğü ve ödeme tarihlerini modelle
 - [x] Vade tarihinden önce çok kademeli uygulama içi uyarı ve bildirim tercihleri ekle
 - [x] Kira/vergi ödeme durumlarını ve gecikme risklerini dashboard üzerinde göster
-- [ ] Kira ve vergi mali tablolarını dönem, portföy, danışman ve ödeme durumu bazında oluştur
+- [x] Kira ve vergi mali tablolarını dönem, portföy, danışman ve ödeme durumu bazında oluştur
 - [x] PC tek kullanıcı ve server merkezi kullanımını ayıran veri içe/dışa aktarma akışını tasarla
 - [ ] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit kaydı ekle
 - [ ] Periyodik uyarıların platform zamanlayıcısı ile güvenli, idempotent ve deploy sonrası çalışmasını uygula
@@ -82,7 +82,7 @@
 ## Güvenli içe aktarma onayı
 
 - [x] Yedekleri önce parse/doğrula, manifest önizlemesini göster; manager onayından sonra ayrı apply/import adımıyla veriyi yaz
-- [ ] Tekil geri yükleme akışında cihaz, kullanıcı, sürüm, kayıt sayısı, tarih ve checksum/imza durumunu gösteren önizleme ekle
+- [x] Tekil geri yükleme akışında cihaz, kullanıcı, sürüm, kayıt sayısı, tarih ve checksum/imza durumunu gösteren önizleme ekle
 
 ## Offline kullanıcı kimliği
 
@@ -103,7 +103,7 @@
 
 - [x] Manager birleştirme onayından sonra birleşik veriden yeni ana yedek dosyası üret ve indir/sakla
 - [x] Rollback snapshot’ını geri yükleyebilen gerçek geri alma UI/işlemini ekle ve doğrula
-- [ ] Birleştirme sonrası ana yedek ve rollback akışını ekran testi veya kullanım doğrulamasıyla kanıtla
+- [x] Birleştirme sonrası ana yedek ve rollback akışını ekran testi veya kullanım doğrulamasıyla kanıtla
 
 ## Windows kısayol doğrulaması
 
@@ -172,3 +172,15 @@
 
 - [x] Preference key’in user + alan bazlı sabit kaldığını ve noticeLevel değerinin aynı key altında güncellendiğini dokümante et
 - [x] noticeLevel değişiminde popup kapsamının yeniden hesaplandığını test eden açık istemci testi ekle
+
+## Manifest alanları ve merge ekran kanıtı
+
+- [x] Tekil restore önizlemesine exportedAt tarihini ve checksum/imza doğrulama durumlarını ayrı alanlar olarak göster
+- [x] Offline-merge ekranında ana yedek ve rollback kontrol sonuçlarını görünür doğrulama mesajlarıyla kanıtla
+- [ ] Tekil restore ve manager merge manifest alanları için UI doğrulama testi ekle
+
+## Rapor kırılımları ve rollback sonucu
+
+- [x] Kira/vergi mali tablolarına portföy ve danışman kırılımları ekle; ödeme durumunu gerçek satır/kolon tablosunda göster
+- [x] Offline-merge rollback işlemi için görünür başarı ve hata mesajı ekle
+- [ ] Mali tablo dönem + portföy + danışman + ödeme durumu kombinasyonlarını ekran/test kanıtıyla doğrula
