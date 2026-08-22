@@ -281,3 +281,7 @@
 ## Yanlış kaynak klasörüyle paketleme
 
 - [x] Windows kılavuzuna ZIP’i temiz ve yeni klasöre çıkarma, `package.json` sürümünü 1.0.2 ile kontrol etme ve eski D:\Manus-test klasörünü kullanmama adımlarını ekle
+
+## 1.0.2 Electron merkezi URL yönlendirmesi
+
+- [x] Paketlenmiş Electron uygulamasının `https://emlakdash-kcw9r85v.manus.space` yerine yerel `file:` offline çalışma alanında kalmasını sağla ve uzak URL navigasyonunu engelle

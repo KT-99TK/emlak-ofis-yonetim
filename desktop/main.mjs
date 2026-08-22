@@ -33,6 +33,20 @@ function createWindow() {
   });
   Menu.setApplicationMenu(null);
   const indexPath = path.join(__dirname, "..", "dist", "public", "index.html");
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file:")) {
+      event.preventDefault();
+      writeStartupLog(`Uzak navigasyon engellendi; url=${url}; fallback=file-offline`);
+      void window.loadFile(indexPath, { hash: "/offline" });
+    }
+  });
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    if (!url.startsWith("file:")) {
+      writeStartupLog(`Uzak yeni pencere engellendi; url=${url}`);
+      return { action: "deny" };
+    }
+    return { action: "allow" };
+  });
   writeStartupLog(`Electron başlatıldı; packaged=${app.isPackaged}; appVersion=${app.getVersion()}; indexPath=${indexPath}; exists=${fs.existsSync(indexPath)}; initialRoute=#/offline`);
   window.webContents.on("did-finish-load", () => {
     writeStartupLog(`Arayüz yüklendi; url=${window.webContents.getURL()}`);
