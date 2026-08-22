@@ -77,3 +77,9 @@ Bu otomasyon yalnızca kurulum paketi üretir. Çalışanlar için dağıtılaca
 Bazı Windows kurulumlarında `pnpm` sistemde bulunmadığında Corepack, `C:\Program Files\nodejs` içine dosya yazmaya çalışarak `EPERM: operation not permitted` hatası verebilir. Güncel `WINDOWS-KURULUM.ps1` artık Corepack’i zorunlu tutmaz; `pnpm` bulunamazsa Node.js ile gelen `npx` üzerinden `pnpm@10.4.1` sürümünü geçici olarak çalıştırır. Bu nedenle script normal kullanıcı yetkisiyle çalışabilir.
 
 Bu fallback’in kullanılabilmesi için yalnızca Windows Node.js LTS kurulumu ve internet bağlantısı gerekir. `npx` de bulunamıyorsa Node.js LTS kurulumu eksiktir. Script yine çalışmazsa PowerShell’i kapatıp yeniden açın ve `WINDOWS-KURULUM.bat` dosyasını tekrar çalıştırın. İsteğe bağlı olarak `pnpm` bir kez yönetici PowerShell ile kurulabilir; ancak bu artık zorunlu değildir.
+
+## Boş Electron penceresi için düzeltme
+
+Eski Windows paketinde Electron `file://` üzerinden açılan HTML’in `/assets/...` biçimindeki mutlak JavaScript ve CSS yollarını çözememesi boş veya menüsüz bir pencereye yol açabilir. Güncel kaynakta Vite üretim tabanı `./` olarak ayarlanmış, manifest ve favicon yolları da göreli hale getirilmiştir. Üretim HTML’i artık `./assets/...` yollarını kullanır ve geliştirme debug scriptini paketlenmiş uygulamaya eklemez.
+
+Bu düzeltmeden sonra eski `.exe` dosyası otomatik olarak güncellenmez. Yeni checkpoint’ten indirilen proje ZIP’iyle `WINDOWS-KURULUM.bat` dosyasını tekrar çalıştırarak yeni bir `.exe` üretin. Önce eski sürümü kaldırmanız gerekmez; yeni kurulum sırasında aynı kurulum konumunu seçebilirsiniz. Yeni kurulumdan sonra uygulama açıldığında Global 1881 menüsü, dashboard ve Offline çalışma alanı görünmelidir.

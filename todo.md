@@ -210,3 +210,13 @@
 
 - [x] Corepack Program Files izin hatasında npx pnpm fallback kullan; scripti normal kullanıcı yetkisiyle çalışabilir hale getir
 - [x] EPERM hata açıklamasını ve güncel script kullanımını Windows kılavuzuna ekle
+
+## Windows Electron boş pencere düzeltmesi
+
+- [x] Paketlenmiş Electron uygulamasında arayüzün görünmemesi sorununu reproduce/teşhis et ve `dist/public` yükleme yolunu düzelt
+- [x] Electron paket içeriği, açılış logları ve Windows kurulum talimatlarını runtime sonucu ile doğrula
+
+## Paketlenmiş Electron runtime kanıtı
+
+- [ ] Windows’ta üretilen güncel `.exe`/kurulu uygulamayı açıp arayüzün gerçekten yüklendiğini ekran görüntüsü veya kullanıcı doğrulama notuyla kaydet
+- [x] Paketlenmiş Electron açılışında kullanılan dosya yolunu ve arayüz yükleme başarısını görünürleştiren startup log/diagnostic mesajı ekle veya mevcut log kanıtını kaydet

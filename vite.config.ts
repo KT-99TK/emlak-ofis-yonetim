@@ -75,11 +75,16 @@ function writeToLogFile(source: LogSource, entries: unknown[]) {
  * - Auto-trimmed when exceeding 1MB (keeps newest entries)
  */
 function vitePluginManusDebugCollector(): Plugin {
+  let isProductionBuild = false;
   return {
     name: "manus-debug-collector",
 
+    configResolved(config) {
+      isProductionBuild = config.command === "build";
+    },
+
     transformIndexHtml(html) {
-      if (process.env.NODE_ENV === "production") {
+      if (isProductionBuild) {
         return html;
       }
       return {
@@ -153,6 +158,8 @@ function vitePluginManusDebugCollector(): Plugin {
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
 export default defineConfig({
+  // Electron loadFile uses file://; relative asset URLs are required in the packaged app.
+  base: "./",
   plugins,
   resolve: {
     alias: {
