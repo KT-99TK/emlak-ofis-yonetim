@@ -273,3 +273,7 @@
 ## Windows 1.0.0 sürüm karışıklığı
 
 - [x] Kullanıcı startup.log kayıtlarında hâlâ 1.0.0 görüldüğü için Electron package.json, builder config, dist metadata ve installer adlarını tek sürüm 1.0.2 altında yeniden doğrula; eski kurulum/çıktı yolunun yanlışlıkla çalışmasını engelle
+
+## Installer dosya adı ayrıştırması
+
+- [x] Windows installer çıktısını `Global1881-Ofis-Offline-v1.0.2-FINAL.exe` adıyla üret ve kılavuzdaki eski installer adlarını güncelle

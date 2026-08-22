@@ -70,7 +70,7 @@ Write-Host "Windows kurulum paketi üretiliyor..." -ForegroundColor Cyan
 try { Invoke-Pnpm @("desktop:installer") } catch { Stop-WithMessage "Electron Windows kurulum paketi üretilemedi. $($_.Exception.Message)" }
 
 
-$installerName = "1881-Ofis-Yonetim-$expectedVersion.exe"
+$installerName = "Global1881-Ofis-Offline-v$expectedVersion-FINAL.exe"
 $installer = Get-Item -Path (Join-Path $releaseDir $installerName) -ErrorAction SilentlyContinue
 if (-not $installer) {
   Stop-WithMessage "Build tamamlandı ancak beklenen $installerName bulunamadı. Eski sürüm installer’ı kesinlikle dağıtmayın."

@@ -9,7 +9,7 @@ directories:
 win:
   target:
     - nsis
-  artifactName: "1881-Ofis-Yonetim-${version}.${ext}"
+  artifactName: "Global1881-Ofis-Offline-v${version}-FINAL.${ext}"
 nsis:
   oneClick: false
   perMachine: false
