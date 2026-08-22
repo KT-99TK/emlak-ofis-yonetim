@@ -2,7 +2,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getDashboardSummary, listAudit, listClients, listContracts, listLedger, listProperties } from "./db";
+import { createClient, createContract, createLedger, createProperty, getDashboardSummary, listAudit, listClients, listContracts, listLedger, listProperties, listTeamMembers, transitionContract } from "./db";
+import { z } from "zod";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
 
@@ -17,15 +18,23 @@ export const appRouter = router({
   }),
   contracts: router({
     list: protectedProcedure.query(({ ctx }) => listContracts(ctx.user.id, isManager(ctx.user))),
+    create: protectedProcedure.input(z.object({ contractNo: z.string().min(3), type: z.enum(["rental", "sale", "authority"]), subtype: z.string().optional(), title: z.string().min(3), amount: z.string().optional(), clientId: z.number().optional(), propertyId: z.number().optional() })).mutation(({ ctx, input }) => createContract({ ...input, assignedUserId: ctx.user.id, actorUserId: ctx.user.id })),
+    transition: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["draft", "review", "approved", "signed", "active", "completed", "cancelled"]) })).mutation(({ ctx, input }) => transitionContract(input.id, input.status, ctx.user.id)),
   }),
   clients: router({
     list: protectedProcedure.query(({ ctx }) => listClients(ctx.user.id, isManager(ctx.user))),
+    create: protectedProcedure.input(z.object({ name: z.string().min(2) })).mutation(({ ctx, input }) => createClient({ ...input, assignedUserId: ctx.user.id })),
   }),
   properties: router({
     list: protectedProcedure.query(({ ctx }) => listProperties(ctx.user.id, isManager(ctx.user))),
+    create: protectedProcedure.input(z.object({ referenceNo: z.string().min(2), title: z.string().min(2), address: z.string().min(2) })).mutation(({ ctx, input }) => createProperty({ ...input, assignedUserId: ctx.user.id })),
   }),
   ledger: router({
     list: protectedProcedure.query(({ ctx }) => listLedger(ctx.user.id, isManager(ctx.user))),
+    create: protectedProcedure.input(z.object({ description: z.string().min(2), amount: z.string().min(1), entryType: z.enum(["income", "expense", "receivable", "payable"]) })).mutation(({ ctx, input }) => createLedger({ ...input, assignedUserId: ctx.user.id })),
+  }),
+  team: router({
+    list: adminProcedure.query(() => listTeamMembers()),
   }),
   audit: router({
     list: adminProcedure.query(() => listAudit(true)),
