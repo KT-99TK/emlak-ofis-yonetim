@@ -17,11 +17,11 @@
 
 ## Yeni kapsam: kira dönemleri, vergi takibi ve veri güvenliği
 
-- [ ] Kira dönemi, kira tahakkuku, vergi yükümlülüğü ve ödeme tarihlerini modelle
-- [ ] Vade tarihinden önce çok kademeli uygulama içi uyarı ve bildirim tercihleri ekle
-- [ ] Kira/vergi ödeme durumlarını ve gecikme risklerini dashboard üzerinde göster
+- [x] Kira dönemi, kira tahakkuku, vergi yükümlülüğü ve ödeme tarihlerini modelle
+- [x] Vade tarihinden önce çok kademeli uygulama içi uyarı ve bildirim tercihleri ekle
+- [x] Kira/vergi ödeme durumlarını ve gecikme risklerini dashboard üzerinde göster
 - [ ] Kira ve vergi mali tablolarını dönem, portföy, danışman ve ödeme durumu bazında oluştur
-- [ ] PC tek kullanıcı ve server merkezi kullanımını ayıran veri içe/dışa aktarma akışını tasarla
+- [x] PC tek kullanıcı ve server merkezi kullanımını ayıran veri içe/dışa aktarma akışını tasarla
 - [ ] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit kaydı ekle
 - [ ] Periyodik uyarıların platform zamanlayıcısı ile güvenli, idempotent ve deploy sonrası çalışmasını uygula
 - [ ] Yeni vade, mali tablo ve yedekleme akışlarını test edip güncel checkpoint oluştur
@@ -41,7 +41,7 @@
 - [ ] Yeniden kiralama talebini mülk sahibi onayına gönderen durum akışını ekle
 - [ ] Mülk sahibi onayı alınmadan yeni kiralama ilanı oluşturmayı server tarafında engelle
 - [ ] Onay, ret, tarih ve açıklama bilgilerini audit kaydına yaz
-- [ ] Geçiş dönemi için yerel/tek kullanıcı çalışma ve merkezi servera aktarılabilir yedek formatını netleştir
+- [x] Geçiş dönemi için yerel/tek kullanıcı çalışma ve merkezi servera aktarılabilir yedek formatını netleştir
 
 ## Yeni kapsam: bağımsız geçiş sürümü
 
@@ -64,7 +64,7 @@
 
 - [x] Yedek dosyalarına checksum/imza doğrulaması, backup manifesti ve geri yükleme doğrulama akışı ekle
 - [x] Offline sürüm için gerçek Windows masaüstü paketleme teknolojisini seçip build/install scriptleri ve konfigürasyonu uygula
-- [ ] Offline veri modeline userId, recordVersion ve lastSyncAt alanlarını ekleyip UI ve backup akışına bağla
+- [x] Offline veri modeline userId, recordVersion ve lastSyncAt alanlarını ekleyip UI ve backup akışına bağla
 - [x] Tahliye, mülk sahibi onayı ve ön muhasebe için ayrı offline entity'ler ve gerçek form alanları ekle
 
 ## Mimari tutarlılık ve dağıtım düzeltmeleri
@@ -128,3 +128,47 @@
 - [x] Electron/Windows paketinde logo kullanımını uygulama ikonu veya offline kabuk branding ayarıyla açıkça bağla
 - [x] Windows offline kılavuzuna logo/mühür asset yollarını, yeniden üretim komutunu ve paket kullanım yerlerini ekle
 - [x] Logo/mühür entegrasyonunu dosya-temelli doğrulama veya ekran kontrolüyle kanıtla
+
+## Offline metadata görünürlüğü
+
+- [x] Offline kayıt listesinde recordVersion ve lastSyncAt alanlarını kullanıcıya göster
+- [x] Kayıt güncelleme veya merge senaryosunda recordVersion artışını açıkça uygula
+- [x] userId, recordVersion ve lastSyncAt için UI/backup/import doğrulama testi veya ekran kanıtı ekle
+
+## Vade uyarı tercihleri
+
+- [x] Kullanıcı bazlı bildirim tercihleri için gün sayısı, seviye ve popup/açılış uyarısı ayarlarını ekle
+- [x] Kira/vergi uyarılarını tercihleri okuyarak gerçek uygulama içi bildirim/popup akışına bağla
+- [x] Bildirim tercihleri ve popup akışını UI kontrolüyle doğrula
+
+## Vade ekranı rota düzeltmesi
+
+- [x] Dashboard menüsündeki Kira & Vergi Vadeleri bağlantısını Obligations sayfasına bağla ve 404 olmadan doğrula
+
+## Uyarı seviyesi tercihi
+
+- [x] Kullanıcı bazlı uyarı seviyesi seçimi ekle: sadece acil, erken+acil veya gecikmiş dahil
+- [x] Popup mantığını seçilen uyarı seviyesini okuyacak şekilde güncelle
+- [x] Uyarı seviyesi tercihini ekranda doğrula
+
+## Kullanıcı bazlı uyarı doğrulaması
+
+- [x] Uyarı tercihlerini cihaz-geneli anahtar yerine oturumdaki kullanıcı kimliğine göre ayrı sakla ve yükle
+- [x] Gecikmiş dahil seviyesini yaklaşan ve gecikmiş kayıtları birlikte kapsayacak şekilde düzelt
+- [x] Uyarı seviyelerinin popup kapsamını test eden küçük birim/UI doğrulaması ekle
+
+## Vitest client uyarı testleri
+
+- [x] Vitest include globuna client/src/**/*.test.ts dosyalarını ekle
+- [x] urgent, early ve overdue seviyelerinin çalışan test çıktısında görünmesini sağla
+- [x] Gerekirse her uyarı seviyesinin UI davranışını ayrı ekran doğrulamasıyla kanıtla
+
+## Uyarı seviyesi etkileşim doğrulaması
+
+- [x] urgent, early ve overdue seçenekleri için popup kapsamını temsil eden ayrı client test senaryoları ekle
+- [x] Seviye değiştiğinde tercih anahtarının değiştiğini ve popup kapsamının doğru hesaplandığını doğrula
+
+## Uyarı tercihi saklama davranışı
+
+- [x] Preference key’in user + alan bazlı sabit kaldığını ve noticeLevel değerinin aynı key altında güncellendiğini dokümante et
+- [x] noticeLevel değişiminde popup kapsamının yeniden hesaplandığını test eden açık istemci testi ekle

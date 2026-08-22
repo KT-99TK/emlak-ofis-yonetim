@@ -109,7 +109,7 @@ export async function exportOfflineBackup() {
   return new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
 }
 
-export type BackupMergeResult = { imported: number; conflicts: Array<{ id: string; local: OfflineRecord; incoming: OfflineRecord }>; invalid: string[]; manifests: Array<{ file: string; deviceId?: string; userId?: string; recordCount?: number; exportedAt?: string; verified: boolean }>; pendingRecords: OfflineRecord[] };
+export type BackupMergeResult = { imported: number; conflicts: Array<{ id: string; local: OfflineRecord; incoming: OfflineRecord }>; invalid: string[]; manifests: Array<{ file: string; deviceId?: string; userId?: string; recordCount?: number; exportedAt?: string; maxRecordVersion?: number; latestSyncAt?: string; verified: boolean }>; pendingRecords: OfflineRecord[] };
 
 export async function mergeOfflineBackups(files: File[]): Promise<BackupMergeResult> {
   const localRecords = new Map((await listOfflineRecords()).map((record) => [record.id, record]));
@@ -125,7 +125,7 @@ export async function mergeOfflineBackups(files: File[]): Promise<BackupMergeRes
       const { checksum: receivedChecksum, signature: receivedSignature, publicKey, ...data } = payload;
       const canonical = JSON.stringify(data);
       if (await checksum(canonical) !== receivedChecksum || !(await verify(canonical, receivedSignature, publicKey))) throw new Error("signature");
-      manifests.push({ file: file.name, deviceId: payload.deviceId, userId: payload.userId, recordCount: payload.recordCount, exportedAt: payload.exportedAt, verified: true });
+      manifests.push({ file: file.name, deviceId: payload.deviceId, userId: payload.userId, recordCount: payload.recordCount, exportedAt: payload.exportedAt, maxRecordVersion: Math.max(0, ...payload.records.map((record) => record.recordVersion ?? 0)), latestSyncAt: payload.records.map((record) => record.lastSyncAt).filter(Boolean).sort().at(-1), verified: true });
       for (const incoming of payload.records) {
         const local = localRecords.get(incoming.id);
         if (local && JSON.stringify(local) !== JSON.stringify(incoming)) conflicts.push({ id: incoming.id, local, incoming });
@@ -153,8 +153,9 @@ export async function restoreRollbackSnapshot() {
 
 export async function applyOfflineRecords(records: OfflineRecord[]) {
   if (!records.length) return;
-  const db = await openDb(); const tx = db.transaction(STORE_NAME, "readwrite");
-  records.forEach((record) => tx.objectStore(STORE_NAME).put(record));
+  const existing = new Map((await listOfflineRecords()).map((record) => [record.id, record]));
+  const db = await openDb(); const tx = db.transaction(STORE_NAME, "readwrite"); const syncedAt = new Date().toISOString();
+  records.forEach((record) => { const current = existing.get(record.id); tx.objectStore(STORE_NAME).put({ ...record, recordVersion: current ? current.recordVersion + 1 : record.recordVersion, lastSyncAt: syncedAt }); });
   await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
 }
 
@@ -171,6 +172,7 @@ export async function importOfflineBackup(file: File) {
   if (await checksum(canonical) !== receivedChecksum || !(await verify(canonical, receivedSignature, publicKey))) throw new Error("Yedek checksum/imza doğrulaması başarısız");
   const db = await openDb();
   const tx = db.transaction(STORE_NAME, "readwrite");
-  for (const record of payload.records) tx.objectStore(STORE_NAME).put(record);
+  const syncedAt = new Date().toISOString();
+  for (const record of payload.records) tx.objectStore(STORE_NAME).put({ ...record, lastSyncAt: syncedAt });
   return new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
 }

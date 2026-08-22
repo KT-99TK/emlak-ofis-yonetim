@@ -12,6 +12,7 @@ import Audit from "./pages/Audit";
 import Team from "./pages/Team";
 import OfflineWorkspace from "./pages/OfflineWorkspace";
 import BackupMerge from "./pages/BackupMerge";
+import Obligations from "./pages/Obligations";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
         <Route path="/clients" component={Records} />
         <Route path="/properties" component={Records} />
         <Route path="/accounting" component={Records} />
+        <Route path="/obligations" component={Obligations} />
         <Route path="/team" component={Team} />
         <Route path="/audit" component={Audit} />
         <Route path="/offline" component={OfflineWorkspace} />
