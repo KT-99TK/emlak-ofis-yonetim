@@ -55,3 +55,11 @@ Bu varlıkların proje dışı kalıcı kopyaları `/home/ubuntu/webdev-static-a
 ## Bilinen teknik not
 
 Kaynak projede Electron Windows paketleme yapılandırması bulunur. Linux geliştirme ortamında NSIS kurulum dosyası üretimi için Wine gerekebilir. Windows ortamında paketleme yapıldığında kullanıcıya kurulum dosyası veya `win-unpacked` klasörü verilebilir. Her laptopa aynı uygulama sürümü kurulmalı ve uygulama güncellenmeden önce mevcut yedek alınmalıdır.
+
+## Manus klasörü ile Windows dağıtım paketi arasındaki fark
+
+Manus klasörü, projenin kaynak kodu ve geliştirme çalışma alanıdır; diğer çalışanların bilgisayarlarına bu klasörün tamamı gönderilmemelidir. Çalışanlara gönderilecek dosya, Electron Builder tarafından üretilen tek Windows kurulum dosyasıdır. Proje sahibi veya teknik hazırlığı yapan kişi, Windows ortamında proje klasöründe `pnpm install`, ardından `pnpm desktop:installer` komutlarını çalıştırır. Oluşan `release/1881-Ofis-Yonetim-1.0.0.exe` dosyası çalışanlara güvenilir bir USB, kurum içi paylaşım klasörü veya güvenli dosya aktarımıyla iletilir.
+
+Kurulum sırasında çalışan, `.exe` dosyasını açar; kurulum konumunu seçebilir ve masaüstü kısayolunu oluşturabilir. Kurulum tamamlandıktan sonra uygulama Manus klasöründen bağımsız çalışır. Her laptopta uygulama bir kez kurulur, Offline çalışma alanında benzersiz kullanıcı kodu ve cihaz kimliği kaydedilir. Çalışanlar haftalık JSON yedeklerini yalnızca managerın belirlediği aktarım yöntemiyle gönderir; kaynak kod, `node_modules`, `dist` veya `.env` dosyaları paylaşılmaz.
+
+Linux geliştirme sandboxında Windows NSIS dosyası üretimi Wine gerektirebilir. Bu nedenle en güvenilir yöntem, aynı proje sürümünü Windows 10/11 üzerinde açıp `pnpm install` ve `pnpm desktop:installer` komutlarını çalıştırmaktır. Alternatif olarak `pnpm desktop:build` ile `release/win-unpacked` klasörü oluşturulabilir; bu klasör kurulum dosyası yerine taşınabilir uygulama klasörü olarak kullanılabilir, ancak çalışanlara dağıtım için NSIS `.exe` dosyası tercih edilir.
