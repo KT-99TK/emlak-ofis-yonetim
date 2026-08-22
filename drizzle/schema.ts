@@ -1,17 +1,7 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal } from "drizzle-orm/mysql-core";
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -22,7 +12,100 @@ export const users = mysqlTable("users", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
+export const teams = mysqlTable("teams", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  managerId: int("managerId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const userProfiles = mysqlTable("userProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  teamId: int("teamId"),
+  managerId: int("managerId"),
+  officeRole: mysqlEnum("officeRole", ["broker_manager", "consultant"]).default("consultant").notNull(),
+  consultantCode: varchar("consultantCode", { length: 40 }),
+  phone: varchar("phone", { length: 40 }),
+  title: varchar("title", { length: 120 }),
+  status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
+});
+
+export const clients = mysqlTable("clients", {
+  id: int("id").autoincrement().primaryKey(),
+  type: mysqlEnum("type", ["individual", "company"]).default("individual").notNull(),
+  name: varchar("name", { length: 180 }).notNull(),
+  identityOrTaxNo: varchar("identityOrTaxNo", { length: 40 }),
+  phone: varchar("phone", { length: 40 }),
+  email: varchar("email", { length: 320 }),
+  address: text("address"),
+  assignedUserId: int("assignedUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const properties = mysqlTable("properties", {
+  id: int("id").autoincrement().primaryKey(),
+  referenceNo: varchar("referenceNo", { length: 40 }).notNull().unique(),
+  type: mysqlEnum("type", ["residential", "commercial", "land", "office"]).default("residential").notNull(),
+  listingType: mysqlEnum("listingType", ["sale", "rent"]).default("sale").notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  address: text("address").notNull(),
+  district: varchar("district", { length: 100 }),
+  grossM2: decimal("grossM2", { precision: 10, scale: 2 }),
+  roomCount: varchar("roomCount", { length: 30 }),
+  price: decimal("price", { precision: 14, scale: 2 }),
+  ownerClientId: int("ownerClientId"),
+  assignedUserId: int("assignedUserId"),
+  status: mysqlEnum("status", ["active", "reserved", "closed"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const contracts = mysqlTable("contracts", {
+  id: int("id").autoincrement().primaryKey(),
+  contractNo: varchar("contractNo", { length: 60 }).notNull().unique(),
+  type: mysqlEnum("type", ["rental", "sale", "authority"]).notNull(),
+  subtype: varchar("subtype", { length: 80 }),
+  status: mysqlEnum("status", ["draft", "review", "approved", "signed", "active", "completed", "cancelled"]).default("draft").notNull(),
+  version: int("version").default(1).notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  clientId: int("clientId"),
+  propertyId: int("propertyId"),
+  assignedUserId: int("assignedUserId"),
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  amount: decimal("amount", { precision: 14, scale: 2 }),
+  currency: varchar("currency", { length: 8 }).default("TRY").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const ledgerEntries = mysqlTable("ledgerEntries", {
+  id: int("id").autoincrement().primaryKey(),
+  entryType: mysqlEnum("entryType", ["income", "expense", "receivable", "payable"]).notNull(),
+  status: mysqlEnum("status", ["pending", "partial", "paid", "cancelled"]).default("pending").notNull(),
+  description: varchar("description", { length: 240 }).notNull(),
+  amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
+  paidAmount: decimal("paidAmount", { precision: 14, scale: 2 }).default("0").notNull(),
+  dueDate: timestamp("dueDate"),
+  contractId: int("contractId"),
+  clientId: int("clientId"),
+  assignedUserId: int("assignedUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const auditLogs = mysqlTable("auditLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  actorUserId: int("actorUserId").notNull(),
+  action: varchar("action", { length: 80 }).notNull(),
+  entityType: varchar("entityType", { length: 60 }).notNull(),
+  entityId: int("entityId"),
+  summary: text("summary"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
-
-// TODO: Add your tables here
+export type Contract = typeof contracts.$inferSelect;
+export type LedgerEntry = typeof ledgerEntries.$inferSelect;

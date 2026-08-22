@@ -21,15 +21,20 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { Banknote, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
+  { icon: LayoutDashboard, label: "Genel Bakış", path: "/" },
+  { icon: FileSignature, label: "Sözleşmeler", path: "/contracts" },
+  { icon: UserRound, label: "Müşteriler", path: "/clients" },
+  { icon: FolderKanban, label: "Portföy", path: "/properties" },
+  { icon: Banknote, label: "Ön Muhasebe", path: "/accounting" },
+  { icon: Users, label: "Ekip Yönetimi", path: "/team" },
+  { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -169,7 +174,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    Navigation
+                    1881 Ofis
                   </span>
                 </div>
               ) : null}
@@ -224,7 +229,7 @@ function DashboardLayoutContent({
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
+                  <span>Oturumu kapat</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
