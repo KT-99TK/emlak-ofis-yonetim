@@ -49,6 +49,7 @@ export const properties = mysqlTable("properties", {
   referenceNo: varchar("referenceNo", { length: 40 }).notNull().unique(),
   type: mysqlEnum("type", ["residential", "commercial", "land", "office"]).default("residential").notNull(),
   listingType: mysqlEnum("listingType", ["sale", "rent"]).default("sale").notNull(),
+  ownerApprovalStatus: mysqlEnum("ownerApprovalStatus", ["notRequired", "pending", "approved", "rejected"]).default("notRequired").notNull(),
   title: varchar("title", { length: 180 }).notNull(),
   address: text("address").notNull(),
   district: varchar("district", { length: 100 }),

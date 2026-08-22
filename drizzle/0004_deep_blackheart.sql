@@ -1,0 +1,1 @@
+ALTER TABLE `properties` ADD `ownerApprovalStatus` enum('notRequired','pending','approved','rejected') DEFAULT 'notRequired' NOT NULL;

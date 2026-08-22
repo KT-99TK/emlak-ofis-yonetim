@@ -39,7 +39,7 @@
 - [ ] İki ay veya tanımlanan süre öncesinde danışman/manager uyarı akışını ekle
 - [ ] Tahliye yaklaşan kiralıkları ayrı görev ve takvim görünümünde göster
 - [x] Yeniden kiralama talebini mülk sahibi onayına gönderen durum akışını ekle
-- [ ] Mülk sahibi onayı alınmadan yeni kiralama ilanı oluşturmayı server tarafında engelle
+- [x] Mülk sahibi onayı alınmadan yeni kiralama ilanı oluşturmayı server tarafında engelle
 - [x] Onay, ret, tarih ve açıklama bilgilerini audit kaydına yaz
 - [x] Geçiş dönemi için yerel/tek kullanıcı çalışma ve merkezi servera aktarılabilir yedek formatını netleştir
 

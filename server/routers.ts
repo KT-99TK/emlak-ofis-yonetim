@@ -29,7 +29,7 @@ export const appRouter = router({
   }),
   properties: router({
     list: protectedProcedure.query(({ ctx }) => listProperties(ctx.user.id, isManager(ctx.user))),
-    create: protectedProcedure.input(z.object({ referenceNo: z.string().min(2), title: z.string().min(2), address: z.string().min(2) })).mutation(({ ctx, input }) => createProperty({ ...input, assignedUserId: ctx.user.id })),
+    create: protectedProcedure.input(z.object({ referenceNo: z.string().min(2), title: z.string().min(2), address: z.string().min(2), listingType: z.enum(["sale", "rent"]).optional(), ownerApprovalStatus: z.enum(["notRequired", "pending", "approved", "rejected"]).optional() })).mutation(({ ctx, input }) => createProperty({ ...input, assignedUserId: ctx.user.id })),
   }),
   obligations: router({
     list: protectedProcedure.query(({ ctx }) => listObligations(ctx.user.id, isManager(ctx.user))),
