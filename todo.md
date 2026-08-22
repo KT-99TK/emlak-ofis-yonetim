@@ -189,3 +189,13 @@
 
 - [x] Windows Electron kurulum paketinin üretim, kurulum ve ekip paylaşım prosedürünü belgeleyip doğrula
 - [x] Manus proje klasörü ile çalışanların kuracağı Windows programını birbirinden ayıran dağıtım açıklamasını ekle
+
+## Otomatik Windows paketleme
+
+- [x] ZIP içinden çalıştırılabilen Windows paketleme scripti ekle; proje klasörünü doğrula, pnpm/dependency hazırlığını yap, check çalıştır ve `.exe` üret
+- [x] Script hata durumlarını Türkçe açıklamalarla yönlendir ve kullanıcı kılavuzuna bağla
+
+## Otomatik Windows paketleme
+
+- [x] ZIP içinden çalıştırılabilen Windows paketleme scripti ekle; proje klasörünü doğrula, pnpm/dependency hazırlığını yap, check çalıştır ve `.exe` üret
+- [x] Script hata durumlarını Türkçe açıklamalarla yönlendir ve kullanıcı kılavuzuna bağla

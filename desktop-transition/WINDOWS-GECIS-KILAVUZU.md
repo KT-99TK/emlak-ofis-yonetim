@@ -63,3 +63,11 @@ Manus klasörü, projenin kaynak kodu ve geliştirme çalışma alanıdır; diğ
 Kurulum sırasında çalışan, `.exe` dosyasını açar; kurulum konumunu seçebilir ve masaüstü kısayolunu oluşturabilir. Kurulum tamamlandıktan sonra uygulama Manus klasöründen bağımsız çalışır. Her laptopta uygulama bir kez kurulur, Offline çalışma alanında benzersiz kullanıcı kodu ve cihaz kimliği kaydedilir. Çalışanlar haftalık JSON yedeklerini yalnızca managerın belirlediği aktarım yöntemiyle gönderir; kaynak kod, `node_modules`, `dist` veya `.env` dosyaları paylaşılmaz.
 
 Linux geliştirme sandboxında Windows NSIS dosyası üretimi Wine gerektirebilir. Bu nedenle en güvenilir yöntem, aynı proje sürümünü Windows 10/11 üzerinde açıp `pnpm install` ve `pnpm desktop:installer` komutlarını çalıştırmaktır. Alternatif olarak `pnpm desktop:build` ile `release/win-unpacked` klasörü oluşturulabilir; bu klasör kurulum dosyası yerine taşınabilir uygulama klasörü olarak kullanılabilir, ancak çalışanlara dağıtım için NSIS `.exe` dosyası tercih edilir.
+
+## Tek tıklamayla kurulum paketi üretme
+
+ZIP dosyası çıkarıldıktan sonra proje klasörünün içinde `WINDOWS-KURULUM.bat` ve `WINDOWS-KURULUM.ps1` dosyaları bulunur. Windows kullanıcısı `WINDOWS-KURULUM.bat` dosyasına çift tıklayarak işlemi başlatabilir. Script, ZIP içindeki `package.json` dosyasını arar, doğru proje klasörüne geçer, Node.js ve pnpm durumunu kontrol eder, bağımlılıkları kurar, TypeScript kontrolünü çalıştırır ve `pnpm desktop:installer` komutuyla Windows kurulum paketini üretir.
+
+İşlem başarılı olursa proje klasöründe `release` klasörü oluşur ve içindeki `.exe` dosyası çalışanlara dağıtılabilir. Script hata verirse kırmızı hata mesajını okuyun; Node.js eksikliği, pnpm hazırlanamaması veya proje dosyalarının eksik çıkarılması en yaygın nedenlerdir. Hata metni teknik sorumluya gönderilmelidir. Script yönetici yetkisi gerektirmeden çalışacak şekilde tasarlanmıştır; ancak Node.js veya Corepack kurulumu Windows tarafından engellenirse PowerShell’in yönetici olarak açılması gerekebilir.
+
+Bu otomasyon yalnızca kurulum paketi üretir. Çalışanlar için dağıtılacak dosya yine yalnızca `release` klasöründeki `.exe` dosyasıdır; Manus kaynak klasörü, `.env`, `node_modules` ve proje kaynak kodu paylaşılmamalıdır.
