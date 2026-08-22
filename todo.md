@@ -30,7 +30,7 @@
 
 - [x] Merkezi serverı tek doğruluk kaynağı olarak belgeleyip istemci bağlantı ve kısa yol kullanım kılavuzunu hazırla
 - [x] PC üzerinde veri tutmayan güvenli web kısayolu/PWA kullanım modelini uygula
-- [ ] Server erişilemezse salt-okunur durum, bağlantı uyarısı ve yeniden bağlanma akışını tanımla
+- [x] Server erişilemezse salt-okunur durum, bağlantı uyarısı ve yeniden bağlanma akışını tanımla
 - [ ] Merkezi yedekleme ve geri yükleme işlemlerini yalnızca manager yetkisiyle çalıştır
 
 ## Yeni kapsam: tahliye ve yeniden kiralama onayı

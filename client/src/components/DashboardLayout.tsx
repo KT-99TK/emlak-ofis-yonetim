@@ -118,6 +118,8 @@ function DashboardLayoutContent({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+  const [isOnline, setIsOnline] = useState(() => typeof navigator === "undefined" ? true : navigator.onLine);
+  useEffect(() => { const onOnline = () => setIsOnline(true); const onOffline = () => setIsOnline(false); window.addEventListener("online", onOnline); window.addEventListener("offline", onOffline); return () => { window.removeEventListener("online", onOnline); window.removeEventListener("offline", onOffline); }; }, []);
 
   useEffect(() => {
     if (isCollapsed) {
@@ -259,7 +261,7 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        <main className="flex-1 p-4">{children}</main>
+        {!isOnline && <div className="mx-4 mt-4 rounded-xl border border-[#ead6d0] bg-[#fff8f6] px-4 py-3 text-sm text-[#a85745]" role="alert"><strong>Merkezi server bağlantısı yok.</strong><p className="mt-1 text-xs">Yeni merkezi kayıt yazımı durduruldu. Bağlantı geldiğinde sayfayı yenileyin; offline veri girişi yalnızca Windows offline uygulamasında yapılabilir.</p><Button variant="outline" size="sm" className="mt-2" onClick={() => window.location.reload()}>Yeniden bağlanmayı dene</Button></div>}<main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </>
   );
