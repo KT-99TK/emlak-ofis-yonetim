@@ -35,12 +35,12 @@
 
 ## Yeni kapsam: tahliye ve yeniden kiralama onayı
 
-- [ ] Kira sözleşmesine tahliye ihbar süresi, anlaşmaya özel bildirim kuralı ve tahliye tarihi alanlarını ekle
+- [x] Kira sözleşmesine tahliye ihbar süresi, anlaşmaya özel bildirim kuralı ve tahliye tarihi alanlarını ekle
 - [ ] İki ay veya tanımlanan süre öncesinde danışman/manager uyarı akışını ekle
 - [ ] Tahliye yaklaşan kiralıkları ayrı görev ve takvim görünümünde göster
-- [ ] Yeniden kiralama talebini mülk sahibi onayına gönderen durum akışını ekle
+- [x] Yeniden kiralama talebini mülk sahibi onayına gönderen durum akışını ekle
 - [ ] Mülk sahibi onayı alınmadan yeni kiralama ilanı oluşturmayı server tarafında engelle
-- [ ] Onay, ret, tarih ve açıklama bilgilerini audit kaydına yaz
+- [x] Onay, ret, tarih ve açıklama bilgilerini audit kaydına yaz
 - [x] Geçiş dönemi için yerel/tek kullanıcı çalışma ve merkezi servera aktarılabilir yedek formatını netleştir
 
 ## Yeni kapsam: bağımsız geçiş sürümü

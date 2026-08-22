@@ -22,6 +22,13 @@
       "when": 1787394696395,
       "tag": "0002_mighty_aaron_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787405308349,
+      "tag": "0003_nappy_bastion",
+      "breakpoints": true
     }
   ]
 }
