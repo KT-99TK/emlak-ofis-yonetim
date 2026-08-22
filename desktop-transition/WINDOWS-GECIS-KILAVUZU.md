@@ -83,3 +83,13 @@ Bu fallback’in kullanılabilmesi için yalnızca Windows Node.js LTS kurulumu 
 Eski Windows paketinde Electron `file://` üzerinden açılan HTML’in `/assets/...` biçimindeki mutlak JavaScript ve CSS yollarını çözememesi boş veya menüsüz bir pencereye yol açabilir. Güncel kaynakta Vite üretim tabanı `./` olarak ayarlanmış, manifest ve favicon yolları da göreli hale getirilmiştir. Üretim HTML’i artık `./assets/...` yollarını kullanır ve geliştirme debug scriptini paketlenmiş uygulamaya eklemez.
 
 Bu düzeltmeden sonra eski `.exe` dosyası otomatik olarak güncellenmez. Yeni checkpoint’ten indirilen proje ZIP’iyle `WINDOWS-KURULUM.bat` dosyasını tekrar çalıştırarak yeni bir `.exe` üretin. Önce eski sürümü kaldırmanız gerekmez; yeni kurulum sırasında aynı kurulum konumunu seçebilirsiniz. Yeni kurulumdan sonra uygulama açıldığında Global 1881 menüsü, dashboard ve Offline çalışma alanı görünmelidir.
+
+### PowerShell `npx.ps1` engellemesi
+
+PowerShell, bazı Windows güvenlik ayarlarında `npx.ps1 cannot be loaded because running scripts is disabled` mesajıyla `npx` komutunu engelleyebilir. Güncel kurulum scripti bu sorunu aşmak için `npx.cmd` kullanır; bu nedenle Execution Policy’yi gevşetmek veya `Set-ExecutionPolicy` çalıştırmak gerekmez. Manuel test yapılacaksa da `npx` yerine `npx.cmd` yazılmalıdır.
+
+## Electron offline uygulamasında sign-in ekranı
+
+Windows Electron uygulaması merkezi web dashboard’undan ayrı çalışır. Güncel sürüm açılışta Manus hesabı istemeden doğrudan yerel Offline çalışma alanını gösterir; kullanıcı cihaz kimliği ve kendi offline kullanıcı kodunu burada tanımlar. `Yedekleri birleştir` sekmesi aynı Electron kabuğunda manager işlemleri için kullanılır.
+
+Chrome veya merkezi web kısayolunda görülen **Sign in to continue** ekranı normaldir; merkezi kayıtlar ve server dashboard’u authentication gerektirir. Eski `.exe` dosyası sign-in ekranında kalabilir. Bu nedenle düzeltmeden sonra güncel checkpoint ZIP’inden yeni `.exe` üretilmelidir.

@@ -33,7 +33,7 @@ function createWindow() {
   });
   Menu.setApplicationMenu(null);
   const indexPath = path.join(__dirname, "..", "dist", "public", "index.html");
-  writeStartupLog(`Electron başlatıldı; packaged=${app.isPackaged}; indexPath=${indexPath}; exists=${fs.existsSync(indexPath)}`);
+  writeStartupLog(`Electron başlatıldı; packaged=${app.isPackaged}; indexPath=${indexPath}; exists=${fs.existsSync(indexPath)}; initialRoute=#/offline`);
   window.webContents.on("did-finish-load", () => {
     writeStartupLog(`Arayüz yüklendi; url=${window.webContents.getURL()}`);
   });
@@ -42,7 +42,7 @@ function createWindow() {
     const diagnostic = `<h2>Global 1881 arayüzü yüklenemedi</h2><p>Kurulum paketi eksik veya bozuk olabilir.</p><p>Hata: ${errorDescription} (${errorCode})</p><p>Startup log: ${path.join(app.getPath("userData"), "startup.log")}</p>`;
     void window.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(diagnostic)}`);
   });
-  window.loadFile(indexPath);
+  void window.loadFile(indexPath, { hash: "/offline" });
 }
 
 app.whenReady().then(() => {

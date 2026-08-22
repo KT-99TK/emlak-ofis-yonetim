@@ -37,7 +37,7 @@ if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
 
 function Invoke-Pnpm([string[]]$Arguments) {
   if ($useNpxPnpm) {
-    & npx --yes pnpm@10.4.1 @Arguments
+    & npx.cmd --yes pnpm@10.4.1 @Arguments
   } else {
     & pnpm @Arguments
   }

@@ -220,3 +220,30 @@
 
 - [ ] Windows’ta üretilen güncel `.exe`/kurulu uygulamayı açıp arayüzün gerçekten yüklendiğini ekran görüntüsü veya kullanıcı doğrulama notuyla kaydet
 - [x] Paketlenmiş Electron açılışında kullanılan dosya yolunu ve arayüz yükleme başarısını görünürleştiren startup log/diagnostic mesajı ekle veya mevcut log kanıtını kaydet
+
+## Tekrarlayan Windows boş pencere incelemesi
+
+- [ ] Kullanıcıdan startup.log veya paketlenmiş uygulama ekran kanıtını alıp gerçek Windows runtime sonucunu teşhis et
+- [ ] Gerekirse Electron paket yolunu/asset yükleme stratejisini yeniden düzelt ve temiz kurulum prosedürünü belgeleyerek doğrula
+
+## PowerShell npx.cmd uyumluluğu
+
+- [x] pnpm fallback çağrısını PowerShell Execution Policy’den etkilenmeyen `npx.cmd` biçimine geçir
+- [x] npx.ps1 engelleme senaryosunu Windows kılavuzunda açıkla ve yeni scripti doğrula
+
+## Windows gerçek paketleme kanıtı
+
+- [ ] Güncellenmiş `WINDOWS-KURULUM.bat`/`WINDOWS-KURULUM.ps1` akışını gerçek Windows PowerShell ortamında çalıştırıp npx.cmd fallback ile `.exe` üretimini kullanıcı kanıtı veya log ile doğrula
+- [ ] npx.ps1 çözümünden sonra oluşan gerçek başarılı paketleme çıktısını `release/*.exe` veya kullanıcı teyidiyle kaydet
+
+## Electron offline sign-in düzeltmesi
+
+- [x] Electron ortamında merkezi Manus auth yönlendirmesini bypass et; offline ekranını kimlik doğrulamasız aç
+- [x] Electron açılış rotasını doğrudan `/offline` yap ve merkezi web auth akışını koru
+- [x] Windows paketinde offline açılış ve web uygulamasında sign-in davranışını ayrı ayrı doğrula
+
+## Electron auth bypass gerçek kanıtı
+
+- [ ] Güncel checkpointten üretilen Windows `.exe` uygulamasını açıp doğrudan offline çalışma alanını gösterdiğini kullanıcı teyidi veya ekran görüntüsüyle kaydet
+- [ ] Paketlenmiş Electron `startup.log` içeriğini alıp auth bypass sonrası başlangıç ekranı yüklemesini doğrula
+- [ ] Gerekirse Electron başlangıcında boş hash/path durumunda `#/offline` değerini açıkça yazıp rota kanıtını netleştir
