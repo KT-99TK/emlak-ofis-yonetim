@@ -1,0 +1,18 @@
+appId: com.global1881.ofis
+productName: 1881 Ofis Yönetim
+asar: true
+files:
+  - dist/public/**/*
+  - desktop/**/*
+directories:
+  output: release
+win:
+  target:
+    - nsis
+  artifactName: "1881-Ofis-Yonetim-${version}.${ext}"
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

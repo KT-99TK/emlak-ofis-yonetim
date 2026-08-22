@@ -95,6 +95,44 @@ export const ledgerEntries = mysqlTable("ledgerEntries", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const rentalObligations = mysqlTable("rentalObligations", {
+  id: int("id").autoincrement().primaryKey(),
+  contractId: int("contractId"),
+  propertyId: int("propertyId"),
+  clientId: int("clientId"),
+  assignedUserId: int("assignedUserId"),
+  obligationType: mysqlEnum("obligationType", ["rent", "tax", "insurance", "other"]).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  periodStart: timestamp("periodStart").notNull(),
+  periodEnd: timestamp("periodEnd").notNull(),
+  dueDate: timestamp("dueDate").notNull(),
+  amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
+  paidAmount: decimal("paidAmount", { precision: 14, scale: 2 }).default("0").notNull(),
+  status: mysqlEnum("status", ["planned", "due", "paid", "overdue", "cancelled"]).default("planned").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const reminderPreferences = mysqlTable("reminderPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  enabled: int("enabled").default(1).notNull(),
+  leadDays: varchar("leadDays", { length: 80 }).default("30,14,7,3,1").notNull(),
+  inAppEnabled: int("inAppEnabled").default(1).notNull(),
+  emailEnabled: int("emailEnabled").default(0).notNull(),
+});
+
+export const backupManifests = mysqlTable("backupManifests", {
+  id: int("id").autoincrement().primaryKey(),
+  createdByUserId: int("createdByUserId").notNull(),
+  storageKey: varchar("storageKey", { length: 255 }).notNull(),
+  checksum: varchar("checksum", { length: 128 }).notNull(),
+  schemaVersion: varchar("schemaVersion", { length: 30 }).notNull(),
+  recordCount: int("recordCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const auditLogs = mysqlTable("auditLogs", {
   id: int("id").autoincrement().primaryKey(),
   actorUserId: int("actorUserId").notNull(),
@@ -109,3 +147,4 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Contract = typeof contracts.$inferSelect;
 export type LedgerEntry = typeof ledgerEntries.$inferSelect;
+export type RentalObligation = typeof rentalObligations.$inferSelect;

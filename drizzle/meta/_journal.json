@@ -15,6 +15,13 @@
       "when": 1787393793685,
       "tag": "0001_married_vivisector",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787394696395,
+      "tag": "0002_mighty_aaron_stack",
+      "breakpoints": true
     }
   ]
 }

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { Banknote, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
+import { Banknote, CalendarClock, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -33,6 +33,7 @@ const menuItems = [
   { icon: UserRound, label: "Müşteriler", path: "/clients" },
   { icon: FolderKanban, label: "Portföy", path: "/properties" },
   { icon: Banknote, label: "Ön Muhasebe", path: "/accounting" },
+  { icon: CalendarClock, label: "Kira & Vergi Vadeleri", path: "/obligations" },
   { icon: Users, label: "Ekip Yönetimi", path: "/team" },
   { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit" },
 ];

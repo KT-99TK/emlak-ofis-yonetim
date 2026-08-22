@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, auditLogs, clients, contracts, ledgerEntries, properties, teams, userProfiles, users } from "../drizzle/schema";
+import { InsertUser, auditLogs, clients, contracts, ledgerEntries, properties, rentalObligations, teams, userProfiles, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -50,6 +50,8 @@ export async function listClients(userId: number, isManager: boolean) { const db
 export async function listProperties(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(properties).where(isManager ? undefined : eq(properties.assignedUserId, userId)).orderBy(desc(properties.createdAt)); }
 export async function listLedger(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(ledgerEntries).where(isManager ? undefined : eq(ledgerEntries.assignedUserId, userId)).orderBy(desc(ledgerEntries.createdAt)); }
 export async function listAudit(isManager: boolean) { const db = await getDb(); if (!db || !isManager) return []; return db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(100); }
+export async function listObligations(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(rentalObligations).where(isManager ? undefined : eq(rentalObligations.assignedUserId, userId)).orderBy(rentalObligations.dueDate); }
+export async function createObligation(input: { title: string; obligationType: "rent" | "tax" | "insurance" | "other"; dueDate: Date; periodStart: Date; periodEnd: Date; amount: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(rentalObligations).values(input); return Number(result[0].insertId); }
 export async function createClient(input: { name: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(clients).values({ name: input.name, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
 export async function createProperty(input: { referenceNo: string; title: string; address: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(properties).values({ referenceNo: input.referenceNo, title: input.title, address: input.address, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
 export async function createLedger(input: { description: string; amount: string; entryType: "income" | "expense" | "receivable" | "payable"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(ledgerEntries).values({ description: input.description, amount: input.amount, entryType: input.entryType, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }

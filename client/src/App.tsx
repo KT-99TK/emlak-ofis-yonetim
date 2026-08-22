@@ -10,6 +10,8 @@ import Contracts from "./pages/Contracts";
 import Records from "./pages/Records";
 import Audit from "./pages/Audit";
 import Team from "./pages/Team";
+import OfflineWorkspace from "./pages/OfflineWorkspace";
+import BackupMerge from "./pages/BackupMerge";
 
 function Router() {
   return (
@@ -22,6 +24,8 @@ function Router() {
         <Route path="/accounting" component={Records} />
         <Route path="/team" component={Team} />
         <Route path="/audit" component={Audit} />
+        <Route path="/offline" component={OfflineWorkspace} />
+        <Route path="/offline-merge" component={BackupMerge} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

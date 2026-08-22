@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createClient, createContract, createLedger, createProperty, getDashboardSummary, listAudit, listClients, listContracts, listLedger, listProperties, listTeamMembers, transitionContract } from "./db";
+import { createClient, createContract, createLedger, createObligation, createProperty, getDashboardSummary, listAudit, listClients, listContracts, listLedger, listObligations, listProperties, listTeamMembers, transitionContract } from "./db";
 import { z } from "zod";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
@@ -28,6 +28,10 @@ export const appRouter = router({
   properties: router({
     list: protectedProcedure.query(({ ctx }) => listProperties(ctx.user.id, isManager(ctx.user))),
     create: protectedProcedure.input(z.object({ referenceNo: z.string().min(2), title: z.string().min(2), address: z.string().min(2) })).mutation(({ ctx, input }) => createProperty({ ...input, assignedUserId: ctx.user.id })),
+  }),
+  obligations: router({
+    list: protectedProcedure.query(({ ctx }) => listObligations(ctx.user.id, isManager(ctx.user))),
+    create: protectedProcedure.input(z.object({ title: z.string().min(2), obligationType: z.enum(["rent", "tax", "insurance", "other"]), dueDate: z.coerce.date(), periodStart: z.coerce.date(), periodEnd: z.coerce.date(), amount: z.string().min(1) })).mutation(({ ctx, input }) => createObligation({ ...input, assignedUserId: ctx.user.id })),
   }),
   ledger: router({
     list: protectedProcedure.query(({ ctx }) => listLedger(ctx.user.id, isManager(ctx.user))),
