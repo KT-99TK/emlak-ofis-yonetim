@@ -26,32 +26,32 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
   Stop-WithMessage "Node.js bulunamadı. Önce Windows için Node.js LTS kurun, sonra bu scripti yeniden çalıştırın."
 }
 
-$pnpmCommand = Get-Command pnpm -ErrorAction SilentlyContinue
-if (-not $pnpmCommand) {
-  Write-Host "pnpm bulunamadı; Node.js Corepack etkinleştiriliyor..." -ForegroundColor Yellow
-  try {
-    corepack enable
-    corepack prepare pnpm@10.4.1 --activate
-  } catch {
-    Stop-WithMessage "pnpm hazırlanamadı. PowerShell'i yönetici olarak açıp corepack enable komutunu çalıştırın veya pnpm'i kurun."
+$useNpxPnpm = $false
+if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+  if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
+    Stop-WithMessage "pnpm ve npx bulunamadı. Node.js LTS kurulumunu tamamlayıp scripti yeniden çalıştırın."
   }
+  $useNpxPnpm = $true
+  Write-Host "pnpm sistemde bulunamadı; yönetici izni gerektirmeyen npx pnpm fallback kullanılacak." -ForegroundColor Yellow
 }
 
-if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-  Stop-WithMessage "pnpm komutu hâlâ bulunamıyor. PowerShell'i kapatıp yeniden açın ve scripti tekrar çalıştırın."
+function Invoke-Pnpm([string[]]$Arguments) {
+  if ($useNpxPnpm) {
+    & npx --yes pnpm@10.4.1 @Arguments
+  } else {
+    & pnpm @Arguments
+  }
+  if ($LASTEXITCODE -ne 0) { throw "pnpm komutu başarısız oldu: $($Arguments -join ' ')" }
 }
 
 Write-Host "Bağımlılıklar kuruluyor..." -ForegroundColor Cyan
-pnpm install
-if ($LASTEXITCODE -ne 0) { Stop-WithMessage "Bağımlılık kurulumu başarısız oldu." }
+try { Invoke-Pnpm @("install") } catch { Stop-WithMessage "Bağımlılık kurulumu başarısız oldu. $($_.Exception.Message)" }
 
 Write-Host "TypeScript kontrolü çalışıyor..." -ForegroundColor Cyan
-pnpm check
-if ($LASTEXITCODE -ne 0) { Stop-WithMessage "TypeScript kontrolü başarısız oldu; kurulum paketi üretilmedi." }
+try { Invoke-Pnpm @("check") } catch { Stop-WithMessage "TypeScript kontrolü başarısız oldu; kurulum paketi üretilmedi. $($_.Exception.Message)" }
 
 Write-Host "Windows kurulum paketi üretiliyor..." -ForegroundColor Cyan
-pnpm desktop:installer
-if ($LASTEXITCODE -ne 0) { Stop-WithMessage "Electron Windows kurulum paketi üretilemedi." }
+try { Invoke-Pnpm @("desktop:installer") } catch { Stop-WithMessage "Electron Windows kurulum paketi üretilemedi. $($_.Exception.Message)" }
 
 $releaseDir = Join-Path $projectRoot "release"
 $installer = Get-ChildItem -Path $releaseDir -Filter "*.exe" -File -ErrorAction SilentlyContinue | Select-Object -First 1

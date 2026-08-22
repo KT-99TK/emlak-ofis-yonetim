@@ -96,8 +96,8 @@
 
 ## Manifest UI doğrulaması
 
-- [ ] Manifest önizlemesinde userId görünümünü son değişiklikten sonra screenshot veya UI testi ile doğrula ve kaydet
-- [ ] Tekil/çoklu yedek önizleme ekranları için userId, deviceId ve doğrulama durumunu kapsayan UI doğrulama testi ekle
+- [x] Manifest önizlemesinde userId görünümünü son değişiklikten sonra screenshot veya UI testi ile doğrula ve kaydet
+- [x] Tekil/çoklu yedek önizleme ekranları için userId, deviceId ve doğrulama durumunu kapsayan UI doğrulama testi ekle
 
 ## Ana yedek ve geri alma akışı
 
@@ -177,7 +177,7 @@
 
 - [x] Tekil restore önizlemesine exportedAt tarihini ve checksum/imza doğrulama durumlarını ayrı alanlar olarak göster
 - [x] Offline-merge ekranında ana yedek ve rollback kontrol sonuçlarını görünür doğrulama mesajlarıyla kanıtla
-- [ ] Tekil restore ve manager merge manifest alanları için UI doğrulama testi ekle
+- [x] Tekil restore ve manager merge manifest alanları için UI doğrulama testi ekle
 
 ## Rapor kırılımları ve rollback sonucu
 
@@ -199,3 +199,14 @@
 
 - [x] ZIP içinden çalıştırılabilen Windows paketleme scripti ekle; proje klasörünü doğrula, pnpm/dependency hazırlığını yap, check çalıştır ve `.exe` üret
 - [x] Script hata durumlarını Türkçe açıklamalarla yönlendir ve kullanıcı kılavuzuna bağla
+
+## Manifest UI kanıtı düzeltmeleri
+
+- [ ] OfflineWorkspace tekil restore manifest önizlemesini örnek doğrulanmış manifest verisiyle render eden ve userId/deviceId/exportedAt/checksum/ECDSA alanlarını assert eden component/UI testi ekle
+- [ ] BackupMerge manifest satırlarını örnek çoklu manifest verisiyle render eden ve userId/deviceId/checksum/signature durumlarını DOM üzerinden doğrulayan component/UI testi ekle
+- [ ] Tekil restore manifestinde userId görünümünü gerçek dolu önizleme durumuyla screenshot veya Electron içi görsel kanıt olarak kaydet
+
+## Windows script EPERM düzeltmesi
+
+- [x] Corepack Program Files izin hatasında npx pnpm fallback kullan; scripti normal kullanıcı yetkisiyle çalışabilir hale getir
+- [x] EPERM hata açıklamasını ve güncel script kullanımını Windows kılavuzuna ekle

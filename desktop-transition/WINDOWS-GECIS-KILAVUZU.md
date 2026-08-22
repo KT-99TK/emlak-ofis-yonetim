@@ -71,3 +71,9 @@ ZIP dosyası çıkarıldıktan sonra proje klasörünün içinde `WINDOWS-KURULU
 İşlem başarılı olursa proje klasöründe `release` klasörü oluşur ve içindeki `.exe` dosyası çalışanlara dağıtılabilir. Script hata verirse kırmızı hata mesajını okuyun; Node.js eksikliği, pnpm hazırlanamaması veya proje dosyalarının eksik çıkarılması en yaygın nedenlerdir. Hata metni teknik sorumluya gönderilmelidir. Script yönetici yetkisi gerektirmeden çalışacak şekilde tasarlanmıştır; ancak Node.js veya Corepack kurulumu Windows tarafından engellenirse PowerShell’in yönetici olarak açılması gerekebilir.
 
 Bu otomasyon yalnızca kurulum paketi üretir. Çalışanlar için dağıtılacak dosya yine yalnızca `release` klasöründeki `.exe` dosyasıdır; Manus kaynak klasörü, `.env`, `node_modules` ve proje kaynak kodu paylaşılmamalıdır.
+
+### Corepack EPERM hatası için güncel davranış
+
+Bazı Windows kurulumlarında `pnpm` sistemde bulunmadığında Corepack, `C:\Program Files\nodejs` içine dosya yazmaya çalışarak `EPERM: operation not permitted` hatası verebilir. Güncel `WINDOWS-KURULUM.ps1` artık Corepack’i zorunlu tutmaz; `pnpm` bulunamazsa Node.js ile gelen `npx` üzerinden `pnpm@10.4.1` sürümünü geçici olarak çalıştırır. Bu nedenle script normal kullanıcı yetkisiyle çalışabilir.
+
+Bu fallback’in kullanılabilmesi için yalnızca Windows Node.js LTS kurulumu ve internet bağlantısı gerekir. `npx` de bulunamıyorsa Node.js LTS kurulumu eksiktir. Script yine çalışmazsa PowerShell’i kapatıp yeniden açın ve `WINDOWS-KURULUM.bat` dosyasını tekrar çalıştırın. İsteğe bağlı olarak `pnpm` bir kez yönetici PowerShell ile kurulabilir; ancak bu artık zorunlu değildir.
