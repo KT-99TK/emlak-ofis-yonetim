@@ -68,6 +68,12 @@ Kurulum sırasında çalışan, `.exe` dosyasını açar; kurulum konumunu seçe
 
 Linux geliştirme sandboxında Windows NSIS dosyası üretimi Wine gerektirebilir. Bu nedenle en güvenilir yöntem, aynı proje sürümünü Windows 10/11 üzerinde açıp `pnpm install` ve `pnpm desktop:installer` komutlarını çalıştırmaktır. Alternatif olarak `pnpm desktop:build` ile `release/win-unpacked` klasörü oluşturulabilir; bu klasör kurulum dosyası yerine taşınabilir uygulama klasörü olarak kullanılabilir, ancak çalışanlara dağıtım için NSIS `.exe` dosyası tercih edilir.
 
+## ZIP ve proje klasörü doğrulaması
+
+Windows paketleme işlemi eski proje klasörünün içinden çalıştırılmamalıdır. Özellikle `D:\Manus-test` gibi önceki denemelerde kullanılan klasörler 1.0.0 veya 1.0.1 dosyalarını içerebilir. Güncel checkpoint ZIP’ini yeniden indirin, ZIP dosyasına sağ tıklayıp Özellikler bölümünden indirme işleminin tamamlandığını kontrol edin ve içeriği yeni, boş bir klasöre çıkarın; örneğin `D:\Global1881-1.0.2-final`. Eski klasörün üzerine çıkarmayın ve eski klasördeki `WINDOWS-KURULUM.bat` dosyasını çalıştırmayın.
+
+Yeni klasörde `package.json` dosyasını Not Defteri ile açıp şu satırı doğrulayın: `"version": "1.0.2"`. Sürüm 1.0.0 veya 1.0.1 görünüyorsa paketleme scripti bilinçli olarak durur; bu hata, yanlış kaynak klasörünün kullanıldığını gösterir. Doğru klasörde script sonunda üretilecek dosya adı tam olarak `Global1881-Ofis-Offline-v1.0.2-FINAL.exe` olmalıdır.
+
 ## Tek tıklamayla kurulum paketi üretme
 
 ZIP dosyası çıkarıldıktan sonra proje klasörünün içinde `WINDOWS-KURULUM.bat` ve `WINDOWS-KURULUM.ps1` dosyaları bulunur. Windows kullanıcısı `WINDOWS-KURULUM.bat` dosyasına çift tıklayarak işlemi başlatabilir. Script, ZIP içindeki `package.json` dosyasını arar, doğru proje klasörüne geçer, Node.js ve pnpm durumunu kontrol eder, bağımlılıkları kurar, TypeScript kontrolünü çalıştırır ve `pnpm desktop:installer` komutuyla Windows kurulum paketini üretir.

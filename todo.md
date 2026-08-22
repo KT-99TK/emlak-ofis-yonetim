@@ -277,3 +277,7 @@
 ## Installer dosya adı ayrıştırması
 
 - [x] Windows installer çıktısını `Global1881-Ofis-Offline-v1.0.2-FINAL.exe` adıyla üret ve kılavuzdaki eski installer adlarını güncelle
+
+## Yanlış kaynak klasörüyle paketleme
+
+- [x] Windows kılavuzuna ZIP’i temiz ve yeni klasöre çıkarma, `package.json` sürümünü 1.0.2 ile kontrol etme ve eski D:\Manus-test klasörünü kullanmama adımlarını ekle
