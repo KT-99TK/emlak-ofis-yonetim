@@ -224,7 +224,7 @@
 ## Tekrarlayan Windows boş pencere incelemesi
 
 - [ ] Kullanıcıdan startup.log veya paketlenmiş uygulama ekran kanıtını alıp gerçek Windows runtime sonucunu teşhis et
-- [ ] Gerekirse Electron paket yolunu/asset yükleme stratejisini yeniden düzelt ve temiz kurulum prosedürünü belgeleyerek doğrula
+- [x] Gerekirse Electron paket yolunu/asset yükleme stratejisini yeniden düzelt ve temiz kurulum prosedürünü belgeleyerek doğrula
 
 ## PowerShell npx.cmd uyumluluğu
 
@@ -246,4 +246,10 @@
 
 - [ ] Güncel checkpointten üretilen Windows `.exe` uygulamasını açıp doğrudan offline çalışma alanını gösterdiğini kullanıcı teyidi veya ekran görüntüsüyle kaydet
 - [ ] Paketlenmiş Electron `startup.log` içeriğini alıp auth bypass sonrası başlangıç ekranı yüklemesini doğrula
-- [ ] Gerekirse Electron başlangıcında boş hash/path durumunda `#/offline` değerini açıkça yazıp rota kanıtını netleştir
+- [x] Gerekirse Electron başlangıcında boş hash/path durumunda `#/offline` değerini açıkça yazıp rota kanıtını netleştir
+
+## Eski Electron paketiyle karışmayı önleme
+
+- [x] Windows paket sürümünü 1.0.1’e çıkar ve açılış tanı kaydında sürüm/initialRoute bilgisini görünür tut
+- [x] Kurulum kılavuzuna eski uygulamayı kaldırma, yeni sürüm klasörünü doğrulama ve temiz kurulum adımlarını ekle
+- [ ] Windows gerçek doğrulaması için 1.0.1 `.exe` ve `startup.log` kullanıcı teyidini kaydet

@@ -93,3 +93,9 @@ PowerShell, bazı Windows güvenlik ayarlarında `npx.ps1 cannot be loaded becau
 Windows Electron uygulaması merkezi web dashboard’undan ayrı çalışır. Güncel sürüm açılışta Manus hesabı istemeden doğrudan yerel Offline çalışma alanını gösterir; kullanıcı cihaz kimliği ve kendi offline kullanıcı kodunu burada tanımlar. `Yedekleri birleştir` sekmesi aynı Electron kabuğunda manager işlemleri için kullanılır.
 
 Chrome veya merkezi web kısayolunda görülen **Sign in to continue** ekranı normaldir; merkezi kayıtlar ve server dashboard’u authentication gerektirir. Eski `.exe` dosyası sign-in ekranında kalabilir. Bu nedenle düzeltmeden sonra güncel checkpoint ZIP’inden yeni `.exe` üretilmelidir.
+
+## 1.0.1 temiz kurulum kontrolü
+
+Güncel Windows paketi `1881-Ofis-Yonetim-1.0.1.exe` adıyla üretilir. Eski `1.0.0` uygulaması kuruluysa Windows Başlat menüsünde veya Ayarlar → Uygulamalar bölümünde görünen eski **1881 Ofis Yönetim** kaydını kaldırın; ardından yalnızca `release` klasöründeki `1.0.1` dosyasını çalıştırın. Yeni uygulamanın ilk açılışında `startup.log` içinde `version=1.0.1`, `initialRoute=#/offline` ve `Arayüz yüklendi` satırları bulunmalıdır.
+
+Kurulum scripti artık PowerShell’in `.ps1` komut engellerinden etkilenmemek için sistemde varsa `pnpm.cmd`, yoksa `npx.cmd --yes pnpm@10.4.1` kullanır. Execution Policy değiştirmek veya yönetici olarak PowerShell açmak gerekli değildir.

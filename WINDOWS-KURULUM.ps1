@@ -27,19 +27,22 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
 }
 
 $useNpxPnpm = $false
-if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-  if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
-    Stop-WithMessage "pnpm ve npx bulunamadı. Node.js LTS kurulumunu tamamlayıp scripti yeniden çalıştırın."
+$pnpmCommand = Get-Command pnpm.cmd -ErrorAction SilentlyContinue
+if (-not $pnpmCommand) {
+  if (-not (Get-Command npx.cmd -ErrorAction SilentlyContinue)) {
+    Stop-WithMessage "pnpm ve npx.cmd bulunamadı. Node.js LTS kurulumunu tamamlayıp scripti yeniden çalıştırın."
   }
   $useNpxPnpm = $true
-  Write-Host "pnpm sistemde bulunamadı; yönetici izni gerektirmeyen npx pnpm fallback kullanılacak." -ForegroundColor Yellow
+  Write-Host "pnpm.cmd sistemde bulunamadı; yönetici izni gerektirmeyen npx.cmd pnpm fallback kullanılacak." -ForegroundColor Yellow
+} else {
+  Write-Host "pnpm.cmd bulundu; PowerShell script politikalarından etkilenmeyen komut kullanılacak." -ForegroundColor DarkGreen
 }
 
 function Invoke-Pnpm([string[]]$Arguments) {
   if ($useNpxPnpm) {
     & npx.cmd --yes pnpm@10.4.1 @Arguments
   } else {
-    & pnpm @Arguments
+    & pnpm.cmd @Arguments
   }
   if ($LASTEXITCODE -ne 0) { throw "pnpm komutu başarısız oldu: $($Arguments -join ' ')" }
 }
@@ -54,9 +57,11 @@ Write-Host "Windows kurulum paketi üretiliyor..." -ForegroundColor Cyan
 try { Invoke-Pnpm @("desktop:installer") } catch { Stop-WithMessage "Electron Windows kurulum paketi üretilemedi. $($_.Exception.Message)" }
 
 $releaseDir = Join-Path $projectRoot "release"
-$installer = Get-ChildItem -Path $releaseDir -Filter "*.exe" -File -ErrorAction SilentlyContinue | Select-Object -First 1
+$installer = Get-ChildItem -Path $releaseDir -Filter "1881-Ofis-Yonetim-*.exe" -File -ErrorAction SilentlyContinue |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1
 if (-not $installer) {
-  Stop-WithMessage "Build tamamlandı ancak release klasöründe .exe bulunamadı. Komut çıktısını kontrol edin."
+  Stop-WithMessage "Build tamamlandı ancak release klasöründe 1881-Ofis-Yonetim-*.exe bulunamadı. Komut çıktısını kontrol edin."
 }
 
 Write-Host "`nBAŞARILI" -ForegroundColor Green
