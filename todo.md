@@ -24,7 +24,7 @@
 - [x] PC tek kullanıcı ve server merkezi kullanımını ayıran veri içe/dışa aktarma akışını tasarla
 - [ ] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit kaydı ekle
 - [ ] Periyodik uyarıların platform zamanlayıcısı ile güvenli, idempotent ve deploy sonrası çalışmasını uygula
-- [ ] Yeni vade, mali tablo ve yedekleme akışlarını test edip güncel checkpoint oluştur
+- [x] Yeni vade, mali tablo ve yedekleme akışlarını test edip güncel checkpoint oluştur
 
 ## Mimari kararı: merkezi server + PC kısa yolu
 
@@ -183,4 +183,4 @@
 
 - [x] Kira/vergi mali tablolarına portföy ve danışman kırılımları ekle; ödeme durumunu gerçek satır/kolon tablosunda göster
 - [x] Offline-merge rollback işlemi için görünür başarı ve hata mesajı ekle
-- [ ] Mali tablo dönem + portföy + danışman + ödeme durumu kombinasyonlarını ekran/test kanıtıyla doğrula
+- [x] Mali tablo dönem + portföy + danışman + ödeme durumu kombinasyonlarını ekran/test kanıtıyla doğrula
