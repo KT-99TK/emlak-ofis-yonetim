@@ -1,10 +1,15 @@
 export type OfflineRecord = {
   id: string;
-  entity: "client" | "property" | "contract" | "obligation";
+  entity: "client" | "property" | "contract" | "obligation" | "evacuation" | "ownerApproval" | "ledger";
   title: string;
   details: string;
   amount?: string;
   dueDate?: string;
+  noticeDate?: string;
+  noticeDays?: number;
+  approvalDecision?: "pending" | "approved" | "rejected";
+  approvalNote?: string;
+  ledgerType?: "income" | "expense" | "receivable" | "payable" | "collection" | "payment";
   status: string;
   deviceId: string;
   updatedAt: string;
@@ -22,6 +27,7 @@ const APP_VERSION = "offline-transition-v1";
 
 export function getUserId() { return window.localStorage.getItem(USER_KEY) ?? ""; }
 export function setUserId(userId: string) { window.localStorage.setItem(USER_KEY, userId.trim()); }
+export function requireUserId() { const userId = getUserId(); if (!userId) throw new Error("Önce manager offline kullanıcı kimliğini ayarlayın"); return userId; }
 
 function toBase64(bytes: ArrayBuffer) { return btoa(Array.from(new Uint8Array(bytes)).map((byte) => String.fromCharCode(byte)).join("")); }
 function fromBase64(value: string) { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
@@ -77,7 +83,7 @@ export async function listOfflineRecords(): Promise<OfflineRecord[]> {
 export async function saveOfflineRecord(input: Omit<OfflineRecord, "id" | "deviceId" | "updatedAt" | "userId" | "recordVersion">) {
   const db = await openDb();
   const randomId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const record: OfflineRecord = { ...input, id: `${getDeviceId()}-${randomId}`, deviceId: getDeviceId(), userId: getUserId(), recordVersion: 1, updatedAt: new Date().toISOString() };
+  const record: OfflineRecord = { ...input, id: `${getDeviceId()}-${randomId}`, deviceId: getDeviceId(), userId: getUserId(), recordVersion: 1, lastSyncAt: undefined, updatedAt: new Date().toISOString() };
   return new Promise<OfflineRecord>((resolve, reject) => {
     const request = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).put(record);
     request.onsuccess = () => resolve(record);
@@ -130,11 +136,31 @@ export async function mergeOfflineBackups(files: File[]): Promise<BackupMergeRes
   return { imported, conflicts, invalid, manifests, pendingRecords };
 }
 
+const ROLLBACK_KEY = "global1881-last-merge-rollback";
+
+export async function createRollbackSnapshot() {
+  const records = await listOfflineRecords();
+  window.localStorage.setItem(ROLLBACK_KEY, JSON.stringify({ createdAt: new Date().toISOString(), records }));
+}
+
+export async function restoreRollbackSnapshot() {
+  const raw = window.localStorage.getItem(ROLLBACK_KEY);
+  if (!raw) throw new Error("Geri alma noktası bulunamadı");
+  const snapshot = JSON.parse(raw) as { records: OfflineRecord[] };
+  const db = await openDb(); const tx = db.transaction(STORE_NAME, "readwrite"); const store = tx.objectStore(STORE_NAME); store.clear(); snapshot.records.forEach((record) => store.put(record));
+  await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
+}
+
 export async function applyOfflineRecords(records: OfflineRecord[]) {
   if (!records.length) return;
   const db = await openDb(); const tx = db.transaction(STORE_NAME, "readwrite");
   records.forEach((record) => tx.objectStore(STORE_NAME).put(record));
   await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
+}
+
+export async function downloadCurrentBackup(filename: string) {
+  const blob = await exportOfflineBackup();
+  const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = filename; anchor.click(); URL.revokeObjectURL(url);
 }
 
 export async function importOfflineBackup(file: File) {

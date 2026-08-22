@@ -174,9 +174,7 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    1881 Ofis
-                  </span>
+                  <img src="/manus-storage/01_logo_yatay_6b31c4b8.webp" alt="Global 1881 Gayrimenkul" className="h-9 w-auto max-w-[190px] object-contain object-left" />
                 </div>
               ) : null}
             </div>

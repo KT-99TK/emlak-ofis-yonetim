@@ -45,32 +45,32 @@
 
 ## Yeni kapsam: bağımsız geçiş sürümü
 
-- [ ] Her laptopta bağımsız çalışacak yerel veri katmanını ve kurulum modelini belirle
+- [x] Her laptopta bağımsız çalışacak yerel veri katmanını ve kurulum modelini belirle
 - [x] Her kullanıcı için imzalı/tarihçeli yedek dışa aktarma dosyası üret
 - [x] Manager laptopunda üç yedeği doğrulayıp çakışmaları gösteren birleştirme ekranı oluştur
-- [ ] Birleştirme sonrası yeni ana yedek üret ve geri alma noktası sakla
-- [ ] Bağımsız geçiş verisini gelecekte merkezi server veritabanına aktarılabilir formatta tut
-- [ ] Üç laptoplu deneme prosedürünü ve veri kaybını önleme kılavuzunu hazırla
+- [x] Birleştirme sonrası yeni ana yedek üret ve geri alma noktası sakla
+- [x] Bağımsız geçiş verisini gelecekte merkezi server veritabanına aktarılabilir formatta tut
+- [x] Üç laptoplu deneme prosedürünü ve veri kaybını önleme kılavuzunu hazırla
 
 ## Kesinleşen ortam: Windows 10/11 offline
 
 - [x] Windows 10/11 için bağımsız offline masaüstü paketleme yaklaşımını seç ve proje kararını belgeleyerek kaydet
 - [ ] Her laptop için cihaz kimliği, kullanıcı kimliği, kayıt sürümü ve son senkronizasyon bilgilerini ekle
 - [ ] Offline çalışma sırasında kira, vergi, tahliye, onay, sözleşme ve ön muhasebe kayıtlarının yerel veritabanına yazılmasını sağla
-- [ ] Manager laptopunda üç cihaz yedeğini çakışma kontrollü birleştirme akışına dönüştür
-- [ ] Kurulum, masaüstü kısayolu, haftalık yedek ve geri alma prosedürünü Windows kullanıcı kılavuzuna yaz
+- [x] Manager laptopunda üç cihaz yedeğini çakışma kontrollü birleştirme akışına dönüştür
+- [x] Kurulum, masaüstü kısayolu, haftalık yedek ve geri alma prosedürünü Windows kullanıcı kılavuzuna yaz
 
 ## Offline sürüm teknik tamamlamaları
 
 - [x] Yedek dosyalarına checksum/imza doğrulaması, backup manifesti ve geri yükleme doğrulama akışı ekle
-- [ ] Offline sürüm için gerçek Windows masaüstü paketleme teknolojisini seçip build/install scriptleri ve konfigürasyonu uygula
+- [x] Offline sürüm için gerçek Windows masaüstü paketleme teknolojisini seçip build/install scriptleri ve konfigürasyonu uygula
 - [ ] Offline veri modeline userId, recordVersion ve lastSyncAt alanlarını ekleyip UI ve backup akışına bağla
-- [ ] Tahliye, mülk sahibi onayı ve ön muhasebe için ayrı offline entity'ler ve gerçek form alanları ekle
+- [x] Tahliye, mülk sahibi onayı ve ön muhasebe için ayrı offline entity'ler ve gerçek form alanları ekle
 
 ## Mimari tutarlılık ve dağıtım düzeltmeleri
 
 - [x] Offline geçiş sürümü için tek yerel veri katmanı seç ve dokümantasyon ile kodu aynı mimaride hizala
-- [ ] Windows offline sürüm için desteklenen dağıtım formatını üret, doğrula ve kullanım adımlarını belgeye bağla
+- [x] Windows offline sürüm için desteklenen dağıtım formatını üret, doğrula ve kullanım adımlarını belgeye bağla
 - [x] Seçilen yerel veri katmanını manager birleştirme akışıyla uyumlu hale getirip üç laptop senaryosu için son kurulum modelini netleştir
 
 ## Yedek manifesti ve doğrulama görünürlüğü
@@ -98,3 +98,33 @@
 
 - [ ] Manifest önizlemesinde userId görünümünü son değişiklikten sonra screenshot veya UI testi ile doğrula ve kaydet
 - [ ] Tekil/çoklu yedek önizleme ekranları için userId, deviceId ve doğrulama durumunu kapsayan UI doğrulama testi ekle
+
+## Ana yedek ve geri alma akışı
+
+- [x] Manager birleştirme onayından sonra birleşik veriden yeni ana yedek dosyası üret ve indir/sakla
+- [x] Rollback snapshot’ını geri yükleyebilen gerçek geri alma UI/işlemini ekle ve doğrula
+- [ ] Birleştirme sonrası ana yedek ve rollback akışını ekran testi veya kullanım doğrulamasıyla kanıtla
+
+## Windows kısayol doğrulaması
+
+- [x] Windows geçiş kılavuzuna masaüstü kısayolu oluşturma ve kullanma adımlarını ekle
+- [x] Kılavuzdaki kurulum ve kısayol bölümünü dosya içeriği kontrolüyle doğrula
+
+## Offline güvenli işlem düzeltmeleri
+
+- [x] Offline formları entity bazlı ayır: tahliye ihbar tarihi/süresi, owner approval karar/durum/not, ledger işlem tipi/tutar/vade alanları
+- [x] Manager merge akışında manager userId zorunluluğu koy; ana yedek üretimi başarısızsa kayıt yazımını engelle veya rollback uygula
+- [x] Rollback sırasında mevcut yerel kayıtları snapshot ile tam eşitle; gerekirse store’u temizleyip snapshot’ı yeniden yaz
+- [ ] Bu üç güvenli işlem düzeltmesini UI veya birim testleriyle doğrula
+
+## Global 1881 marka varlıkları
+
+- [x] Paylaşılan yatay logoyu arayüz, Electron paket ve print-ready doküman başlıklarında kullan
+- [x] Paylaşılan şeffaf mühür görselini sözleşme çıktılarında opsiyonel marka/mühür alanı olarak kullan
+- [x] Logo ve mühür varlıklarını Windows offline paketinde ve yeniden üretilebilir asset akışında belgeleyip doğrula
+
+## Windows marka paketleme doğrulaması
+
+- [x] Electron/Windows paketinde logo kullanımını uygulama ikonu veya offline kabuk branding ayarıyla açıkça bağla
+- [x] Windows offline kılavuzuna logo/mühür asset yollarını, yeniden üretim komutunu ve paket kullanım yerlerini ekle
+- [x] Logo/mühür entegrasyonunu dosya-temelli doğrulama veya ekran kontrolüyle kanıtla

@@ -4,13 +4,15 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+app.setName("Global 1881 Gayrimenkul");
+
 function createWindow() {
   const window = new BrowserWindow({
     width: 1440,
     height: 920,
     minWidth: 1024,
     minHeight: 700,
-    title: "1881 Ofis Yönetim",
+    title: "Global 1881 Gayrimenkul — Offline Ofis Yönetimi",
     backgroundColor: "#f7f7f4",
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
