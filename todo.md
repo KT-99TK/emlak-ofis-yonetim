@@ -28,7 +28,7 @@
 
 ## Mimari kararı: merkezi server + PC kısa yolu
 
-- [ ] Merkezi serverı tek doğruluk kaynağı olarak belgeleyip istemci bağlantı ve kısa yol kullanım kılavuzunu hazırla
+- [x] Merkezi serverı tek doğruluk kaynağı olarak belgeleyip istemci bağlantı ve kısa yol kullanım kılavuzunu hazırla
 - [ ] PC üzerinde veri tutmayan güvenli web kısayolu/PWA kullanım modelini uygula
 - [ ] Server erişilemezse salt-okunur durum, bağlantı uyarısı ve yeniden bağlanma akışını tanımla
 - [ ] Merkezi yedekleme ve geri yükleme işlemlerini yalnızca manager yetkisiyle çalıştır
@@ -55,8 +55,8 @@
 ## Kesinleşen ortam: Windows 10/11 offline
 
 - [x] Windows 10/11 için bağımsız offline masaüstü paketleme yaklaşımını seç ve proje kararını belgeleyerek kaydet
-- [ ] Her laptop için cihaz kimliği, kullanıcı kimliği, kayıt sürümü ve son senkronizasyon bilgilerini ekle
-- [ ] Offline çalışma sırasında kira, vergi, tahliye, onay, sözleşme ve ön muhasebe kayıtlarının yerel veritabanına yazılmasını sağla
+- [x] Her laptop için cihaz kimliği, kullanıcı kimliği, kayıt sürümü ve son senkronizasyon bilgilerini ekle
+- [x] Offline çalışma sırasında kira, vergi, tahliye, onay, sözleşme ve ön muhasebe kayıtlarının yerel veritabanına yazılmasını sağla
 - [x] Manager laptopunda üç cihaz yedeğini çakışma kontrollü birleştirme akışına dönüştür
 - [x] Kurulum, masaüstü kısayolu, haftalık yedek ve geri alma prosedürünü Windows kullanıcı kılavuzuna yaz
 

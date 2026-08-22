@@ -9,6 +9,7 @@ export type OfflineRecord = {
   noticeDays?: number;
   approvalDecision?: "pending" | "approved" | "rejected";
   approvalNote?: string;
+  obligationType?: "rent" | "tax" | "insurance" | "other";
   ledgerType?: "income" | "expense" | "receivable" | "payable" | "collection" | "payment";
   status: string;
   deviceId: string;
