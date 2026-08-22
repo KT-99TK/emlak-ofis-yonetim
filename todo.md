@@ -36,8 +36,8 @@
 ## Yeni kapsam: tahliye ve yeniden kiralama onayı
 
 - [x] Kira sözleşmesine tahliye ihbar süresi, anlaşmaya özel bildirim kuralı ve tahliye tarihi alanlarını ekle
-- [ ] İki ay veya tanımlanan süre öncesinde danışman/manager uyarı akışını ekle
-- [ ] Tahliye yaklaşan kiralıkları ayrı görev ve takvim görünümünde göster
+- [x] İki ay veya tanımlanan süre öncesinde danışman/manager uyarı akışını ekle
+- [x] Tahliye yaklaşan kiralıkları ayrı görev ve takvim görünümünde göster
 - [x] Yeniden kiralama talebini mülk sahibi onayına gönderen durum akışını ekle
 - [x] Mülk sahibi onayı alınmadan yeni kiralama ilanı oluşturmayı server tarafında engelle
 - [x] Onay, ret, tarih ve açıklama bilgilerini audit kaydına yaz
@@ -115,7 +115,7 @@
 - [x] Offline formları entity bazlı ayır: tahliye ihbar tarihi/süresi, owner approval karar/durum/not, ledger işlem tipi/tutar/vade alanları
 - [x] Manager merge akışında manager userId zorunluluğu koy; ana yedek üretimi başarısızsa kayıt yazımını engelle veya rollback uygula
 - [x] Rollback sırasında mevcut yerel kayıtları snapshot ile tam eşitle; gerekirse store’u temizleyip snapshot’ı yeniden yaz
-- [ ] Bu üç güvenli işlem düzeltmesini UI veya birim testleriyle doğrula
+- [x] Bu üç güvenli işlem düzeltmesini UI veya birim testleriyle doğrula
 
 ## Global 1881 marka varlıkları
 
