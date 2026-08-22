@@ -58,7 +58,7 @@ Kaynak projede Electron Windows paketleme yapılandırması bulunur. Linux geli�
 
 ## Manus klasörü ile Windows dağıtım paketi arasındaki fark
 
-Manus klasörü, projenin kaynak kodu ve geliştirme çalışma alanıdır; diğer çalışanların bilgisayarlarına bu klasörün tamamı gönderilmemelidir. Çalışanlara gönderilecek dosya, Electron Builder tarafından üretilen tek Windows kurulum dosyasıdır. Proje sahibi veya teknik hazırlığı yapan kişi, Windows ortamında proje klasöründe `pnpm install`, ardından `pnpm desktop:installer` komutlarını çalıştırır. Oluşan `release/1881-Ofis-Yonetim-1.0.0.exe` dosyası çalışanlara güvenilir bir USB, kurum içi paylaşım klasörü veya güvenli dosya aktarımıyla iletilir.
+Manus klasörü, projenin kaynak kodu ve geliştirme çalışma alanıdır; diğer çalışanların bilgisayarlarına bu klasörün tamamı gönderilmemelidir. Çalışanlara gönderilecek dosya, Electron Builder tarafından üretilen tek Windows kurulum dosyasıdır. Proje sahibi veya teknik hazırlığı yapan kişi, Windows ortamında proje klasöründe `pnpm install`, ardından `pnpm desktop:installer` komutlarını çalıştırır. Oluşan `release/1881-Ofis-Yonetim-1.0.2.exe` dosyası çalışanlara güvenilir bir USB, kurum içi paylaşım klasörü veya güvenli dosya aktarımıyla iletilir.
 
 Kurulum sırasında çalışan, `.exe` dosyasını açar; kurulum konumunu seçebilir ve masaüstü kısayolunu oluşturabilir. Kurulum tamamlandıktan sonra uygulama Manus klasöründen bağımsız çalışır. Her laptopta uygulama bir kez kurulur, Offline çalışma alanında benzersiz kullanıcı kodu ve cihaz kimliği kaydedilir. Çalışanlar haftalık JSON yedeklerini yalnızca managerın belirlediği aktarım yöntemiyle gönderir; kaynak kod, `node_modules`, `dist` veya `.env` dosyaları paylaşılmaz.
 
@@ -94,8 +94,8 @@ Windows Electron uygulaması merkezi web dashboard’undan ayrı çalışır. G�
 
 Chrome veya merkezi web kısayolunda görülen **Sign in to continue** ekranı normaldir; merkezi kayıtlar ve server dashboard’u authentication gerektirir. Eski `.exe` dosyası sign-in ekranında kalabilir. Bu nedenle düzeltmeden sonra güncel checkpoint ZIP’inden yeni `.exe` üretilmelidir.
 
-## 1.0.1 temiz kurulum kontrolü
+## 1.0.2 temiz kurulum kontrolü
 
-Güncel Windows paketi `1881-Ofis-Yonetim-1.0.1.exe` adıyla üretilir. Eski `1.0.0` uygulaması kuruluysa Windows Başlat menüsünde veya Ayarlar → Uygulamalar bölümünde görünen eski **1881 Ofis Yönetim** kaydını kaldırın; ardından yalnızca `release` klasöründeki `1.0.1` dosyasını çalıştırın. Yeni uygulamanın ilk açılışında `startup.log` içinde `version=1.0.1`, `initialRoute=#/offline` ve `Arayüz yüklendi` satırları bulunmalıdır.
+Güncel Windows paketi `1881-Ofis-Yonetim-1.0.2.exe` adıyla üretilir. Eski `1.0.0` veya `1.0.1` uygulaması kuruluysa Windows Başlat menüsünde veya Ayarlar → Uygulamalar bölümünde görünen eski **1881 Ofis Yönetim** kaydını kaldırın; ardından yalnızca `release` klasöründeki `1.0.2` dosyasını çalıştırın. Yeni uygulamanın ilk açılışında `startup.log` içinde `version=1.0.2`, `initialRoute=#/offline` ve `Arayüz yüklendi` satırları bulunmalıdır.
 
 Kurulum scripti artık PowerShell’in `.ps1` komut engellerinden etkilenmemek için sistemde varsa `pnpm.cmd`, yoksa `npx.cmd --yes pnpm@10.4.1` kullanır. Execution Policy değiştirmek veya yönetici olarak PowerShell açmak gerekli değildir.

@@ -253,3 +253,12 @@
 - [x] Windows paket sürümünü 1.0.1’e çıkar ve açılış tanı kaydında sürüm/initialRoute bilgisini görünür tut
 - [x] Kurulum kılavuzuna eski uygulamayı kaldırma, yeni sürüm klasörünü doğrulama ve temiz kurulum adımlarını ekle
 - [ ] Windows gerçek doğrulaması için 1.0.1 `.exe` ve `startup.log` kullanıcı teyidini kaydet
+
+## Electron file protocol auth fallback
+
+- [x] Desktop tespitini preload bayrağına ek olarak `file:` protokolüyle sağlamlaştır; paketli Electron’da auth ve offline UI ayrımı kesin çalışsın
+
+## 1.0.2 kesin paket ayrımı
+
+- [x] Windows uygulama sürümünü 1.0.2’ye çıkar, kılavuz ve installer çıktı adını senkronize et
+- [x] 1.0.2 üretim HTML/metadata ve script doğrulamasını yapıp yeni checkpoint oluştur

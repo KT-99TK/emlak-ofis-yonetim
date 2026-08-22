@@ -15,7 +15,7 @@ import OfflineWorkspace from "./pages/OfflineWorkspace";
 import BackupMerge from "./pages/BackupMerge";
 import Obligations from "./pages/Obligations";
 
-const isElectronDesktop = () => typeof window !== "undefined" && Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop);
+const isElectronDesktop = () => typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
 
 function DesktopRouter() {
   const [route, setRoute] = useState<"offline" | "merge">(() => typeof window !== "undefined" && window.location.hash === "#/offline-merge" ? "merge" : "offline");

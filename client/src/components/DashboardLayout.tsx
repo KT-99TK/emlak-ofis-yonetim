@@ -53,7 +53,7 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
-  const isDesktop = typeof window !== "undefined" && Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop);
+  const isDesktop = typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
   const { loading, user } = useAuth();
 
   useEffect(() => {
@@ -113,7 +113,7 @@ function DashboardLayoutContent({
   setSidebarWidth,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
-  const isDesktop = typeof window !== "undefined" && Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop);
+  const isDesktop = typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
   const offlineUserId = isDesktop ? getUserId() : "";
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
