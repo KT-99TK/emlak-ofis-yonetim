@@ -22,6 +22,13 @@ $projectRoot = $packageFile.DirectoryName
 Set-Location $projectRoot
 Write-Host "Proje: $projectRoot" -ForegroundColor Cyan
 
+$packageJson = Get-Content -Raw -Path (Join-Path $projectRoot "package.json") | ConvertFrom-Json
+$expectedVersion = "1.0.2"
+if ($packageJson.version -ne $expectedVersion) {
+  Stop-WithMessage "Bu klasördeki package.json sürümü $($packageJson.version). Beklenen sürüm $expectedVersion. Eski ZIP/proje klasörünü kullanmayın; güncel checkpoint ZIP’ini yeniden çıkarın."
+}
+Write-Host "Sürüm doğrulandı: $($packageJson.name) v$($packageJson.version)" -ForegroundColor DarkGreen
+
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
   Stop-WithMessage "Node.js bulunamadı. Önce Windows için Node.js LTS kurun, sonra bu scripti yeniden çalıştırın."
 }
@@ -53,18 +60,24 @@ try { Invoke-Pnpm @("install") } catch { Stop-WithMessage "Bağımlılık kurulu
 Write-Host "TypeScript kontrolü çalışıyor..." -ForegroundColor Cyan
 try { Invoke-Pnpm @("check") } catch { Stop-WithMessage "TypeScript kontrolü başarısız oldu; kurulum paketi üretilmedi. $($_.Exception.Message)" }
 
+$releaseDir = Join-Path $projectRoot "release"
+if (Test-Path $releaseDir) {
+  Write-Host "Eski release çıktısı temizleniyor..." -ForegroundColor Yellow
+  try { Remove-Item -Path $releaseDir -Recurse -Force -ErrorAction Stop } catch { Stop-WithMessage "Eski release klasörü temizlenemedi. Electron veya installer pencerelerini kapatıp tekrar deneyin." }
+}
+
 Write-Host "Windows kurulum paketi üretiliyor..." -ForegroundColor Cyan
 try { Invoke-Pnpm @("desktop:installer") } catch { Stop-WithMessage "Electron Windows kurulum paketi üretilemedi. $($_.Exception.Message)" }
 
-$releaseDir = Join-Path $projectRoot "release"
-$installer = Get-ChildItem -Path $releaseDir -Filter "1881-Ofis-Yonetim-*.exe" -File -ErrorAction SilentlyContinue |
-  Sort-Object LastWriteTime -Descending |
-  Select-Object -First 1
+
+$installerName = "1881-Ofis-Yonetim-$expectedVersion.exe"
+$installer = Get-Item -Path (Join-Path $releaseDir $installerName) -ErrorAction SilentlyContinue
 if (-not $installer) {
-  Stop-WithMessage "Build tamamlandı ancak release klasöründe 1881-Ofis-Yonetim-*.exe bulunamadı. Komut çıktısını kontrol edin."
+  Stop-WithMessage "Build tamamlandı ancak beklenen $installerName bulunamadı. Eski sürüm installer’ı kesinlikle dağıtmayın."
 }
 
 Write-Host "`nBAŞARILI" -ForegroundColor Green
 Write-Host "Kurulum dosyası: $($installer.FullName)" -ForegroundColor Green
+Write-Host "Doğrulanan sürüm: $expectedVersion" -ForegroundColor Green
 Write-Host "Bu .exe dosyasını manager bilgisayarında test ettikten sonra çalışanlara gönderin." -ForegroundColor Yellow
 Write-Host "Kaynak kodu, .env ve node_modules klasörlerini paylaşmayın." -ForegroundColor Yellow

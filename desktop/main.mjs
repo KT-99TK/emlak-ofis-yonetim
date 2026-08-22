@@ -22,7 +22,7 @@ function createWindow() {
     height: 920,
     minWidth: 1024,
     minHeight: 700,
-    title: "Global 1881 Gayrimenkul — Offline Ofis Yönetimi",
+    title: `Global 1881 Gayrimenkul — Offline Ofis Yönetimi v${app.getVersion()}`,
     backgroundColor: "#f7f7f4",
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs"),
@@ -33,7 +33,7 @@ function createWindow() {
   });
   Menu.setApplicationMenu(null);
   const indexPath = path.join(__dirname, "..", "dist", "public", "index.html");
-  writeStartupLog(`Electron başlatıldı; packaged=${app.isPackaged}; indexPath=${indexPath}; exists=${fs.existsSync(indexPath)}; initialRoute=#/offline`);
+  writeStartupLog(`Electron başlatıldı; packaged=${app.isPackaged}; appVersion=${app.getVersion()}; indexPath=${indexPath}; exists=${fs.existsSync(indexPath)}; initialRoute=#/offline`);
   window.webContents.on("did-finish-load", () => {
     writeStartupLog(`Arayüz yüklendi; url=${window.webContents.getURL()}`);
   });

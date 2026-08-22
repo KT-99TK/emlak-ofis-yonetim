@@ -269,3 +269,7 @@
 
 - [x] Heartbeat reminder handler’da run-key/idempotency kontrolünü bildirim göndermeden önce yap; tekrar çağrılarda duplicate notification üretmeyi engelle
 - [ ] Uygulamayı production’a deploy edip gerçek Heartbeat job oluştur; `/api/scheduled/reminders` callback’inin başarılı ilk çalışmasını log veya kullanıcı kanıtıyla doğrula
+
+## Windows 1.0.0 sürüm karışıklığı
+
+- [x] Kullanıcı startup.log kayıtlarında hâlâ 1.0.0 görüldüğü için Electron package.json, builder config, dist metadata ve installer adlarını tek sürüm 1.0.2 altında yeniden doğrula; eski kurulum/çıktı yolunun yanlışlıkla çalışmasını engelle
