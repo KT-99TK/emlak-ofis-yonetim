@@ -25,13 +25,56 @@ const DEVICE_KEY = "global1881-device-id";
 const USER_KEY = "global1881-user-id";
 const KEYPAIR_KEY = "global1881-signing-keypair";
 const APP_VERSION = "offline-transition-v1";
+const ENCRYPTED_BACKUP_FORMAT = "global1881-offline-encrypted-v1";
+const ENCRYPTION_ITERATIONS = 210_000;
+const MIN_BACKUP_PASSWORD_LENGTH = 8;
+const AUDIT_KEY = "global1881-offline-audit";
+
+export type OfflineAuditEvent = { id: string; action: "backup-exported" | "backup-verified" | "records-applied"; userId: string; deviceId: string; at: string; metadata?: Record<string, string | number | boolean> };
+
+export function validateBackupPassword(password: string) {
+  if (password.trim().length < MIN_BACKUP_PASSWORD_LENGTH) {
+    throw new Error(`Yedek parolası en az ${MIN_BACKUP_PASSWORD_LENGTH} karakter olmalıdır.`);
+  }
+  return password;
+}
 
 export function getUserId() { return window.localStorage.getItem(USER_KEY) ?? ""; }
 export function setUserId(userId: string) { window.localStorage.setItem(USER_KEY, userId.trim()); }
 export function requireUserId() { const userId = getUserId(); if (!userId) throw new Error("Önce manager offline kullanıcı kimliğini ayarlayın"); return userId; }
 
-function toBase64(bytes: ArrayBuffer) { return btoa(Array.from(new Uint8Array(bytes)).map((byte) => String.fromCharCode(byte)).join("")); }
+export function recordOfflineAudit(action: OfflineAuditEvent["action"], metadata?: OfflineAuditEvent["metadata"]) {
+  const event: OfflineAuditEvent = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, action, userId: getUserId(), deviceId: getDeviceId(), at: new Date().toISOString(), metadata };
+  const existing = JSON.parse(window.localStorage.getItem(AUDIT_KEY) ?? "[]") as OfflineAuditEvent[];
+  window.localStorage.setItem(AUDIT_KEY, JSON.stringify([...existing.slice(-99), event]));
+  return event;
+}
+
+export function listOfflineAuditEvents(): OfflineAuditEvent[] {
+  return JSON.parse(window.localStorage.getItem(AUDIT_KEY) ?? "[]") as OfflineAuditEvent[];
+}
+
+function toBase64(bytes: ArrayBuffer | Uint8Array) { const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); return btoa(Array.from(view).map((byte) => String.fromCharCode(byte)).join("")); }
 function fromBase64(value: string) { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
+
+async function deriveEncryptionKey(password: string, salt: Uint8Array) {
+  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(validateBackupPassword(password)), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", salt: salt.buffer as ArrayBuffer, iterations: ENCRYPTION_ITERATIONS, hash: "SHA-256" }, material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+export async function encryptBackupPayload(value: string, password: string) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveEncryptionKey(password, salt);
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(value));
+  return { salt: toBase64(salt), iv: toBase64(iv), ciphertext: toBase64(ciphertext) };
+}
+
+export async function decryptBackupPayload(payload: { salt: string; iv: string; ciphertext: string }, password: string) {
+  const key = await deriveEncryptionKey(password, fromBase64(payload.salt));
+  const plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromBase64(payload.iv) }, key, fromBase64(payload.ciphertext));
+  return new TextDecoder().decode(plaintext);
+}
 
 async function getSigningKeys() {
   const saved = window.localStorage.getItem(KEYPAIR_KEY);
@@ -98,21 +141,42 @@ async function checksum(value: string) {
   return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export async function exportOfflineBackup() {
+export async function exportOfflineBackup(password: string) {
   const userId = getUserId();
   if (!userId) throw new Error("Önce offline kullanıcı kimliğini ayarlayın");
+  validateBackupPassword(password);
   const records = await listOfflineRecords();
-  const data = { format: "global1881-offline-v1", appVersion: APP_VERSION, deviceId: getDeviceId(), userId: getUserId(), exportedAt: new Date().toISOString(), recordCount: records.length, records };
+  const data = { format: ENCRYPTED_BACKUP_FORMAT, appVersion: APP_VERSION, deviceId: getDeviceId(), userId: getUserId(), exportedAt: new Date().toISOString(), recordCount: records.length, records };
   const canonical = JSON.stringify(data);
   const integrityChecksum = await checksum(canonical);
   const signed = await sign(canonical);
-  const payload = { ...data, checksum: integrityChecksum, signature: signed.signature, publicKey: signed.publicKey };
+  const encrypted = await encryptBackupPayload(canonical, password);
+  const payload = { format: ENCRYPTED_BACKUP_FORMAT, appVersion: APP_VERSION, encryption: { algorithm: "AES-GCM", kdf: "PBKDF2-SHA-256", iterations: ENCRYPTION_ITERATIONS, salt: encrypted.salt, iv: encrypted.iv, ciphertext: encrypted.ciphertext }, checksum: integrityChecksum, signature: signed.signature, publicKey: signed.publicKey };
+  recordOfflineAudit("backup-exported", { recordCount: records.length, encrypted: true });
   return new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
 }
 
 export type BackupMergeResult = { imported: number; conflicts: Array<{ id: string; local: OfflineRecord; incoming: OfflineRecord }>; invalid: string[]; manifests: Array<{ file: string; deviceId?: string; userId?: string; recordCount?: number; exportedAt?: string; maxRecordVersion?: number; latestSyncAt?: string; checksumVerified?: boolean; signatureVerified?: boolean; verified: boolean }>; pendingRecords: OfflineRecord[] };
 
-export async function mergeOfflineBackups(files: File[]): Promise<BackupMergeResult> {
+type EncryptedBackupEnvelope = { format: string; appVersion?: string; encryption?: { algorithm: string; kdf: string; iterations: number; salt: string; iv: string; ciphertext: string }; checksum?: string; signature?: string; publicKey?: JsonWebKey };
+type BackupData = { format: string; appVersion?: string; deviceId?: string; userId?: string; exportedAt?: string; recordCount?: number; records: OfflineRecord[] };
+
+async function readVerifiedBackup(file: File, password: string) {
+  validateBackupPassword(password);
+  const envelope = JSON.parse(await file.text()) as EncryptedBackupEnvelope;
+  if (envelope.format !== ENCRYPTED_BACKUP_FORMAT || !envelope.encryption || !envelope.checksum || !envelope.signature || !envelope.publicKey) throw new Error("Bu dosya şifreli Global 1881 yedeği değil veya manifesti eksik");
+  if (envelope.encryption.algorithm !== "AES-GCM" || envelope.encryption.kdf !== "PBKDF2-SHA-256" || envelope.encryption.iterations !== ENCRYPTION_ITERATIONS) throw new Error("Desteklenmeyen yedek şifreleme parametresi");
+  const canonical = await decryptBackupPayload(envelope.encryption, password);
+  const data = JSON.parse(canonical) as BackupData;
+  if (data.format !== ENCRYPTED_BACKUP_FORMAT || !Array.isArray(data.records)) throw new Error("Şifreli yedek içeriği geçersiz");
+  const checksumVerified = await checksum(canonical) === envelope.checksum;
+  const signatureVerified = await verify(canonical, envelope.signature, envelope.publicKey);
+  if (!checksumVerified || !signatureVerified) throw new Error("Yedek checksum/imza doğrulaması başarısız");
+  recordOfflineAudit("backup-verified", { recordCount: data.records.length, checksumVerified, signatureVerified });
+  return { envelope, data, checksumVerified, signatureVerified };
+}
+
+export async function mergeOfflineBackups(files: File[], password: string): Promise<BackupMergeResult> {
   const localRecords = new Map((await listOfflineRecords()).map((record) => [record.id, record]));
   const conflicts: BackupMergeResult["conflicts"] = [];
   const invalid: string[] = [];
@@ -121,13 +185,9 @@ export async function mergeOfflineBackups(files: File[]): Promise<BackupMergeRes
   const pendingRecords: OfflineRecord[] = [];
   for (const file of files) {
     try {
-      const payload = JSON.parse(await file.text()) as { format: string; records: OfflineRecord[]; checksum?: string; signature?: string; publicKey?: JsonWebKey; deviceId?: string; userId?: string; recordCount?: number; exportedAt?: string };
-      if (payload.format !== "global1881-offline-v1" || !Array.isArray(payload.records) || !payload.checksum || !payload.signature || !payload.publicKey) throw new Error("manifest");
-      const { checksum: receivedChecksum, signature: receivedSignature, publicKey, ...data } = payload;
-      const canonical = JSON.stringify(data);
-      const checksumVerified = await checksum(canonical) === receivedChecksum; const signatureVerified = await verify(canonical, receivedSignature, publicKey); if (!checksumVerified || !signatureVerified) throw new Error("signature");
-      manifests.push({ file: file.name, deviceId: payload.deviceId, userId: payload.userId, recordCount: payload.recordCount, exportedAt: payload.exportedAt, maxRecordVersion: Math.max(0, ...payload.records.map((record) => record.recordVersion ?? 0)), latestSyncAt: payload.records.map((record) => record.lastSyncAt).filter(Boolean).sort().at(-1), checksumVerified, signatureVerified, verified: true });
-      for (const incoming of payload.records) {
+      const { data, checksumVerified, signatureVerified } = await readVerifiedBackup(file, password);
+      manifests.push({ file: file.name, deviceId: data.deviceId, userId: data.userId, recordCount: data.recordCount, exportedAt: data.exportedAt, maxRecordVersion: Math.max(0, ...data.records.map((record) => record.recordVersion ?? 0)), latestSyncAt: data.records.map((record) => record.lastSyncAt).filter(Boolean).sort().at(-1), checksumVerified, signatureVerified, verified: true });
+      for (const incoming of data.records) {
         const local = localRecords.get(incoming.id);
         if (local && JSON.stringify(local) !== JSON.stringify(incoming)) conflicts.push({ id: incoming.id, local, incoming });
         else if (!local) { localRecords.set(incoming.id, incoming); pendingRecords.push(incoming); imported += 1; }
@@ -158,22 +218,19 @@ export async function applyOfflineRecords(records: OfflineRecord[]) {
   const db = await openDb(); const tx = db.transaction(STORE_NAME, "readwrite"); const syncedAt = new Date().toISOString();
   records.forEach((record) => { const current = existing.get(record.id); tx.objectStore(STORE_NAME).put({ ...record, recordVersion: current ? current.recordVersion + 1 : record.recordVersion, lastSyncAt: syncedAt }); });
   await new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
+  recordOfflineAudit("records-applied", { recordCount: records.length });
 }
 
-export async function downloadCurrentBackup(filename: string) {
-  const blob = await exportOfflineBackup();
+export async function downloadCurrentBackup(filename: string, password: string) {
+  const blob = await exportOfflineBackup(password);
   const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = filename; anchor.click(); URL.revokeObjectURL(url);
 }
 
-export async function importOfflineBackup(file: File) {
-  const payload = JSON.parse(await file.text()) as { format: string; deviceId?: string; exportedAt?: string; records: OfflineRecord[]; checksum?: string; signature?: string; publicKey?: JsonWebKey; appVersion?: string; userId?: string; recordCount?: number };
-  if (payload.format !== "global1881-offline-v1" || !Array.isArray(payload.records) || !payload.checksum || !payload.signature || !payload.publicKey) throw new Error("Geçersiz Global 1881 yedek manifesti");
-  const { checksum: receivedChecksum, signature: receivedSignature, publicKey, ...data } = payload;
-  const canonical = JSON.stringify(data);
-  if (await checksum(canonical) !== receivedChecksum || !(await verify(canonical, receivedSignature, publicKey))) throw new Error("Yedek checksum/imza doğrulaması başarısız");
+export async function importOfflineBackup(file: File, password: string) {
+  const { data } = await readVerifiedBackup(file, password);
   const db = await openDb();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const syncedAt = new Date().toISOString();
-  for (const record of payload.records) tx.objectStore(STORE_NAME).put({ ...record, lastSyncAt: syncedAt });
+  for (const record of data.records) tx.objectStore(STORE_NAME).put({ ...record, lastSyncAt: syncedAt });
   return new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
 }

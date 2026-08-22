@@ -1,8 +1,10 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { parse as parseCookieHeader } from "cookie";
+import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createClient, createContract, decideOwnerApproval, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, listAudit, listClients, listContracts, listLedger, listObligations, listProperties, listTeamMembers, transitionContract } from "./db";
+import { createClient, createContract, decideOwnerApproval, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listClients, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
 import { z } from "zod";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
@@ -34,6 +36,16 @@ export const appRouter = router({
   obligations: router({
     list: protectedProcedure.query(({ ctx }) => listObligations(ctx.user.id, isManager(ctx.user))),
     create: protectedProcedure.input(z.object({ title: z.string().min(2), obligationType: z.enum(["rent", "tax", "insurance", "other"]), dueDate: z.coerce.date(), periodStart: z.coerce.date(), periodEnd: z.coerce.date(), amount: z.string().min(1) })).mutation(({ ctx, input }) => createObligation({ ...input, assignedUserId: ctx.user.id })),
+  }),
+  reminders: router({
+    schedule: protectedProcedure.input(z.object({ cron: z.string().regex(/^\d+ \d+ \d+ \* \* \*$/, "6 alanlı UTC cron ifadesi girin") })).mutation(async ({ ctx, input }) => {
+      const existing = await getReminderPreferenceByUserId(ctx.user.id);
+      if (existing?.scheduleCronTaskUid) return { taskUid: existing.scheduleCronTaskUid, reused: true };
+      const cookie = parseCookieHeader(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+      const job = await createHeartbeatJob({ name: `global1881-reminders-${ctx.user.id}`, cron: input.cron, path: "/api/scheduled/reminders", description: "Global 1881 kira, vergi ve tahliye vade hatırlatıcıları" }, cookie);
+      await saveReminderSchedule(ctx.user.id, job.taskUid);
+      return { ...job, reused: false };
+    }),
   }),
   ledger: router({
     list: protectedProcedure.query(({ ctx }) => listLedger(ctx.user.id, isManager(ctx.user))),

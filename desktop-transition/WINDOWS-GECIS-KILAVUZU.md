@@ -18,9 +18,9 @@ Ekranda görünen cihaz kimliğini ayrıca kurulum çizelgesine yazın. Aynı ku
 
 ## Haftalık yedek prosedürü
 
-Her kullanıcı haftanın son iş gününde **Yedek oluştur** düğmesine basar. İndirilen JSON dosyası değiştirilmemeli ve dosya adı korunmalıdır. Dosya; cihaz, kullanıcı, uygulama sürümü, kayıt sayısı, tarih, SHA-256 checksum ve ECDSA imzası içeren bir manifest taşır.
+Her kullanıcı haftanın son iş gününde **Şifreli yedek oluştur** düğmesine basar. Önce en az 8 karakterli bir yedek parolası girilmelidir; uygulama bu parolayı saklamaz. İndirilen JSON dosyası AES-GCM ile şifrelenir ve değiştirilmemelidir. Dosyanın dış manifesti uygulama sürümü, PBKDF2-SHA-256 parametreleri, checksum ve ECDSA imzasını taşır; kayıt içerikleri yalnızca doğru parola ile açılır.
 
-Dosya manager laptopuna USB bellek veya güvenilir bir yerel aktarım yöntemiyle gönderilir. Yedeklerin en az iki kopyası tutulmalıdır: manager laptopu ve fiziksel olarak ayrı bir harici disk. Aynı laptopta tek kopya tutmak yedek sayılmaz.
+Dosya manager laptopuna USB bellek veya güvenilir bir yerel aktarım yöntemiyle gönderilir. Manager, aynı yedek parolasını **Yedek parolası** alanına girerek dosyaları seçer; yanlış parola, eski plaintext format veya imza/checksum hatası olan dosyalar yazılmadan reddedilir. Yedeklerin en az iki kopyası tutulmalıdır: manager laptopu ve fiziksel olarak ayrı bir harici disk. Aynı laptopta tek kopya tutmak yedek sayılmaz.
 
 ## Manager birleştirme prosedürü
 
@@ -28,7 +28,7 @@ Manager **Yedekleri birleştir** ekranında üç JSON dosyasını birlikte seçe
 
 Yeni kayıtlar ve olası çakışmalar listelenmeden önce hiçbir yeni kayıt manager deposuna yazılmaz. Çakışma varsa manager, kaydı inceleyip dosyalardan birini düzeltmeden **Manifestleri onayla ve kayıtları yaz** düğmesine basmamalıdır.
 
-Onay sırasında mevcut manager kayıtlarının rollback snapshot’ı alınır. Ardından yeni kayıtlar yazılır ve birleşik ana yedek otomatik olarak indirilir. Ana yedek, haftalık arşiv klasöründe tarihli şekilde saklanmalıdır.
+Onay sırasında mevcut manager kayıtlarının rollback snapshot’ı alınır. Ardından yeni kayıtlar yazılır ve aynı parola ile birleşik şifreli ana yedek otomatik olarak indirilir. Ana yedek, haftalık arşiv klasöründe tarihli şekilde saklanmalıdır. Yedek oluşturma, doğrulama ve kayıt uygulama olayları cihazdaki parola içermeyen audit günlüğüne eklenir.
 
 ## Rollback
 
@@ -39,6 +39,10 @@ Rollback işleminden sonra yeni bir ana yedek oluşturulmalı ve olay ofis audit
 ## Kayıt disiplinleri
 
 Kira/vergi vadesi için vade tarihi; tahliye bildirimi için tahliye veya ihbar tarihi; mülk sahibi onayı için onay durumu; ön muhasebe için tutar ve açıklama alanı doldurulmalıdır. Mülk sahibi onayı alınmadan yeni kiralama ilanı veya pazarlama süreci başlatılmamalıdır.
+
+## Merkezi server hatırlatıcıları
+
+Merkezi HTTPS sürümü yayınlandıktan sonra manager veya danışman, uygulamanın scheduler prosedürüyle 6 alanlı UTC Heartbeat görevi oluşturabilir. Callback yolu `/api/scheduled/reminders` olarak sabittir; görev UID’si reminder preferences kaydında tutulur. Handler yalnızca platformun cron kimliğini kabul eder, kullanıcı tercihindeki lead günlerini uygular ve aynı gün/kayıt kümesi için run-key ile tekrarlı bildirimleri önler. Scheduler kodu deploy edilmeden çalıştırılamaz; deploy sonrasında görev oluşturulmalı ve ilk çalıştırma logları kontrol edilmelidir.
 
 ## Bulut/server geçişi
 

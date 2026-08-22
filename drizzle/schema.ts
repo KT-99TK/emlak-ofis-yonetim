@@ -127,6 +127,8 @@ export const reminderPreferences = mysqlTable("reminderPreferences", {
   leadDays: varchar("leadDays", { length: 80 }).default("30,14,7,3,1").notNull(),
   inAppEnabled: int("inAppEnabled").default(1).notNull(),
   emailEnabled: int("emailEnabled").default(0).notNull(),
+  scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }).unique(),
+  lastReminderRunKey: varchar("lastReminderRunKey", { length: 80 }),
 });
 
 export const backupManifests = mysqlTable("backupManifests", {

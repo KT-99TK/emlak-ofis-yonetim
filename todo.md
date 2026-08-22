@@ -22,8 +22,8 @@
 - [x] Kira/vergi ödeme durumlarını ve gecikme risklerini dashboard üzerinde göster
 - [x] Kira ve vergi mali tablolarını dönem, portföy, danışman ve ödeme durumu bazında oluştur
 - [x] PC tek kullanıcı ve server merkezi kullanımını ayıran veri içe/dışa aktarma akışını tasarla
-- [ ] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit kaydı ekle
-- [ ] Periyodik uyarıların platform zamanlayıcısı ile güvenli, idempotent ve deploy sonrası çalışmasını uygula
+- [x] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit kaydı ekle
+- [x] Periyodik uyarıların platform zamanlayıcısı ile güvenli, idempotent ve deploy sonrası çalışmasını uygula
 - [x] Yeni vade, mali tablo ve yedekleme akışlarını test edip güncel checkpoint oluştur
 
 ## Mimari kararı: merkezi server + PC kısa yolu
@@ -264,3 +264,8 @@
 - [x] 1.0.2 üretim HTML/metadata ve script doğrulamasını yapıp yeni checkpoint oluştur
 
 - [x] ManifestPreviewRow/OfflineWorkspace manifest component testine `exportedAt` alanının render edilen tarih çıktısı için açık assertion ekle ve test çıktısında doğrula
+
+## Heartbeat üretim doğrulaması
+
+- [x] Heartbeat reminder handler’da run-key/idempotency kontrolünü bildirim göndermeden önce yap; tekrar çağrılarda duplicate notification üretmeyi engelle
+- [ ] Uygulamayı production’a deploy edip gerçek Heartbeat job oluştur; `/api/scheduled/reminders` callback’inin başarılı ilk çalışmasını log veya kullanıcı kanıtıyla doğrula

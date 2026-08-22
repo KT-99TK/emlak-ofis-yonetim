@@ -1,0 +1,20 @@
+import { webcrypto } from "node:crypto";
+import { describe, expect, it } from "vitest";
+import { decryptBackupPayload, encryptBackupPayload, validateBackupPassword } from "./offlineStore";
+
+if (!globalThis.crypto) Object.defineProperty(globalThis, "crypto", { configurable: true, value: webcrypto });
+
+describe("offline encrypted backup crypto", () => {
+  it("encrypts and decrypts the canonical backup payload", async () => {
+    const source = JSON.stringify({ format: "global1881-offline-encrypted-v1", records: [{ id: "r-1", title: "Kira" }] });
+    const encrypted = await encryptBackupPayload(source, "Global1881!backup");
+    expect(encrypted.ciphertext).not.toContain("Kira");
+    await expect(decryptBackupPayload(encrypted, "Global1881!backup")).resolves.toBe(source);
+  });
+
+  it("rejects a wrong password and short passwords", async () => {
+    const encrypted = await encryptBackupPayload("sensitive records", "Global1881!backup");
+    await expect(decryptBackupPayload(encrypted, "wrong-password")).rejects.toThrow();
+    expect(() => validateBackupPassword("short")).toThrow("en az 8 karakter");
+  });
+});
