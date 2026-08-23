@@ -1,6 +1,6 @@
 export type OfflineRecord = {
   id: string;
-  entity: "client" | "property" | "contract" | "obligation" | "evacuation" | "ownerApproval" | "ledger";
+  entity: "client" | "property" | "contract" | "obligation" | "evacuation" | "ownerApproval" | "ledger" | "target";
   title: string;
   details: string;
   amount?: string;

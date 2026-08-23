@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import DashboardLayout from "./components/DashboardLayout";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { useAuth } from "@/_core/hooks/useAuth";
 import Home from "./pages/Home";
 import Contracts from "./pages/Contracts";
 import AuthorityContracts from "./pages/AuthorityContracts";
@@ -17,13 +18,16 @@ import BackupMerge from "./pages/BackupMerge";
 import OfflineAuthorityContracts from "./pages/OfflineAuthorityContracts";
 import OfflineRentalContracts from "./pages/OfflineRentalContracts";
 import OfflineConsultantPerformance from "./pages/OfflineConsultantPerformance";
+import MyOfflineContracts from "./pages/MyOfflineContracts";
+import BrokerAnnualTargets from "./pages/BrokerAnnualTargets";
 import Obligations from "./pages/Obligations";
 
 const isElectronDesktop = () => typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
 
 function DesktopRouter() {
-  const routeFromHash = () => window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : window.location.hash === "#/offline-rental" ? "rental" : window.location.hash === "#/offline-performance" ? "performance" : "offline";
-  const [route, setRoute] = useState<"offline" | "authority" | "rental" | "performance" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
+  const { user } = useAuth();
+  const routeFromHash = () => window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : window.location.hash === "#/offline-rental" ? "rental" : window.location.hash === "#/offline-performance" ? "performance" : window.location.hash === "#/offline-my-contracts" ? "my-contracts" : window.location.hash === "#/offline-targets" ? "targets" : "offline";
+  const [route, setRoute] = useState<"offline" | "authority" | "rental" | "performance" | "my-contracts" | "targets" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromHash());
@@ -31,8 +35,8 @@ function DesktopRouter() {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const navigate = (next: "offline" | "authority" | "rental" | "performance" | "merge") => {
-    window.location.hash = next === "merge" ? "/offline-merge" : next === "authority" ? "/offline-authority" : next === "rental" ? "/offline-rental" : next === "performance" ? "/offline-performance" : "/offline";
+  const navigate = (next: "offline" | "authority" | "rental" | "performance" | "my-contracts" | "targets" | "merge") => {
+    window.location.hash = next === "merge" ? "/offline-merge" : next === "authority" ? "/offline-authority" : next === "rental" ? "/offline-rental" : next === "performance" ? "/offline-performance" : next === "my-contracts" ? "/offline-my-contracts" : next === "targets" ? "/offline-targets" : "/offline";
     setRoute(next);
   };
 
@@ -43,10 +47,12 @@ function DesktopRouter() {
         <button type="button" onClick={() => navigate("offline")} className={`rounded-md px-2 py-1 font-medium ${route === "offline" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Çalışma alanı</button>
         <button type="button" onClick={() => navigate("authority")} className={`rounded-md px-2 py-1 font-medium ${route === "authority" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yetki sözleşmeleri</button>
         <button type="button" onClick={() => navigate("rental")} className={`rounded-md px-2 py-1 font-medium ${route === "rental" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Kira sözleşmeleri</button>
-        <button type="button" onClick={() => navigate("performance")} className={`rounded-md px-2 py-1 font-medium ${route === "performance" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Danışman performansı</button>
+        <button type="button" onClick={() => navigate("performance")} className={`rounded-md px-2 py-1 font-medium ${route === "performance" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Sözleşme ve finansal istatistikler</button>
+        <button type="button" onClick={() => navigate("my-contracts")} className={`rounded-md px-2 py-1 font-medium ${route === "my-contracts" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Benim sözleşmelerim</button>
+        {user?.role === "admin" && <button type="button" onClick={() => navigate("targets")} className={`rounded-md px-2 py-1 font-medium ${route === "targets" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yıllık ciro hedefleri</button>}
         <button type="button" onClick={() => navigate("merge")} className={`rounded-md px-2 py-1 font-medium ${route === "merge" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yedekleri birleştir</button>
       </div>
-      {route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "performance" ? <OfflineConsultantPerformance /> : <OfflineWorkspace />}
+      {route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "performance" ? <OfflineConsultantPerformance /> : route === "my-contracts" ? <MyOfflineContracts /> : route === "targets" ? <BrokerAnnualTargets /> : <OfflineWorkspace />}
     </DashboardLayout>
   );
 }

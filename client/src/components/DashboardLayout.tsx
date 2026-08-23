@@ -119,7 +119,7 @@ function DashboardLayoutContent({
   const offlineUserId = isDesktop ? getUserId() : "";
   const [location, setLocation] = useLocation();
   const currentOfflineHash = normalizeOfflineHash(typeof window === "undefined" ? undefined : window.location.hash);
-  const visibleMenuItems = isDesktop ? offlineNavigationItems : menuItems;
+  const visibleMenuItems = isDesktop ? offlineNavigationItems.filter((item) => !item.managerOnly || user?.role === "admin") : menuItems;
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);

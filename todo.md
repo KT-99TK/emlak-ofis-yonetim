@@ -332,3 +332,12 @@
 - [ ] KDV hesaplama örneklerini birim testlerle, gerçek Windows rapor ekranını kullanıcı kanıtıyla doğrula
 - [x] Yetki ve kira A4 belgelerinde sol/sağ yazdırma marjını Windows standartlarına uygun daraltarak yatay kullanılabilir alanı genişlet
 - [x] Yetki ve kira sözleşmesi koşullarında 1., 2., 3. madde numaralarının ekran ve yazdırmada görünmesini sağla
+- [x] Danışman Performansı menü ve ekran dilini puanlama içermeyen Sözleşme ve Finansal İstatistikler olarak değiştir
+- [x] Kişinin yalnız kendi sözleşme ve tahsilat özetini, sıralama veya diğer danışman verisi olmadan görebileceği Benim Sözleşmelerim görünümünü ekle
+
+## Yıllık danışman ciro hedefleri
+
+- [x] Danışmanın yıl bazlı kendi ciro hedefini yazabileceği, değişiklik geçmişi taşıyan offline hedef kaydını ekle
+- [x] Benim Sözleşmelerim ekranına kişinin hedefi, gerçekleşen ciro, kalan tutar ve hedefe ilerleme oranını ekle
+- [x] Broker yöneticinin hedef-gerçekleşen-sapma görünümünü yalnız yetkili hesapta gösterecek erişim kuralını ekle
+- [ ] Hedef kayıtlarını şifreli yedek/merge ile uyumlu kıl ve hedef hesaplarını birim/Windows testleriyle doğrula
