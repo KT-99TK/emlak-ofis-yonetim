@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpRight, Banknote, CalendarClock, CheckCircle2, ChevronRight, CircleDollarSign, FileSignature, FolderKanban, Plus, ShieldCheck, Sparkles, Users, WalletCards } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { DASHBOARD_GREETING, formatDashboardDate } from "@/lib/dashboardGreeting";
 
 const activity = [
   { title: "Kira sözleşmesi incelemeye gönderildi", meta: "KRS-2026-014 · Urla / İzmir", tone: "gold" },
@@ -31,6 +32,7 @@ export default function Home() {
   const obligationsQuery = trpc.obligations.list.useQuery(undefined, { retry: false });
   const dueObligations = obligationsQuery.data?.filter((item) => item.status !== "paid" && item.status !== "cancelled").slice(0, 3) ?? [];
   const summary = summaryQuery.data;
+  const dashboardDate = formatDashboardDate();
   const liveStats = summary ? [
     { label: "Aktif sözleşmeler", value: String(summary.contracts), note: "Merkezi kayıt", icon: FileSignature, color: "text-[#2b786e]" },
     { label: "Açık portföy", value: String(summary.portfolio), note: "Merkezi kayıt", icon: FolderKanban, color: "text-[#8d6f3f]" },
@@ -49,8 +51,8 @@ export default function Home() {
         <header className="mb-9 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]"><span className="h-2 w-2 rounded-full bg-[#bd975d]" /> Global 1881 Gayrimenkul</div>
-            <h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230] md:text-5xl">{isDashboard ? "Günün resmi" : "Ofis çalışma alanı"}</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#70807c]">Sözleşmeden tahsilata, ofisinizin kritik işlerini tek ve güvenli bir merkezden yönetin.</p>
+            <h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230] md:text-5xl">{isDashboard ? dashboardDate : "Ofis çalışma alanı"}</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[#70807c]">{isDashboard ? DASHBOARD_GREETING : "Sözleşmeden tahsilata, ofisinizin kritik işlerini tek ve güvenli bir merkezden yönetin."}</p>
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="border-[#d8ddd8] bg-white/70 px-3 py-2 text-[11px] font-medium text-[#64716e]"><ShieldCheck className="mr-2 h-3.5 w-3.5 text-[#2b786e]" /> Güvenli çalışma alanı</Badge>

@@ -11,6 +11,7 @@
 - [x] Gelir, gider, alacak, borç ve işlem bağlantılı tahsilat/ödeme kayıtlarını içeren ön muhasebe modülünü uygula
 - [x] Broker manager için ekip bazlı sözleşme, tahsilat, ödeme ve nakit akışı özetlerini uygula
 - [x] Ofise özel logo, tipografi, renk sistemi ve HTML örneğinden uyarlanan görsel kalıpları uygula
+- [x] Ana karşılama alanını Türkçe yerel tarih ve “İyi çalışmalar, gününüz bereketli geçsin.” selamlamasıyla güncelle
 - [x] Responsive ekranları, boş/yükleniyor/hata durumlarını ve erişilebilir klavye akışlarını doğrula
 - [x] Vitest testlerini yaz, tür kontrolü ve test komutlarını çalıştır
 - [x] Uygulama ilk sürümünü checkpoint ile teslimata hazırla
