@@ -22,14 +22,15 @@ import MyOfflineContracts from "./pages/MyOfflineContracts";
 import BrokerAnnualTargets from "./pages/BrokerAnnualTargets";
 import CustomerRequests from "./pages/CustomerRequests";
 import BrokerRequestMatches from "./pages/BrokerRequestMatches";
+import OfflineTransactionClosings from "./pages/OfflineTransactionClosings";
 import Obligations from "./pages/Obligations";
 
 const isElectronDesktop = () => typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
 
 function DesktopRouter() {
   const { user } = useAuth();
-  const routeFromHash = () => window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : window.location.hash === "#/offline-rental" ? "rental" : window.location.hash === "#/offline-performance" ? "performance" : window.location.hash === "#/offline-my-contracts" ? "my-contracts" : window.location.hash === "#/offline-targets" ? "targets" : window.location.hash === "#/offline-requests" ? "requests" : window.location.hash === "#/offline-request-matches" ? "request-matches" : "offline";
-  const [route, setRoute] = useState<"offline" | "authority" | "rental" | "performance" | "my-contracts" | "targets" | "requests" | "request-matches" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
+  const routeFromHash = () => window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : window.location.hash === "#/offline-rental" ? "rental" : window.location.hash === "#/offline-performance" ? "performance" : window.location.hash === "#/offline-my-contracts" ? "my-contracts" : window.location.hash === "#/offline-targets" ? "targets" : window.location.hash === "#/offline-requests" ? "requests" : window.location.hash === "#/offline-request-matches" ? "request-matches" : window.location.hash === "#/offline-transactions" ? "transactions" : "offline";
+  const [route, setRoute] = useState<"offline" | "authority" | "rental" | "performance" | "my-contracts" | "targets" | "requests" | "request-matches" | "transactions" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromHash());
@@ -37,8 +38,8 @@ function DesktopRouter() {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const navigate = (next: "offline" | "authority" | "rental" | "performance" | "my-contracts" | "targets" | "requests" | "request-matches" | "merge") => {
-    window.location.hash = next === "merge" ? "/offline-merge" : next === "authority" ? "/offline-authority" : next === "rental" ? "/offline-rental" : next === "performance" ? "/offline-performance" : next === "my-contracts" ? "/offline-my-contracts" : next === "targets" ? "/offline-targets" : next === "requests" ? "/offline-requests" : next === "request-matches" ? "/offline-request-matches" : "/offline";
+  const navigate = (next: "offline" | "authority" | "rental" | "performance" | "my-contracts" | "targets" | "requests" | "request-matches" | "transactions" | "merge") => {
+    window.location.hash = next === "merge" ? "/offline-merge" : next === "authority" ? "/offline-authority" : next === "rental" ? "/offline-rental" : next === "performance" ? "/offline-performance" : next === "my-contracts" ? "/offline-my-contracts" : next === "targets" ? "/offline-targets" : next === "requests" ? "/offline-requests" : next === "request-matches" ? "/offline-request-matches" : next === "transactions" ? "/offline-transactions" : "/offline";
     setRoute(next);
   };
 
@@ -52,11 +53,12 @@ function DesktopRouter() {
         <button type="button" onClick={() => navigate("performance")} className={`rounded-md px-2 py-1 font-medium ${route === "performance" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Sözleşme ve finansal istatistikler</button>
         <button type="button" onClick={() => navigate("my-contracts")} className={`rounded-md px-2 py-1 font-medium ${route === "my-contracts" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Benim sözleşmelerim</button>
         <button type="button" onClick={() => navigate("requests")} className={`rounded-md px-2 py-1 font-medium ${route === "requests" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Müşteri talepleri</button>
+        <button type="button" onClick={() => navigate("transactions")} className={`rounded-md px-2 py-1 font-medium ${route === "transactions" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>İşlem kapanışları</button>
         {user?.role === "admin" && <button type="button" onClick={() => navigate("targets")} className={`rounded-md px-2 py-1 font-medium ${route === "targets" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yıllık ciro hedefleri</button>}
         {user?.role === "admin" && <button type="button" onClick={() => navigate("request-matches")} className={`rounded-md px-2 py-1 font-medium ${route === "request-matches" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Talep eşleşmeleri</button>}
         <button type="button" onClick={() => navigate("merge")} className={`rounded-md px-2 py-1 font-medium ${route === "merge" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yedekleri birleştir</button>
       </div>
-      {route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "performance" ? <OfflineConsultantPerformance /> : route === "my-contracts" ? <MyOfflineContracts /> : route === "targets" ? <BrokerAnnualTargets /> : route === "requests" ? <CustomerRequests /> : route === "request-matches" ? <BrokerRequestMatches /> : <OfflineWorkspace />}
+      {route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "performance" ? <OfflineConsultantPerformance /> : route === "my-contracts" ? <MyOfflineContracts /> : route === "targets" ? <BrokerAnnualTargets /> : route === "requests" ? <CustomerRequests /> : route === "request-matches" ? <BrokerRequestMatches /> : route === "transactions" ? <OfflineTransactionClosings /> : <OfflineWorkspace />}
     </DashboardLayout>
   );
 }

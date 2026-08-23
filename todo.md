@@ -287,6 +287,7 @@
 
 ## Offline sözleşme çalışma alanı
 
+- [x] Yerel Çalışma Alanı kayıt listesinde ham JSON snapshot metni yerine kayıt türüne göre kullanıcı dostu kısa özet göster
 - [x] Yetki ve kira sözleşmesi kayıt tiplerini mevcut IndexedDB offline store, manifest ve merge şemasıyla eşleştir
 - [x] Electron offline sidebar’a Yetki Sözleşmeleri ve Kira Sözleşmeleri menülerini güvenli hash rotaları olarak ekle
 - [x] Claude düzenli Offline Yetki Sözleşmeleri formunu, canlı belge önizlemesini ve yerel taslak kaydını uygula
@@ -354,10 +355,11 @@
 
 ## Offline işlem kapanışı ve tahsilat kontrolü
 
-- [ ] Kira ve satış yetkisi sözleşmesinden tekil işlem dosyası açıp kapora, hizmet bedeli, KDV ve kapanış kontrol kalemlerini ilişkilendir
-- [ ] Tahsilat kalemlerinde beklenen/gerçekleşen tutar, nakit/banka transferi yöntemi, tarih, referans ve açıklama alanlarını sürümlü offline snapshot olarak kaydet
-- [ ] Eksik, vadesi geçen veya referansı olmayan tahsilatları işlem kapanış kontrol tablosunda risk olarak görünür kıl
-- [ ] Danışman/broker manager yetki ayrımıyla kapanış onayı, istisna notu ve audit izini uygula
+- [x] Kira ve satış yetkisi sözleşmesinden tekil işlem dosyası açıp kapora, hizmet bedeli, KDV ve kapanış kontrol kalemlerini ilişkilendir
+- [x] Tahsilat kalemlerinde beklenen/gerçekleşen tutar, nakit/banka transferi yöntemi, tarih, referans ve açıklama alanlarını sürümlü offline snapshot olarak kaydet
+- [x] Eksik, vadesi geçen veya referansı olmayan tahsilatları işlem kapanış kontrol tablosunda risk olarak görünür kıl
+- [x] Danışman/broker manager yetki ayrımıyla kapanış onayı, istisna notu ve audit izini uygula
+- [ ] Offline Electron ortamında broker manager yetkisini merkezi oturumdan bağımsız, yerel yönetici kimliği doğrulamasıyla güvenceye al
 - [ ] İşlem kapanış kayıtlarını AES-GCM yedek, checksum/imza, manager merge ve gerçek Windows akışında doğrula
 
 ## Sözleşme marka ve yazdırma düzeni

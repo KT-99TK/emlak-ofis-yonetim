@@ -16,7 +16,8 @@ describe("offline navigation", () => {
     expect(normalizeOfflineHash("#/offline-targets")).toBe("#/offline-targets");
     expect(normalizeOfflineHash("#/offline-requests")).toBe("#/offline-requests");
     expect(normalizeOfflineHash("#/offline-request-matches")).toBe("#/offline-request-matches");
-    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-performance", "#/offline-my-contracts", "#/offline-requests", "#/offline-targets", "#/offline-request-matches", "#/offline-merge"]);
+    expect(normalizeOfflineHash("#/offline-transactions")).toBe("#/offline-transactions");
+    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-performance", "#/offline-my-contracts", "#/offline-requests", "#/offline-transactions", "#/offline-targets", "#/offline-request-matches", "#/offline-merge"]);
     expect(offlineNavigationItems.find((item) => item.path === "#/offline-performance")?.label).toBe("Sözleşme ve Finansal İstatistikler");
   });
 });

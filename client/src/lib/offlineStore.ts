@@ -1,6 +1,6 @@
 export type OfflineRecord = {
   id: string;
-  entity: "client" | "property" | "contract" | "obligation" | "evacuation" | "ownerApproval" | "ledger" | "target" | "request";
+  entity: "client" | "property" | "contract" | "obligation" | "evacuation" | "ownerApproval" | "ledger" | "target" | "request" | "transaction";
   title: string;
   details: string;
   amount?: string;
@@ -131,6 +131,17 @@ export async function saveOfflineRecord(input: Omit<OfflineRecord, "id" | "devic
   return new Promise<OfflineRecord>((resolve, reject) => {
     const request = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).put(record);
     request.onsuccess = () => resolve(record);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/** Aynı offline kaydı sürüm numarasını artırarak günceller; kaynak kullanıcı kimliği korunur. */
+export async function updateOfflineRecord(record: OfflineRecord, patch: Partial<Omit<OfflineRecord, "id" | "deviceId" | "userId" | "recordVersion" | "updatedAt">>) {
+  const db = await openDb();
+  const next: OfflineRecord = { ...record, ...patch, id: record.id, deviceId: record.deviceId, userId: record.userId, recordVersion: (record.recordVersion ?? 0) + 1, updatedAt: new Date().toISOString() };
+  return new Promise<OfflineRecord>((resolve, reject) => {
+    const request = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).put(next);
+    request.onsuccess = () => resolve(next);
     request.onerror = () => reject(request.error);
   });
 }
