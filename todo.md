@@ -291,3 +291,12 @@
 - [x] Claude düzenli Offline Kira Sözleşmeleri formunu; kira/depozito/süre/tahliye hesaplamaları ve yerel vade kayıtlarıyla uygula
 - [x] Offline sözleşme kayıtlarını AES-GCM şifreli export, manifest/checksum/imza ve manager merge akışına dahil et
 - [ ] Windows offline sözleşme ekranlarını gerçek paket ve kullanıcı ekran kanıtıyla doğrula
+
+## Offline yetki sözleşmesi performans ve yazdırma iyileştirmeleri
+
+- [x] Danışman baş harfi ve kişi bazlı sıra numarası içeren değişmez offline yetki sözleşmesi kayıt numarasını tasarla ve kaydet
+- [x] Yetki sözleşmesine hizmet bedeli, para birimi ve danışman performansına temel olacak tutar alanlarını ekle
+- [x] Yetki sözleşmesi metinlerini ad-soyad baş harfleri büyük olacak şekilde; telefonları uluslararası görünüme dönüştürecek biçimlendirme kurallarını uygula
+- [x] Offline danışman başına sözleşme sayısı, madde bedeli ve hizmet bedeli toplamlarını sunan performans tablosunu ekle
+- [x] Tutarlı çok sayfalı A4 sözleşme önizlemesi, ayarlanabilir okunabilir punto, sayfa başlığı/numarası ve taşma kontrolünü uygula
+- [ ] Gerçek Windows paketinde yeni yetki sözleşmesi numarası, performans tablosu ve print preview akışını kullanıcı ekran kanıtıyla doğrula

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authorityContractTitle, createOfflineAuthoritySnapshot, emptyAuthorityDetails, renderAuthorityContract } from "./authorityContract";
+import { authorityContractTitle, calculateAuthoritySummary, consultantInitials, createOfflineAuthoritySnapshot, emptyAuthorityDetails, nextAuthorityContractNo, renderAuthorityContract, toInternationalPhone, toTurkishTitleCase } from "./authorityContract";
 
 describe("authority contract template", () => {
   it("renders the rent template with safe placeholders", () => {
@@ -13,14 +13,26 @@ describe("authority contract template", () => {
     const output = renderAuthorityContract({ ...emptyAuthorityDetails(), mode: "sale", ownerName: "Ayşe Malik", price: "4500000" });
     expect(output).toContain("SATIŞ YETKİ SÖZLEŞMESİ");
     expect(output).toContain("taşınmazın satış işlemleri");
-    expect(output).toContain("Sözleşmeye esas satış bedeli: 4500000 ₺");
+    expect(output).toContain("Sözleşmeye esas satış bedeli: ₺4.500.000,00");
   });
 
   it("serializes an explicit offline snapshot schema and record references", () => {
     const snapshot = createOfflineAuthoritySnapshot({ ...emptyAuthorityDetails(), ownerName: "Ayşe Malik" }, " YET-OF-001 ", "client-1", "property-1");
-    expect(snapshot.schema).toBe("global1881-offline-authority-v1");
+    expect(snapshot.schema).toBe("global1881-offline-authority-v2");
     expect(snapshot.contractNo).toBe("YET-OF-001");
     expect(snapshot.ownerName).toBe("Ayşe Malik");
     expect(snapshot.sourceClientRecordId).toBe("client-1");
+  });
+
+  it("creates a consultant-initialled year sequence and normalizes text/phones", () => {
+    expect(consultantInitials("ayşe yılmaz")).toBe("AY");
+    expect(nextAuthorityContractNo(["YET-2026-AY-001", "YET-2026-AY-004"], "Ayşe Yılmaz", "2026-08-23")).toBe("YET-2026-AY-005");
+    expect(toTurkishTitleCase("ayşe yıldız-şahin")).toBe("Ayşe Yıldız-Şahin");
+    expect(toInternationalPhone("0532 123 45 67")).toBe("+905321234567");
+  });
+
+  it("calculates amount and service fee from Turkish or plain decimal input", () => {
+    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "1.250.000,50", serviceFeeRate: "2" })).toMatchObject({ contractAmount: 1250000.5, serviceFeeAmount: 25000.01 });
+    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "2500.50", serviceFeeAmount: "125.25" })).toMatchObject({ contractAmount: 2500.5, serviceFeeAmount: 125.25 });
   });
 });

@@ -11,6 +11,7 @@ describe("offline navigation", () => {
     expect(normalizeOfflineHash("#/offline-merge")).toBe("#/offline-merge");
     expect(normalizeOfflineHash("#/offline-authority")).toBe("#/offline-authority");
     expect(normalizeOfflineHash("#/offline-rental")).toBe("#/offline-rental");
-    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-merge"]);
+    expect(normalizeOfflineHash("#/offline-performance")).toBe("#/offline-performance");
+    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-performance", "#/offline-merge"]);
   });
 });
