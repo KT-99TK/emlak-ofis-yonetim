@@ -52,4 +52,12 @@ describe("rental documents", () => {
     expect(returning).toContain("KİRALANAN TESLİM ALMA FORMU");
     expect(fixtures).toContain("DEMİRBAŞ VE TESLİM LİSTESİ");
   });
+
+  it("keeps tenant service fee and KDV outside the rental document and appendices", () => {
+    const contract = renderToStaticMarkup(<RentalContractDocument details={{ ...details, monthlyRent: "12000", vatCollection: "included" }} contractNo="KIR-2026-001" fontSize="10" />);
+    const appendix = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={{ ...details, monthlyRent: "12000", vatCollection: "included" }} contractNo="KIR-2026-001" fontSize="10" />);
+    expect(contract).not.toContain("Hizmet bedeli");
+    expect(contract).not.toContain("KDV tahsil");
+    expect(appendix).not.toContain("Hizmet bedeli");
+  });
 });

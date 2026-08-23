@@ -123,6 +123,7 @@ export function nextAuthorityContractNo(existingContractNumbers: string[], consu
 
 export function calculateAuthoritySummary(details: AuthorityContractDetails): AuthorityContractSummary {
   const contractAmount = amount(details.price);
+  if (details.mode === "rent") return { contractAmount, serviceFeeRate: 0, serviceFeeAmount: 0 };
   const serviceFeeRate = parseNumericValue(details.serviceFeeRate);
   const manualServiceFee = amount(details.serviceFeeAmount);
   return { contractAmount, serviceFeeRate, serviceFeeAmount: manualServiceFee || Math.round(contractAmount * serviceFeeRate / 100) };
@@ -156,13 +157,12 @@ export function normalizeAuthorityDetails(details: AuthorityContractDetails): Au
 /** Kullanıcının sağladığı Claude şablonundan türetilen, belgeye snapshot olarak yazılan koşul metni. */
 export function authorityContractConditions(details: AuthorityContractDetails) {
   const isSale = details.mode === "sale";
-  const commission = isSale ? "%2 + KDV" : "1 (bir) aylık kira bedeli + KDV";
-  const penalty = isSale ? "%4 + KDV" : "2 (iki) aylık kira bedeli + KDV";
+  const commission = "%2 + KDV";
+  const penalty = "%4 + KDV";
   const amountAccusative = isSale ? "satış bedelini" : "kira bedelini";
   const amountGenitive = isSale ? "satış bedelinin" : "kira bedelinin";
   const action = isSale ? "satma" : "kiralama";
   const actionNoun = isSale ? "satış" : "kiralama";
-  const payer = isSale ? "taşınmaz maliki" : "kiracı";
   const heading = isSale ? "Satış" : "Kiralama";
   const restriction = isSale ? "satamaz/sattıramaz" : "kiralayamaz/kiralatamaz";
   const recipient = isSale ? "alıcıya" : "kiracıya";
@@ -172,15 +172,21 @@ export function authorityContractConditions(details: AuthorityContractDetails) {
   const officeTax = details.officeTaxNo.trim() ? ` ve VKN: ${details.officeTaxNo.trim()}` : "";
   const officeSentence = `İşbu sözleşme, Yetki Belgesi No: ${details.officeAuthorizationNo.trim() || "……………………………"}${officeTax} ile faaliyet gösteren ${details.officeName.trim() || "……………………………"} adına düzenlenmiştir. İşlemi yürüten ${advisorTitle} ${advisor}${advisorCode}, işletme adına kiralık ve satılık portföy almaya ve işletme adına sözleşme imzalamaya yetkilidir.`;
   return [
-    `Taşınmaz maliki, işbu sözleşme ile emlak danışmanına, yukarıda nitelikleri belirtilen taşınmazı üçüncü kişilere ${action} yetkisi vermiştir. ${heading} gerçekleştiğinde, 05.06.2018 tarihli Resmî Gazete'de yayımlanan Taşınmaz Ticareti Hakkında Yönetmelik hükümleri uyarınca ${payer}, ${commission} tutarındaki hizmet bedelini emlak danışmanına ödemeyi kabul ve taahhüt eder.`,
+    isSale
+      ? `Taşınmaz maliki, işbu sözleşme ile emlak danışmanına, yukarıda nitelikleri belirtilen taşınmazı üçüncü kişilere ${action} yetkisi vermiştir. Satış gerçekleştiğinde, 05.06.2018 tarihli Resmî Gazete'de yayımlanan Taşınmaz Ticareti Hakkında Yönetmelik hükümleri uyarınca taşınmaz maliki, ${commission} tutarındaki hizmet bedelini emlak danışmanına ödemeyi kabul ve taahhüt eder.`
+      : `Taşınmaz maliki, işbu sözleşme ile emlak danışmanına, yukarıda nitelikleri belirtilen taşınmazı üçüncü kişilere ${action} yetkisi vermiştir. İşbu kiralama yetki belgesi, taşınmaz malikine hizmet bedeli veya KDV tahakkuku doğurmaz.`,
     officeSentence,
     "Sözleşme süresi imza tarihinden itibaren 6 (altı) aydır. Süre bitiminden 15 (on beş) gün önce yazılı fesih bildirimi yapılmadığı takdirde sözleşme aynı koşullarla 3 (üç) ay süreyle uzamış sayılır.",
     "Emlak danışmanı, taşınmazın pazarlanması için başka emlak danışmanlarıyla iş birliği yapabilir.",
     `Taşınmaz maliki, sözleşme süresince ${amountAccusative} emlak danışmanının yazılı onayı olmadan değiştiremez; aksi hâlde komisyon, eski ve yeni bedelden yüksek olanı üzerinden hesaplanır.`,
-    `Taşınmaz maliki, sözleşme süresince emlak danışmanının yazılı muvafakati olmadan taşınmazı üçüncü kişilere ${restriction}. Aksi hâlde gerçek ${amountGenitive} ${penalty} tutarını emlak danışmanına ödemeyi kabul ve taahhüt eder.`,
+    isSale
+      ? `Taşınmaz maliki, sözleşme süresince emlak danışmanının yazılı muvafakati olmadan taşınmazı üçüncü kişilere ${restriction}. Aksi hâlde gerçek ${amountGenitive} ${penalty} tutarını emlak danışmanına ödemeyi kabul ve taahhüt eder.`
+      : `Taşınmaz maliki, sözleşme süresince emlak danışmanının yazılı muvafakati olmadan taşınmazı üçüncü kişilere ${restriction}. Bu aykırılığın sonuçları, ilgili mevzuat ve somut sözleşme hükümleri çerçevesinde değerlendirilir.`,
     "Taşınmaz maliki, yukarıda kendisi ve taşınmazı hakkında verdiği bilgilerin doğru olduğunu kabul eder; bilgilerin gerçeği yansıtmamasından emlak danışmanı sorumlu tutulamaz.",
     "Taşınmaz maliki, işbu sözleşme süresince başka hiçbir aracı kişi veya kuruma yetki vermeyeceğini beyan ve taahhüt eder.",
-    `Emlak danışmanının gösterdiği ${recipient}, sözleşme süresi içinde veya bitiminden sonraki 3 (üç) ay içinde emlak danışmanı aracılığı dışında ${actionNoun} yapılması hâlinde taşınmaz maliki, ${amountGenitive} ${penalty} tutarını emlak danışmanına ödemeyi kabul ve taahhüt eder.`,
+    isSale
+      ? `Emlak danışmanının gösterdiği ${recipient}, sözleşme süresi içinde veya bitiminden sonraki 3 (üç) ay içinde emlak danışmanı aracılığı dışında ${actionNoun} yapılması hâlinde taşınmaz maliki, ${amountGenitive} ${penalty} tutarını emlak danışmanına ödemeyi kabul ve taahhüt eder.`
+      : `Emlak danışmanının gösterdiği ${recipient} ile sözleşme süresi içinde veya bitiminden sonraki 3 (üç) ay içinde emlak danışmanı aracılığı dışında ${actionNoun} yapılması hâlinde durum, ilgili mevzuat ve somut sözleşme hükümleri çerçevesinde değerlendirilir.`,
     "Taraflar yukarıdaki adresleri yasal tebligat adresi olarak kabul eder. Sözleşmeden doğan vergi, resim ve harçlar taşınmaz sahibine aittir. İşbu sözleşme 2 (iki) nüsha düzenlenmiş olup uyuşmazlıklarda İzmir Mahkemeleri ve İcra Müdürlükleri yetkilidir.",
   ];
 }
@@ -206,10 +212,10 @@ export function renderAuthorityContract(details: AuthorityContractDetails, contr
     `Alan: ${display(normalized.grossM2)} m² | Oda: ${display(normalized.roomCount)} | Kat/Cephe: ${display(normalized.floorAndView)}`,
     `Durum: ${display(normalized.condition)}`,
     "",
-    "3. YETKİ VE HİZMET BEDELİ",
+    normalized.mode === "sale" ? "3. YETKİ VE HİZMET BEDELİ" : "3. KİRALAMA YETKİSİ",
     `Malik, yukarıda bilgileri belirtilen taşınmazın ${action} işlemleri için aşağıda bilgileri bulunan emlak danışmanını yetkilendirir.`,
     `Sözleşmeye esas ${priceLabel}: ${summary.contractAmount ? formatAuthorityCurrency(summary.contractAmount, currency) : display(normalized.price)}`,
-    `Hizmet bedeli: ${summary.serviceFeeAmount ? formatAuthorityCurrency(summary.serviceFeeAmount, currency) : "belirtilmemiş"}${summary.serviceFeeRate ? ` | Oran: %${summary.serviceFeeRate}` : ""}`,
+    ...(normalized.mode === "sale" ? [`Hizmet bedeli: ${summary.serviceFeeAmount ? formatAuthorityCurrency(summary.serviceFeeAmount, currency) : "belirtilmemiş"}${summary.serviceFeeRate ? ` | Oran: %${summary.serviceFeeRate}` : ""}`] : []),
     "",
     "4. DANIŞMAN VE OFİS",
     `Danışman: ${display(normalized.consultantName)} | Baş harf kodu: ${consultantInitials(normalized.consultantName)} | Personel kodu: ${display(normalized.consultantCode)}`,

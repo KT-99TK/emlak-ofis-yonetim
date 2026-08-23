@@ -25,6 +25,11 @@ describe("authority performance", () => {
     expect(sumAuthorityPerformance(rows)).toEqual({ contractCount: 1, saleContractCount: 1, rentalContractCount: 0, contractAmountByCurrency: { TRY: 1000 }, serviceFeeByCurrency: { TRY: 20 }, expectedVatByCurrency: { TRY: 4 }, netServiceIncomeByCurrency: { TRY: 20 }, absorbedVatLossByCurrency: { TRY: 0 } });
   });
 
+  it("does not count a rental authority as service fee revenue before a rental contract exists", () => {
+    const rows = buildAuthorityPerformance([contract({ schema: "global1881-offline-authority-v2", mode: "rent", consultantName: "A", contractDate: "2026-08-01", price: "25000", serviceFeeAmount: "25000" })]);
+    expect(rows).toEqual([]);
+  });
+
   it("reports yearly KDV loss when collected total is invoiced as KDV included", () => {
     const yearly = buildYearlyVatCollectionSummary([contract({ schema: "global1881-offline-authority-v2", consultantName: "A", contractDate: "2026-02-01", mode: "sale", price: "500000", serviceFeeAmount: "10000", vatCollection: "included" })]);
     expect(yearly).toEqual([{ year: "2026", contractCount: 1, expectedVatByCurrency: { TRY: 2000 }, netServiceIncomeByCurrency: { TRY: 8333.33 }, absorbedVatLossByCurrency: { TRY: 1666.67 } }]);

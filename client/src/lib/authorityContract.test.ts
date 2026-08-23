@@ -16,6 +16,13 @@ describe("authority contract template", () => {
     expect(output).toContain("Sözleşmeye esas satış bedeli: ₺4.500.000");
   });
 
+  it("does not create an owner service fee or KDV obligation for a rental authority", () => {
+    const details = { ...emptyAuthorityDetails(), mode: "rent" as const, price: "25000", serviceFeeRate: "2", serviceFeeAmount: "500" };
+    expect(calculateAuthoritySummary(details)).toMatchObject({ contractAmount: 25000, serviceFeeRate: 0, serviceFeeAmount: 0 });
+    expect(authorityContractConditions(details)[0]).toContain("malikine hizmet bedeli veya KDV tahakkuku doğurmaz");
+    expect(renderAuthorityContract(details)).not.toContain("Hizmet bedeli:");
+  });
+
   it("serializes an explicit offline snapshot schema and record references", () => {
     const snapshot = createOfflineAuthoritySnapshot({ ...emptyAuthorityDetails(), ownerName: "Ayşe Malik" }, " YET-OF-001 ", "client-1", "property-1");
     expect(snapshot.schema).toBe("global1881-offline-authority-v2");
@@ -32,8 +39,8 @@ describe("authority contract template", () => {
   });
 
   it("calculates amount and service fee from Turkish or plain decimal input", () => {
-    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "1.250.000,50", serviceFeeRate: "2" })).toMatchObject({ contractAmount: 1250001, serviceFeeAmount: 25000 });
-    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "2500.50", serviceFeeAmount: "125.25" })).toMatchObject({ contractAmount: 2501, serviceFeeAmount: 125 });
+    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), mode: "sale", price: "1.250.000,50", serviceFeeRate: "2" })).toMatchObject({ contractAmount: 1250001, serviceFeeAmount: 25000 });
+    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), mode: "sale", price: "2500.50", serviceFeeAmount: "125.25" })).toMatchObject({ contractAmount: 2501, serviceFeeAmount: 125 });
     expect(formatWholeCurrencyInput("1250000")).toBe("1.250.000");
   });
 

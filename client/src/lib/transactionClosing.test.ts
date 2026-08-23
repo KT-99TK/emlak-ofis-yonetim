@@ -28,4 +28,20 @@ describe("offline transaction closing", () => {
     const withReservation = addOptionalCollection(draft, { category: "reservation", expectedAmount: 50000, dueDate: "2026-08-24" }, "deniz");
     expect(withReservation.collections.at(-1)).toMatchObject({ category: "reservation", expectedAmount: 50000, state: "planned" });
   });
+
+  it("creates tenant service fee and separate 20% VAT only from a rental contract", () => {
+    const source = record({ schema: "global1881-offline-rental-v4", contractNo: "KIR-2026-001", tenantName: "Deniz Kiracı", ownerName: "Ayşe Malik", monthlyRent: "12000", startDate: "2026-08-23", signedByParties: true, signedAt: "2026-08-23", ownerApproval: "approved", consultantName: "Cahit Tercan", consultantCode: "CT" });
+    const transaction = createTransactionFromContract(source, [source], "cahit")!;
+    expect(transaction).toMatchObject({ kind: "rental", vatCollection: "separate" });
+    expect(transaction.collections.map((item) => [item.category, item.label, item.payer, item.expectedAmount])).toEqual([
+      ["rentalFirstMonth", "İlk kira", "tenant", 12000],
+      ["serviceFee", "Kiracı hizmet bedeli (1 aylık kira)", "tenant", 12000],
+      ["vat", "Kiracı hizmet bedeli KDV (%20)", "tenant", 2400],
+    ]);
+  });
+
+  it("does not open a rental closing file until the parties' signature is confirmed", () => {
+    const source = record({ schema: "global1881-offline-rental-v4", contractNo: "KIR-2026-002", monthlyRent: "12000", startDate: "2026-08-23", signedByParties: false, ownerApproval: "approved" });
+    expect(createTransactionFromContract(source, [source], "cahit")).toBeNull();
+  });
 });

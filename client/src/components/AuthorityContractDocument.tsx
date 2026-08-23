@@ -17,6 +17,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
   const normalized = normalizeAuthorityDetails(details);
   const summary = calculateAuthoritySummary(normalized);
   const conditions = authorityContractConditions(normalized);
+  const isSale = normalized.mode === "sale";
   const priceLabel = normalized.mode === "sale" ? "Satış Bedeli (Sözleşmeye Esas)" : "Aylık Kira Bedeli (Sözleşmeye Esas)";
   const fullTax = [normalized.officeTaxOffice, normalized.officeTaxNo].filter(Boolean).join(" / ");
 
@@ -56,7 +57,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
           <Row firstLabel="Ada / Parsel / Bağımsız Bölüm" firstValue={normalized.parcelInfo} secondLabel="Niteliği / Cinsi" secondValue={normalized.propertyType} />
           <Row firstLabel="Brüt / Net m²" firstValue={normalized.grossM2} secondLabel="Oda Sayısı" secondValue={normalized.roomCount} />
           <Row firstLabel="Kat / Cephe / Manzara" firstValue={normalized.floorAndView} secondLabel="Kullanım Durumu" secondValue={normalized.condition} />
-          <Row firstLabel={priceLabel} firstValue={summary.contractAmount ? formatAuthorityCurrency(summary.contractAmount, normalized.currency) : normalized.price} secondLabel="Hizmet Bedeli" secondValue={summary.serviceFeeAmount ? formatAuthorityCurrency(summary.serviceFeeAmount, normalized.currency) : ""} />
+          {isSale ? <Row firstLabel={priceLabel} firstValue={summary.contractAmount ? formatAuthorityCurrency(summary.contractAmount, normalized.currency) : normalized.price} secondLabel="Hizmet Bedeli" secondValue={summary.serviceFeeAmount ? formatAuthorityCurrency(summary.serviceFeeAmount, normalized.currency) : ""} /> : <Row firstLabel={priceLabel} firstValue={summary.contractAmount ? formatAuthorityCurrency(summary.contractAmount, normalized.currency) : normalized.price} />}
         </tbody></table>
       </section>
 

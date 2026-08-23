@@ -329,6 +329,11 @@
 
 ## Hizmet bedeli KDV tahsilat kaybı göstergesi
 
+- [x] Kira yetki sözleşmesinden malike yönelik hizmet bedeli/KDV tahsilat ifade ve hesaplarını kaldır
+- [x] İmzalı kira sözleşmesinden kiracı için bir aylık kira bedeli + %20 KDV hizmet bedeli tahakkuku oluştur
+- [x] Kira sözleşmesine taraf imza teyidi ekle; İşlem Kapanışları yalnız teyitli kira sözleşmesini kaynak gösterebilsin
+- [x] Kiracı hizmet bedeli/KDV eksikliği için yalnız back-office’te görünen, broker manager onaylı manuel istisna ve audit akışı ekle
+- [x] Müşteriye verilen kira/yetki belgelerinde tahsilat tercihi veya manuel istisna ifadelerini gizle
 - [x] Satışta %2 hizmet bedeli, kiralamada bir aylık kira bedeli ve %20 KDV varsayımları için brüt/net tahsilat hesaplamasını ekle
 - [x] KDV’nin ayrıca tahsil edilmediği, tahsil edilen tutarın KDV dahil faturaya dönüştürüldüğü senaryodaki tahmini KDV yükü ve net gelir kaybını hesapla
 - [x] Danışman performans ve yıllık özet tablolarında ayrıca tahsil edilmeyen KDV, net hizmet geliri ve tahmini kayıp sütunlarını göster
@@ -365,6 +370,7 @@
 
 ## Sözleşme marka ve yazdırma düzeni
 
+- [x] Yetki sözleşmesi önizleme başlığındaki “Canlı A4 belge önizlemesi” ibaresini kaldır
 - [x] Satış/kiralama yetki sözleşmelerinde malik ile yetki alan ofis veya danışmanı iki eşit çerçeveli imza kutusunda göster
 - [x] Satış ve kiralama yetki sözleşmelerine siyah leke oluşturmayan, baskı güvenli şeffaf Global 1881 mühür/watermark işaretini ekle
 - [x] Kira kontratlarından Global 1881’in taraf olduğu izlenimini veren logo/başlık/kurumsal taraf bilgilerini kaldır; alt solda yalnız danışman düzenleme izi bırak

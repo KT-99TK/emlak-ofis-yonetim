@@ -12,4 +12,11 @@ describe("authority contract signature boxes", () => {
     expect(html).toContain("Yetkili danışman: Cahit Tercan");
     expect(html.match(/<div class="authority-party-signature-box"/g)).toHaveLength(2);
   });
+
+  it("does not show a service fee or KDV field on the rental authority document", () => {
+    const html = renderToStaticMarkup(<AuthorityContractDocument details={{ ...emptyAuthorityDetails(), mode: "rent", ownerName: "Ayşe Malik", price: "25000", serviceFeeAmount: "25000", serviceFeeRate: "2" }} contractNo="YET-2026-CT-002" fontSize="10" />);
+    expect(html).toContain("Aylık Kira Bedeli (Sözleşmeye Esas)");
+    expect(html).not.toContain("Hizmet Bedeli");
+    expect(html).not.toContain("KDV tahsil edildi");
+  });
 });

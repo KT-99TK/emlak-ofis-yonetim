@@ -30,6 +30,9 @@ export type OfflineRentalDetails = {
   guarantorIdentity: string;
   guarantorLimit: string;
   hasGuarantor: boolean;
+  /** Fizikî kira sözleşmesinin taraflarca imzalandığını teyit eden yalnız back-office alanı. */
+  signedByParties: boolean;
+  signedAt: string;
   propertyNeighborhood: string;
   propertyAddress: string;
   propertyType: string;
@@ -63,7 +66,7 @@ export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-20
 
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
-  tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false,
+  tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false, signedByParties: false, signedAt: "",
   propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
@@ -134,7 +137,7 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     "", "TESLİM / DEMİRBAŞ VE İMZA EKİ",
     `Teslim/demirbaş listesi: ${value(rentalFixtureSummary(details))}`,
     `Sayaç / abonelik notu: ${value(details.meterNotes)}`,
-    "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Danışman imza: ____________________",
+    details.hasGuarantor ? "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Kefil imza: ____________________" : "Kiraya Veren imza: ____________________    Kiracı imza: ____________________",
     "", "SÖZLEŞME KOŞULLARI",
     ...rentalContractConditions(details, summary.endDate).map((condition, index) => `${index + 1}. ${condition}`),
     "", "Bu taslak offline cihazda oluşturulmuştur. Aktifleştirme, owner approval ve imza kontrolünden sonra gerçekleştirilmelidir.",
@@ -144,12 +147,13 @@ export function renderRentalContract(details: OfflineRentalDetails) {
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
   const summary = calculateRentalSummary(details);
   return {
-    schema: "global1881-offline-rental-v3" as const,
+    schema: "global1881-offline-rental-v4" as const,
     contractNo: contractNo.trim(),
     sourceOwnerRecordId,
     sourceTenantRecordId,
     sourcePropertyRecordId,
     ...details,
+    vatCollection: "separate" as const,
     summary,
     conditionTemplateVersion: RENTAL_CONDITIONS_TEMPLATE_VERSION,
     conditions: rentalContractConditions(details, summary.endDate),

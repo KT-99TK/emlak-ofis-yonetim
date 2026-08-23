@@ -26,7 +26,7 @@ export type YearlyVatCollectionSummary = { year: string; contractCount: number; 
 type PerformanceItem = { consultantName: string; consultantCode: string; kind: "sale" | "rental"; currency: string; contractAmount: number; serviceFeeExcludingVat: number; vatCollection: "separate" | "included"; date: string };
 
 function isAuthoritySnapshot(snapshot: AuthoritySnapshot | RentalSnapshot): snapshot is AuthoritySnapshot { return snapshot.schema === "global1881-offline-authority-v1" || snapshot.schema === "global1881-offline-authority-v2"; }
-function isRentalSnapshot(snapshot: AuthoritySnapshot | RentalSnapshot): snapshot is RentalSnapshot { return snapshot.schema === "global1881-offline-rental-v1" || snapshot.schema === "global1881-offline-rental-v2"; }
+function isRentalSnapshot(snapshot: AuthoritySnapshot | RentalSnapshot): snapshot is RentalSnapshot { return snapshot.schema === "global1881-offline-rental-v1" || snapshot.schema === "global1881-offline-rental-v2" || snapshot.schema === "global1881-offline-rental-v3" || snapshot.schema === "global1881-offline-rental-v4"; }
 function addTotal(target: Record<string, number>, currency: string, value: number) { target[currency] = Math.round(((target[currency] ?? 0) + value) * 100) / 100; }
 
 function safeAuthorityDetails(snapshot: AuthoritySnapshot): AuthorityContractDetails {
@@ -59,6 +59,7 @@ function performanceItems(records: OfflineRecord[]): PerformanceItem[] {
       const snapshot = JSON.parse(record.details) as AuthoritySnapshot | RentalSnapshot;
       if (isAuthoritySnapshot(snapshot)) {
         const details = safeAuthorityDetails(snapshot);
+        if (details.mode !== "sale") continue;
         const calculated = calculateAuthoritySummary(details);
         items.push({ consultantName: details.consultantName, consultantCode: details.consultantCode, kind: details.mode === "sale" ? "sale" : "rental", currency: details.currency, contractAmount: snapshot.summary?.contractAmount ?? calculated.contractAmount, serviceFeeExcludingVat: authorityServiceFee(details, snapshot), vatCollection: details.vatCollection, date: details.contractDate });
       } else if (isRentalSnapshot(snapshot)) {

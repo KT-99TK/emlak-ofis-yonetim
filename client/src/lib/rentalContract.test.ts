@@ -13,10 +13,12 @@ describe("offline rental contract calculations", () => {
   });
 
   it("builds a versioned offline rental snapshot with supplied residential conditions", () => {
-    const details = { ...emptyRentalDetails(), ownerName: "Ayşe Malik", tenantName: "Mehmet Kiracı", monthlyRent: "18000" };
+    const details = { ...emptyRentalDetails(), ownerName: "Ayşe Malik", tenantName: "Mehmet Kiracı", monthlyRent: "18000", signedByParties: true, signedAt: "2026-08-23" };
     const snapshot = createOfflineRentalSnapshot(details, " KIR-OF-01 ");
     expect(snapshot.contractNo).toBe("KIR-OF-01");
-    expect(snapshot.schema).toBe("global1881-offline-rental-v3");
+    expect(snapshot.schema).toBe("global1881-offline-rental-v4");
+    expect(snapshot.signedByParties).toBe(true);
+    expect(snapshot.signedAt).toBe("2026-08-23");
     expect(snapshot.conditionTemplateVersion).toBe(RENTAL_CONDITIONS_TEMPLATE_VERSION);
     expect(snapshot.appendixTemplateVersion).toBe(RENTAL_APPENDIX_TEMPLATE_VERSION);
     expect(snapshot.appendices.fixtures.fixtures).toBe(details.fixtures);
