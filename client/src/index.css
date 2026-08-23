@@ -28,6 +28,9 @@
 html { background: var(--background); }
 body { margin: 0; min-width: 320px; background: var(--background); color: var(--foreground); font-family: 'DM Sans', system-ui, sans-serif; }
 .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+.workspace-content-frame { width: 100%; max-width: 1180px; margin-inline: auto; }
+@media (min-width: 1536px) { .workspace-content-frame { max-width: 1120px; } }
+@media screen and (min-width: 1024px) { .workspace-content-frame:has(.authority-print-shell) { max-width: none; } }
 button, a { transition: transform 160ms cubic-bezier(.23,1,.32,1), background-color 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
 button:active { transform: scale(.98); }
 ::selection { background: #d6ba7b55; color: #173e39; }

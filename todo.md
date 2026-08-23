@@ -13,6 +13,24 @@
 - [x] Ofise özel logo, tipografi, renk sistemi ve HTML örneğinden uyarlanan görsel kalıpları uygula
 - [x] Ana karşılama alanını Türkçe yerel tarih ve “İyi çalışmalar, gününüz bereketli geçsin.” selamlamasıyla güncelle
 - [x] Responsive ekranları, boş/yükleniyor/hata durumlarını ve erişilebilir klavye akışlarını doğrula
+- [x] Operasyon ekranlarında maksimum içerik genişliğini yaklaşık 1.080–1.180 px ile sınırla; A4 belge önizlemesini koru
+- [x] Yetki ve Kira sözleşmesi ekranlarında A4 önizlemeyi global içerik genişliği sınırından muaf tut veya önizleme alanı için ayrı genişlik kuralı uygula
+- [x] Yetki/Kira A4 önizlemelerinin yeni masaüstü düzeninde bozulmadığını ekran görüntüsü veya bileşen/UI testiyle doğrula
+- [x] Yetki ve Kira sözleşmesi A4 önizlemeleri için gerçek render/UI testi ekle; baskı kabuklarının yeni layout altında doğru kapsayıcıyla oluştuğunu doğrula
+- [ ] Electron/offline hash rotalarında gerçek A4 önizleme ekran görüntüsü al veya Windows/Electron kanıtı kaydet; yeni genişlik düzeninde bozulmadığını görsel olarak doğrula
+- [x] Dashboard sağ sütununa koyu yeşil zeminli Ofis Akışı paneli ekle; vade, sözleşme işlemi ve açık tahsilat özetlerini hiyerarşik göster
+- [x] Ofis Akışı panelinde danışman gizliliğini koru; başka danışmanlara ait müşteri adı, telefon ve notları hiçbir kartta gösterme
+- [x] Ofis Akışı panelinin geniş ekranda sağ sütunda, dar ekranda kompakt erişilebilir düzende çalıştığını UI testi ve ekran görüntüsüyle doğrula
+- [x] Danışman girişinde Ofis Akışı panelini yalnız kendi sözleşme, vade, talep ve tahsilat sorumluluklarıyla sınırla
+- [x] Broker manager girişinde kişi detayı yerine ofis geneli istisna sayıları; yalnız gerekli müdahalede sınırlı detay görünümü uygula
+- [x] Danışman girişinde yalnız kendi açık vade kayıtlarını denetle; bugün, gecikmiş veya en fazla üç gün içindeki kritik işlemler için popup göster
+- [x] Kritik olmayan yaklaşan vadeleri yalnız Ofis Akışı sağ panelinde bilgi kartı olarak göster; popup ve panel eşiklerini test et
+- [ ] Ofis Akışı paneline güvenli talep-eşleşme, eksik işlem ve broker notu özetleri için merkezi veri kaynakları ve kartlar ekle
+- [x] Danışman görünümüne kendi sözleşme ve tahsilat sorumluluklarını da rol bazlı bağla; başka danışmana ait kayıtları dışarıda bırak
+- [x] Broker manager için kişi adı yaymadan sınırlı istisna detayına inen ayrı akış ekle ve test et
+- [x] Ofis Akışı panelinin sağ sütun/alt yığın responsive davranışını render/UI testiyle doğrula
+- [x] Ofis Akışı panelinin masaüstünde sağ sütunda, dar ekranda alt yığında render edildiğini DOM düzeyinde doğrulayan gerçek component/UI testi ekle
+- [x] Ofis Akışı panelinin güncel bileşen yapısında geniş ve dar viewport ekran görüntülerini kaydet; sağ sütun ve alt yığın davranışını görsel olarak kanıtla
 - [x] Vitest testlerini yaz, tür kontrolü ve test komutlarını çalıştır
 - [x] Uygulama ilk sürümünü checkpoint ile teslimata hazırla
 
