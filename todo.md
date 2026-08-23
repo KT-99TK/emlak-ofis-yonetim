@@ -282,3 +282,12 @@
 - [x] Yetki Sözleşmeleri için ayrı merkezi menü/rota, satış-kiralama seçimi ve otomatik doldurma formu oluştur
 - [x] Canlı belge önizlemesi, güvenli details snapshot kaydı ve rol kontrollü kayıt akışını uygula
 - [ ] Yetki sözleşmesi ekranını birim testleri, production build ve kullanıcı kontrolüyle doğrula
+
+## Offline sözleşme çalışma alanı
+
+- [ ] Yetki ve kira sözleşmesi kayıt tiplerini mevcut IndexedDB offline store, manifest ve merge şemasıyla eşleştir
+- [ ] Electron offline sidebar’a Yetki Sözleşmeleri ve Kira Sözleşmeleri menülerini güvenli hash rotaları olarak ekle
+- [x] Claude düzenli Offline Yetki Sözleşmeleri formunu, canlı belge önizlemesini ve yerel taslak kaydını uygula
+- [ ] Claude düzenli Offline Kira Sözleşmeleri formunu; kira/depozito/süre/tahliye hesaplamaları ve yerel vade kayıtlarıyla uygula
+- [ ] Offline sözleşme kayıtlarını AES-GCM şifreli export, manifest/checksum/imza ve manager merge akışına dahil et
+- [ ] Windows offline sözleşme ekranlarını gerçek paket ve kullanıcı ekran kanıtıyla doğrula

@@ -7,8 +7,9 @@ describe("offline navigation", () => {
     expect(normalizeOfflineHash("#/unsupported")).toBe("#/offline");
   });
 
-  it("keeps the merge route and exposes only local desktop destinations", () => {
+  it("keeps the contract and merge routes among local desktop destinations", () => {
     expect(normalizeOfflineHash("#/offline-merge")).toBe("#/offline-merge");
-    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-merge"]);
+    expect(normalizeOfflineHash("#/offline-authority")).toBe("#/offline-authority");
+    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-merge"]);
   });
 });

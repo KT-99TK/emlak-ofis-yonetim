@@ -14,21 +14,23 @@ import Audit from "./pages/Audit";
 import Team from "./pages/Team";
 import OfflineWorkspace from "./pages/OfflineWorkspace";
 import BackupMerge from "./pages/BackupMerge";
+import OfflineAuthorityContracts from "./pages/OfflineAuthorityContracts";
 import Obligations from "./pages/Obligations";
 
 const isElectronDesktop = () => typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
 
 function DesktopRouter() {
-  const [route, setRoute] = useState<"offline" | "merge">(() => typeof window !== "undefined" && window.location.hash === "#/offline-merge" ? "merge" : "offline");
+  const routeFromHash = () => window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : "offline";
+  const [route, setRoute] = useState<"offline" | "authority" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
 
   useEffect(() => {
-    const onHashChange = () => setRoute(window.location.hash === "#/offline-merge" ? "merge" : "offline");
+    const onHashChange = () => setRoute(routeFromHash());
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const navigate = (next: "offline" | "merge") => {
-    window.location.hash = next === "merge" ? "/offline-merge" : "/offline";
+  const navigate = (next: "offline" | "authority" | "merge") => {
+    window.location.hash = next === "merge" ? "/offline-merge" : next === "authority" ? "/offline-authority" : "/offline";
     setRoute(next);
   };
 
@@ -37,9 +39,10 @@ function DesktopRouter() {
       <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#e7dfc9] bg-[#fffaf0] px-3 py-2 text-xs text-[#8d6f3f]">
         <strong>Offline cihaz:</strong>
         <button type="button" onClick={() => navigate("offline")} className={`rounded-md px-2 py-1 font-medium ${route === "offline" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Çalışma alanı</button>
+        <button type="button" onClick={() => navigate("authority")} className={`rounded-md px-2 py-1 font-medium ${route === "authority" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yetki sözleşmeleri</button>
         <button type="button" onClick={() => navigate("merge")} className={`rounded-md px-2 py-1 font-medium ${route === "merge" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yedekleri birleştir</button>
       </div>
-      {route === "merge" ? <BackupMerge /> : <OfflineWorkspace />}
+      {route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : <OfflineWorkspace />}
     </DashboardLayout>
   );
 }

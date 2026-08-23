@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authorityContractTitle, emptyAuthorityDetails, renderAuthorityContract } from "./authorityContract";
+import { authorityContractTitle, createOfflineAuthoritySnapshot, emptyAuthorityDetails, renderAuthorityContract } from "./authorityContract";
 
 describe("authority contract template", () => {
   it("renders the rent template with safe placeholders", () => {
@@ -14,5 +14,13 @@ describe("authority contract template", () => {
     expect(output).toContain("SATIŞ YETKİ SÖZLEŞMESİ");
     expect(output).toContain("taşınmazın satış işlemleri");
     expect(output).toContain("Sözleşmeye esas satış bedeli: 4500000 ₺");
+  });
+
+  it("serializes an explicit offline snapshot schema and record references", () => {
+    const snapshot = createOfflineAuthoritySnapshot({ ...emptyAuthorityDetails(), ownerName: "Ayşe Malik" }, " YET-OF-001 ", "client-1", "property-1");
+    expect(snapshot.schema).toBe("global1881-offline-authority-v1");
+    expect(snapshot.contractNo).toBe("YET-OF-001");
+    expect(snapshot.ownerName).toBe("Ayşe Malik");
+    expect(snapshot.sourceClientRecordId).toBe("client-1");
   });
 });

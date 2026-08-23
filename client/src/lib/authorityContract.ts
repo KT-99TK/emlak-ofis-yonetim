@@ -55,3 +55,13 @@ export function renderAuthorityContract(details: AuthorityContractDetails) {
     `Bu belge ${display(details.contractDate)} tarihinde iki nüsha olarak düzenlenmiştir. Ana sözleşme maddeleri, ofis tarafından onaylanmış şablon sürümü üzerinden uygulanır.`,
   ].join("\n");
 }
+
+export function createOfflineAuthoritySnapshot(details: AuthorityContractDetails, contractNo: string, sourceClientRecordId?: string, sourcePropertyRecordId?: string) {
+  return {
+    schema: "global1881-offline-authority-v1" as const,
+    contractNo: contractNo.trim(),
+    sourceClientRecordId,
+    sourcePropertyRecordId,
+    ...details,
+  };
+}
