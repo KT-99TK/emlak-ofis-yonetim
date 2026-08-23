@@ -27,6 +27,7 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { getUserId } from "@/lib/offlineStore";
+import { normalizeOfflineHash, offlineNavigationItems } from "@/lib/offlineNavigation";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Genel Bakış", path: "/" },
@@ -116,11 +117,15 @@ function DashboardLayoutContent({
   const isDesktop = typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
   const offlineUserId = isDesktop ? getUserId() : "";
   const [location, setLocation] = useLocation();
+  const currentOfflineHash = normalizeOfflineHash(typeof window === "undefined" ? undefined : window.location.hash);
+  const visibleMenuItems = isDesktop ? offlineNavigationItems : menuItems;
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => item.path === location);
+  const activeMenuItem = isDesktop
+    ? offlineNavigationItems.find(item => item.path === currentOfflineHash)
+    : menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
   const [isOnline, setIsOnline] = useState(() => typeof navigator === "undefined" ? true : navigator.onLine);
   useEffect(() => { const onOnline = () => setIsOnline(true); const onOffline = () => setIsOnline(false); window.addEventListener("online", onOnline); window.addEventListener("offline", onOffline); return () => { window.removeEventListener("online", onOnline); window.removeEventListener("offline", onOffline); }; }, []);
@@ -178,7 +183,15 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
-              {!isCollapsed ? (
+              {!isCollapsed ? isDesktop ? (
+                <div className="flex min-w-0 items-center gap-2.5" aria-label="Global 1881 Gayrimenkul">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#c8b487] bg-[#173e39] font-serif text-sm font-semibold text-[#f8f0df]">G</div>
+                  <div className="min-w-0 leading-none">
+                    <p className="truncate font-serif text-sm font-semibold tracking-[0.08em] text-[#223230]">GLOBAL 1881</p>
+                    <p className="mt-1 truncate text-[9px] uppercase tracking-[0.15em] text-[#8d6f3f]">Gayrimenkul</p>
+                  </div>
+                </div>
+              ) : (
                 <div className="flex items-center gap-2 min-w-0">
                   <img src="/manus-storage/01_logo_yatay_6b31c4b8.webp" alt="Global 1881 Gayrimenkul" className="h-9 w-auto max-w-[190px] object-contain object-left" />
                 </div>
@@ -188,13 +201,16 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
-                const isActive = location === item.path;
+              {visibleMenuItems.map(item => {
+                const isActive = isDesktop ? currentOfflineHash === item.path : location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       isActive={isActive}
-                      onClick={() => setLocation(item.path)}
+                      onClick={() => {
+                        if (isDesktop) window.location.hash = item.path.slice(1);
+                        else setLocation(item.path);
+                      }}
                       tooltip={item.label}
                       className={`h-10 transition-all font-normal`}
                     >

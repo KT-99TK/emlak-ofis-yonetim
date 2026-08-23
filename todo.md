@@ -22,8 +22,8 @@
 - [x] Kira/vergi ödeme durumlarını ve gecikme risklerini dashboard üzerinde göster
 - [x] Kira ve vergi mali tablolarını dönem, portföy, danışman ve ödeme durumu bazında oluştur
 - [x] PC tek kullanıcı ve server merkezi kullanımını ayıran veri içe/dışa aktarma akışını tasarla
-- [x] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit kaydı ekle
-- [x] Periyodik uyarıların platform zamanlayıcısı ile güvenli, idempotent ve deploy sonrası çalışmasını uygula
+- [ ] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit kaydı ekle
+- [ ] Periyodik uyarıların platform zamanlayıcısı ile güvenli, idempotent ve deploy sonrası çalışmasını uygula
 - [x] Yeni vade, mali tablo ve yedekleme akışlarını test edip güncel checkpoint oluştur
 
 ## Mimari kararı: merkezi server + PC kısa yolu
@@ -265,23 +265,8 @@
 
 - [x] ManifestPreviewRow/OfflineWorkspace manifest component testine `exportedAt` alanının render edilen tarih çıktısı için açık assertion ekle ve test çıktısında doğrula
 
-## Heartbeat üretim doğrulaması
+## Checkpoint kurtarma ve Electron offline düzeltmesi
 
-- [x] Heartbeat reminder handler’da run-key/idempotency kontrolünü bildirim göndermeden önce yap; tekrar çağrılarda duplicate notification üretmeyi engelle
-- [ ] Uygulamayı production’a deploy edip gerçek Heartbeat job oluştur; `/api/scheduled/reminders` callback’inin başarılı ilk çalışmasını log veya kullanıcı kanıtıyla doğrula
-
-## Windows 1.0.0 sürüm karışıklığı
-
-- [x] Kullanıcı startup.log kayıtlarında hâlâ 1.0.0 görüldüğü için Electron package.json, builder config, dist metadata ve installer adlarını tek sürüm 1.0.2 altında yeniden doğrula; eski kurulum/çıktı yolunun yanlışlıkla çalışmasını engelle
-
-## Installer dosya adı ayrıştırması
-
-- [x] Windows installer çıktısını `Global1881-Ofis-Offline-v1.0.2-FINAL.exe` adıyla üret ve kılavuzdaki eski installer adlarını güncelle
-
-## Yanlış kaynak klasörüyle paketleme
-
-- [x] Windows kılavuzuna ZIP’i temiz ve yeni klasöre çıkarma, `package.json` sürümünü 1.0.2 ile kontrol etme ve eski D:\Manus-test klasörünü kullanmama adımlarını ekle
-
-## 1.0.2 Electron merkezi URL yönlendirmesi
-
-- [x] Paketlenmiş Electron uygulamasının `https://emlakdash-kcw9r85v.manus.space` yerine yerel `file:` offline çalışma alanında kalmasını sağla ve uzak URL navigasyonunu engelle
+- [x] Büyük release build dosyaları içermeyen temiz checkpoint tabanında offline sidebar hash yönlendirmesini yeniden uygula
+- [x] Electron offline sidebar’daki sıkışık Global 1881 marka alanını file-safe yerel lockup ile yeniden uygula
+- [ ] Test/build sonrası checkpoint aktarımını doğrula ve güncel Windows kaynak ZIP’ini hazırla
