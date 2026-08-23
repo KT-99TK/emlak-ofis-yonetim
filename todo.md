@@ -40,6 +40,12 @@
 - [x] Sayaç numaralarını teslim alma/teslim etme eklerinde tutarlı ve yazdırılabilir biçimde göster
 - [x] DASK poliçe numarasını ana kira sözleşmesinin taşınmaz/teslim bilgileri bölümünde belirgin kutuda göster
 - [ ] Yeni abonelik/DASK alanlarını birim test, A4 render ve Windows/Electron görsel doğrulama kapsamına ekle
+- [x] Yerel Çalışma Alanı kayıt filtresi açılır listesini opak zemin, yeterli satır yüksekliği ve arka içerikten bağımsız katmanla okunur hâle getir
+- [ ] Kayıt filtresi seçicisinin Windows/dar görünümde istatistik kartları ve kayıt satırları üzerinde karışmadan açıldığını UI testi ve ekran görüntüsüyle doğrula
+- [x] Offline kayıt formundaki kayıt türü seçicisini de aynı opak ve yüksek katmanlı seçim paneli kuralına bağla
+- [ ] Filtre ve kayıt türü seçicilerinin arka form alanlarıyla karışmadığını dar Windows görünümünde birlikte doğrula
+- [x] Yerel kaydet düğmesinin etkin ve pasif durumlarında metin/ikon kontrastını görünür ve erişilebilir hâle getir
+- [ ] Yerel Çalışma Alanı seçici/düğme görünürlük düzeltmelerini dar Windows ekran görüntüsü ve istemci UI testiyle doğrula
 - [x] Vitest testlerini yaz, tür kontrolü ve test komutlarını çalıştır
 - [x] Uygulama ilk sürümünü checkpoint ile teslimata hazırla
 
