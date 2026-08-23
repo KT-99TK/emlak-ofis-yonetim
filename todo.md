@@ -322,6 +322,9 @@
 
 ## Offline kira sözleşmesi tam şablon
 
+- [x] İlk kira son ödeme tarihini sözleşme tarihinden en fazla beş gün sonrasıyla sınırla ve sözleşmede açıkça göster
+- [x] Tahliye, teslim etme, teslim alma ve demirbaş eklerini kira önizlemesi üzerinde belirgin tekil yazdırma düğmeleriyle göster
+- [x] Tahliye, teslim etme, teslim alma ve demirbaş eklerini işaret kutusuyla sözleşme paketine seçerek dahil et
 - [x] Claude kira şablonundaki konut ve işyeri koşullarını, teslim/demirbaş ile imza bölümlerini kaynak içerikle eşleştir
 - [x] Konut ve işyeri koşullarını ayrı değişmez sürüm etiketi ve snapshot olarak offline kira sözleşmesi kaydına ekle
 - [x] Offline kira A4 önizlemesini bilgi tabloları, tam koşullar, teslim/demirbaş ve imza bölümleriyle form altına yerleştir

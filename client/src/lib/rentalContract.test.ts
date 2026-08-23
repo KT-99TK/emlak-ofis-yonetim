@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, fixtureItemsFromLegacy, fixtureItemsToLegacy, formatWholeRentalAmount, RENTAL_APPENDIX_TEMPLATE_VERSION, renderRentalContract } from "./rentalContract";
+import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, firstPaymentDeadline, fixtureItemsFromLegacy, fixtureItemsToLegacy, formatWholeRentalAmount, RENTAL_APPENDIX_TEMPLATE_VERSION, renderRentalContract } from "./rentalContract";
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
 describe("offline rental contract calculations", () => {
@@ -9,24 +9,33 @@ describe("offline rental contract calculations", () => {
     expect(summary.paymentDay).toBe(28);
     expect(summary.endDate).toBe("2027-01-15");
     expect(summary.noticeDate).toBe("2026-11-16");
-    expect(summary.firstDueDate).toBe("2026-01-28");
+    expect(summary.firstDueDate).toBe("2026-01-20");
+    expect(summary.maxFirstPaymentDate).toBe("2026-01-20");
   });
 
   it("builds a versioned offline rental snapshot with supplied residential conditions", () => {
     const details = { ...emptyRentalDetails(), ownerName: "Ayşe Malik", tenantName: "Mehmet Kiracı", monthlyRent: "18000", signedByParties: true, signedAt: "2026-08-23" };
     const snapshot = createOfflineRentalSnapshot(details, " KIR-OF-01 ");
     expect(snapshot.contractNo).toBe("KIR-OF-01");
-    expect(snapshot.schema).toBe("global1881-offline-rental-v4");
+    expect(snapshot.schema).toBe("global1881-offline-rental-v5");
     expect(snapshot.signedByParties).toBe(true);
     expect(snapshot.signedAt).toBe("2026-08-23");
     expect(snapshot.conditionTemplateVersion).toBe(RENTAL_CONDITIONS_TEMPLATE_VERSION);
     expect(snapshot.appendixTemplateVersion).toBe(RENTAL_APPENDIX_TEMPLATE_VERSION);
     expect(snapshot.appendices.fixtures.fixtures).toBe(details.fixtures);
+    expect(snapshot.appendices.handover.includedInPackage).toBe(true);
     expect(snapshot.conditions).toEqual(rentalContractConditions(details, "2027-08-23"));
     expect(formatWholeRentalAmount("1250000")).toBe("1.250.000");
     expect(renderRentalContract(details)).toContain("KONUT KİRA SÖZLEŞMESİ");
     expect(renderRentalContract(details)).toContain("Ayşe Malik");
     expect(renderRentalContract(details)).toContain("SÖZLEŞME KOŞULLARI");
+  });
+
+  it("caps the first rent due date at five days after the contract date", () => {
+    const details = { ...emptyRentalDetails(), startDate: "2026-08-23", firstPaymentDueDate: "2026-09-10" };
+    expect(firstPaymentDeadline("2026-08-23")).toBe("2026-08-28");
+    expect(calculateRentalSummary(details).firstDueDate).toBe("2026-08-28");
+    expect(renderRentalContract(details)).toContain("İlk kira son ödeme tarihi: 2026-08-28 (sözleşmeden en geç 5 gün sonra)");
   });
 
   it("keeps Claude-compatible fixture rows in the snapshot while parsing legacy fixture text", () => {

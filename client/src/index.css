@@ -96,6 +96,7 @@ button:active { transform: scale(.98); }
   .rental-advisor-trace { color: #7b817e; }
   .rental-appendix-document { display: block !important; }
   .rental-print-contract .rental-appendix-document { display: none !important; }
+  .rental-print-package.rental-package-omit-evacuation .rental-appendix-evacuation, .rental-print-package.rental-package-omit-handover .rental-appendix-handover, .rental-print-package.rental-package-omit-return .rental-appendix-return, .rental-print-package.rental-package-omit-fixtures .rental-appendix-fixtures { display: none !important; }
   .rental-print-evacuation .rental-contract-document, .rental-print-handover .rental-contract-document, .rental-print-return .rental-contract-document, .rental-print-fixtures .rental-contract-document { display: none !important; }
   .rental-print-evacuation .rental-appendix-document:not(.rental-appendix-evacuation), .rental-print-handover .rental-appendix-document:not(.rental-appendix-handover), .rental-print-return .rental-appendix-document:not(.rental-appendix-return), .rental-print-fixtures .rental-appendix-document:not(.rental-appendix-fixtures) { display: none !important; }
   .authority-print-shell .grid > .rounded-2xl, .authority-print-shell .rounded-2xl { break-inside: avoid-page; }

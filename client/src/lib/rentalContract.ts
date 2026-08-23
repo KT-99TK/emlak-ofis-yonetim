@@ -1,6 +1,7 @@
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
 export type RentalFixtureItem = { id: string; item: string; quantity: string; condition: string };
+export type RentalAppendixSelection = { evacuation: boolean; handover: boolean; return: boolean; fixtures: boolean };
 
 let fixtureSequence = 0;
 export const createRentalFixtureItem = (): RentalFixtureItem => ({ id: `fixture-${Date.now()}-${++fixtureSequence}`, item: "", quantity: "", condition: "" });
@@ -46,6 +47,10 @@ export type OfflineRentalDetails = {
   currency: "TRY";
   vatCollection: "separate" | "included";
   paymentDay: string;
+  /** İlk kira için sözleşme tarihinden en fazla beş gün sonrasına izin veren vade alanı. */
+  firstPaymentDueDate: string;
+  /** Ana sözleşmeyle birlikte yazdırılacak eklerin kullanıcı seçimi. */
+  appendixSelection: RentalAppendixSelection;
   iban: string;
   startDate: string;
   durationMonths: string;
@@ -67,7 +72,7 @@ export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-20
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
   tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false, signedByParties: false, signedAt: "",
-  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", iban: "",
+  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", firstPaymentDueDate: addDays(new Date().toISOString().slice(0, 10), 5), appendixSelection: { evacuation: false, handover: true, return: false, fixtures: true }, iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
 });
@@ -98,6 +103,22 @@ export function subtractDays(dateValue: string, days: number) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
+export function addDays(dateValue: string, days: number) {
+  const date = new Date(`${dateValue}T12:00:00`);
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/** İlk kira, ofis kuralı gereği sözleşme başlangıcından en fazla beş gün sonra vadelidir. */
+export function firstPaymentDeadline(startDate: string) {
+  return addDays(startDate, 5);
+}
+
+export function firstPaymentDueDate(startDate: string, requestedDate: string) {
+  const deadline = firstPaymentDeadline(startDate);
+  return /^\d{4}-\d{2}-\d{2}$/.test(requestedDate) && requestedDate >= startDate && requestedDate <= deadline ? requestedDate : deadline;
+}
+
 export function firstPaymentDate(startDate: string, paymentDay: number) {
   const start = new Date(`${startDate}T12:00:00`);
   const date = new Date(`${startDate}T12:00:00`);
@@ -112,7 +133,8 @@ export function calculateRentalSummary(details: OfflineRentalDetails) {
   const noticeDays = Math.max(1, Math.min(365, Number.parseInt(details.noticeDays, 10) || 60));
   const monthlyRent = money(details.monthlyRent);
   const endDate = addMonths(details.startDate, durationMonths);
-  return { durationMonths, paymentDay, noticeDays, monthlyRent, annualRent: monthlyRent * 12, endDate, noticeDate: subtractDays(endDate, noticeDays), firstDueDate: firstPaymentDate(details.startDate, paymentDay) };
+  const maxFirstPaymentDate = firstPaymentDeadline(details.startDate);
+  return { durationMonths, paymentDay, noticeDays, monthlyRent, annualRent: monthlyRent * 12, endDate, noticeDate: subtractDays(endDate, noticeDays), maxFirstPaymentDate, firstDueDate: firstPaymentDueDate(details.startDate, details.firstPaymentDueDate) };
 }
 
 export function renderRentalContract(details: OfflineRentalDetails) {
@@ -127,7 +149,8 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     `Ada/Parsel/Bağımsız Bölüm: ${value(details.parcelInfo)}`,
     `Kullanım amacı: ${value(details.usagePurpose)}`,
     `Aylık kira: ${value(details.monthlyRent)} ${details.currency} | Yıllık kira: ${summary.annualRent || "................................"} ${details.currency}`,
-    `Depozito: ${value(details.deposit)} ${details.currency} | Ödeme günü: her ayın ${summary.paymentDay}. günü | IBAN: ${value(details.iban)}`,
+    `Depozito: ${value(details.deposit)} ${details.currency} | İlk kira son ödeme tarihi: ${summary.firstDueDate} (sözleşmeden en geç 5 gün sonra)`,
+    `Sonraki aylarda ödeme günü: her ayın ${summary.paymentDay}. günü | IBAN: ${value(details.iban)}`,
     `Süre: ${summary.durationMonths} ay | Başlangıç: ${value(details.startDate)} | Bitiş: ${summary.endDate}`,
     `Tahliye ihbarı: ${summary.noticeDays} gün | Uyarı tarihi: ${summary.noticeDate}`,
     `Demirbaş/teslim notu: ${value(rentalFixtureSummary(details))} | Sayaç notu: ${value(details.meterNotes)}`,
@@ -147,7 +170,7 @@ export function renderRentalContract(details: OfflineRentalDetails) {
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
   const summary = calculateRentalSummary(details);
   return {
-    schema: "global1881-offline-rental-v4" as const,
+    schema: "global1881-offline-rental-v5" as const,
     contractNo: contractNo.trim(),
     sourceOwnerRecordId,
     sourceTenantRecordId,
@@ -159,6 +182,6 @@ export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contr
     conditions: rentalContractConditions(details, summary.endDate),
     deliveryAppendix: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, deliveryDate: details.startDate },
     appendixTemplateVersion: RENTAL_APPENDIX_TEMPLATE_VERSION,
-    appendices: { evacuation: { plannedDate: summary.endDate }, handover: { plannedDate: details.startDate }, return: { plannedDate: summary.endDate }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes } },
+    appendices: { evacuation: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
   };
 }
