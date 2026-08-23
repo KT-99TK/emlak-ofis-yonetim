@@ -7,12 +7,42 @@ import { useEffect, useState } from "react";
 import { applyOfflineRecords, createRollbackSnapshot, downloadCurrentBackup, exportOfflineBackup, getDeviceId, getUserId, listOfflineRecords, mergeOfflineBackups, saveOfflineRecord, setUserId, type BackupMergeResult, type OfflineRecord } from "@/lib/offlineStore";
 import { isUpcomingEvacuation } from "@/lib/offlineReports";
 import ManifestPreviewRow from "@/components/ManifestPreviewRow";
+import { URLA_NEIGHBORHOODS, titleCaseTurkish } from "@/lib/urlaNeighborhoods";
 
 export default function OfflineWorkspace() {
   const isDesktop = typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
   const [records, setRecords] = useState<OfflineRecord[]>([]); const [reportFilter, setReportFilter] = useState<"all" | "evacuation" | "evacuationUpcoming" | "ownerApproval">("all"); const visibleRecords = records.filter((record) => reportFilter === "all" ? true : reportFilter === "evacuationUpcoming" ? isUpcomingEvacuation(record) : record.entity === reportFilter); const evacuationCount = records.filter((record) => record.entity === "evacuation").length; const upcomingEvacuations = records.filter(isUpcomingEvacuation).sort((a, b) => new Date(a.noticeDate ?? a.dueDate ?? 0).getTime() - new Date(b.noticeDate ?? b.dueDate ?? 0).getTime()); const evacuationUpcomingCount = upcomingEvacuations.length; const pendingApprovalCount = records.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "pending").length; const approvedCount = records.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "approved").length; const [restoreResult, setRestoreResult] = useState<BackupMergeResult | null>(null); const [userId, setUserIdState] = useState(() => getUserId()); const [title, setTitle] = useState(""); const [details, setDetails] = useState(""); const [amount, setAmount] = useState(""); const [dueDate, setDueDate] = useState(""); const [noticeDays, setNoticeDays] = useState("60"); const [approvalDecision, setApprovalDecision] = useState<OfflineRecord["approvalDecision"]>("pending"); const [approvalNote, setApprovalNote] = useState(""); const [obligationType, setObligationType] = useState<OfflineRecord["obligationType"]>("rent"); const [ledgerType, setLedgerType] = useState<OfflineRecord["ledgerType"]>("income"); const [entity, setEntity] = useState<OfflineRecord["entity"]>("client"); const [message, setMessage] = useState(""); const [backupPassword, setBackupPassword] = useState("");
   const refresh = async () => setRecords(await listOfflineRecords());
   useEffect(() => { if (isDesktop) void refresh(); }, [isDesktop]);
+  useEffect(() => {
+    if (!isDesktop || entity !== "property") return;
+    const field = document.querySelector<HTMLInputElement>('input[placeholder="Kısa açıklama"]');
+    if (!field) return;
+
+    const datalistId = "offline-property-neighborhoods";
+    const list = document.createElement("datalist");
+    list.id = datalistId;
+    [...URLA_NEIGHBORHOODS, "Diğer / Urla dışı"].forEach((neighborhood) => {
+      const option = document.createElement("option");
+      option.value = neighborhood;
+      list.appendChild(option);
+    });
+
+    field.placeholder = "Portföy mahallesi / yerleşimi";
+    field.setAttribute("aria-label", "Portföy mahallesi veya yerleşimi");
+    field.setAttribute("list", datalistId);
+    document.body.appendChild(list);
+    const normalizeLocation = () => setDetails((value) => titleCaseTurkish(value));
+    field.addEventListener("blur", normalizeLocation);
+
+    return () => {
+      field.removeEventListener("blur", normalizeLocation);
+      field.removeAttribute("list");
+      field.removeAttribute("aria-label");
+      field.placeholder = "Kısa açıklama";
+      list.remove();
+    };
+  }, [entity, isDesktop]);
   if (!isDesktop) return <div className="min-h-screen bg-[#f7f7f4] px-6 py-12"><Card className="mx-auto max-w-xl rounded-2xl border-[#e7dfc9] bg-[#fffaf0]"><CardHeader><CardTitle className="font-serif text-2xl">Merkezi web çalışma alanı</CardTitle></CardHeader><CardContent><p className="text-sm leading-6 text-[#70807c]">Bu merkezi HTTPS kısayolu yerel veri yazmaz. Offline kayıt, tahliye/onay formları ve IndexedDB yalnızca imzalı Windows offline uygulaması içinde kullanılabilir.</p><p className="mt-3 text-xs text-[#8d6f3f]">Merkezi kayıtlar için Genel Bakış, Sözleşmeler, Portföy ve Kira & Vergi Vadeleri ekranlarını kullanın.</p></CardContent></Card></div>;
   const add = async () => { if (!userId.trim()) { setMessage("Önce offline kullanıcı kimliğini kaydedin."); return; } if (!title.trim()) return; await saveOfflineRecord({ entity, title: title.trim(), details: details.trim(), amount: amount.trim() || undefined, dueDate: dueDate || undefined, noticeDate: entity === "evacuation" ? dueDate || undefined : undefined, noticeDays: entity === "evacuation" ? Number(noticeDays) || 60 : undefined, approvalDecision: entity === "ownerApproval" ? approvalDecision : undefined, approvalNote: entity === "ownerApproval" ? approvalNote.trim() || undefined : undefined, obligationType: entity === "obligation" ? obligationType : undefined, ledgerType: entity === "ledger" ? ledgerType : undefined, status: entity === "ownerApproval" ? approvalDecision === "approved" ? "approved" : "approvalPending" : "draft" }); setTitle(""); setDetails(""); setAmount(""); setDueDate(""); setApprovalNote(""); setMessage("Kayıt bu laptopun yerel veritabanına yazıldı."); await refresh(); };
   const saveUser = () => { if (!userId.trim()) return; setUserId(userId); setUserIdState(userId.trim()); setMessage("Offline kullanıcı kimliği bu cihaza kaydedildi."); };

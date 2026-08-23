@@ -368,7 +368,7 @@
 
 - [x] Urla mahalle ve köy/yerleşim adlarını resmî güncel kaynaktan doğrula ve sürüm etiketli yerleşim veri kümesine ekle
 - [x] Mahalle/köy seçimi ile Diğer serbest girişini birleştiren tekrar kullanılabilir konum alanını oluştur
-- [ ] Müşteri talepleri, portföy ve sözleşmelerde kullanılan konum alanlarını Urla seçicisi ve Diğer serbest girişine bağla
+- [x] Müşteri talepleri, portföy ve sözleşmelerde kullanılan konum alanlarını Urla seçicisi ve Diğer serbest girişine bağla
 - [ ] Yerleşim seçimi ve Diğer girişinin offline snapshot, şifreli yedek/merge ve Windows kullanımını doğrula
 - [x] Talep sahibi danışman adını müşteri talebi snapshot’ına ekle; kişinin kendi listesinde ve broker eşleşme özetinde göster
 - [x] Seçilen veya serbest yazılan mahalle/konum adlarını Türkçe karakter kurallarıyla baş harfleri büyük biçime dönüştür
