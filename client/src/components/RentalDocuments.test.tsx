@@ -60,4 +60,18 @@ describe("rental documents", () => {
     expect(contract).not.toContain("KDV tahsil");
     expect(appendix).not.toContain("Hizmet bedeli");
   });
+
+  it("renders DASK policy and separate utility meter numbers on the contract and handover appendix", () => {
+    const subscriptionDetails = { ...details, electricityMeterNo: "ELEK-34017", waterMeterNo: "SU-9821", naturalGasMeterNo: "DOG-4410", daskPolicyNo: "DASK-2026-1881" };
+    const contract = renderToStaticMarkup(<RentalContractDocument details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
+    const handover = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
+    expect(contract).toContain("DASK poliçe numarası");
+    expect(contract).toContain("DASK-2026-1881");
+    expect(contract).toContain("ELEK-34017");
+    expect(contract).toContain("SU-9821");
+    expect(contract).toContain("DOG-4410");
+    expect(handover).toContain("Elektrik Sayaç No");
+    expect(handover).toContain("Doğalgaz Sayaç No");
+    expect(handover).toContain("DOG-4410");
+  });
 });

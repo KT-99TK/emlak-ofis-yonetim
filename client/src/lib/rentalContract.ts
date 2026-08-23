@@ -41,6 +41,10 @@ export type OfflineRentalDetails = {
   fixtures: string;
   /** v3 snapshot’larında demirbaşlar satır bazlı tutulur; v1/v2 `fixtures` metni okunmaya devam eder. */
   fixtureItems?: RentalFixtureItem[];
+  electricityMeterNo: string;
+  waterMeterNo: string;
+  naturalGasMeterNo: string;
+  daskPolicyNo: string;
   meterNotes: string;
   monthlyRent: string;
   deposit: string;
@@ -72,7 +76,7 @@ export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-20
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
   tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false, signedByParties: false, signedAt: "",
-  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", firstPaymentDueDate: addDays(new Date().toISOString().slice(0, 10), 5), appendixSelection: { evacuation: false, handover: true, return: false, fixtures: true }, iban: "",
+  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], electricityMeterNo: "", waterMeterNo: "", naturalGasMeterNo: "", daskPolicyNo: "", meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", firstPaymentDueDate: addDays(new Date().toISOString().slice(0, 10), 5), appendixSelection: { evacuation: false, handover: true, return: false, fixtures: true }, iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
 });
@@ -153,13 +157,15 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     `Sonraki aylarda ödeme günü: her ayın ${summary.paymentDay}. günü | IBAN: ${value(details.iban)}`,
     `Süre: ${summary.durationMonths} ay | Başlangıç: ${value(details.startDate)} | Bitiş: ${summary.endDate}`,
     `Tahliye ihbarı: ${summary.noticeDays} gün | Uyarı tarihi: ${summary.noticeDate}`,
-    `Demirbaş/teslim notu: ${value(rentalFixtureSummary(details))} | Sayaç notu: ${value(details.meterNotes)}`,
+    `Elektrik sayaç no: ${value(details.electricityMeterNo)} | Su sayaç no: ${value(details.waterMeterNo)} | Doğalgaz sayaç no: ${value(details.naturalGasMeterNo)}`,
+    `DASK poliçe no: ${value(details.daskPolicyNo)} | Demirbaş/teslim notu: ${value(rentalFixtureSummary(details))} | Sayaç notu: ${value(details.meterNotes)}`,
     details.hasGuarantor ? `Kefil: ${value(details.guarantorName)} | TCKN: ${value(details.guarantorIdentity)} | Azami tutar: ${value(details.guarantorLimit)} ${details.currency}` : "",
     `Mülk sahibi yeniden kiralama onayı: ${details.ownerApproval === "approved" ? "onaylandı" : "onay bekliyor"}.`,
     `Danışman: ${value(details.consultantName)} | Kod: ${value(details.consultantCode)} | Ofis: ${value(details.officeName)} | Yetki belgesi: ${value(details.officeAuthorizationNo)}`,
     "", "TESLİM / DEMİRBAŞ VE İMZA EKİ",
     `Teslim/demirbaş listesi: ${value(rentalFixtureSummary(details))}`,
-    `Sayaç / abonelik notu: ${value(details.meterNotes)}`,
+    `Elektrik / su / doğalgaz sayaç no: ${value(details.electricityMeterNo)} / ${value(details.waterMeterNo)} / ${value(details.naturalGasMeterNo)}`,
+    `DASK poliçe no: ${value(details.daskPolicyNo)} | Sayaç / abonelik notu: ${value(details.meterNotes)}`,
     details.hasGuarantor ? "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Kefil imza: ____________________" : "Kiraya Veren imza: ____________________    Kiracı imza: ____________________",
     "", "SÖZLEŞME KOŞULLARI",
     ...rentalContractConditions(details, summary.endDate).map((condition, index) => `${index + 1}. ${condition}`),
@@ -170,7 +176,7 @@ export function renderRentalContract(details: OfflineRentalDetails) {
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
   const summary = calculateRentalSummary(details);
   return {
-    schema: "global1881-offline-rental-v5" as const,
+    schema: "global1881-offline-rental-v6" as const,
     contractNo: contractNo.trim(),
     sourceOwnerRecordId,
     sourceTenantRecordId,
@@ -180,8 +186,8 @@ export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contr
     summary,
     conditionTemplateVersion: RENTAL_CONDITIONS_TEMPLATE_VERSION,
     conditions: rentalContractConditions(details, summary.endDate),
-    deliveryAppendix: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, deliveryDate: details.startDate },
+    deliveryAppendix: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo, daskPolicyNo: details.daskPolicyNo, deliveryDate: details.startDate },
     appendixTemplateVersion: RENTAL_APPENDIX_TEMPLATE_VERSION,
-    appendices: { evacuation: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
+    appendices: { evacuation: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
   };
 }

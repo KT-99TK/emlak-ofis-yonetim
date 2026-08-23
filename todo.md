@@ -35,6 +35,11 @@
 - [x] Sol navigasyonun pasif, hover ve klavye odak durumlarını açık adaçayı/yeşil tonlarla okunabilir ve erişilebilir hâle getir
 - [x] Güncellenen sol menüyü masaüstü ve dar görünüm ekran görüntüsüyle doğrula
 - [x] Sol menünün geniş ve dar görünümde render edildiğini DOM/UI düzeyinde doğrulayan gerçek component testi ekle
+- [ ] Gerçek Windows kullanım geri bildirimi sonrası sol menünün koyu yeşil ve altın vurgu yoğunluğunu gerekirse daha açık tonlara ayarla
+- [x] Kira formu ve snapshotına elektrik, su, doğalgaz sayaç numaraları ile DASK poliçe numarası alanlarını ekle
+- [x] Sayaç numaralarını teslim alma/teslim etme eklerinde tutarlı ve yazdırılabilir biçimde göster
+- [x] DASK poliçe numarasını ana kira sözleşmesinin taşınmaz/teslim bilgileri bölümünde belirgin kutuda göster
+- [ ] Yeni abonelik/DASK alanlarını birim test, A4 render ve Windows/Electron görsel doğrulama kapsamına ekle
 - [x] Vitest testlerini yaz, tür kontrolü ve test komutlarını çalıştır
 - [x] Uygulama ilk sürümünü checkpoint ile teslimata hazırla
 
