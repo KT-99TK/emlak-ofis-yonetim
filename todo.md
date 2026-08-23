@@ -351,10 +351,21 @@
 - [x] Broker manager için ofis içi müşteri talep havuzu, eşleşme inceleme ve danışmanları yönlendirme görünümünü ekle
 - [ ] Talep/eşleşme kayıtlarını şifreli yedek/merge ile uyumlu kıl ve gerçek Windows akışında doğrula
 
+## Offline işlem kapanışı ve tahsilat kontrolü
+
+- [ ] Kira ve satış yetkisi sözleşmesinden tekil işlem dosyası açıp kapora, hizmet bedeli, KDV ve kapanış kontrol kalemlerini ilişkilendir
+- [ ] Tahsilat kalemlerinde beklenen/gerçekleşen tutar, nakit/banka transferi yöntemi, tarih, referans ve açıklama alanlarını sürümlü offline snapshot olarak kaydet
+- [ ] Eksik, vadesi geçen veya referansı olmayan tahsilatları işlem kapanış kontrol tablosunda risk olarak görünür kıl
+- [ ] Danışman/broker manager yetki ayrımıyla kapanış onayı, istisna notu ve audit izini uygula
+- [ ] İşlem kapanış kayıtlarını AES-GCM yedek, checksum/imza, manager merge ve gerçek Windows akışında doğrula
+
 ## Sözleşme marka ve yazdırma düzeni
 
 - [x] Satış ve kiralama yetki sözleşmelerine siyah leke oluşturmayan, baskı güvenli şeffaf Global 1881 mühür/watermark işaretini ekle
 - [x] Kira kontratlarından Global 1881’in taraf olduğu izlenimini veren logo/başlık/kurumsal taraf bilgilerini kaldır; alt solda yalnız danışman düzenleme izi bırak
+- [x] Kira A4 önizlemesinin dış kabuk sol/sağ boşluklarını Windows baskı alanıyla uyumlu daralt
+- [x] Kira A4 başlığındaki “Canlı A4” ibaresini kaldırarak “Kira Sözleşmesi ve Ekleri” olarak güncelle
+- [x] Kira sözleşmesi ve eklerinden düzenleyen danışman imza bloğunu kaldır; yalnız baş harf, tarih ve form numaralı silik iz bırak
 - [x] Sözleşme ve Finansal İstatistikler ekranını şimdilik A4 yazdırmaya uygun düzenle
 - [ ] Yetki/kira belgelerinde marka ve taraf ayrımını gerçek Windows baskı önizlemesiyle doğrula
 
@@ -363,6 +374,7 @@
 - [x] Kira formuna Claude düzenindeki Kefil var seçimini ekle; işaretlenmediğinde kefil alanlarını ve belge satırını tamamen gizle
 - [x] Kira snapshot’ına tahliye, teslim etme/teslim alma ve demirbaş eklerinin gerekli alanlarını sürüm etiketli biçimde ekle
 - [x] Tahliye taahhütnamesi, teslim etme formu, teslim alma formu ve demirbaş listesini kira sözleşmesi bilgisinden otomatik doldurulan ayrı A4 belgeler olarak ekle
+- [x] Kefil görünürlüğü ile tahliye, teslim etme, teslim alma ve demirbaş eklerinin yalnız istenen tekil belgede görünmesini test et
 - [ ] Her kira ekinin tek başına yazdırılmasını; offline snapshot, şifreli yedek/merge ve gerçek Windows baskı akışıyla doğrula
 
 ## Urla mahalle ve köy/yerleşim seçicisi
@@ -373,6 +385,6 @@
 - [ ] Yerleşim seçimi ve Diğer girişinin offline snapshot, şifreli yedek/merge ve Windows kullanımını doğrula
 - [x] Talep sahibi danışman adını müşteri talebi snapshot’ına ekle; kişinin kendi listesinde ve broker eşleşme özetinde göster
 - [x] Seçilen veya serbest yazılan mahalle/konum adlarını Türkçe karakter kurallarıyla baş harfleri büyük biçime dönüştür
-- [x] Urla mahalle açılır listesinin müşteri talep formu başlık ve alanlarını kapatmadan açılmasını düzelt
+- [x] Urla mahalle açılır listesinin müşteri talep formu başlık ve alanlarını kapatmadan, opak ve okunaklı biçimde göster
 - [ ] Düzeltilen Urla seçicisini gerçek Windows offline uygulamasında ekran görüntüsüyle doğrula
 - [x] Talep formundaki danışman ve yerel müşteri adlarını Türkçe baş harf kurallarıyla blur anında normalleştir

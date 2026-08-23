@@ -1,9 +1,11 @@
 import { calculateRentalSummary, type OfflineRentalDetails } from "@/lib/rentalContract";
+import React from "react";
 
 export type RentalAppendixKind = "evacuation" | "handover" | "return" | "fixtures";
 type Props = { kind: RentalAppendixKind; details: OfflineRentalDetails; contractNo: string; fontSize: string };
 const value = (text: string) => text.trim() || "................................";
 const titles: Record<RentalAppendixKind, string> = { evacuation: "TAHLİYE TAAHHÜTNAMESİ", handover: "KİRALANAN TESLİM ETME FORMU", return: "KİRALANAN TESLİM ALMA FORMU", fixtures: "DEMİRBAŞ VE TESLİM LİSTESİ" };
+const consultantInitials = (name: string) => name.trim().split(/\s+/).filter(Boolean).map((part) => part.slice(0, 1).toLocaleUpperCase("tr-TR")).join("") || "—";
 function Row({ label, children }: { label: string; children: React.ReactNode }) { return <tr><th scope="row">{label}</th><td>{children}</td></tr>; }
 export default function RentalAppendixDocument({ kind, details, contractNo, fontSize }: Props) {
   const summary = calculateRentalSummary(details); const date = kind === "return" ? summary.endDate : details.startDate;
@@ -13,6 +15,6 @@ export default function RentalAppendixDocument({ kind, details, contractNo, font
     {kind === "handover" && <section className="authority-document-section"><h3>TESLİM ETME BİLGİLERİ</h3><table><tbody><Row label="Teslim Eden">{value(details.ownerName)}</Row><Row label="Teslim Alan">{value(details.tenantName)}</Row><Row label="Taşınmaz">{value(details.propertyAddress)}</Row><Row label="Teslim Tarihi">{value(details.startDate)}</Row><Row label="Demirbaş / Teslim Durumu">{value(details.fixtures)}</Row><Row label="Sayaç / Abonelik Notları">{value(details.meterNotes)}</Row></tbody></table></section>}
     {kind === "return" && <section className="authority-document-section"><h3>TESLİM ALMA BİLGİLERİ</h3><table><tbody><Row label="Teslim Eden">{value(details.tenantName)}</Row><Row label="Teslim Alan">{value(details.ownerName)}</Row><Row label="Taşınmaz">{value(details.propertyAddress)}</Row><Row label="Planlanan Teslim Alma Tarihi">{value(summary.endDate)}</Row><Row label="Kontrol Edilecek Demirbaşlar">{value(details.fixtures)}</Row><Row label="Sayaç / Abonelik Son Notları">{value(details.meterNotes)}</Row></tbody></table></section>}
     {kind === "fixtures" && <section className="authority-document-section"><h3>DEMİRBAŞ LİSTESİ</h3><table><tbody><Row label="Taşınmaz">{value(details.propertyAddress)}</Row><Row label="Kiraya Veren">{value(details.ownerName)}</Row><Row label="Kiracı">{value(details.tenantName)}</Row><Row label="Demirbaşlar ve Teslim Durumu">{value(details.fixtures)}</Row><Row label="Sayaçlar / Abonelikler">{value(details.meterNotes)}</Row></tbody></table><p className="mt-4 text-xs text-[#68736f]">Teslim anında adet, durum, seri numarası ve anahtar bilgileri elle tamamlanabilir.</p></section>}
-    <section className="authority-document-signatures rental-document-signatures"><div><p>KİRAYA VEREN</p><strong>{value(details.ownerName)}</strong><span>İmza</span></div><div><p>KİRACI</p><strong>{value(details.tenantName)}</strong><span>İmza</span></div><div><p>DÜZENLEYEN DANIŞMAN</p><strong>{value(details.consultantName)}</strong><span>İmza</span></div></section><footer className="rental-advisor-trace">Düzenleyen danışman izi · {value(details.consultantName)} {details.consultantCode ? `· ${details.consultantCode}` : ""} · {value(date)} · Kayıt: {value(contractNo)}</footer>
+    <section className="authority-document-signatures rental-document-signatures"><div><p>KİRAYA VEREN</p><strong>{value(details.ownerName)}</strong><span>İmza</span></div><div><p>KİRACI</p><strong>{value(details.tenantName)}</strong><span>İmza</span></div></section><footer className="rental-advisor-trace">Düzenleme izi · {consultantInitials(details.consultantName)} · {value(date)} · Form: {value(contractNo)}</footer>
   </article>;
 }

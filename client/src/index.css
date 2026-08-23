@@ -46,8 +46,9 @@ button:active { transform: scale(.98); }
 .rental-document-header { display: flex; justify-content: flex-end; min-height: 7mm; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; color: #7b817e; }
 .rental-document-record { margin: 0; }
 .rental-advisor-trace { width: fit-content; margin-top: 10mm; padding: 1.5mm 2mm; border-top: 1px solid #d8d0bc; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 7.2pt; opacity: .78; }
+.rental-contract-document { max-width: none; margin-left: 0; margin-right: 0; }
 .rental-appendix-document { display: none; margin-top: 8mm; }
-.rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(4, 1fr); gap: 7mm; }
+.rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(3, 1fr); gap: 7mm; }
 .authority-document-rule { height: 1px; margin: 5mm 0; background: #1c2524; }
 .authority-document-title { margin: 0; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 17pt; font-weight: 700; }
 .authority-document-meta { margin: 2.5mm 0 4.5mm; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #45524e; }
