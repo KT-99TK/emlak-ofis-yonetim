@@ -323,3 +323,12 @@
 - [x] Konut ve işyeri koşullarını ayrı değişmez sürüm etiketi ve snapshot olarak offline kira sözleşmesi kaydına ekle
 - [x] Offline kira A4 önizlemesini bilgi tabloları, tam koşullar, teslim/demirbaş ve imza bölümleriyle form altına yerleştir
 - [ ] Konut/işyeri kira tam şablonunu yazdırma, şifreli yedek/merge ve gerçek Windows ekran kanıtıyla doğrula
+
+## Hizmet bedeli KDV tahsilat kaybı göstergesi
+
+- [x] Satışta %2 hizmet bedeli, kiralamada bir aylık kira bedeli ve %20 KDV varsayımları için brüt/net tahsilat hesaplamasını ekle
+- [x] KDV’nin ayrıca tahsil edilmediği, tahsil edilen tutarın KDV dahil faturaya dönüştürüldüğü senaryodaki tahmini KDV yükü ve net gelir kaybını hesapla
+- [x] Danışman performans ve yıllık özet tablolarında ayrıca tahsil edilmeyen KDV, net hizmet geliri ve tahmini kayıp sütunlarını göster
+- [ ] KDV hesaplama örneklerini birim testlerle, gerçek Windows rapor ekranını kullanıcı kanıtıyla doğrula
+- [x] Yetki ve kira A4 belgelerinde sol/sağ yazdırma marjını Windows standartlarına uygun daraltarak yatay kullanılabilir alanı genişlet
+- [x] Yetki ve kira sözleşmesi koşullarında 1., 2., 3. madde numaralarının ekran ve yazdırmada görünmesini sağla

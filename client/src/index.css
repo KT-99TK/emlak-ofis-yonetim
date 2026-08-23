@@ -37,7 +37,7 @@ button:active { transform: scale(.98); }
 .authority-print-running-header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #d8d0bc; margin-bottom: 1.3rem; padding-bottom: .55rem; color: #7d6439; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; }
 .authority-print-body { white-space: pre-wrap; overflow-wrap: anywhere; }
 .authority-print-running-footer { border-top: 1px solid #d8d0bc; margin-top: 1.5rem; padding-top: .55rem; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 8pt; }
-.authority-contract-document { max-width: 210mm; margin: 0 auto; padding: 16mm 14mm; overflow-wrap: anywhere; }
+.authority-contract-document { max-width: 210mm; margin: 0 auto; padding: 14mm 9mm 16mm; overflow-wrap: anywhere; }
 .authority-document-brand { display: flex; align-items: center; gap: 4mm; font-family: 'DM Sans', sans-serif; font-size: 9pt; line-height: 1.45; }
 .authority-document-office-name { margin: 0 0 1mm; font-size: 15pt; font-weight: 700; letter-spacing: .02em; }
 .authority-document-brand p { margin: .4mm 0; }
@@ -51,8 +51,8 @@ button:active { transform: scale(.98); }
 .authority-contract-document th, .authority-contract-document td { border: 1px solid #aab0ae; padding: 2mm 2.2mm; text-align: left; vertical-align: top; line-height: 1.4; }
 .authority-contract-document th { width: 19%; background: #f0f1f0; font-weight: 700; }
 .authority-contract-document td { width: 31%; }
-.authority-document-conditions ol { margin: 3mm 0 0; padding-left: 7mm; }
-.authority-document-conditions li { margin: 0 0 2.8mm; padding-left: 1mm; text-align: justify; line-height: 1.58; }
+.authority-document-conditions ol { margin: 3mm 0 0; padding-left: 8mm; list-style: decimal outside !important; }
+.authority-document-conditions li { display: list-item !important; margin: 0 0 2.8mm; padding-left: 1mm; list-style-type: decimal !important; text-align: justify; line-height: 1.58; }
 .authority-document-template-note { margin: 3mm 0 0; color: #68736f; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; }
 .authority-document-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 15mm; margin-top: 12mm; break-inside: avoid; font-family: 'DM Sans', sans-serif; font-size: 9pt; text-align: center; }
 .authority-document-signatures p { margin: 0 0 7mm; font-weight: 700; }
@@ -60,7 +60,7 @@ button:active { transform: scale(.98); }
 .authority-document-signatures span { margin-top: 12mm; color: #67716e; }
 
 @media print {
-  @page { size: A4 portrait; margin: 15mm 14mm 18mm; }
+  @page { size: A4 portrait; margin: 12mm 10mm 16mm; }
   body { background: #fff !important; }
   body * { visibility: hidden !important; }
   .authority-print-shell, .authority-print-shell * { visibility: visible !important; }
@@ -71,6 +71,8 @@ button:active { transform: scale(.98); }
   .authority-contract-document { max-width: none !important; margin: 0 !important; padding: 0 !important; }
   .authority-document-section, .authority-document-conditions, .authority-document-signatures { break-inside: avoid-page; }
   .authority-contract-document table { font-size: calc(var(--authority-print-font-size) - 1pt) !important; }
+  .authority-document-conditions ol { list-style: decimal outside !important; }
+  .authority-document-conditions li { display: list-item !important; list-style-type: decimal !important; }
   .authority-print-running-header { position: running(authority-header); }
   .authority-print-running-footer { break-inside: avoid; }
   .authority-print-body { widows: 3; orphans: 3; }
