@@ -9,8 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { CUSTOMER_REQUEST_SCHEMA, parseCustomerRequest } from "@/lib/customerRequests";
 import { formatWholeRentalAmount } from "@/lib/rentalContract";
 import { getUserId, listOfflineRecords, saveOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
+import { titleCaseTurkish } from "@/lib/urlaNeighborhoods";
 
 const toAmount = (value: string) => Number(value.replace(/\D/g, "")) || 0;
+const displayUserId = (value: string) => titleCaseTurkish(value.replace(/[_-]+/g, " "));
 
 export default function CustomerRequests() {
   const [records, setRecords] = useState<OfflineRecord[]>([]);
@@ -27,33 +29,45 @@ export default function CustomerRequests() {
   const [message, setMessage] = useState("");
   const userId = getUserId();
   const refresh = async () => setRecords(await listOfflineRecords());
+
   useEffect(() => { void refresh(); }, []);
+
   const clients = records.filter((record) => record.entity === "client");
   const ownRequests = useMemo(() => records.flatMap((record) => {
     const value = parseCustomerRequest(record);
     return value && record.userId === userId ? [{ record, value }] : [];
   }).sort((a, b) => b.record.updatedAt.localeCompare(a.record.updatedAt)), [records, userId]);
-  const chooseClient = (id: string) => { setClientId(id); const client = clients.find((record) => record.id === id); if (client) setClientReference(client.title); };
+
+  const chooseClient = (id: string) => {
+    setClientId(id);
+    const client = clients.find((record) => record.id === id);
+    if (client) setClientReference(titleCaseTurkish(client.title));
+  };
+
   const save = async () => {
     if (!userId) { setMessage("Önce Yerel Çalışma Alanı’ndan offline kullanıcı kodunuzu kaydedin."); return; }
     if (!requesterName.trim() || !location.trim() || !maxBudget.trim()) { setMessage("Talep sahibi danışman, konum ve azami bütçe alanları zorunludur."); return; }
     const min = toAmount(minBudget), max = toAmount(maxBudget);
     if (max <= 0 || (min > 0 && min > max)) { setMessage("Bütçe aralığını kontrol edin."); return; }
-    await saveOfflineRecord({ entity: "request", title: `${operation === "sale" ? "Satılık" : "Kiralık"} talep · ${location.trim()}`, details: JSON.stringify({ schema: CUSTOMER_REQUEST_SCHEMA, operation, sourceClientRecordId: clientId || undefined, clientReference: clientReference.trim(), requesterName: requesterName.trim(), location: location.trim(), propertyType: propertyType.trim(), minBudget: min, maxBudget: max, timing: timing.trim(), notes: notes.trim(), status: "open" }), amount: String(max), status: "open" });
+    const normalizedClientReference = titleCaseTurkish(clientReference);
+    const normalizedRequesterName = titleCaseTurkish(requesterName);
+    await saveOfflineRecord({ entity: "request", title: `${operation === "sale" ? "Satılık" : "Kiralık"} talep · ${location.trim()}`, details: JSON.stringify({ schema: CUSTOMER_REQUEST_SCHEMA, operation, sourceClientRecordId: clientId || undefined, clientReference: normalizedClientReference, requesterName: normalizedRequesterName, location: location.trim(), propertyType: propertyType.trim(), minBudget: min, maxBudget: max, timing: timing.trim(), notes: notes.trim(), status: "open" }), amount: String(max), status: "open" });
     setClientId(""); setClientReference(""); setRequesterName(""); setLocation(""); setPropertyType(""); setMinBudget(""); setMaxBudget(""); setTiming(""); setNotes("");
-    setMessage("Talep ofis içi havuza kaydedildi. Eşleşmeler yalnız broker manager tarafından, müşteri kişisel verisi açılmadan incelenir."); await refresh();
+    setMessage("Talep ofis içi havuza kaydedildi. Eşleşmeler yalnız broker manager tarafından, müşteri kişisel verisi açılmadan incelenir.");
+    await refresh();
   };
+
   return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
     <header className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]"><SearchCheck className="h-3.5 w-3.5" /> Ofis içi müşteri havuzu</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Müşteri Talepleri</h1><p className="mt-2 max-w-3xl text-sm text-[#70807c]">Satılık veya kiralık arayan müşteriniz için talep oluşturun. Olası portföy eşleşmeleri broker manager’a özet olarak gider; müşteri telefonu, kimlik veya notları diğer danışmanlara açılmaz.</p></div><Button variant="outline" className="rounded-xl bg-white" onClick={() => void refresh()}><RefreshCw className="mr-2 h-4 w-4" /> Yenile</Button></header>
     <div className="grid gap-6 xl:grid-cols-[.88fr_1.12fr]"><Card className="rounded-2xl border-[#dbe5dd] bg-white"><CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><Plus className="h-5 w-5 text-[#a17b43]" /> Yeni talep formu</CardTitle></CardHeader><CardContent className="space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2"><Select value={operation} onValueChange={(value) => setOperation(value as "sale" | "rent")}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale">Satılık arıyor</SelectItem><SelectItem value="rent">Kiralık arıyor</SelectItem></SelectContent></Select><Select value={clientId} onValueChange={chooseClient}><SelectTrigger><SelectValue placeholder="Yerel müşteri kaydı (opsiyonel)" /></SelectTrigger><SelectContent>{clients.map((client) => <SelectItem key={client.id} value={client.id}>{client.title}</SelectItem>)}</SelectContent></Select></div>
-      <Input value={clientReference} onChange={(event) => setClientReference(event.target.value)} placeholder="Talep referansı / müşteri adı (yalnız yerel kayıt)" />
-      <Input value={requesterName} onChange={(event) => setRequesterName(event.target.value)} placeholder="Talep sahibi danışman adı *" />
+      <div className="grid gap-3 sm:grid-cols-2"><Select value={operation} onValueChange={(value) => setOperation(value as "sale" | "rent")}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale">Satılık arıyor</SelectItem><SelectItem value="rent">Kiralık arıyor</SelectItem></SelectContent></Select><Select value={clientId} onValueChange={chooseClient}><SelectTrigger><SelectValue placeholder="Yerel müşteri kaydı (opsiyonel)" /></SelectTrigger><SelectContent>{clients.map((client) => <SelectItem key={client.id} value={client.id}>{titleCaseTurkish(client.title)}</SelectItem>)}</SelectContent></Select></div>
+      <Input value={clientReference} onChange={(event) => setClientReference(event.target.value)} onBlur={(event) => setClientReference(titleCaseTurkish(event.target.value))} placeholder="Talep referansı / müşteri adı (yalnız yerel kayıt)" />
+      <Input value={requesterName} onChange={(event) => setRequesterName(event.target.value)} onBlur={(event) => setRequesterName(titleCaseTurkish(event.target.value))} placeholder="Talep sahibi danışman adı *" />
       <UrlaLocationField value={location} onChange={setLocation} label="Aranan konum / mahalle" required />
       <Input value={propertyType} onChange={(event) => setPropertyType(event.target.value)} placeholder="Nitelik / cins (örn. daire, villa, dükkân)" />
       <div className="grid gap-3 sm:grid-cols-2"><Input inputMode="numeric" value={minBudget} onChange={(event) => setMinBudget(formatWholeRentalAmount(event.target.value))} placeholder="Asgari bütçe (₺)" /><Input inputMode="numeric" value={maxBudget} onChange={(event) => setMaxBudget(formatWholeRentalAmount(event.target.value))} placeholder="Azami bütçe (₺) *" /></div>
       <Input value={timing} onChange={(event) => setTiming(event.target.value)} placeholder="Zamanlama (örn. 30 gün içinde)" /><Textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="İhtiyaç notları (yalnız broker incelemesi için)" />
       <div className="rounded-lg bg-[#fffaf0] px-3 py-2 text-xs text-[#8d6f3f]"><ShieldCheck className="mr-1 inline h-3.5 w-3.5" /> Eşleştirme konum, nitelik, işlem türü ve bütçe üzerinden yapılır. Broker, iki danışmanı yönlendirene kadar müşteri ayrıntıları havuzda gösterilmez.</div><Button onClick={() => void save()} className="w-full rounded-xl bg-[#173e39] text-white hover:bg-[#20554e] hover:text-white"><Building2 className="mr-2 h-4 w-4" /> Talebi havuza kaydet</Button>{message && <p role="status" className="rounded-lg bg-[#f5fbf8] px-3 py-2 text-xs text-[#2b786e]">{message}</p>}
-    </CardContent></Card><Card className="rounded-2xl border-[#e5e8e3] bg-white"><CardHeader><CardTitle className="font-serif text-xl">Benim açık taleplerim</CardTitle><p className="text-xs text-[#87938f]">Bu cihaz kullanıcı kodu: {userId || "belirtilmemiş"}. Yalnız kendi talepleriniz görünür.</p></CardHeader><CardContent><div className="space-y-3">{ownRequests.map(({ record, value }) => <div key={record.id} className="rounded-xl border border-[#edf0ec] p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="font-medium text-[#34433f]">{value.operation === "sale" ? "Satılık" : "Kiralık"} · {value.location}</p><p className="mt-1 text-xs text-[#718079]">Talep sahibi danışman: <strong>{value.requesterName || record.userId}</strong> · {value.propertyType || "Nitelik belirtilmemiş"} · {value.minBudget ? `${value.minBudget.toLocaleString("tr-TR")}–` : ""}{value.maxBudget.toLocaleString("tr-TR")} ₺ · {value.timing || "Zamanlama belirtilmemiş"}</p></div><span className="rounded-full bg-[#f3f7f3] px-2 py-1 text-[10px] font-medium text-[#2b786e]">Açık talep</span></div></div>)}{!ownRequests.length && <p className="rounded-xl bg-[#f7f7f4] px-4 py-12 text-center text-sm text-[#87938f]">Henüz açık müşteri talebiniz bulunmuyor.</p>}</div></CardContent></Card></div>
+    </CardContent></Card><Card className="rounded-2xl border-[#e5e8e3] bg-white"><CardHeader><CardTitle className="font-serif text-xl">Benim açık taleplerim</CardTitle><p className="text-xs text-[#87938f]">Bu cihaz kullanıcı kodu: {userId || "belirtilmemiş"}. Yalnız kendi talepleriniz görünür.</p></CardHeader><CardContent><div className="space-y-3">{ownRequests.map(({ record, value }) => <div key={record.id} className="rounded-xl border border-[#edf0ec] p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="font-medium text-[#34433f]">{value.operation === "sale" ? "Satılık" : "Kiralık"} · {value.location}</p><p className="mt-1 text-xs text-[#718079]">Talep sahibi danışman: <strong>{value.requesterName || displayUserId(record.userId)}</strong> · {value.propertyType || "Nitelik belirtilmemiş"} · {value.minBudget ? `${value.minBudget.toLocaleString("tr-TR")}–` : ""}{value.maxBudget.toLocaleString("tr-TR")} ₺ · {value.timing || "Zamanlama belirtilmemiş"}</p></div><span className="rounded-full bg-[#f3f7f3] px-2 py-1 text-[10px] font-medium text-[#2b786e]">Açık talep</span></div></div>)}{!ownRequests.length && <p className="rounded-xl bg-[#f7f7f4] px-4 py-12 text-center text-sm text-[#87938f]">Henüz açık müşteri talebiniz bulunmuyor.</p>}</div></CardContent></Card></div>
   </div>;
 }

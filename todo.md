@@ -122,6 +122,7 @@
 - [x] Paylaşılan yatay logoyu arayüz, Electron paket ve print-ready doküman başlıklarında kullan
 - [x] Paylaşılan şeffaf mühür görselini sözleşme çıktılarında opsiyonel marka/mühür alanı olarak kullan
 - [x] Logo ve mühür varlıklarını Windows offline paketinde ve yeniden üretilebilir asset akışında belgeleyip doğrula
+- [ ] Offline uygulamanın sol üst marka alanında koyu logo yerine açık renkli mühür tarzı Global 1881 işaretini kullan
 
 ## Windows marka paketleme doğrulaması
 
@@ -372,3 +373,6 @@
 - [ ] Yerleşim seçimi ve Diğer girişinin offline snapshot, şifreli yedek/merge ve Windows kullanımını doğrula
 - [x] Talep sahibi danışman adını müşteri talebi snapshot’ına ekle; kişinin kendi listesinde ve broker eşleşme özetinde göster
 - [x] Seçilen veya serbest yazılan mahalle/konum adlarını Türkçe karakter kurallarıyla baş harfleri büyük biçime dönüştür
+- [x] Urla mahalle açılır listesinin müşteri talep formu başlık ve alanlarını kapatmadan açılmasını düzelt
+- [ ] Düzeltilen Urla seçicisini gerçek Windows offline uygulamasında ekran görüntüsüyle doğrula
+- [x] Talep formundaki danışman ve yerel müşteri adlarını Türkçe baş harf kurallarıyla blur anında normalleştir

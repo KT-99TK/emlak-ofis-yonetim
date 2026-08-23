@@ -186,7 +186,11 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? isDesktop ? (
                 <div className="flex min-w-0 items-center gap-2.5" aria-label="Global 1881 Gayrimenkul">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#c8b487] bg-[#173e39] font-serif text-sm font-semibold text-[#f8f0df]">G</div>
+                  <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-full border-2 border-double border-[#a6946e]/65 bg-[#fbfaf5] text-[#8d7a52] opacity-90">
+                    <span className="text-[5px] font-bold leading-none tracking-[0.12em]">GLOBAL</span>
+                    <strong className="my-0.5 font-serif text-[13px] font-semibold leading-none tracking-[0.04em]">1881</strong>
+                    <span className="text-[4px] font-bold leading-none tracking-[0.08em]">GAYRİMENKUL</span>
+                  </div>
                   <div className="min-w-0 leading-none">
                     <p className="truncate font-serif text-sm font-semibold tracking-[0.08em] text-[#223230]">GLOBAL 1881</p>
                     <p className="mt-1 truncate text-[9px] uppercase tracking-[0.15em] text-[#8d6f3f]">Gayrimenkul</p>
