@@ -22,7 +22,7 @@ import {
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { Banknote, CalendarClock, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
@@ -179,7 +179,7 @@ function DashboardLayoutContent({
             <div className="flex items-center gap-3 px-2 transition-all w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                className="h-8 w-8 flex items-center justify-center rounded-lg text-[#587068] transition-colors hover:bg-[#edf5f0] hover:text-[#173e39] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b99b5a] shrink-0"
                 aria-label="Toggle navigation"
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
@@ -217,10 +217,11 @@ function DashboardLayoutContent({
                         else setLocation(item.path);
                       }}
                       tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
+                      className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
                     >
+                      <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
                       <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
+                        className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`}
                       />
                       <span>{item.label}</span>
                     </SidebarMenuButton>

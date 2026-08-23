@@ -31,6 +31,10 @@
 - [x] Ofis Akışı panelinin sağ sütun/alt yığın responsive davranışını render/UI testiyle doğrula
 - [x] Ofis Akışı panelinin masaüstünde sağ sütunda, dar ekranda alt yığında render edildiğini DOM düzeyinde doğrulayan gerçek component/UI testi ekle
 - [x] Ofis Akışı panelinin güncel bileşen yapısında geniş ve dar viewport ekran görüntülerini kaydet; sağ sütun ve alt yığın davranışını görsel olarak kanıtla
+- [x] Sol navigasyonda aktif menüye koyu yeşil zemin, açık altın vurgu ve belirgin seçili durum uygula
+- [x] Sol navigasyonun pasif, hover ve klavye odak durumlarını açık adaçayı/yeşil tonlarla okunabilir ve erişilebilir hâle getir
+- [x] Güncellenen sol menüyü masaüstü ve dar görünüm ekran görüntüsüyle doğrula
+- [x] Sol menünün geniş ve dar görünümde render edildiğini DOM/UI düzeyinde doğrulayan gerçek component testi ekle
 - [x] Vitest testlerini yaz, tür kontrolü ve test komutlarını çalıştır
 - [x] Uygulama ilk sürümünü checkpoint ile teslimata hazırla
 
