@@ -41,7 +41,11 @@ button:active { transform: scale(.98); }
 .authority-document-brand { display: flex; align-items: center; gap: 4mm; font-family: 'DM Sans', sans-serif; font-size: 9pt; line-height: 1.45; }
 .authority-document-office-name { margin: 0 0 1mm; font-size: 15pt; font-weight: 700; letter-spacing: .02em; }
 .authority-document-brand p { margin: .4mm 0; }
-.authority-document-seal { display: flex; align-items: center; justify-content: center; width: 26mm; height: 26mm; flex: 0 0 auto; border: 1.5pt double #252525; border-radius: 50%; background: #1f2928; color: #fff; font-family: 'Playfair Display', Georgia, serif; font-size: 13pt; font-weight: 600; letter-spacing: .04em; }
+.authority-document-seal { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 26mm; height: 26mm; flex: 0 0 auto; box-sizing: border-box; border: 1.2pt double rgba(35,67,59,.42); border-radius: 50%; background: transparent; color: rgba(35,67,59,.48); font-family: 'DM Sans', sans-serif; font-size: 5.6pt; font-weight: 700; letter-spacing: .08em; line-height: 1.08; opacity: .7; }
+.authority-document-seal strong { color: rgba(35,67,59,.55); font-family: 'Playfair Display', Georgia, serif; font-size: 13pt; font-weight: 600; letter-spacing: .04em; }
+.rental-document-header { display: flex; justify-content: flex-end; min-height: 7mm; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; color: #7b817e; }
+.rental-document-record { margin: 0; }
+.rental-advisor-trace { width: fit-content; margin-top: 10mm; padding: 1.5mm 2mm; border-top: 1px solid #d8d0bc; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 7.2pt; opacity: .78; }
 .authority-document-rule { height: 1px; margin: 5mm 0; background: #1c2524; }
 .authority-document-title { margin: 0; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 17pt; font-weight: 700; }
 .authority-document-meta { margin: 2.5mm 0 4.5mm; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #45524e; }
@@ -70,6 +74,11 @@ button:active { transform: scale(.98); }
   .authority-print-document { padding: 0 !important; min-height: auto !important; font-size: var(--authority-print-font-size) !important; line-height: 1.62 !important; }
   .authority-contract-document { max-width: none !important; margin: 0 !important; padding: 0 !important; }
   .authority-document-section, .authority-document-conditions, .authority-document-signatures { break-inside: avoid-page; }
+  .authority-document-seal { border-color: rgba(35,67,59,.35); color: rgba(35,67,59,.38); opacity: .52; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .authority-document-seal strong { color: rgba(35,67,59,.42); }
+  .rental-contract-document .authority-document-rule { margin-top: 2mm; }
+  .rental-advisor-trace { color: #7b817e; }
+  .authority-print-shell .grid > .rounded-2xl, .authority-print-shell .rounded-2xl { break-inside: avoid-page; }
   .authority-contract-document table { font-size: calc(var(--authority-print-font-size) - 1pt) !important; }
   .authority-document-conditions ol { list-style: decimal outside !important; }
   .authority-document-conditions li { display: list-item !important; list-style-type: decimal !important; }

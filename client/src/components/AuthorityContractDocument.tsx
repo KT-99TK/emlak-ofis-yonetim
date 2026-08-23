@@ -22,7 +22,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
   return (
     <article className="authority-print-document authority-contract-document bg-[#fff] text-[#1c2524]" style={{ "--authority-print-font-size": `${fontSize}pt` } as React.CSSProperties}>
       <header className="authority-document-brand">
-        <div className="authority-document-seal">1881</div>
+        <div className="authority-document-seal" aria-label="Global 1881 şeffaf mühür"><span>GLOBAL</span><strong>1881</strong><span>GAYRİMENKUL</span></div>
         <div><p className="authority-document-office-name">{value(normalized.officeName)}</p><p>{value(normalized.officeAddress)}</p><p>Tel: {value(normalized.officePhone)} · Yetki Belgesi No: {value(normalized.officeAuthorizationNo)}</p></div>
       </header>
       <div className="authority-document-rule" />

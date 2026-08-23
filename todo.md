@@ -349,3 +349,10 @@
 - [x] Olası eşleşmede müşteri kişisel verisini açmadan ilgili danışmanlar ve eşleşme özetiyle broker bildirimi oluştur
 - [x] Broker manager için ofis içi müşteri talep havuzu, eşleşme inceleme ve danışmanları yönlendirme görünümünü ekle
 - [ ] Talep/eşleşme kayıtlarını şifreli yedek/merge ile uyumlu kıl ve gerçek Windows akışında doğrula
+
+## Sözleşme marka ve yazdırma düzeni
+
+- [x] Satış ve kiralama yetki sözleşmelerine siyah leke oluşturmayan, baskı güvenli şeffaf Global 1881 mühür/watermark işaretini ekle
+- [x] Kira kontratlarından Global 1881’in taraf olduğu izlenimini veren logo/başlık/kurumsal taraf bilgilerini kaldır; alt solda yalnız danışman düzenleme izi bırak
+- [x] Sözleşme ve Finansal İstatistikler ekranını şimdilik A4 yazdırmaya uygun düzenle
+- [ ] Yetki/kira belgelerinde marka ve taraf ayrımını gerçek Windows baskı önizlemesiyle doğrula
