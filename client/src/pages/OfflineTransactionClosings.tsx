@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { formatAuthorityCurrency, formatWholeCurrencyInput } from "@/lib/authorityContract";
 import { getUserId, listOfflineRecords, saveOfflineRecord, updateOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
+import { configureLocalManagerPasscode, hasLocalManagerPasscode, isLocalManagerSessionActive, LOCAL_MANAGER_SESSION_MINUTES, lockLocalManagerAccess, unlockLocalManagerAccess } from "@/lib/offlineManagerAccess";
 import { addOptionalCollection, closeTransaction, collectionCategoryLabels, collectionStateLabels, createTransactionFromContract, declareCollection, parseOfflineTransaction, transactionExpectedTotal, transactionRisks, transactionVerifiedTotal, verifyCollection, type OfflineTransactionDetails, type PaymentMethod } from "@/lib/transactionClosing";
 
 type CollectionEditor = { transactionRecordId: string; collectionId: string; amount: string; method: PaymentMethod; reference: string; collectedAt: string; note: string };
@@ -25,10 +26,18 @@ export default function OfflineTransactionClosings() {
   const [collectionEditor, setCollectionEditor] = useState<CollectionEditor | null>(null);
   const [optionalEditor, setOptionalEditor] = useState<OptionalEditor | null>(null);
   const [exceptionNotes, setExceptionNotes] = useState<Record<string, string>>({});
+  const [localManagerConfigured, setLocalManagerConfigured] = useState(false);
+  const [localManagerUnlocked, setLocalManagerUnlocked] = useState(false);
+  const [managerPasscode, setManagerPasscode] = useState("");
+  const [managerPasscodeRepeat, setManagerPasscodeRepeat] = useState("");
+  const [managerWorking, setManagerWorking] = useState(false);
   const userId = getUserId();
-  const isManager = user?.role === "admin";
+  const serverManager = user?.role === "admin";
+  const isOfflineDesktop = typeof window !== "undefined" && window.location.protocol === "file:";
+  const needsLocalManagerAccess = isOfflineDesktop && !serverManager;
+  const isManager = serverManager || (needsLocalManagerAccess && localManagerUnlocked);
   const refresh = async () => setRecords(await listOfflineRecords());
-  useEffect(() => { void refresh(); }, []);
+  useEffect(() => { void refresh(); setLocalManagerConfigured(hasLocalManagerPasscode()); setLocalManagerUnlocked(isLocalManagerSessionActive()); }, []);
 
   const transactions = useMemo(() => records.flatMap((record) => {
     const details = parseOfflineTransaction(record);
@@ -76,17 +85,22 @@ export default function OfflineTransactionClosings() {
   };
 
   const managerVerify = async (record: OfflineRecord, details: OfflineTransactionDetails, collectionId: string) => {
+    if (!isManager) { setMessage("Tahsilat doğrulaması için broker manager yerel parolasını açın."); return; }
     try { await persist(record, verifyCollection(details, collectionId, user?.name || userId || "broker manager"), "Tahsilat broker manager tarafından doğrulandı."); }
     catch (error) { setMessage(error instanceof Error ? error.message : "Tahsilat doğrulanamadı."); }
   };
 
   const managerClose = async (record: OfflineRecord, details: OfflineTransactionDetails) => {
+    if (!isManager) { setMessage("İşlem kapanışı için broker manager yerel parolasını açın."); return; }
     try { await persist(record, closeTransaction(details, user?.name || userId || "broker manager", exceptionNotes[record.id] ?? ""), "İşlem broker manager onayıyla kapatıldı."); }
     catch (error) { setMessage(error instanceof Error ? error.message : "İşlem kapatılamadı."); }
   };
 
+  const submitLocalManagerAccess = async () => { setManagerWorking(true); try { if (!localManagerConfigured) { if (managerPasscode !== managerPasscodeRepeat) throw new Error("Parola tekrarını aynı girin."); await configureLocalManagerPasscode(managerPasscode, user?.name || userId || "broker-manager"); setLocalManagerConfigured(true); setMessage("Yerel broker manager parolası bu cihazda kuruldu ve kapanış yetkisi açıldı."); } else { await unlockLocalManagerAccess(managerPasscode); setMessage("Yerel broker manager yetkisi açıldı."); } setLocalManagerUnlocked(true); setManagerPasscode(""); setManagerPasscodeRepeat(""); } catch (error) { setMessage(error instanceof Error ? error.message : "Yerel yönetici doğrulaması tamamlanamadı."); } finally { setManagerWorking(false); } };
+  const lockManagerAccess = () => { lockLocalManagerAccess(); setLocalManagerUnlocked(false); setMessage("Yerel broker manager oturumu kilitlendi."); };
   return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9"><header className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]"><ClipboardCheck className="h-3.5 w-3.5" /> Offline işlem güvenlik kontrolü</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">İşlem Kapanışları</h1><p className="mt-2 max-w-3xl text-sm text-[#70807c]">Sözleşmeden gelen kapora, depozito, ilk kira, hizmet bedeli ve KDV kalemlerini izleyin. Nakit makbuzu veya banka transfer referansı olmadan tahsilat doğrulanmaz; kapanış broker manager onayı gerektirir.</p></div><Button variant="outline" onClick={() => void refresh()} className="rounded-xl bg-white"><RefreshCw className="mr-2 h-4 w-4" /> Yenile</Button></header>
     {message && <p role="status" className="mb-5 rounded-xl border border-[#dbe8df] bg-[#f4fbf6] px-4 py-3 text-sm text-[#287052]">{message}</p>}
+    {needsLocalManagerAccess && <Card className="mb-6 rounded-2xl border-[#d8e4df] bg-white"><CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><LockKeyhole className="h-5 w-5 text-[#a17b43]" /> Yerel broker manager doğrulaması</CardTitle><p className="text-xs text-[#70807c]">Bu koruma yalnız bu laptopta geçerlidir. Parola PBKDF2-SHA-256 salt/hash ile saklanır; açık parolayı uygulama tutmaz.</p></CardHeader><CardContent>{localManagerUnlocked ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#f4fbf6] p-4"><div><p className="text-sm font-semibold text-[#287052]">Broker manager yetkisi açık</p><p className="mt-1 text-xs text-[#60706b]">Kapanış, tahsilat doğrulama ve gerekçeli istisna işlemleri bu oturumda kullanılabilir.</p></div><Button variant="outline" onClick={lockManagerAccess}>Kilitle</Button></div> : <div className="space-y-3"><p className="text-sm text-[#4f5e58]">{localManagerConfigured ? "Kapanış onayını açmak için yerel broker manager parolasını girin." : "Bu cihaz broker manager laptopu ise önce en az 10 karakterlik yerel yönetici parolasını kurun."}</p><div className="grid gap-3 md:grid-cols-2"><Input type="password" autoComplete="new-password" value={managerPasscode} onChange={(event) => setManagerPasscode(event.target.value)} placeholder={localManagerConfigured ? "Yerel yönetici parolası" : "Yeni yerel yönetici parolası (en az 10 karakter)"} />{!localManagerConfigured && <Input type="password" autoComplete="new-password" value={managerPasscodeRepeat} onChange={(event) => setManagerPasscodeRepeat(event.target.value)} placeholder="Parolayı tekrar girin" />}</div><Button onClick={() => void submitLocalManagerAccess()} disabled={managerWorking}>{localManagerConfigured ? "Yetkiyi aç" : "Manager laptopunu kur"}</Button></div>}</CardContent></Card>}
     <Card className="mb-6 rounded-2xl border-[#e5e8e3] bg-white"><CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><CircleDollarSign className="h-5 w-5 text-[#a17b43]" /> Sözleşmeden işlem dosyası aç</CardTitle><p className="text-xs text-[#87938f]">Yalnız satış yetki sözleşmeleri ile imzalı kira sözleşmeleri burada görünür. Kapora isteğe bağlıdır; kayıt oluşturulduktan sonra eklenir.</p></CardHeader><CardContent>{eligibleSources.length ? <div className="grid gap-3 lg:grid-cols-2">{eligibleSources.map(({ record, preview }) => <div key={record.id} className="flex items-center justify-between gap-3 rounded-xl border border-[#edf0ec] p-4"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#34433f]">{preview.sourceContractNo} · {preview.kind === "sale" ? "Satış" : "Kira"}</p><p className="mt-1 truncate text-xs text-[#718079]">{preview.propertyLabel} · {preview.consultantName || "Danışman belirtilmemiş"}</p></div><Button size="sm" onClick={() => void createTransaction(record.id)}><Plus className="mr-1 h-3.5 w-3.5" /> Dosya aç</Button></div>)}</div> : <p className="rounded-xl bg-[#f7f7f4] px-4 py-6 text-center text-sm text-[#718079]">Bu cihazda işlem dosyasına dönüştürülebilecek yeni bir satış yetkisi veya kira sözleşmesi yok.</p>}</CardContent></Card>
     <section className="space-y-5">{visibleTransactions.map(({ record, details }) => {
       const risks = transactionRisks(details); const critical = risks.some((risk) => risk.severity === "critical"); const ownRecord = record.userId === userId;

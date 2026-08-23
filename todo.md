@@ -359,7 +359,8 @@
 - [x] Tahsilat kalemlerinde beklenen/gerçekleşen tutar, nakit/banka transferi yöntemi, tarih, referans ve açıklama alanlarını sürümlü offline snapshot olarak kaydet
 - [x] Eksik, vadesi geçen veya referansı olmayan tahsilatları işlem kapanış kontrol tablosunda risk olarak görünür kıl
 - [x] Danışman/broker manager yetki ayrımıyla kapanış onayı, istisna notu ve audit izini uygula
-- [ ] Offline Electron ortamında broker manager yetkisini merkezi oturumdan bağımsız, yerel yönetici kimliği doğrulamasıyla güvenceye al
+- [x] Offline Electron ortamında broker manager yetkisini merkezi oturumdan bağımsız, yerel yönetici kimliği doğrulamasıyla güvenceye al
+- [x] Yerel broker manager parolasını PBKDF2 salt/hash ile sakla; doğrulama sonrası kısa süreli kapanış yetkisi ver
 - [ ] İşlem kapanış kayıtlarını AES-GCM yedek, checksum/imza, manager merge ve gerçek Windows akışında doğrula
 
 ## Sözleşme marka ve yazdırma düzeni
