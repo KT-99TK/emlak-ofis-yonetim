@@ -1,3 +1,4 @@
+import { formatTurkishDate } from "./turkishDate";
 export type AuthorityContractDetails = {
   mode: "sale" | "rent";
   ownerName: string;
@@ -18,6 +19,7 @@ export type AuthorityContractDetails = {
   serviceFeeAmount: string;
   vatCollection: "separate" | "included";
   contractDate: string;
+  authorityDurationMonths: string;
   consultantName: string;
   consultantPhone: string;
   consultantCode: string;
@@ -42,7 +44,7 @@ export const emptyAuthorityDetails = (): AuthorityContractDetails => ({
   mode: "rent", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
   propertyNeighborhood: "", propertyAddress: "", parcelInfo: "", propertyType: "", grossM2: "", roomCount: "",
   floorAndView: "", condition: "", price: "", currency: "TRY", serviceFeeRate: "", serviceFeeAmount: "", vatCollection: "separate",
-  contractDate: new Date().toISOString().slice(0, 10), consultantName: "", consultantPhone: "", consultantCode: "", consultantTitle: "",
+  contractDate: new Date().toISOString().slice(0, 10), authorityDurationMonths: "3", consultantName: "", consultantPhone: "", consultantCode: "", consultantTitle: "",
   officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211", officeTaxOffice: "", officeTaxNo: "", officePhone: "", officeAddress: "",
 });
 
@@ -62,6 +64,16 @@ function parseNumericValue(raw: string) {
 
 function amount(raw: string) {
   return Math.round(parseNumericValue(raw));
+}
+
+function normalizeAuthorityDuration(raw: string) {
+  const value = Math.trunc(Number(raw.replace(/\D/g, "")) || 3);
+  return String(Math.min(120, Math.max(1, value)));
+}
+
+function durationWord(value: string) {
+  const words: Record<string, string> = { "1": "bir", "2": "iki", "3": "üç", "4": "dört", "5": "beş", "6": "altı", "7": "yedi", "8": "sekiz", "9": "dokuz", "10": "on", "11": "on bir", "12": "on iki" };
+  return words[value] ?? value;
 }
 
 function formatWholeAmount(raw: string) {
@@ -148,6 +160,7 @@ export function normalizeAuthorityDetails(details: AuthorityContractDetails): Au
     officeAddress: toTurkishTitleCase(details.officeAddress),
     price: formatWholeAmount(details.price),
     serviceFeeAmount: formatWholeAmount(details.serviceFeeAmount),
+    authorityDurationMonths: normalizeAuthorityDuration(details.authorityDurationMonths),
     ownerPhone: toInternationalPhone(details.ownerPhone),
     consultantPhone: toInternationalPhone(details.consultantPhone),
     officePhone: toInternationalPhone(details.officePhone),
@@ -171,12 +184,13 @@ export function authorityContractConditions(details: AuthorityContractDetails) {
   const advisorTitle = details.consultantTitle.trim() || "emlak danışmanı";
   const officeTax = details.officeTaxNo.trim() ? ` ve VKN: ${details.officeTaxNo.trim()}` : "";
   const officeSentence = `İşbu sözleşme, Yetki Belgesi No: ${details.officeAuthorizationNo.trim() || "……………………………"}${officeTax} ile faaliyet gösteren ${details.officeName.trim() || "……………………………"} adına düzenlenmiştir. İşlemi yürüten ${advisorTitle} ${advisor}${advisorCode}, işletme adına kiralık ve satılık portföy almaya ve işletme adına sözleşme imzalamaya yetkilidir.`;
+  const duration = normalizeAuthorityDuration(details.authorityDurationMonths);
   return [
     isSale
       ? `Taşınmaz maliki, işbu sözleşme ile emlak danışmanına, yukarıda nitelikleri belirtilen taşınmazı üçüncü kişilere ${action} yetkisi vermiştir. Satış gerçekleştiğinde, 05.06.2018 tarihli Resmî Gazete'de yayımlanan Taşınmaz Ticareti Hakkında Yönetmelik hükümleri uyarınca taşınmaz maliki, ${commission} tutarındaki hizmet bedelini emlak danışmanına ödemeyi kabul ve taahhüt eder.`
       : `Taşınmaz maliki, işbu sözleşme ile emlak danışmanına, yukarıda nitelikleri belirtilen taşınmazı üçüncü kişilere ${action} yetkisi vermiştir. İşbu kiralama yetki belgesi, taşınmaz malikine hizmet bedeli veya KDV tahakkuku doğurmaz.`,
     officeSentence,
-    "Sözleşme süresi imza tarihinden itibaren 6 (altı) aydır. Süre bitiminden 15 (on beş) gün önce yazılı fesih bildirimi yapılmadığı takdirde sözleşme aynı koşullarla 3 (üç) ay süreyle uzamış sayılır.",
+    `Sözleşme süresi imza tarihinden itibaren ${duration} (${durationWord(duration)}) aydır. Süre bitiminden 15 (on beş) gün önce yazılı fesih bildirimi yapılmadığı takdirde sözleşme aynı koşullarla 3 (üç) ay süreyle uzamış sayılır.`,
     "Emlak danışmanı, taşınmazın pazarlanması için başka emlak danışmanlarıyla iş birliği yapabilir.",
     `Taşınmaz maliki, sözleşme süresince ${amountAccusative} emlak danışmanının yazılı onayı olmadan değiştiremez; aksi hâlde komisyon, eski ve yeni bedelden yüksek olanı üzerinden hesaplanır.`,
     isSale
@@ -194,13 +208,14 @@ export function authorityContractConditions(details: AuthorityContractDetails) {
 export function renderAuthorityContract(details: AuthorityContractDetails, contractNo?: string) {
   const normalized = normalizeAuthorityDetails(details);
   const display = (value: string) => value.trim() || "................................";
+  const displayDate = (value: string) => value.trim() ? formatTurkishDate(value) : "................................";
   const action = normalized.mode === "sale" ? "satış" : "kiralama";
   const priceLabel = normalized.mode === "sale" ? "satış bedeli" : "aylık kira bedeli";
   const summary = calculateAuthoritySummary(normalized);
   const currency = normalized.currency;
   return [
     authorityContractTitle(normalized.mode),
-    `Kayıt no: ${contractNo || "otomatik numara kayıtta atanır"} | Düzenleme tarihi: ${display(normalized.contractDate)}`,
+    `Kayıt no: ${contractNo || "otomatik numara kayıtta atanır"} | Düzenleme tarihi: ${displayDate(normalized.contractDate)}`,
     "",
     "1. TARAFLAR",
     `Taşınmaz maliki: ${display(normalized.ownerName)} | TCKN/VKN: ${display(normalized.ownerIdentity)}`,
@@ -224,7 +239,7 @@ export function renderAuthorityContract(details: AuthorityContractDetails, contr
     `Ofis iletişim: ${display(normalized.officePhone)} | ${display(normalized.officeAddress)}`,
     "",
     "5. DÜZENLEME VE İMZA",
-    `Bu belge ${display(normalized.contractDate)} tarihinde iki nüsha olarak düzenlenmiştir. Ana sözleşme maddeleri, ofis tarafından onaylanmış şablon sürümü üzerinden uygulanır.`,
+    `Bu belge ${displayDate(normalized.contractDate)} tarihinde iki nüsha olarak düzenlenmiştir. Ana sözleşme maddeleri, ofis tarafından onaylanmış şablon sürümü üzerinden uygulanır.`,
     "Malik imza: ________________________________    Danışman imza: ________________________________",
     "",
     "SÖZLEŞME KOŞULLARI",

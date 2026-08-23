@@ -46,6 +46,28 @@
 - [ ] Filtre ve kayıt türü seçicilerinin arka form alanlarıyla karışmadığını dar Windows görünümünde birlikte doğrula
 - [x] Yerel kaydet düğmesinin etkin ve pasif durumlarında metin/ikon kontrastını görünür ve erişilebilir hâle getir
 - [ ] Yerel Çalışma Alanı seçici/düğme görünürlük düzeltmelerini dar Windows ekran görüntüsü ve istemci UI testiyle doğrula
+- [x] Yetki sözleşmesi A4 üst bilgisindeki mühür işaretini daha net ve güçlü sol üst marka öğesi olarak yerleştir
+- [x] Yetki belgesi üst bilgisindeki ofis adı ve belge bilgisinin tipografik oranlarını büyütüp dengeli hâle getir
+- [x] Yetki sözleşmesi A4 içerik alanı için sol–sağ yaklaşma oranını varsayılan olarak eşit ve ortalanmış hâle getir
+- [x] Yetki sözleşmesi formunda varsayılan yetki süresini üç ay yap; kullanıcı değiştirilebilirliğini koru
+- [x] Yeni yetki başlığı, A4 hizası ve üç aylık varsayılanı render/baskı testiyle doğrula
+- [x] Yetki Sözleşmeleri çalışma ekranını geniş Windows görünümünde sol form ve sağ Ofis Akışı paneliyle iki sütunlu düzene geçir
+- [x] Kira Sözleşmeleri çalışma ekranına aynı sağ Ofis Akışı paneli düzenini uygula; A4 önizleme genişliğini koru
+- [x] Sözleşme ekranlarındaki Ofis Akışı panelini danışman için kişisel işler, broker manager için anonim istisna özetiyle sınırla
+- [ ] Yetki/Kira çalışma ekranı sağ panelinin geniş ekranda görünmesini, dar ekranda formun altına inmesini ekran görüntüsü ve UI testiyle doğrula
+- [x] Yetki, kira, yerel çalışma alanı ve işlem kapanışları için ortak Windows operasyon ekranı standardı tanımla: konsantre ana kolon, sağ Ofis Akışı alanı, opak seçiciler ve yüksek kontrastlı ana işlem düğmeleri
+- [ ] Ortak standardın bu dört ekranda tutarlı uygulandığını geniş/dar görünüm ve rol gizliliği testleriyle toplu doğrula
+- [x] Koyu yeşil Ofis Akışı panelini Genel Bakış dışında Yetki Sözleşmeleri ekranında gerçek offline verilerle görünür kıl
+- [x] Koyu yeşil Ofis Akışı panelini Kira Sözleşmeleri, Yerel Çalışma Alanı ve İşlem Kapanışları ekranlarında gerçek offline verilerle görünür kıl
+- [x] Yeşil yan panelin sözleşme ekranlarında danışman kişisel kayıtlarını, yerel manager oturumu açıkken ise isim göstermeyen istisna özetini gösterdiğini doğrula
+- [x] Açık işleri çalışılıyor, uygulanacak ve Windows kanıtı bekleyen durumlarıyla düzenli takip et; kullanıcı sorduğunda güncel durumu sade başlıklarla sun
+- [x] Proje başlangıcından beri iletilen kullanıcı isteklerini kod/todo geçmişiyle karşılaştır; açık kalanları öncelik, gerekçe ve kabul kanıtıyla karar tablosunda sun
+- [ ] Sözleşme, vade, rapor, işlem kapanışı ve yedek/manifest ekranlarındaki kullanıcıya görünen tarihleri Türkiye sayısal biçimiyle (`GG.AA.YYYY`) göster
+- [ ] Günlük/metinli tarih gösterimlerini Türkçe gün-ay-yıl ve doğru hafta günü standardına bağla; ISO tarihleri yalnız teknik saklama alanlarında koru
+- [ ] Türkiye tarih standardını birim test ve Windows/Electron ekran kabulüyle doğrula
+- [ ] BrokerAnnualTargets, BrokerRequestMatches, Contracts, MyOfflineContracts, Obligations, OfflineTransactionClosings ve kalan kullanıcı görünür ekranlardaki tarihleri ortak `turkishDate` yardımcılarına taşı
+- [ ] İşlem kapanışı, rapor, vade ve yedek/manifest akışlarının tamamında Türkiye tarih standardını kapsayan UI testleri ekle
+- [ ] Türkiye tarih standardı için gerçek Windows/Electron ekran kanıtı al; görünür tarihlerin ISO yerine Türkçe biçimde çıktığını doğrula
 - [x] Vitest testlerini yaz, tür kontrolü ve test komutlarını çalıştır
 - [x] Uygulama ilk sürümünü checkpoint ile teslimata hazırla
 

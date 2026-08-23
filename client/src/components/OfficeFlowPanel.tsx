@@ -3,6 +3,7 @@ import { ArrowUpRight, BellRing, CalendarClock, CheckCircle2, ShieldCheck } from
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatTurkishDate } from "@/lib/turkishDate";
 
 export type OfficeFlowObligation = {
   id: number | string;
@@ -82,7 +83,7 @@ export function OfficeFlowPanel({ role, obligations, contracts = [], ledgerEntri
           </div>
         ) : visiblePersonalItems.length ? (
           <div className="mt-6 space-y-2" aria-label="Kişisel vade listesi">
-            {visiblePersonalItems.map((item) => <div key={item.id} className="rounded-xl border border-white/10 bg-white/[.08] px-3 py-3"><div className="flex items-start justify-between gap-2"><p className="line-clamp-2 text-xs font-semibold leading-5 text-white">{item.title}</p><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${dueTone(item.days)}`}>{dueLabel(item.days)}</span></div><p className="mt-1.5 text-[11px] text-[#b4d1ca]">Son tarih: {new Date(item.dueDate).toLocaleDateString("tr-TR")}</p></div>)}
+            {visiblePersonalItems.map((item) => <div key={item.id} className="rounded-xl border border-white/[.08] px-3 py-3"><div className="flex items-start justify-between gap-2"><p className="line-clamp-2 text-xs font-semibold leading-5 text-white">{item.title}</p><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${dueTone(item.days)}`}>{dueLabel(item.days)}</span></div><p className="mt-1.5 text-[11px] text-[#b4d1ca]">Son tarih: {formatTurkishDate(item.dueDate)}</p></div>)}
           </div>
         ) : (
           <div className="mt-6 rounded-xl border border-dashed border-white/20 bg-white/[.06] px-4 py-5 text-center"><CheckCircle2 className="mx-auto h-5 w-5 text-[#62c4ae]" /><p className="mt-2 text-xs font-semibold text-white">Bugün için açık takip yok</p><p className="mt-1 text-[11px] leading-4 text-[#b4d1ca]">Size atanmış vade veya işlem adımı oluştuğunda burada görünür.</p></div>

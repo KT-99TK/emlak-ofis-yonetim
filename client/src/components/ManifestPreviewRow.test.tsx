@@ -2,6 +2,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import ManifestPreviewRow from "./ManifestPreviewRow";
+import { formatTurkishDateTime } from "@/lib/turkishDate";
 
 describe("ManifestPreviewRow", () => {
   it("renders identity, export date, checksum and ECDSA status for a single backup", () => {
@@ -25,7 +26,7 @@ describe("ManifestPreviewRow", () => {
     expect(html).toContain("danisman-ayse");
     expect(html).toContain("device-a");
     expect(html).toContain("7 kayıt");
-    expect(html).toContain(new Date("2026-08-22T10:00:00.000Z").toLocaleString("tr-TR"));
+    expect(html).toContain(formatTurkishDateTime("2026-08-22T10:00:00.000Z"));
     expect(html).toContain("checksum: doğrulandı");
     expect(html).toContain("ECDSA: doğrulandı");
   });

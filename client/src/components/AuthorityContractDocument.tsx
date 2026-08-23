@@ -1,5 +1,6 @@
 import { authorityContractConditions, authorityContractTitle, calculateAuthoritySummary, formatAuthorityCurrency, normalizeAuthorityDetails, type AuthorityContractDetails } from "@/lib/authorityContract";
 import React from "react";
+import { formatTurkishDate } from "@/lib/turkishDate";
 
 type AuthorityContractDocumentProps = {
   details: AuthorityContractDetails;
@@ -24,12 +25,12 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
   return (
     <article className="authority-print-document authority-contract-document bg-[#fff] text-[#1c2524]" style={{ "--authority-print-font-size": `${fontSize}pt` } as React.CSSProperties}>
       <header className="authority-document-brand">
-        <div className="authority-document-seal" aria-label="Global 1881 şeffaf mühür"><span>GLOBAL</span><strong>1881</strong><span>GAYRİMENKUL</span></div>
+        <img className="authority-document-seal-image" src="/manus-storage/global1881-muhur-seffaf_4acda0e7.png" alt="Global 1881 şeffaf mühür" />
         <div><p className="authority-document-office-name">{value(normalized.officeName)}</p><p>{value(normalized.officeAddress)}</p><p>Tel: {value(normalized.officePhone)} · Yetki Belgesi No: {value(normalized.officeAuthorizationNo)}</p></div>
       </header>
       <div className="authority-document-rule" />
       <h2 className="authority-document-title">{authorityContractTitle(normalized.mode)}</h2>
-      <p className="authority-document-meta">Kayıt No: <strong>{contractNo}</strong> · Düzenleme Tarihi: <strong>{value(normalized.contractDate)}</strong></p>
+      <p className="authority-document-meta">Kayıt No: <strong>{contractNo}</strong> · Düzenleme Tarihi: <strong>{formatTurkishDate(normalized.contractDate)}</strong></p>
 
       <section className="authority-document-section">
         <h3>EMLAK DANIŞMANI BİLGİLERİ</h3>
@@ -57,6 +58,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
           <Row firstLabel="Ada / Parsel / Bağımsız Bölüm" firstValue={normalized.parcelInfo} secondLabel="Niteliği / Cinsi" secondValue={normalized.propertyType} />
           <Row firstLabel="Brüt / Net m²" firstValue={normalized.grossM2} secondLabel="Oda Sayısı" secondValue={normalized.roomCount} />
           <Row firstLabel="Kat / Cephe / Manzara" firstValue={normalized.floorAndView} secondLabel="Kullanım Durumu" secondValue={normalized.condition} />
+          <Row firstLabel="Yetki Süresi" firstValue={`${normalized.authorityDurationMonths} ay`} />
           {isSale ? <Row firstLabel={priceLabel} firstValue={summary.contractAmount ? formatAuthorityCurrency(summary.contractAmount, normalized.currency) : normalized.price} secondLabel="Hizmet Bedeli" secondValue={summary.serviceFeeAmount ? formatAuthorityCurrency(summary.serviceFeeAmount, normalized.currency) : ""} /> : <Row firstLabel={priceLabel} firstValue={summary.contractAmount ? formatAuthorityCurrency(summary.contractAmount, normalized.currency) : normalized.price} />}
         </tbody></table>
       </section>

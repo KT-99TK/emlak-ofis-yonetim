@@ -11,6 +11,8 @@ describe("authority contract signature boxes", () => {
     expect(html).toContain("YETKİ ALAN EMLAK OFİSİ / DANIŞMAN");
     expect(html).toContain("Yetkili danışman: Cahit Tercan");
     expect(html.match(/<div class="authority-party-signature-box"/g)).toHaveLength(2);
+    expect(html).toContain("global1881-muhur-seffaf_4acda0e7.png");
+    expect(html).toContain("Yetki Süresi");
   });
 
   it("does not show a service fee or KDV field on the rental authority document", () => {

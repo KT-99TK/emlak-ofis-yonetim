@@ -29,6 +29,13 @@ describe("authority contract template", () => {
     expect(snapshot.contractNo).toBe("YET-OF-001");
     expect(snapshot.ownerName).toBe("Ayşe Malik");
     expect(snapshot.sourceClientRecordId).toBe("client-1");
+    expect(snapshot.authorityDurationMonths).toBe("3");
+  });
+
+  it("defaults authority duration to three months and reflects a user-selected duration in conditions", () => {
+    const defaults = emptyAuthorityDetails();
+    expect(defaults.authorityDurationMonths).toBe("3");
+    expect(authorityContractConditions({ ...defaults, authorityDurationMonths: "5" }).join(" ")).toContain("5 (beş) aydır");
   });
 
   it("creates a consultant-initialled year sequence and normalizes text/phones", () => {

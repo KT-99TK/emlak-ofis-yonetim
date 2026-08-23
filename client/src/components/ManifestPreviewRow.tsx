@@ -1,6 +1,7 @@
 import React from "react";
 import { CheckCircle2 } from "lucide-react";
 import { buildManifestPreview, type ManifestPreviewInput } from "@/lib/manifestPresentation";
+import { formatTurkishDateTime } from "@/lib/turkishDate";
 
 type ManifestPreviewRowProps = {
   manifest: ManifestPreviewInput & { latestSyncAt?: string | null };
@@ -16,9 +17,9 @@ export default function ManifestPreviewRow({ manifest, testId = "manifest-previe
       <span>{preview.recordCount} kayıt</span>
       <span>{preview.deviceId}</span>
       <span>kullanıcı: {preview.userId}</span>
-      <span>{preview.exportedAt !== "tarih yok" ? new Date(preview.exportedAt).toLocaleString("tr-TR") : preview.exportedAt}</span>
+      <span>{preview.exportedAt !== "tarih yok" ? formatTurkishDateTime(preview.exportedAt) : preview.exportedAt}</span>
       <span>en yüksek sürüm: {preview.maxRecordVersion}</span>
-      <span>son aktarım: {manifest.latestSyncAt ? new Date(manifest.latestSyncAt).toLocaleString("tr-TR") : "henüz yok"}</span>
+      <span>son aktarım: {manifest.latestSyncAt ? formatTurkishDateTime(manifest.latestSyncAt) : "henüz yok"}</span>
       <span data-testid="manifest-checksum">checksum: {preview.checksumLabel}</span>
       <span data-testid="manifest-signature">ECDSA: {preview.signatureLabel}</span>
     </div>

@@ -14,13 +14,13 @@ describe("rental documents", () => {
     expect(html).toContain("KİRACI");
     expect(html).not.toContain("DÜZENLEYEN DANIŞMAN");
     expect(html).not.toContain("Deniz Yılmaz</strong><span>İmza");
-    expect(html).toContain("Düzenleme izi · DY · 2026-08-23 · Form: KIR-2026-001");
+    expect(html).toContain("Düzenleme izi · DY · 23.08.2026 · Form: KIR-2026-001");
   });
 
   it("keeps the same non-signature trace on rental appendices", () => {
     const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={details} contractNo="KIR-2026-001" fontSize="10" />);
     expect(html).not.toContain("DÜZENLEYEN DANIŞMAN");
-    expect(html).toContain("Düzenleme izi · DY · 2026-08-23 · Form: KIR-2026-001");
+    expect(html).toContain("Düzenleme izi · DY · 23.08.2026 · Form: KIR-2026-001");
   });
 
   it("renders each structured fixture item as a numbered row in the independent appendix", () => {
