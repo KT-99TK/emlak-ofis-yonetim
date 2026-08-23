@@ -1,3 +1,5 @@
+import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
+
 export type OfflineRentalDetails = {
   useType: "residential" | "commercial";
   ownerName: string;
@@ -26,6 +28,9 @@ export type OfflineRentalDetails = {
   noticeDays: string;
   kdvIncluded: boolean;
   usagePurpose: string;
+  residentsCount: string;
+  courtCity: string;
+  documentPlace: string;
   ownerApproval: "pending" | "approved";
   consultantName: string;
   consultantCode: string;
@@ -38,10 +43,21 @@ export const emptyRentalDetails = (): OfflineRentalDetails => ({
   tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "",
   propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", paymentDay: "1", iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
-  usagePurpose: "Konut", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
+  usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
 });
 
-const money = (value: string) => Number(value.replace(",", ".")) || 0;
+const money = (value: string) => {
+  const compact = value.trim().replace(/\s/g, "");
+  const normalized = compact.includes(",") ? compact.replace(/\./g, "").replace(",", ".") : compact.replace(/\./g, "");
+  return Math.max(0, Math.round(Number(normalized) || 0));
+};
+
+/** Kuruş kabul etmeyen kira/depozito alanını Türkçe binlik ayırıcıyla biçimlendirir. */
+export function formatWholeRentalAmount(raw: string) {
+  const digits = raw.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+  if (!digits) return "";
+  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Number(digits));
+}
 const pad = (value: number) => String(value).padStart(2, "0");
 
 export function addMonths(dateValue: string, months: number) {
@@ -92,10 +108,28 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     details.guarantorName.trim() ? `Kefil: ${details.guarantorName} | TCKN: ${value(details.guarantorIdentity)} | Azami tutar: ${value(details.guarantorLimit)} ${details.currency}` : "Kefil: belirtilmemiş.",
     `Mülk sahibi yeniden kiralama onayı: ${details.ownerApproval === "approved" ? "onaylandı" : "onay bekliyor"}.`,
     `Danışman: ${value(details.consultantName)} | Kod: ${value(details.consultantCode)} | Ofis: ${value(details.officeName)} | Yetki belgesi: ${value(details.officeAuthorizationNo)}`,
+    "", "TESLİM / DEMİRBAŞ VE İMZA EKİ",
+    `Teslim/demirbaş listesi: ${value(details.fixtures)}`,
+    `Sayaç / abonelik notu: ${value(details.meterNotes)}`,
+    "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Danışman imza: ____________________",
+    "", "SÖZLEŞME KOŞULLARI",
+    ...rentalContractConditions(details, summary.endDate).map((condition, index) => `${index + 1}. ${condition}`),
     "", "Bu taslak offline cihazda oluşturulmuştur. Aktifleştirme, owner approval ve imza kontrolünden sonra gerçekleştirilmelidir.",
   ].join("\n");
 }
 
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
-  return { schema: "global1881-offline-rental-v1" as const, contractNo: contractNo.trim(), sourceOwnerRecordId, sourceTenantRecordId, sourcePropertyRecordId, ...details, summary: calculateRentalSummary(details) };
+  const summary = calculateRentalSummary(details);
+  return {
+    schema: "global1881-offline-rental-v2" as const,
+    contractNo: contractNo.trim(),
+    sourceOwnerRecordId,
+    sourceTenantRecordId,
+    sourcePropertyRecordId,
+    ...details,
+    summary,
+    conditionTemplateVersion: RENTAL_CONDITIONS_TEMPLATE_VERSION,
+    conditions: rentalContractConditions(details, summary.endDate),
+    deliveryAppendix: { fixtures: details.fixtures, meterNotes: details.meterNotes, deliveryDate: details.startDate },
+  };
 }

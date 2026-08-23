@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, renderRentalContract } from "./rentalContract";
+import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, formatWholeRentalAmount, renderRentalContract } from "./rentalContract";
+import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
 describe("offline rental contract calculations", () => {
   it("calculates annual rent, end date and notice date", () => {
@@ -11,10 +12,23 @@ describe("offline rental contract calculations", () => {
     expect(summary.firstDueDate).toBe("2026-01-28");
   });
 
-  it("builds an offline rental snapshot and readable preview", () => {
+  it("builds a versioned offline rental snapshot with supplied residential conditions", () => {
     const details = { ...emptyRentalDetails(), ownerName: "Ayşe Malik", tenantName: "Mehmet Kiracı", monthlyRent: "18000" };
-    expect(createOfflineRentalSnapshot(details, " KIR-OF-01 ").contractNo).toBe("KIR-OF-01");
+    const snapshot = createOfflineRentalSnapshot(details, " KIR-OF-01 ");
+    expect(snapshot.contractNo).toBe("KIR-OF-01");
+    expect(snapshot.schema).toBe("global1881-offline-rental-v2");
+    expect(snapshot.conditionTemplateVersion).toBe(RENTAL_CONDITIONS_TEMPLATE_VERSION);
+    expect(snapshot.conditions).toEqual(rentalContractConditions(details, "2027-08-23"));
+    expect(formatWholeRentalAmount("1250000")).toBe("1.250.000");
     expect(renderRentalContract(details)).toContain("KONUT KİRA SÖZLEŞMESİ");
     expect(renderRentalContract(details)).toContain("Ayşe Malik");
+    expect(renderRentalContract(details)).toContain("SÖZLEŞME KOŞULLARI");
+  });
+
+  it("uses a distinct commercial conditions set and adds guarantor condition when provided", () => {
+    const commercial = { ...emptyRentalDetails(), useType: "commercial" as const, guarantorName: "Kefil Kişi", monthlyRent: "90000" };
+    const conditions = rentalContractConditions(commercial, "2027-08-23");
+    expect(conditions[0]).toContain("KİRA SÜRESİ");
+    expect(conditions.some((condition) => condition.includes("KEFALET"))).toBe(true);
   });
 });

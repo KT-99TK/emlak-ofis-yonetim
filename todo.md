@@ -316,3 +316,10 @@
 - [ ] Tam şablonun çok sayfalı yazdırma, offline kayıt, şifreli yedek/merge ve kullanıcı Windows ekran doğrulamasını tamamla
 - [x] A4 belge önizlemesini doldurulabilir formun altına taşı ve eksik zorunlu alanları görünür biçimde uyar
 - [x] Yetki sözleşmesi kaydetme düğmesini nötr şeffaf, eksik alanda kırmızı ve başarılı kayıtta Oxford yeşili durumlarına bağla
+
+## Offline kira sözleşmesi tam şablon
+
+- [x] Claude kira şablonundaki konut ve işyeri koşullarını, teslim/demirbaş ile imza bölümlerini kaynak içerikle eşleştir
+- [x] Konut ve işyeri koşullarını ayrı değişmez sürüm etiketi ve snapshot olarak offline kira sözleşmesi kaydına ekle
+- [x] Offline kira A4 önizlemesini bilgi tabloları, tam koşullar, teslim/demirbaş ve imza bölümleriyle form altına yerleştir
+- [ ] Konut/işyeri kira tam şablonunu yazdırma, şifreli yedek/merge ve gerçek Windows ekran kanıtıyla doğrula
