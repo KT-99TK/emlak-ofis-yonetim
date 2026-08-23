@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, formatWholeRentalAmount, RENTAL_APPENDIX_TEMPLATE_VERSION, renderRentalContract } from "./rentalContract";
+import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, fixtureItemsFromLegacy, fixtureItemsToLegacy, formatWholeRentalAmount, RENTAL_APPENDIX_TEMPLATE_VERSION, renderRentalContract } from "./rentalContract";
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
 describe("offline rental contract calculations", () => {
@@ -16,7 +16,7 @@ describe("offline rental contract calculations", () => {
     const details = { ...emptyRentalDetails(), ownerName: "Ayşe Malik", tenantName: "Mehmet Kiracı", monthlyRent: "18000" };
     const snapshot = createOfflineRentalSnapshot(details, " KIR-OF-01 ");
     expect(snapshot.contractNo).toBe("KIR-OF-01");
-    expect(snapshot.schema).toBe("global1881-offline-rental-v2");
+    expect(snapshot.schema).toBe("global1881-offline-rental-v3");
     expect(snapshot.conditionTemplateVersion).toBe(RENTAL_CONDITIONS_TEMPLATE_VERSION);
     expect(snapshot.appendixTemplateVersion).toBe(RENTAL_APPENDIX_TEMPLATE_VERSION);
     expect(snapshot.appendices.fixtures.fixtures).toBe(details.fixtures);
@@ -25,6 +25,17 @@ describe("offline rental contract calculations", () => {
     expect(renderRentalContract(details)).toContain("KONUT KİRA SÖZLEŞMESİ");
     expect(renderRentalContract(details)).toContain("Ayşe Malik");
     expect(renderRentalContract(details)).toContain("SÖZLEŞME KOŞULLARI");
+  });
+
+  it("keeps Claude-compatible fixture rows in the snapshot while parsing legacy fixture text", () => {
+    const rows = fixtureItemsFromLegacy("Vestel klima | 2 | Çalışır, temiz\nDaire anahtarı | 3 | Teslim edildi");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({ item: "Vestel klima", quantity: "2", condition: "Çalışır, temiz" });
+    const details = { ...emptyRentalDetails(), fixtureItems: rows };
+    const snapshot = createOfflineRentalSnapshot(details, "KIR-OF-02");
+    expect(fixtureItemsToLegacy(rows)).toContain("Daire anahtarı | 3 | Teslim edildi");
+    expect(snapshot.appendices.fixtures.fixtureItems[1]).toMatchObject({ item: "Daire anahtarı", quantity: "3" });
+    expect(renderRentalContract(details)).toContain("Vestel klima | 2 | Çalışır, temiz");
   });
 
   it("uses a distinct commercial conditions set and adds guarantor condition only when selected", () => {

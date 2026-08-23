@@ -377,6 +377,7 @@
 - [x] Kira formuna Claude düzenindeki Kefil var seçimini ekle; işaretlenmediğinde kefil alanlarını ve belge satırını tamamen gizle
 - [x] Kira snapshot’ına tahliye, teslim etme/teslim alma ve demirbaş eklerinin gerekli alanlarını sürüm etiketli biçimde ekle
 - [x] Tahliye taahhütnamesi, teslim etme formu, teslim alma formu ve demirbaş listesini kira sözleşmesi bilgisinden otomatik doldurulan ayrı A4 belgeler olarak ekle
+- [x] Kira demirbaş ekini ad, adet, durum ve açıklama sütunlu; satır ekleme/silme destekli dinamik tabloya dönüştür
 - [x] Kefil görünürlüğü ile tahliye, teslim etme, teslim alma ve demirbaş eklerinin yalnız istenen tekil belgede görünmesini test et
 - [ ] Her kira ekinin tek başına yazdırılmasını; offline snapshot, şifreli yedek/merge ve gerçek Windows baskı akışıyla doğrula
 

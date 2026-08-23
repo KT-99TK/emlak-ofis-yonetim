@@ -23,6 +23,14 @@ describe("rental documents", () => {
     expect(html).toContain("Düzenleme izi · DY · 2026-08-23 · Form: KIR-2026-001");
   });
 
+  it("renders each structured fixture item as a numbered row in the independent appendix", () => {
+    const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={{ ...details, fixtureItems: [{ id: "f-1", item: "Vestel klima", quantity: "2", condition: "Çalışır, temiz" }, { id: "f-2", item: "Daire anahtarı", quantity: "3", condition: "Teslim edildi" }] }} contractNo="KIR-2026-001" fontSize="10" />);
+    expect(html).toContain("Cinsi / Markası");
+    expect(html).toContain("Vestel klima");
+    expect(html).toContain("Daire anahtarı");
+    expect(html).toContain("Teslim edildi");
+  });
+
   it("includes the guarantor table and signature only when the Kefil var choice is enabled", () => {
     const withoutGuarantor = renderToStaticMarkup(<RentalContractDocument details={details} contractNo="KIR-2026-001" fontSize="10" />);
     const withGuarantor = renderToStaticMarkup(<RentalContractDocument details={{ ...details, hasGuarantor: true, guarantorName: "Selin Kefil", guarantorIdentity: "11111111111" }} contractNo="KIR-2026-001" fontSize="10" />);

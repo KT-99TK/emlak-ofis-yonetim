@@ -1,5 +1,21 @@
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
+export type RentalFixtureItem = { id: string; item: string; quantity: string; condition: string };
+
+let fixtureSequence = 0;
+export const createRentalFixtureItem = (): RentalFixtureItem => ({ id: `fixture-${Date.now()}-${++fixtureSequence}`, item: "", quantity: "", condition: "" });
+
+/** Claude şablonundaki `Cinsi / Markası | Adet | Teslim Durumu` satır düzeniyle eski metin alanını birlikte korur. */
+export function fixtureItemsFromLegacy(fixtures: string): RentalFixtureItem[] {
+  return fixtures.split("\n").map((line, index) => line.split("|").map((value) => value.trim())).filter((parts) => parts.some(Boolean)).map((parts, index) => ({ id: `legacy-fixture-${index}`, item: parts[0] ?? "", quantity: parts[1] ?? "", condition: parts.slice(2).join(" | ") }));
+}
+
+export const fixtureItemsToLegacy = (items: RentalFixtureItem[]) => items.filter((item) => [item.item, item.quantity, item.condition].some((value) => value.trim())).map((item) => [item.item.trim(), item.quantity.trim(), item.condition.trim()].join(" | ")).join("\n");
+
+export const rentalFixtureItems = (details: Pick<OfflineRentalDetails, "fixtures" | "fixtureItems">) => details.fixtureItems?.filter((item) => [item.item, item.quantity, item.condition].some((value) => value.trim())).length ? details.fixtureItems.filter((item) => [item.item, item.quantity, item.condition].some((value) => value.trim())) : fixtureItemsFromLegacy(details.fixtures);
+
+export const rentalFixtureSummary = (details: Pick<OfflineRentalDetails, "fixtures" | "fixtureItems">) => fixtureItemsToLegacy(rentalFixtureItems(details)) || details.fixtures.trim();
+
 export type OfflineRentalDetails = {
   useType: "residential" | "commercial";
   ownerName: string;
@@ -19,6 +35,8 @@ export type OfflineRentalDetails = {
   propertyType: string;
   parcelInfo: string;
   fixtures: string;
+  /** v3 snapshot’larında demirbaşlar satır bazlı tutulur; v1/v2 `fixtures` metni okunmaya devam eder. */
+  fixtureItems?: RentalFixtureItem[];
   meterNotes: string;
   monthlyRent: string;
   deposit: string;
@@ -41,12 +59,12 @@ export type OfflineRentalDetails = {
   officeAuthorizationNo: string;
 };
 
-export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v1";
+export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v2";
 
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
   tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false,
-  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", iban: "",
+  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
 });
@@ -109,12 +127,12 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     `Depozito: ${value(details.deposit)} ${details.currency} | Ödeme günü: her ayın ${summary.paymentDay}. günü | IBAN: ${value(details.iban)}`,
     `Süre: ${summary.durationMonths} ay | Başlangıç: ${value(details.startDate)} | Bitiş: ${summary.endDate}`,
     `Tahliye ihbarı: ${summary.noticeDays} gün | Uyarı tarihi: ${summary.noticeDate}`,
-    `Demirbaş/teslim notu: ${value(details.fixtures)} | Sayaç notu: ${value(details.meterNotes)}`,
+    `Demirbaş/teslim notu: ${value(rentalFixtureSummary(details))} | Sayaç notu: ${value(details.meterNotes)}`,
     details.hasGuarantor ? `Kefil: ${value(details.guarantorName)} | TCKN: ${value(details.guarantorIdentity)} | Azami tutar: ${value(details.guarantorLimit)} ${details.currency}` : "",
     `Mülk sahibi yeniden kiralama onayı: ${details.ownerApproval === "approved" ? "onaylandı" : "onay bekliyor"}.`,
     `Danışman: ${value(details.consultantName)} | Kod: ${value(details.consultantCode)} | Ofis: ${value(details.officeName)} | Yetki belgesi: ${value(details.officeAuthorizationNo)}`,
     "", "TESLİM / DEMİRBAŞ VE İMZA EKİ",
-    `Teslim/demirbaş listesi: ${value(details.fixtures)}`,
+    `Teslim/demirbaş listesi: ${value(rentalFixtureSummary(details))}`,
     `Sayaç / abonelik notu: ${value(details.meterNotes)}`,
     "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Danışman imza: ____________________",
     "", "SÖZLEŞME KOŞULLARI",
@@ -126,7 +144,7 @@ export function renderRentalContract(details: OfflineRentalDetails) {
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
   const summary = calculateRentalSummary(details);
   return {
-    schema: "global1881-offline-rental-v2" as const,
+    schema: "global1881-offline-rental-v3" as const,
     contractNo: contractNo.trim(),
     sourceOwnerRecordId,
     sourceTenantRecordId,
@@ -135,8 +153,8 @@ export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contr
     summary,
     conditionTemplateVersion: RENTAL_CONDITIONS_TEMPLATE_VERSION,
     conditions: rentalContractConditions(details, summary.endDate),
-    deliveryAppendix: { fixtures: details.fixtures, meterNotes: details.meterNotes, deliveryDate: details.startDate },
+    deliveryAppendix: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, deliveryDate: details.startDate },
     appendixTemplateVersion: RENTAL_APPENDIX_TEMPLATE_VERSION,
-    appendices: { evacuation: { plannedDate: summary.endDate }, handover: { plannedDate: details.startDate }, return: { plannedDate: summary.endDate }, fixtures: { fixtures: details.fixtures, meterNotes: details.meterNotes } },
+    appendices: { evacuation: { plannedDate: summary.endDate }, handover: { plannedDate: details.startDate }, return: { plannedDate: summary.endDate }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes } },
   };
 }
