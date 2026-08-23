@@ -48,7 +48,13 @@ button:active { transform: scale(.98); }
 .rental-advisor-trace { width: fit-content; margin-top: 10mm; padding: 1.5mm 2mm; border-top: 1px solid #d8d0bc; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 7.2pt; opacity: .78; }
 .rental-contract-document { max-width: none; margin-left: 0; margin-right: 0; }
 .rental-appendix-document { display: none; margin-top: 8mm; }
-.rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(3, 1fr); gap: 7mm; }
+.rental-document-signatures { gap: 0; margin-top: 10mm; border: 1px solid #aab0ae; text-align: left; }
+.rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(3, 1fr); gap: 0; }
+.rental-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #aab0ae; }
+.rental-party-signature-box:first-child { border-left: 0; }
+.rental-document-signatures p { margin: 0; font-size: 9pt; font-weight: 700; }
+.rental-document-signatures strong { margin-top: 3mm; font-weight: 500; }
+.rental-document-signatures span { margin-top: auto; padding-top: 16mm; color: #67716e; }
 .authority-document-rule { height: 1px; margin: 5mm 0; background: #1c2524; }
 .authority-document-title { margin: 0; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 17pt; font-weight: 700; }
 .authority-document-meta { margin: 2.5mm 0 4.5mm; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #45524e; }
@@ -65,6 +71,13 @@ button:active { transform: scale(.98); }
 .authority-document-signatures p { margin: 0 0 7mm; font-weight: 700; }
 .authority-document-signatures strong, .authority-document-signatures span { display: block; margin-top: 2mm; }
 .authority-document-signatures span { margin-top: 12mm; color: #67716e; }
+.authority-party-signature-boxes { gap: 0; margin-top: 10mm; border: 1px solid #aab0ae; text-align: left; }
+.authority-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #aab0ae; }
+.authority-party-signature-box:first-child { border-left: 0; }
+.authority-party-signature-box p { margin: 0; font-size: 9pt; font-weight: 700; }
+.authority-party-signature-box strong { margin-top: 3mm; font-weight: 500; }
+.authority-party-signature-box small { margin-top: 1.5mm; color: #67716e; font-size: 7.6pt; }
+.authority-party-signature-box span { margin-top: auto; padding-top: 14mm; color: #67716e; }
 
 @media print {
   @page { size: A4 portrait; margin: 12mm 10mm 16mm; }

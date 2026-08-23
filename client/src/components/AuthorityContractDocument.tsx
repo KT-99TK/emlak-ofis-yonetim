@@ -1,4 +1,5 @@
 import { authorityContractConditions, authorityContractTitle, calculateAuthoritySummary, formatAuthorityCurrency, normalizeAuthorityDetails, type AuthorityContractDetails } from "@/lib/authorityContract";
+import React from "react";
 
 type AuthorityContractDocumentProps = {
   details: AuthorityContractDetails;
@@ -65,9 +66,9 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
         <p className="authority-document-template-note">Koşul şablon sürümü: {"global1881-authority-conditions-2026-08-v1"}. Bu metin, ofis tarafından sağlanan şablonun offline sözleşme anındaki snapshot’ıdır.</p>
       </section>
 
-      <section className="authority-document-signatures">
-        <div><p>TAŞINMAZ MALİKİ</p><strong>{value(normalized.ownerName)}</strong><span>İmza</span></div>
-        <div><p>EMLAK DANIŞMANI</p><strong>{value(normalized.consultantName)}</strong><span>İmza</span></div>
+      <section className="authority-document-signatures authority-party-signature-boxes">
+        <div className="authority-party-signature-box"><p>TAŞINMAZ MALİKİ</p><strong>{value(normalized.ownerName)}</strong><span>İmza</span></div>
+        <div className="authority-party-signature-box"><p>YETKİ ALAN EMLAK OFİSİ / DANIŞMAN</p><strong>{value(normalized.officeName)}</strong><small>Yetkili danışman: {value(normalized.consultantName)}</small><span>Kaşe / İmza</span></div>
       </section>
       <footer className="authority-print-running-footer">Global 1881 Gayrimenkul · Yetki sözleşmesi taslağı · Kayıt: {contractNo}</footer>
     </article>

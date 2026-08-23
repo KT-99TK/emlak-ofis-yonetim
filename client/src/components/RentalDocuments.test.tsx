@@ -37,6 +37,9 @@ describe("rental documents", () => {
     expect(withoutGuarantor).not.toContain("KEFİL");
     expect(withGuarantor).toContain("KEFİL");
     expect(withGuarantor).toContain("Selin Kefil");
+    expect(withoutGuarantor.match(/<div class="rental-party-signature-box"/g)).toHaveLength(2);
+    expect(withGuarantor.match(/<div class="rental-party-signature-box"/g)).toHaveLength(3);
+    expect(withGuarantor).toContain("rental-with-guarantor");
   });
 
   it("creates one independently selectable appendix document at a time", () => {

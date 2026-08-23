@@ -365,11 +365,13 @@
 
 ## Sözleşme marka ve yazdırma düzeni
 
+- [x] Satış/kiralama yetki sözleşmelerinde malik ile yetki alan ofis veya danışmanı iki eşit çerçeveli imza kutusunda göster
 - [x] Satış ve kiralama yetki sözleşmelerine siyah leke oluşturmayan, baskı güvenli şeffaf Global 1881 mühür/watermark işaretini ekle
 - [x] Kira kontratlarından Global 1881’in taraf olduğu izlenimini veren logo/başlık/kurumsal taraf bilgilerini kaldır; alt solda yalnız danışman düzenleme izi bırak
 - [x] Kira A4 önizlemesinin dış kabuk sol/sağ boşluklarını Windows baskı alanıyla uyumlu daralt
 - [x] Kira A4 başlığındaki “Canlı A4” ibaresini kaldırarak “Kira Sözleşmesi ve Ekleri” olarak güncelle
 - [x] Kira sözleşmesi ve eklerinden düzenleyen danışman imza bloğunu kaldır; yalnız baş harf, tarih ve form numaralı silik iz bırak
+- [x] Kira sözleşmesi imza alanını kefilsiz iki, kefilli üç eşit taraf kutusu olacak biçimde düzenle
 - [x] Sözleşme ve Finansal İstatistikler ekranını şimdilik A4 yazdırmaya uygun düzenle
 - [ ] Yetki/kira belgelerinde marka ve taraf ayrımını gerçek Windows baskı önizlemesiyle doğrula
 
