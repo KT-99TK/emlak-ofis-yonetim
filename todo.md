@@ -341,3 +341,11 @@
 - [x] Benim Sözleşmelerim ekranına kişinin hedefi, gerçekleşen ciro, kalan tutar ve hedefe ilerleme oranını ekle
 - [x] Broker yöneticinin hedef-gerçekleşen-sapma görünümünü yalnız yetkili hesapta gösterecek erişim kuralını ekle
 - [ ] Hedef kayıtlarını şifreli yedek/merge ile uyumlu kıl ve hedef hesaplarını birim/Windows testleriyle doğrula
+
+## Offline müşteri talepleri ve portföy eşleştirme
+
+- [x] Danışmanın satın alma veya kiralama müşteri talebini konum, bütçe, nitelik, zamanlama ve notlarıyla gireceği offline formu ekle
+- [x] Talepleri mevcut yerel portföy/sözleşme kayıtlarıyla işlem türü, konum ve bütçe aralığı üzerinden eşleştiren testli kural setini ekle
+- [x] Olası eşleşmede müşteri kişisel verisini açmadan ilgili danışmanlar ve eşleşme özetiyle broker bildirimi oluştur
+- [x] Broker manager için ofis içi müşteri talep havuzu, eşleşme inceleme ve danışmanları yönlendirme görünümünü ekle
+- [ ] Talep/eşleşme kayıtlarını şifreli yedek/merge ile uyumlu kıl ve gerçek Windows akışında doğrula
