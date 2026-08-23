@@ -307,3 +307,12 @@
 - [x] Eski v1 ve güncel v2 yetki sözleşmesi snapshot’larının aynı yerel IndexedDB ve şifreli yedek/merge akışında erişilebilir olduğunu test et
 - [ ] Gerçek Windows güncellemesinde Mert Somuncu gibi önceki taslakların seçilip yeni forma kopyalandığını kullanıcı ekran kanıtıyla doğrula
 - [x] Offline yetki sözleşmesi kaydetme düğmesinde metin ve ikon kontrastını tüm durumlarda okunabilir yap
+
+## Offline yetki sözleşmesi tam şablon ve para biçimi
+
+- [x] Sözleşme, hizmet bedeli ve para tutarı girişlerini kuruşsuz Türkçe binlik ayırıcılarla otomatik biçimlendir; tam TL snapshot değerini güvenle koru
+- [x] Yetki sözleşmesi A4 önizlemesini danışman, malik ve taşınmaz bilgi tabloları içeren tam form düzenine dönüştür
+- [x] Kullanıcının sağladığı şablonun satış/kiralama koşullarını, ayrı ve değişmez sürüm etiketi taşıyan okunabilir numaralı belge bölümü olarak ekle
+- [ ] Tam şablonun çok sayfalı yazdırma, offline kayıt, şifreli yedek/merge ve kullanıcı Windows ekran doğrulamasını tamamla
+- [x] A4 belge önizlemesini doldurulabilir formun altına taşı ve eksik zorunlu alanları görünür biçimde uyar
+- [x] Yetki sözleşmesi kaydetme düğmesini nötr şeffaf, eksik alanda kırmızı ve başarılı kayıtta Oxford yeşili durumlarına bağla

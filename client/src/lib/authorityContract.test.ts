@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authorityContractTitle, calculateAuthoritySummary, consultantInitials, createOfflineAuthoritySnapshot, emptyAuthorityDetails, nextAuthorityContractNo, renderAuthorityContract, toInternationalPhone, toTurkishTitleCase } from "./authorityContract";
+import { AUTHORITY_CONDITIONS_TEMPLATE_VERSION, authorityContractConditions, authorityContractTitle, calculateAuthoritySummary, consultantInitials, createOfflineAuthoritySnapshot, emptyAuthorityDetails, formatWholeCurrencyInput, nextAuthorityContractNo, renderAuthorityContract, toInternationalPhone, toTurkishTitleCase } from "./authorityContract";
 
 describe("authority contract template", () => {
   it("renders the rent template with safe placeholders", () => {
@@ -13,7 +13,7 @@ describe("authority contract template", () => {
     const output = renderAuthorityContract({ ...emptyAuthorityDetails(), mode: "sale", ownerName: "Ayşe Malik", price: "4500000" });
     expect(output).toContain("SATIŞ YETKİ SÖZLEŞMESİ");
     expect(output).toContain("taşınmazın satış işlemleri");
-    expect(output).toContain("Sözleşmeye esas satış bedeli: ₺4.500.000,00");
+    expect(output).toContain("Sözleşmeye esas satış bedeli: ₺4.500.000");
   });
 
   it("serializes an explicit offline snapshot schema and record references", () => {
@@ -32,7 +32,19 @@ describe("authority contract template", () => {
   });
 
   it("calculates amount and service fee from Turkish or plain decimal input", () => {
-    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "1.250.000,50", serviceFeeRate: "2" })).toMatchObject({ contractAmount: 1250000.5, serviceFeeAmount: 25000.01 });
-    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "2500.50", serviceFeeAmount: "125.25" })).toMatchObject({ contractAmount: 2500.5, serviceFeeAmount: 125.25 });
+    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "1.250.000,50", serviceFeeRate: "2" })).toMatchObject({ contractAmount: 1250001, serviceFeeAmount: 25000 });
+    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), price: "2500.50", serviceFeeAmount: "125.25" })).toMatchObject({ contractAmount: 2501, serviceFeeAmount: 125 });
+    expect(formatWholeCurrencyInput("1250000")).toBe("1.250.000");
+  });
+
+  it("includes the complete ten-item supplied conditions as a versioned snapshot", () => {
+    const details = { ...emptyAuthorityDetails(), mode: "sale", consultantName: "Cahit Tercan", officeName: "Terpa Gayrimenkul" };
+    const conditions = authorityContractConditions(details);
+    const snapshot = createOfflineAuthoritySnapshot(details, "YET-2026-CT-001");
+    expect(conditions).toHaveLength(10);
+    expect(conditions[0]).toContain("%2 + KDV");
+    expect(conditions[9]).toContain("İzmir Mahkemeleri");
+    expect(snapshot.conditionTemplateVersion).toBe(AUTHORITY_CONDITIONS_TEMPLATE_VERSION);
+    expect(snapshot.conditions).toEqual(conditions);
   });
 });

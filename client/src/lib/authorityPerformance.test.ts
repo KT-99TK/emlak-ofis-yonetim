@@ -15,8 +15,8 @@ describe("authority performance", () => {
     ]);
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ consultantName: "Ayşe Yılmaz", initials: "AY", contractCount: 2, latestContractDate: "2026-08-10" });
-    expect(rows[0]?.contractAmountByCurrency).toEqual({ TRY: 1250000.5, USD: 100000 });
-    expect(rows[0]?.serviceFeeByCurrency).toEqual({ TRY: 25000.5, USD: 2000 });
+    expect(rows[0]?.contractAmountByCurrency).toEqual({ TRY: 1250001, USD: 100000 });
+    expect(rows[0]?.serviceFeeByCurrency).toEqual({ TRY: 25001, USD: 2000 });
   });
 
   it("adds report totals without mixing currencies", () => {

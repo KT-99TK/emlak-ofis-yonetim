@@ -22,6 +22,8 @@ export type AuthorityContractDetails = {
   consultantTitle: string;
   officeName: string;
   officeAuthorizationNo: string;
+  officeTaxOffice: string;
+  officeTaxNo: string;
   officePhone: string;
   officeAddress: string;
 };
@@ -32,19 +34,21 @@ export type AuthorityContractSummary = {
   serviceFeeAmount: number;
 };
 
+export const AUTHORITY_CONDITIONS_TEMPLATE_VERSION = "global1881-authority-conditions-2026-08-v1";
+
 export const emptyAuthorityDetails = (): AuthorityContractDetails => ({
   mode: "rent", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
   propertyAddress: "", parcelInfo: "", propertyType: "", grossM2: "", roomCount: "",
   floorAndView: "", condition: "", price: "", currency: "TRY", serviceFeeRate: "", serviceFeeAmount: "",
   contractDate: new Date().toISOString().slice(0, 10), consultantName: "", consultantPhone: "", consultantCode: "", consultantTitle: "",
-  officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211", officePhone: "", officeAddress: "",
+  officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211", officeTaxOffice: "", officeTaxNo: "", officePhone: "", officeAddress: "",
 });
 
 export function authorityContractTitle(mode: AuthorityContractDetails["mode"]) {
   return mode === "sale" ? "SATIŞ YETKİ SÖZLEŞMESİ" : "KİRALAMA YETKİ SÖZLEŞMESİ";
 }
 
-function amount(raw: string) {
+function parseNumericValue(raw: string) {
   const compact = raw.trim().replace(/\s/g, "");
   const value = compact.includes(",")
     ? compact.replace(/\./g, "").replace(",", ".")
@@ -52,6 +56,22 @@ function amount(raw: string) {
       ? compact.replace(/\./g, "")
       : compact;
   return Math.max(0, Number(value) || 0);
+}
+
+function amount(raw: string) {
+  return Math.round(parseNumericValue(raw));
+}
+
+function formatWholeAmount(raw: string) {
+  if (!raw.trim()) return "";
+  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(amount(raw));
+}
+
+/** Kuruş kabul etmeyen tutar alanını Türkçe binlik ayırıcıyla biçimlendirir. */
+export function formatWholeCurrencyInput(raw: string) {
+  const digits = raw.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+  if (!digits) return "";
+  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Number(digits));
 }
 
 function titleWord(word: string) {
@@ -101,13 +121,13 @@ export function nextAuthorityContractNo(existingContractNumbers: string[], consu
 
 export function calculateAuthoritySummary(details: AuthorityContractDetails): AuthorityContractSummary {
   const contractAmount = amount(details.price);
-  const serviceFeeRate = amount(details.serviceFeeRate);
+  const serviceFeeRate = parseNumericValue(details.serviceFeeRate);
   const manualServiceFee = amount(details.serviceFeeAmount);
-  return { contractAmount, serviceFeeRate, serviceFeeAmount: manualServiceFee || contractAmount * serviceFeeRate / 100 };
+  return { contractAmount, serviceFeeRate, serviceFeeAmount: manualServiceFee || Math.round(contractAmount * serviceFeeRate / 100) };
 }
 
 export function formatAuthorityCurrency(value: number, currency: AuthorityContractDetails["currency"] = "TRY") {
-  return new Intl.NumberFormat("tr-TR", { style: "currency", currency, maximumFractionDigits: 2 }).format(value);
+  return new Intl.NumberFormat("tr-TR", { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(value));
 }
 
 export function normalizeAuthorityDetails(details: AuthorityContractDetails): AuthorityContractDetails {
@@ -123,10 +143,44 @@ export function normalizeAuthorityDetails(details: AuthorityContractDetails): Au
     consultantTitle: toTurkishTitleCase(details.consultantTitle),
     officeName: toTurkishTitleCase(details.officeName),
     officeAddress: toTurkishTitleCase(details.officeAddress),
+    price: formatWholeAmount(details.price),
+    serviceFeeAmount: formatWholeAmount(details.serviceFeeAmount),
     ownerPhone: toInternationalPhone(details.ownerPhone),
     consultantPhone: toInternationalPhone(details.consultantPhone),
     officePhone: toInternationalPhone(details.officePhone),
   };
+}
+
+/** Kullanıcının sağladığı Claude şablonundan türetilen, belgeye snapshot olarak yazılan koşul metni. */
+export function authorityContractConditions(details: AuthorityContractDetails) {
+  const isSale = details.mode === "sale";
+  const commission = isSale ? "%2 + KDV" : "1 (bir) aylık kira bedeli + KDV";
+  const penalty = isSale ? "%4 + KDV" : "2 (iki) aylık kira bedeli + KDV";
+  const amountAccusative = isSale ? "satış bedelini" : "kira bedelini";
+  const amountGenitive = isSale ? "satış bedelinin" : "kira bedelinin";
+  const action = isSale ? "satma" : "kiralama";
+  const actionNoun = isSale ? "satış" : "kiralama";
+  const payer = isSale ? "taşınmaz maliki" : "kiracı";
+  const heading = isSale ? "Satış" : "Kiralama";
+  const restriction = isSale ? "satamaz/sattıramaz" : "kiralayamaz/kiralatamaz";
+  const recipient = isSale ? "alıcıya" : "kiracıya";
+  const advisor = details.consultantName.trim() || "……………………………";
+  const advisorCode = details.consultantCode.trim() ? ` (${details.consultantCode.trim()})` : "";
+  const advisorTitle = details.consultantTitle.trim() || "emlak danışmanı";
+  const officeTax = details.officeTaxNo.trim() ? ` ve VKN: ${details.officeTaxNo.trim()}` : "";
+  const officeSentence = `İşbu sözleşme, Yetki Belgesi No: ${details.officeAuthorizationNo.trim() || "……………………………"}${officeTax} ile faaliyet gösteren ${details.officeName.trim() || "……………………………"} adına düzenlenmiştir. İşlemi yürüten ${advisorTitle} ${advisor}${advisorCode}, işletme adına kiralık ve satılık portföy almaya ve işletme adına sözleşme imzalamaya yetkilidir.`;
+  return [
+    `Taşınmaz maliki, işbu sözleşme ile emlak danışmanına, yukarıda nitelikleri belirtilen taşınmazı üçüncü kişilere ${action} yetkisi vermiştir. ${heading} gerçekleştiğinde, 05.06.2018 tarihli Resmî Gazete'de yayımlanan Taşınmaz Ticareti Hakkında Yönetmelik hükümleri uyarınca ${payer}, ${commission} tutarındaki hizmet bedelini emlak danışmanına ödemeyi kabul ve taahhüt eder.`,
+    officeSentence,
+    "Sözleşme süresi imza tarihinden itibaren 6 (altı) aydır. Süre bitiminden 15 (on beş) gün önce yazılı fesih bildirimi yapılmadığı takdirde sözleşme aynı koşullarla 3 (üç) ay süreyle uzamış sayılır.",
+    "Emlak danışmanı, taşınmazın pazarlanması için başka emlak danışmanlarıyla iş birliği yapabilir.",
+    `Taşınmaz maliki, sözleşme süresince ${amountAccusative} emlak danışmanının yazılı onayı olmadan değiştiremez; aksi hâlde komisyon, eski ve yeni bedelden yüksek olanı üzerinden hesaplanır.`,
+    `Taşınmaz maliki, sözleşme süresince emlak danışmanının yazılı muvafakati olmadan taşınmazı üçüncü kişilere ${restriction}. Aksi hâlde gerçek ${amountGenitive} ${penalty} tutarını emlak danışmanına ödemeyi kabul ve taahhüt eder.`,
+    "Taşınmaz maliki, yukarıda kendisi ve taşınmazı hakkında verdiği bilgilerin doğru olduğunu kabul eder; bilgilerin gerçeği yansıtmamasından emlak danışmanı sorumlu tutulamaz.",
+    "Taşınmaz maliki, işbu sözleşme süresince başka hiçbir aracı kişi veya kuruma yetki vermeyeceğini beyan ve taahhüt eder.",
+    `Emlak danışmanının gösterdiği ${recipient}, sözleşme süresi içinde veya bitiminden sonraki 3 (üç) ay içinde emlak danışmanı aracılığı dışında ${actionNoun} yapılması hâlinde taşınmaz maliki, ${amountGenitive} ${penalty} tutarını emlak danışmanına ödemeyi kabul ve taahhüt eder.`,
+    "Taraflar yukarıdaki adresleri yasal tebligat adresi olarak kabul eder. Sözleşmeden doğan vergi, resim ve harçlar taşınmaz sahibine aittir. İşbu sözleşme 2 (iki) nüsha düzenlenmiş olup uyuşmazlıklarda İzmir Mahkemeleri ve İcra Müdürlükleri yetkilidir.",
+  ];
 }
 
 export function renderAuthorityContract(details: AuthorityContractDetails, contractNo?: string) {
@@ -164,6 +218,9 @@ export function renderAuthorityContract(details: AuthorityContractDetails, contr
     "5. DÜZENLEME VE İMZA",
     `Bu belge ${display(normalized.contractDate)} tarihinde iki nüsha olarak düzenlenmiştir. Ana sözleşme maddeleri, ofis tarafından onaylanmış şablon sürümü üzerinden uygulanır.`,
     "Malik imza: ________________________________    Danışman imza: ________________________________",
+    "",
+    "SÖZLEŞME KOŞULLARI",
+    ...authorityContractConditions(normalized).map((condition, index) => `${index + 1}. ${condition}`),
   ].join("\n");
 }
 
@@ -177,5 +234,7 @@ export function createOfflineAuthoritySnapshot(details: AuthorityContractDetails
     sourceAuthorityContractRecordId,
     ...normalized,
     summary: calculateAuthoritySummary(normalized),
+    conditionTemplateVersion: AUTHORITY_CONDITIONS_TEMPLATE_VERSION,
+    conditions: authorityContractConditions(normalized),
   };
 }

@@ -37,6 +37,27 @@ button:active { transform: scale(.98); }
 .authority-print-running-header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #d8d0bc; margin-bottom: 1.3rem; padding-bottom: .55rem; color: #7d6439; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; }
 .authority-print-body { white-space: pre-wrap; overflow-wrap: anywhere; }
 .authority-print-running-footer { border-top: 1px solid #d8d0bc; margin-top: 1.5rem; padding-top: .55rem; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 8pt; }
+.authority-contract-document { max-width: 210mm; margin: 0 auto; padding: 16mm 14mm; overflow-wrap: anywhere; }
+.authority-document-brand { display: flex; align-items: center; gap: 4mm; font-family: 'DM Sans', sans-serif; font-size: 9pt; line-height: 1.45; }
+.authority-document-office-name { margin: 0 0 1mm; font-size: 15pt; font-weight: 700; letter-spacing: .02em; }
+.authority-document-brand p { margin: .4mm 0; }
+.authority-document-seal { display: flex; align-items: center; justify-content: center; width: 26mm; height: 26mm; flex: 0 0 auto; border: 1.5pt double #252525; border-radius: 50%; background: #1f2928; color: #fff; font-family: 'Playfair Display', Georgia, serif; font-size: 13pt; font-weight: 600; letter-spacing: .04em; }
+.authority-document-rule { height: 1px; margin: 5mm 0; background: #1c2524; }
+.authority-document-title { margin: 0; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 17pt; font-weight: 700; }
+.authority-document-meta { margin: 2.5mm 0 4.5mm; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #45524e; }
+.authority-document-section, .authority-document-conditions { margin-top: 4mm; break-inside: avoid; }
+.authority-document-section h3, .authority-document-conditions h3 { margin: 0 0 1.5mm; padding: 1.4mm 2mm; background: #dfe8f2; font-family: 'DM Sans', sans-serif; font-size: 10pt; font-weight: 700; }
+.authority-contract-document table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 9.4pt; }
+.authority-contract-document th, .authority-contract-document td { border: 1px solid #aab0ae; padding: 2mm 2.2mm; text-align: left; vertical-align: top; line-height: 1.4; }
+.authority-contract-document th { width: 19%; background: #f0f1f0; font-weight: 700; }
+.authority-contract-document td { width: 31%; }
+.authority-document-conditions ol { margin: 3mm 0 0; padding-left: 7mm; }
+.authority-document-conditions li { margin: 0 0 2.8mm; padding-left: 1mm; text-align: justify; line-height: 1.58; }
+.authority-document-template-note { margin: 3mm 0 0; color: #68736f; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; }
+.authority-document-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 15mm; margin-top: 12mm; break-inside: avoid; font-family: 'DM Sans', sans-serif; font-size: 9pt; text-align: center; }
+.authority-document-signatures p { margin: 0 0 7mm; font-weight: 700; }
+.authority-document-signatures strong, .authority-document-signatures span { display: block; margin-top: 2mm; }
+.authority-document-signatures span { margin-top: 12mm; color: #67716e; }
 
 @media print {
   @page { size: A4 portrait; margin: 15mm 14mm 18mm; }
@@ -47,6 +68,9 @@ button:active { transform: scale(.98); }
   .authority-print-shell .print\:hidden { display: none !important; }
   .authority-print-shell, .authority-print-shell > div, .authority-print-shell article { border: 0 !important; box-shadow: none !important; background: #fff !important; border-radius: 0 !important; }
   .authority-print-document { padding: 0 !important; min-height: auto !important; font-size: var(--authority-print-font-size) !important; line-height: 1.62 !important; }
+  .authority-contract-document { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  .authority-document-section, .authority-document-conditions, .authority-document-signatures { break-inside: avoid-page; }
+  .authority-contract-document table { font-size: calc(var(--authority-print-font-size) - 1pt) !important; }
   .authority-print-running-header { position: running(authority-header); }
   .authority-print-running-footer { break-inside: avoid; }
   .authority-print-body { widows: 3; orphans: 3; }

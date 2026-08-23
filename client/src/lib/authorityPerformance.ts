@@ -33,7 +33,7 @@ function safeDetails(snapshot: AuthoritySnapshot): AuthorityContractDetails {
     price: snapshot.price ?? "", currency: snapshot.currency === "USD" || snapshot.currency === "EUR" ? snapshot.currency : "TRY",
     serviceFeeRate: snapshot.serviceFeeRate ?? "", serviceFeeAmount: snapshot.serviceFeeAmount ?? "", contractDate: snapshot.contractDate ?? "",
     consultantName: snapshot.consultantName ?? "", consultantPhone: snapshot.consultantPhone ?? "", consultantCode: snapshot.consultantCode ?? "", consultantTitle: snapshot.consultantTitle ?? "",
-    officeName: snapshot.officeName ?? "", officeAuthorizationNo: snapshot.officeAuthorizationNo ?? "", officePhone: snapshot.officePhone ?? "", officeAddress: snapshot.officeAddress ?? "",
+    officeName: snapshot.officeName ?? "", officeAuthorizationNo: snapshot.officeAuthorizationNo ?? "", officeTaxOffice: snapshot.officeTaxOffice ?? "", officeTaxNo: snapshot.officeTaxNo ?? "", officePhone: snapshot.officePhone ?? "", officeAddress: snapshot.officeAddress ?? "",
   };
 }
 
