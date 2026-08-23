@@ -68,7 +68,7 @@ export function rentalConditionTemplates(useType: OfflineRentalDetails["useType"
 
 /** Kullanıcının sağladığı şablonu seçilen tür ve sözleşme alanlarıyla doldurur. */
 export function rentalContractConditions(details: OfflineRentalDetails, endDate: string) {
-  const templates = rentalConditionTemplates(details.useType).filter((template) => !template.startsWith("[SON][KEFIL]") || Boolean(details.guarantorName.trim()));
+  const templates = rentalConditionTemplates(details.useType).filter((template) => !template.startsWith("[SON][KEFIL]") || details.hasGuarantor);
   const tokens: Record<string, string> = {
     kira: wholeMoney(details.monthlyRent), depozito: wholeMoney(details.deposit), odemeGun: details.paymentDay || "1", sure: `${details.durationMonths || "12"} ay`, basla: details.startDate || "................................", bitis: endDate || "................................", iban: details.iban || "................................", kdv: details.kdvIncluded ? "KDV dâhil" : "KDV hariç", amac: details.usagePurpose || "................................", tapuNitelik: details.propertyType || "................................", mahkeme: details.courtCity || "Urla", tarih: details.startDate || "................................", yer: details.documentPlace || "Urla", maddeSayisi: String(templates.length), kisiSayisiCumle: details.residentsCount.trim() ? ` Kiralananda ${details.residentsCount.trim()} kişinin ikamet edeceği bildirilmiştir.` : "",
   };

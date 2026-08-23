@@ -46,6 +46,8 @@ button:active { transform: scale(.98); }
 .rental-document-header { display: flex; justify-content: flex-end; min-height: 7mm; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; color: #7b817e; }
 .rental-document-record { margin: 0; }
 .rental-advisor-trace { width: fit-content; margin-top: 10mm; padding: 1.5mm 2mm; border-top: 1px solid #d8d0bc; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 7.2pt; opacity: .78; }
+.rental-appendix-document { display: none; margin-top: 8mm; }
+.rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(4, 1fr); gap: 7mm; }
 .authority-document-rule { height: 1px; margin: 5mm 0; background: #1c2524; }
 .authority-document-title { margin: 0; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 17pt; font-weight: 700; }
 .authority-document-meta { margin: 2.5mm 0 4.5mm; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #45524e; }
@@ -78,6 +80,10 @@ button:active { transform: scale(.98); }
   .authority-document-seal strong { color: rgba(35,67,59,.42); }
   .rental-contract-document .authority-document-rule { margin-top: 2mm; }
   .rental-advisor-trace { color: #7b817e; }
+  .rental-appendix-document { display: block !important; }
+  .rental-print-contract .rental-appendix-document { display: none !important; }
+  .rental-print-evacuation .rental-contract-document, .rental-print-handover .rental-contract-document, .rental-print-return .rental-contract-document, .rental-print-fixtures .rental-contract-document { display: none !important; }
+  .rental-print-evacuation .rental-appendix-document:not(.rental-appendix-evacuation), .rental-print-handover .rental-appendix-document:not(.rental-appendix-handover), .rental-print-return .rental-appendix-document:not(.rental-appendix-return), .rental-print-fixtures .rental-appendix-document:not(.rental-appendix-fixtures) { display: none !important; }
   .authority-print-shell .grid > .rounded-2xl, .authority-print-shell .rounded-2xl { break-inside: avoid-page; }
   .authority-contract-document table { font-size: calc(var(--authority-print-font-size) - 1pt) !important; }
   .authority-document-conditions ol { list-style: decimal outside !important; }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, formatWholeRentalAmount, renderRentalContract } from "./rentalContract";
+import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, formatWholeRentalAmount, RENTAL_APPENDIX_TEMPLATE_VERSION, renderRentalContract } from "./rentalContract";
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
 describe("offline rental contract calculations", () => {
@@ -18,6 +18,8 @@ describe("offline rental contract calculations", () => {
     expect(snapshot.contractNo).toBe("KIR-OF-01");
     expect(snapshot.schema).toBe("global1881-offline-rental-v2");
     expect(snapshot.conditionTemplateVersion).toBe(RENTAL_CONDITIONS_TEMPLATE_VERSION);
+    expect(snapshot.appendixTemplateVersion).toBe(RENTAL_APPENDIX_TEMPLATE_VERSION);
+    expect(snapshot.appendices.fixtures.fixtures).toBe(details.fixtures);
     expect(snapshot.conditions).toEqual(rentalContractConditions(details, "2027-08-23"));
     expect(formatWholeRentalAmount("1250000")).toBe("1.250.000");
     expect(renderRentalContract(details)).toContain("KONUT KİRA SÖZLEŞMESİ");
@@ -25,10 +27,11 @@ describe("offline rental contract calculations", () => {
     expect(renderRentalContract(details)).toContain("SÖZLEŞME KOŞULLARI");
   });
 
-  it("uses a distinct commercial conditions set and adds guarantor condition when provided", () => {
-    const commercial = { ...emptyRentalDetails(), useType: "commercial" as const, guarantorName: "Kefil Kişi", monthlyRent: "90000" };
+  it("uses a distinct commercial conditions set and adds guarantor condition only when selected", () => {
+    const commercial = { ...emptyRentalDetails(), useType: "commercial" as const, hasGuarantor: true, guarantorName: "Kefil Kişi", monthlyRent: "90000" };
     const conditions = rentalContractConditions(commercial, "2027-08-23");
     expect(conditions[0]).toContain("KİRA SÜRESİ");
     expect(conditions.some((condition) => condition.includes("KEFALET"))).toBe(true);
+    expect(rentalContractConditions({ ...commercial, hasGuarantor: false }, "2027-08-23").some((condition) => condition.includes("KEFALET"))).toBe(false);
   });
 });

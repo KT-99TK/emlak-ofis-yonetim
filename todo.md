@@ -356,3 +356,10 @@
 - [x] Kira kontratlarından Global 1881’in taraf olduğu izlenimini veren logo/başlık/kurumsal taraf bilgilerini kaldır; alt solda yalnız danışman düzenleme izi bırak
 - [x] Sözleşme ve Finansal İstatistikler ekranını şimdilik A4 yazdırmaya uygun düzenle
 - [ ] Yetki/kira belgelerinde marka ve taraf ayrımını gerçek Windows baskı önizlemesiyle doğrula
+
+## Kira kontratı kefil ve bağımsız ekler
+
+- [x] Kira formuna Claude düzenindeki Kefil var seçimini ekle; işaretlenmediğinde kefil alanlarını ve belge satırını tamamen gizle
+- [x] Kira snapshot’ına tahliye, teslim etme/teslim alma ve demirbaş eklerinin gerekli alanlarını sürüm etiketli biçimde ekle
+- [x] Tahliye taahhütnamesi, teslim etme formu, teslim alma formu ve demirbaş listesini kira sözleşmesi bilgisinden otomatik doldurulan ayrı A4 belgeler olarak ekle
+- [ ] Her kira ekinin tek başına yazdırılmasını; offline snapshot, şifreli yedek/merge ve gerçek Windows baskı akışıyla doğrula

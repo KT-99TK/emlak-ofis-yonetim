@@ -13,6 +13,7 @@ export type OfflineRentalDetails = {
   guarantorName: string;
   guarantorIdentity: string;
   guarantorLimit: string;
+  hasGuarantor: boolean;
   propertyAddress: string;
   propertyType: string;
   parcelInfo: string;
@@ -39,9 +40,11 @@ export type OfflineRentalDetails = {
   officeAuthorizationNo: string;
 };
 
+export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v1";
+
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
-  tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "",
+  tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false,
   propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
@@ -106,7 +109,7 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     `Süre: ${summary.durationMonths} ay | Başlangıç: ${value(details.startDate)} | Bitiş: ${summary.endDate}`,
     `Tahliye ihbarı: ${summary.noticeDays} gün | Uyarı tarihi: ${summary.noticeDate}`,
     `Demirbaş/teslim notu: ${value(details.fixtures)} | Sayaç notu: ${value(details.meterNotes)}`,
-    details.guarantorName.trim() ? `Kefil: ${details.guarantorName} | TCKN: ${value(details.guarantorIdentity)} | Azami tutar: ${value(details.guarantorLimit)} ${details.currency}` : "Kefil: belirtilmemiş.",
+    details.hasGuarantor ? `Kefil: ${value(details.guarantorName)} | TCKN: ${value(details.guarantorIdentity)} | Azami tutar: ${value(details.guarantorLimit)} ${details.currency}` : "",
     `Mülk sahibi yeniden kiralama onayı: ${details.ownerApproval === "approved" ? "onaylandı" : "onay bekliyor"}.`,
     `Danışman: ${value(details.consultantName)} | Kod: ${value(details.consultantCode)} | Ofis: ${value(details.officeName)} | Yetki belgesi: ${value(details.officeAuthorizationNo)}`,
     "", "TESLİM / DEMİRBAŞ VE İMZA EKİ",
@@ -132,5 +135,7 @@ export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contr
     conditionTemplateVersion: RENTAL_CONDITIONS_TEMPLATE_VERSION,
     conditions: rentalContractConditions(details, summary.endDate),
     deliveryAppendix: { fixtures: details.fixtures, meterNotes: details.meterNotes, deliveryDate: details.startDate },
+    appendixTemplateVersion: RENTAL_APPENDIX_TEMPLATE_VERSION,
+    appendices: { evacuation: { plannedDate: summary.endDate }, handover: { plannedDate: details.startDate }, return: { plannedDate: summary.endDate }, fixtures: { fixtures: details.fixtures, meterNotes: details.meterNotes } },
   };
 }
