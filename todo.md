@@ -363,3 +363,12 @@
 - [x] Kira snapshot’ına tahliye, teslim etme/teslim alma ve demirbaş eklerinin gerekli alanlarını sürüm etiketli biçimde ekle
 - [x] Tahliye taahhütnamesi, teslim etme formu, teslim alma formu ve demirbaş listesini kira sözleşmesi bilgisinden otomatik doldurulan ayrı A4 belgeler olarak ekle
 - [ ] Her kira ekinin tek başına yazdırılmasını; offline snapshot, şifreli yedek/merge ve gerçek Windows baskı akışıyla doğrula
+
+## Urla mahalle ve köy/yerleşim seçicisi
+
+- [x] Urla mahalle ve köy/yerleşim adlarını resmî güncel kaynaktan doğrula ve sürüm etiketli yerleşim veri kümesine ekle
+- [x] Mahalle/köy seçimi ile Diğer serbest girişini birleştiren tekrar kullanılabilir konum alanını oluştur
+- [ ] Müşteri talepleri, portföy ve sözleşmelerde kullanılan konum alanlarını Urla seçicisi ve Diğer serbest girişine bağla
+- [ ] Yerleşim seçimi ve Diğer girişinin offline snapshot, şifreli yedek/merge ve Windows kullanımını doğrula
+- [x] Talep sahibi danışman adını müşteri talebi snapshot’ına ekle; kişinin kendi listesinde ve broker eşleşme özetinde göster
+- [x] Seçilen veya serbest yazılan mahalle/konum adlarını Türkçe karakter kurallarıyla baş harfleri büyük biçime dönüştür

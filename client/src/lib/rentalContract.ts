@@ -14,6 +14,7 @@ export type OfflineRentalDetails = {
   guarantorIdentity: string;
   guarantorLimit: string;
   hasGuarantor: boolean;
+  propertyNeighborhood: string;
   propertyAddress: string;
   propertyType: string;
   parcelInfo: string;
@@ -45,7 +46,7 @@ export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-20
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
   tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false,
-  propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", iban: "",
+  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
 });

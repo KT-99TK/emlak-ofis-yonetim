@@ -4,6 +4,7 @@ export type AuthorityContractDetails = {
   ownerIdentity: string;
   ownerPhone: string;
   ownerAddress: string;
+  propertyNeighborhood: string;
   propertyAddress: string;
   parcelInfo: string;
   propertyType: string;
@@ -39,7 +40,7 @@ export const AUTHORITY_CONDITIONS_TEMPLATE_VERSION = "global1881-authority-condi
 
 export const emptyAuthorityDetails = (): AuthorityContractDetails => ({
   mode: "rent", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
-  propertyAddress: "", parcelInfo: "", propertyType: "", grossM2: "", roomCount: "",
+  propertyNeighborhood: "", propertyAddress: "", parcelInfo: "", propertyType: "", grossM2: "", roomCount: "",
   floorAndView: "", condition: "", price: "", currency: "TRY", serviceFeeRate: "", serviceFeeAmount: "", vatCollection: "separate",
   contractDate: new Date().toISOString().slice(0, 10), consultantName: "", consultantPhone: "", consultantCode: "", consultantTitle: "",
   officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211", officeTaxOffice: "", officeTaxNo: "", officePhone: "", officeAddress: "",

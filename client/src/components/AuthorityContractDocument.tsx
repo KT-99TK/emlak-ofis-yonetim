@@ -51,7 +51,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
       <section className="authority-document-section">
         <h3>TAŞINMAZ VE YETKİ BİLGİLERİ</h3>
         <table><tbody>
-          <Row firstLabel="Taşınmazın Açık Adresi" firstValue={normalized.propertyAddress} />
+          <Row firstLabel="Mahalle / Yerleşim" firstValue={normalized.propertyNeighborhood} secondLabel="Taşınmazın Açık Adresi" secondValue={normalized.propertyAddress} />
           <Row firstLabel="Ada / Parsel / Bağımsız Bölüm" firstValue={normalized.parcelInfo} secondLabel="Niteliği / Cinsi" secondValue={normalized.propertyType} />
           <Row firstLabel="Brüt / Net m²" firstValue={normalized.grossM2} secondLabel="Oda Sayısı" secondValue={normalized.roomCount} />
           <Row firstLabel="Kat / Cephe / Manzara" firstValue={normalized.floorAndView} secondLabel="Kullanım Durumu" secondValue={normalized.condition} />
