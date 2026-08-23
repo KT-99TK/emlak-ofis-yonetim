@@ -10,6 +10,7 @@ describe("offline navigation", () => {
   it("keeps the contract and merge routes among local desktop destinations", () => {
     expect(normalizeOfflineHash("#/offline-merge")).toBe("#/offline-merge");
     expect(normalizeOfflineHash("#/offline-authority")).toBe("#/offline-authority");
-    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-merge"]);
+    expect(normalizeOfflineHash("#/offline-rental")).toBe("#/offline-rental");
+    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-merge"]);
   });
 });
