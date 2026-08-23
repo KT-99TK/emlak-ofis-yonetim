@@ -8,6 +8,7 @@ import DashboardLayout from "./components/DashboardLayout";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Contracts from "./pages/Contracts";
+import AuthorityContracts from "./pages/AuthorityContracts";
 import Records from "./pages/Records";
 import Audit from "./pages/Audit";
 import Team from "./pages/Team";
@@ -51,6 +52,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/contracts" component={Contracts} />
+        <Route path="/authority-contracts" component={AuthorityContracts} />
         <Route path="/clients" component={Records} />
         <Route path="/properties" component={Records} />
         <Route path="/accounting" component={Records} />

@@ -275,3 +275,10 @@
 
 - [ ] Güncel Windows paketleme logunda `npx.cmd --yes pnpm@10.4.1` fallback yolunun gerçekten kullanıldığını veya `pnpm.cmd` bulunduğunu açıkça doğrula
 - [x] Güncel paketleme çıktısında FINAL `.exe` üretim satırını kullanıcı logu ya da ekran görüntüsüyle kaydet
+
+## Claude Yetki Sözleşmeleri — ilk adım
+
+- [x] Claude yetki sözleşmesi alanlarını müşteri, mülk, danışman ve ofis kayıtlarına eşleştir
+- [x] Yetki Sözleşmeleri için ayrı merkezi menü/rota, satış-kiralama seçimi ve otomatik doldurma formu oluştur
+- [x] Canlı belge önizlemesi, güvenli details snapshot kaydı ve rol kontrollü kayıt akışını uygula
+- [ ] Yetki sözleşmesi ekranını birim testleri, production build ve kullanıcı kontrolüyle doğrula

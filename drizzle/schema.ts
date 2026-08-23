@@ -83,6 +83,7 @@ export const contracts = mysqlTable("contracts", {
   amount: decimal("amount", { precision: 14, scale: 2 }),
   currency: varchar("currency", { length: 8 }).default("TRY").notNull(),
   notes: text("notes"),
+  details: text("details"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
