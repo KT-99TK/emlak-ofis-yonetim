@@ -300,3 +300,10 @@
 - [x] Offline danışman başına sözleşme sayısı, madde bedeli ve hizmet bedeli toplamlarını sunan performans tablosunu ekle
 - [x] Tutarlı çok sayfalı A4 sözleşme önizlemesi, ayarlanabilir okunabilir punto, sayfa başlığı/numarası ve taşma kontrolünü uygula
 - [ ] Gerçek Windows paketinde yeni yetki sözleşmesi numarası, performans tablosu ve print preview akışını kullanıcı ekran kanıtıyla doğrula
+
+## Offline yetki taslağı geri çağırma ve veri sürekliliği
+
+- [x] Önceki offline yetki sözleşmesi snapshot kayıtlarını ada veya kayıt numarasına göre bulup forma kopyalama akışını ekle
+- [x] Eski v1 ve güncel v2 yetki sözleşmesi snapshot’larının aynı yerel IndexedDB ve şifreli yedek/merge akışında erişilebilir olduğunu test et
+- [ ] Gerçek Windows güncellemesinde Mert Somuncu gibi önceki taslakların seçilip yeni forma kopyalandığını kullanıcı ekran kanıtıyla doğrula
+- [x] Offline yetki sözleşmesi kaydetme düğmesinde metin ve ikon kontrastını tüm durumlarda okunabilir yap

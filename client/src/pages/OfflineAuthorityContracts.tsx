@@ -16,6 +16,7 @@ import {
   renderAuthorityContract,
   type AuthorityContractDetails,
 } from "@/lib/authorityContract";
+import { filterOfflineAuthorityDrafts, listOfflineAuthorityDrafts } from "@/lib/authorityDrafts";
 import { getUserId, listOfflineRecords, saveOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
 
 const detailsFields: Array<[keyof AuthorityContractDetails, string]> = [
@@ -45,6 +46,8 @@ export default function OfflineAuthorityContracts() {
   const [details, setDetails] = useState<AuthorityContractDetails>(() => emptyAuthorityDetails());
   const [clientRecordId, setClientRecordId] = useState("");
   const [propertyRecordId, setPropertyRecordId] = useState("");
+  const [sourceAuthorityContractRecordId, setSourceAuthorityContractRecordId] = useState("");
+  const [draftSearch, setDraftSearch] = useState("");
   const [fontSize, setFontSize] = useState("11");
   const [message, setMessage] = useState("");
   const userId = getUserId();
@@ -54,6 +57,8 @@ export default function OfflineAuthorityContracts() {
 
   const clientRecords = records.filter((record) => record.entity === "client");
   const propertyRecords = records.filter((record) => record.entity === "property");
+  const authorityDrafts = useMemo(() => listOfflineAuthorityDrafts(records), [records]);
+  const matchingAuthorityDrafts = useMemo(() => filterOfflineAuthorityDrafts(authorityDrafts, draftSearch), [authorityDrafts, draftSearch]);
   const contractNo = useMemo(
     () => nextAuthorityContractNo(existingAuthorityNumbers(records), details.consultantName, details.contractDate),
     [details.consultantName, details.contractDate, records],
@@ -79,6 +84,16 @@ export default function OfflineAuthorityContracts() {
     if (record) setDetails((current) => normalizeAuthorityDetails({ ...current, propertyAddress: record.details ? `${record.title} · ${record.details}` : record.title }));
   };
 
+  const copyPreviousDraft = (recordId: string) => {
+    setSourceAuthorityContractRecordId(recordId);
+    const source = authorityDrafts.find((draft) => draft.recordId === recordId);
+    if (!source) return;
+    setClientRecordId(source.sourceClientRecordId ?? "");
+    setPropertyRecordId(source.sourcePropertyRecordId ?? "");
+    setDetails(normalizeAuthorityDetails({ ...source.details, contractDate: new Date().toISOString().slice(0, 10) }));
+    setMessage(`${source.contractNo} numaralı önceki taslak yeni sözleşmeye kopyalandı. Yeni kayıt numarası ve bugünün tarihi otomatik atanacaktır; kaydetmeden önce alanları kontrol edin.`);
+  };
+
   const saveDraft = async () => {
     const normalized = normalizeAuthorityDetails(details);
     if (!userId.trim()) {
@@ -93,7 +108,7 @@ export default function OfflineAuthorityContracts() {
     await saveOfflineRecord({
       entity: "contract",
       title: `${finalNumber} — ${authorityContractTitle(normalized.mode)} — ${normalized.ownerName}`,
-      details: JSON.stringify(createOfflineAuthoritySnapshot(normalized, finalNumber, clientRecordId || undefined, propertyRecordId || undefined)),
+      details: JSON.stringify(createOfflineAuthoritySnapshot(normalized, finalNumber, clientRecordId || undefined, propertyRecordId || undefined, sourceAuthorityContractRecordId || undefined)),
       amount: normalized.price || undefined,
       status: "draft",
     });
@@ -124,6 +139,19 @@ export default function OfflineAuthorityContracts() {
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8d6f3f]">Otomatik takip kimliği</p>
               <p className="mt-1 font-mono text-lg font-semibold text-[#173e39]">{contractNo}</p>
               <p className="mt-1 text-xs text-[#6f7a75]">Danışman baş harfi: <strong>{consultantInitials(details.consultantName)}</strong>. Aynı danışmanın yıl içindeki sıra numarası, önceki yerel kayıtlar dikkate alınarak otomatik artar.</p>
+            </section>
+
+            <section className="rounded-xl border border-[#dbe5dd] bg-[#f8fbf8] p-4">
+              <h2 className="text-sm font-semibold text-[#34433f]">Önceki yetki taslağını çağır</h2>
+              <p className="mt-1 text-xs text-[#6f7a75]">Daha önce doğrudan formda kaydettiğiniz Mert Somuncu gibi taslaklar burada görünür. Seçim, eski kaydı değiştirmez; bilgileri yeni sözleşmeye kopyalar.</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1.35fr]">
+                <Input value={draftSearch} onChange={(event) => setDraftSearch(event.target.value)} placeholder="Ad, adres veya kayıt no ile ara" />
+                <Select value={sourceAuthorityContractRecordId} onValueChange={copyPreviousDraft}>
+                  <SelectTrigger><SelectValue placeholder={authorityDrafts.length ? "Önceki taslağı seçin" : "Bu cihazda önceki yetki taslağı yok"} /></SelectTrigger>
+                  <SelectContent>{matchingAuthorityDrafts.map((draft) => <SelectItem key={draft.recordId} value={draft.recordId}>{draft.contractNo} · {draft.ownerName} · {draft.propertyAddress}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              {draftSearch && !matchingAuthorityDrafts.length && <p className="mt-2 text-xs text-[#a85745]">Bu aramayla eşleşen yerel yetki taslağı bulunamadı. Farklı bilgisayardaki kayıt için şifreli yedeği bu cihazda geri yüklemek veya manager merge yapmak gerekir.</p>}
             </section>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -179,7 +207,7 @@ export default function OfflineAuthorityContracts() {
               </div>
             </section>
 
-            <Button onClick={() => void saveDraft()} className="w-full rounded-xl bg-[#173e39] hover:bg-[#20554e]"><Save className="mr-2 h-4 w-4" /> Yerel yetki sözleşmesi taslağını kaydet</Button>
+            <Button onClick={() => void saveDraft()} className="w-full rounded-xl bg-[#173e39] text-white hover:bg-[#20554e] hover:text-white [&_svg]:text-white"><Save className="mr-2 h-4 w-4" /> Yerel yetki sözleşmesi taslağını kaydet</Button>
             {message && <p role="status" className="rounded-lg bg-[#f5fbf8] px-3 py-2 text-xs text-[#2b786e]">{message}</p>}
           </CardContent>
         </Card>

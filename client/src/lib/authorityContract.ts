@@ -167,13 +167,14 @@ export function renderAuthorityContract(details: AuthorityContractDetails, contr
   ].join("\n");
 }
 
-export function createOfflineAuthoritySnapshot(details: AuthorityContractDetails, contractNo: string, sourceClientRecordId?: string, sourcePropertyRecordId?: string) {
+export function createOfflineAuthoritySnapshot(details: AuthorityContractDetails, contractNo: string, sourceClientRecordId?: string, sourcePropertyRecordId?: string, sourceAuthorityContractRecordId?: string) {
   const normalized = normalizeAuthorityDetails(details);
   return {
     schema: "global1881-offline-authority-v2" as const,
     contractNo: contractNo.trim(),
     sourceClientRecordId,
     sourcePropertyRecordId,
+    sourceAuthorityContractRecordId,
     ...normalized,
     summary: calculateAuthoritySummary(normalized),
   };
