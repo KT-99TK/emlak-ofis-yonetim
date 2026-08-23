@@ -23,6 +23,7 @@
 | **P0** | Yetki belgesi A4 sol–sağ dengesi ve varsayılan üç aylık süre | **Uygulanıyor** | Kullanıcının açık talebi; A4’de dengeli marj ve süre varsayılanı iş akışını doğrudan etkiler. | Sol/sağ A4 marjları eşit; yeni sözleşme 3 ayla açılır, kullanıcı süreyi değiştirebilir, seçilen süre snapshot ve koşul metnine girer. |
 | **P0** | Yerel Çalışma Alanı açılır listeleri ve Yerel kaydet kontrastı | **Windows kanıtı bekliyor** | Kullanıcı görüntülerinde seçenekler formla karıştı, kaydet metni okunmadı. Kod düzeltildi. | Windows/Electron ekranında kayıt türü ve filtre listesi tam opak görünür; etkin/pasif kaydet düğmesi okunur. |
 | **P0** | Kira sözleşmesinde DASK ve sayaç alanlarının gerçek A4 kontrolü | **Windows kanıtı bekliyor** | Kiracının abonelik başvurusu için kritik pratik bilgi. Kod ve test tamamlandı. | DASK poliçe no ile elektrik/su/doğalgaz sayaç no, formda, ana A4’te ve teslim eklerinde görünür. |
+| **P0** | Türkiye tarih standardı | **Windows kanıtı bekliyor** | Ortak yardımcılar sözleşme, vade, rapor, işlem kapanışı, manifest ve yerel kayıt ekranlarına bağlandı; 88 test, tür denetimi ve production build başarılı. | Sayısal iş tarihleri `GG.AA.YYYY`; yenileme/audit zamanları `GG.AA.YYYY SS:DD`; günlük metinler Türkçe gün-ay-yıl ve doğru hafta günüyle görünür. |
 
 ## B. İkinci öncelik — Offline iş akışının gerçek kabul testi
 

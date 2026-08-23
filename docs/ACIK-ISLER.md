@@ -20,6 +20,7 @@ Bu dosya, `todo.md` içindeki ayrıntılı teknik geçmişi sadeleştirir. Her y
 | DASK ve abonelik alanları | DASK poliçe no ile elektrik, su ve doğalgaz sayaç no alanlarının kira formu, ana A4 ve teslim eklerinde görünmesi. |
 | Şifreli yedek/merge | Üç laptop yedeğinin doğrulama, manifest, çakışma ve manager merge adımlarıyla denenmesi. |
 | İşlem kapanışı | Tahsilat beyanı, yerel broker manager açma/kilitleme ve kapanış istisnasının gerçek Electron kullanımında denenmesi. |
+| Türkiye tarih standardı | Vade, işlem kapanışı, yerel kayıt/manifest, sözleşme ve rapor tarihlerinin `GG.AA.YYYY`; yenileme/audit zamanlarının `GG.AA.YYYY SS:DD` görünmesi. Kaynak dönüşümü ve 88 test tamamdır; Electron ekran kanıtı beklenir. |
 
 ## Merkezi sunucu dönemine bırakılan işler
 

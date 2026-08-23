@@ -62,10 +62,10 @@
 - [x] Yeşil yan panelin sözleşme ekranlarında danışman kişisel kayıtlarını, yerel manager oturumu açıkken ise isim göstermeyen istisna özetini gösterdiğini doğrula
 - [x] Açık işleri çalışılıyor, uygulanacak ve Windows kanıtı bekleyen durumlarıyla düzenli takip et; kullanıcı sorduğunda güncel durumu sade başlıklarla sun
 - [x] Proje başlangıcından beri iletilen kullanıcı isteklerini kod/todo geçmişiyle karşılaştır; açık kalanları öncelik, gerekçe ve kabul kanıtıyla karar tablosunda sun
-- [ ] Sözleşme, vade, rapor, işlem kapanışı ve yedek/manifest ekranlarındaki kullanıcıya görünen tarihleri Türkiye sayısal biçimiyle (`GG.AA.YYYY`) göster
-- [ ] Günlük/metinli tarih gösterimlerini Türkçe gün-ay-yıl ve doğru hafta günü standardına bağla; ISO tarihleri yalnız teknik saklama alanlarında koru
+- [x] Sözleşme, vade, rapor, işlem kapanışı ve yedek/manifest ekranlarındaki kullanıcıya görünen tarihleri Türkiye sayısal biçimiyle (`GG.AA.YYYY`) göster
+- [x] Günlük/metinli tarih gösterimlerini Türkçe gün-ay-yıl ve doğru hafta günü standardına bağla; ISO tarihleri yalnız teknik saklama alanlarında koru
 - [ ] Türkiye tarih standardını birim test ve Windows/Electron ekran kabulüyle doğrula
-- [ ] BrokerAnnualTargets, BrokerRequestMatches, Contracts, MyOfflineContracts, Obligations, OfflineTransactionClosings ve kalan kullanıcı görünür ekranlardaki tarihleri ortak `turkishDate` yardımcılarına taşı
+- [x] BrokerAnnualTargets, BrokerRequestMatches, Contracts, MyOfflineContracts, Obligations, OfflineTransactionClosings ve kalan kullanıcı görünür ekranlardaki tarihleri ortak `turkishDate` yardımcılarına taşı
 - [ ] İşlem kapanışı, rapor, vade ve yedek/manifest akışlarının tamamında Türkiye tarih standardını kapsayan UI testleri ekle
 - [ ] Türkiye tarih standardı için gerçek Windows/Electron ekran kanıtı al; görünür tarihlerin ISO yerine Türkçe biçimde çıktığını doğrula
 - [x] Vitest testlerini yaz, tür kontrolü ve test komutlarını çalıştır

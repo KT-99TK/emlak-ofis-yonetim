@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildAuthorityPerformance, buildYearlyVatCollectionSummary, sumAuthorityPerformance } from "@/lib/authorityPerformance";
 import { formatAuthorityCurrency } from "@/lib/authorityContract";
 import { listOfflineRecords, type OfflineRecord } from "@/lib/offlineStore";
+import { formatTurkishDateTime } from "@/lib/turkishDate";
 
 function CurrencyAmounts({ values, emphasis = false }: { values: Record<string, number>; emphasis?: boolean }) {
   const entries = Object.entries(values).filter(([, amount]) => amount > 0);
@@ -14,7 +15,7 @@ function CurrencyAmounts({ values, emphasis = false }: { values: Record<string, 
 export default function OfflineConsultantPerformance() {
   const [records, setRecords] = useState<OfflineRecord[]>([]);
   const [updatedAt, setUpdatedAt] = useState("");
-  const refresh = async () => { setRecords(await listOfflineRecords()); setUpdatedAt(new Date().toLocaleString("tr-TR")); };
+  const refresh = async () => { setRecords(await listOfflineRecords()); setUpdatedAt(formatTurkishDateTime(new Date())); };
   useEffect(() => { void refresh(); }, []);
   const rows = useMemo(() => buildAuthorityPerformance(records), [records]);
   const totals = useMemo(() => sumAuthorityPerformance(rows), [rows]);
