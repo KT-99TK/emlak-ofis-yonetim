@@ -32,4 +32,12 @@ describe("workspace content layout", () => {
     expect(authorityHtml).toContain("authority-print-shell");
     expect(authorityHtml).toContain("authority-contract-document");
   });
+
+  it("keeps the workspace flow panel at page level rather than in the shared dashboard shell", () => {
+    const workspace = projectFile("client/src/pages/OfflineWorkspace.tsx");
+    const dashboard = projectFile("client/src/components/DashboardLayout.tsx");
+
+    expect(workspace).toContain('<OfflineOfficeFlowPanel className="offline-operation-aside"');
+    expect(dashboard).not.toContain("<OfflineOfficeFlowPanel");
+  });
 });

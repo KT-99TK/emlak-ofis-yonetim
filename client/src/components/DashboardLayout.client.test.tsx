@@ -60,11 +60,11 @@ describe("DashboardLayout client viewport navigation", () => {
     expect(narrow).not.toContain("Yetki Sözleşmeleri");
   });
 
-  it("removes the base offline flow sidebar after navigation to an offline child route", async () => {
+  it("does not render an application-shell flow sidebar for the offline workspace or child routes", async () => {
     Object.defineProperty(window, "global1881Desktop", { configurable: true, value: { platform: "win32" } });
     window.location.hash = "#/offline";
     const baseLayout = await renderAt(1440);
-    expect(baseLayout).toContain('aria-label="Kişisel Ofis Akışı"');
+    expect(baseLayout).not.toContain('aria-label="Kişisel Ofis Akışı"');
 
     await act(async () => {
       window.location.hash = "#/offline-cash-bank";

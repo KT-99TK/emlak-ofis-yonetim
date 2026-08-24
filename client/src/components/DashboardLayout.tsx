@@ -28,7 +28,6 @@ import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { getUserId } from "@/lib/offlineStore";
 import { normalizeOfflineHash, offlineNavigationItems } from "@/lib/offlineNavigation";
-import OfflineOfficeFlowPanel from "@/components/OfflineOfficeFlowPanel";
 import GlobalBrandLockup from "@/components/GlobalBrandLockup";
 
 const menuItems = [
@@ -278,7 +277,7 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        {!isOnline && <div className="mx-4 mt-4 rounded-xl border border-[#ead6d0] bg-[#fff8f6] px-4 py-3 text-sm text-[#a85745]" role="alert"><strong>Merkezi server bağlantısı yok.</strong><p className="mt-1 text-xs">Yeni merkezi kayıt yazımı durduruldu. Bağlantı geldiğinde sayfayı yenileyin; offline veri girişi yalnızca Windows offline uygulamasında yapılabilir.</p><Button variant="outline" size="sm" className="mt-2" onClick={() => window.location.reload()}>Yeniden bağlanmayı dene</Button></div>}<main className="flex-1 p-3 md:p-5"><div className="workspace-content-frame">{isDesktop && currentOfflineHash === "#/offline" ? <div className="offline-root-with-flow"><div className="min-w-0">{children}</div><OfflineOfficeFlowPanel className="offline-operation-aside" userId={offlineUserId} /></div> : children}</div></main>
+        {!isOnline && <div className="mx-4 mt-4 rounded-xl border border-[#ead6d0] bg-[#fff8f6] px-4 py-3 text-sm text-[#a85745]" role="alert"><strong>Merkezi server bağlantısı yok.</strong><p className="mt-1 text-xs">Yeni merkezi kayıt yazımı durduruldu. Bağlantı geldiğinde sayfayı yenileyin; offline veri girişi yalnızca Windows offline uygulamasında yapılabilir.</p><Button variant="outline" size="sm" className="mt-2" onClick={() => window.location.reload()}>Yeniden bağlanmayı dene</Button></div>}<main className="flex-1 p-3 md:p-5"><div className="workspace-content-frame">{children}</div></main>
       </SidebarInset>
     </>
   );
