@@ -183,7 +183,7 @@ export default function OfflineWorkspace() {
     }
   };
 
-  return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
+  return <div className="offline-page-surface min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
     <header className="mb-7"><p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]"><WifiOff className="h-3.5 w-3.5" /> Offline geçiş modu</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Yerel çalışma alanı</h1><p className="mt-2 max-w-2xl text-sm text-[#70807c]">Bu laptop internet olmadan çalışır. Kayıtlar yalnızca bu cihaza yazılır; haftalık yedek manager laptopunda birleştirilir.</p></header>
 
     <div className="mb-6 grid gap-3 rounded-2xl border border-[#e7dfc9] bg-[#fffaf0] p-4 text-xs text-[#8d6f3f] md:grid-cols-[1fr_1fr_auto]"><span><strong>Cihaz kimliği:</strong> {getDeviceId()}</span><div className="flex items-center gap-2"><Input value={userId} onChange={(event) => setUserIdState(event.target.value)} placeholder="Offline kullanıcı kodu" className="h-8 bg-white" /><Button size="sm" variant="outline" onClick={saveUser}>Kimliği kaydet</Button></div><span className="flex items-center gap-2"><HardDrive className="h-4 w-4" /> Yerel veri deposu</span></div>

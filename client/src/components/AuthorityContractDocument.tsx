@@ -24,6 +24,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
   const summary = calculateAuthoritySummary(normalized);
   const conditions = authorityContractConditions(normalized);
   const isSale = normalized.mode === "sale";
+  const [sealFailed, setSealFailed] = React.useState(false);
   const priceLabel = normalized.mode === "sale" ? "Satış Bedeli (Sözleşmeye Esas)" : "Aylık Kira Bedeli (Sözleşmeye Esas)";
   const fullTax = [normalized.officeTaxOffice, normalized.officeTaxNo].filter(Boolean).join(" / ");
   const desktopSealSrc = typeof window === "undefined" ? undefined : (window as Window & { global1881Desktop?: { authoritySealSrc?: string } }).global1881Desktop?.authoritySealSrc;
@@ -32,7 +33,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
   return (
     <article className="authority-print-document authority-contract-document bg-[#fff] text-[#1c2524]" style={{ "--authority-print-font-size": `${fontSize}pt` } as React.CSSProperties}>
       <header className="authority-document-brand">
-        <img className="authority-document-seal-image" src={authoritySealSrc} alt="Global 1881 şeffaf mühür" />
+        {sealFailed ? <div className="authority-document-seal-fallback" aria-label="Global 1881 mühür"><span>GLOBAL</span><strong>1881</strong><small>MÜHÜR</small></div> : <img className="authority-document-seal-image" src={authoritySealSrc} alt="Global 1881 şeffaf mühür" onError={() => setSealFailed(true)} />}
         <div><p className="authority-document-office-name">{value(normalized.officeName)}</p><p>{value(normalized.officeAddress)}</p><p>Tel: {value(normalized.officePhone)} · Yetki Belgesi No: {value(normalized.officeAuthorizationNo)}</p></div>
       </header>
       <div className="authority-document-rule" />

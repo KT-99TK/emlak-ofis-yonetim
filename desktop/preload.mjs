@@ -1,9 +1,11 @@
 import { contextBridge, ipcRenderer } from "electron";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const authoritySealSrc = pathToFileURL(path.join(__dirname, "brand", "global1881-muhur-seffaf.png")).href;
+const authoritySealPath = path.join(__dirname, "brand", "global1881-muhur-seffaf.png");
+const authoritySealSrc = existsSync(authoritySealPath) ? pathToFileURL(authoritySealPath).href : undefined;
 
 contextBridge.exposeInMainWorld("global1881Desktop", {
   platform: process.platform,

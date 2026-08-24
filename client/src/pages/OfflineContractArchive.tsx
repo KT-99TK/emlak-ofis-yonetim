@@ -84,7 +84,7 @@ export default function OfflineContractArchive() {
     recordOfflineAudit("contract-archive-opened", { recordId: record.id, storageKey });
   };
 
-  return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
+  return <div className="offline-page-surface min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
     <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
       <div>
         <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]"><Archive className="h-3.5 w-3.5" /> Geçmiş belgeler · salt-okunur</p>
