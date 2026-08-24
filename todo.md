@@ -538,3 +538,4 @@
 - [x] Mobil ofis uygulamasının merkezi veri/uygulama barındırmasını Hostinger WordPress hostinginden bağımsız tut; yalnız alan adı/DNS yönlendirmesine ihtiyaç duyduğunu mimari ve kabul kılavuzunda açıkça kaydet
 - [ ] `ofis.global1881.com` için DNS kaydının ayrı yönetim devri veya yedek erişim adresiyle sürekliliğini planla; Hostinger aboneliği/hesap erişimi kesilse bile veri ve uygulama kaybı oluşmamasını doğrula
 - [x] Android telefonda geçici önizleme alanı üzerinden manager görünümünün açıldığını ve merkezi kayıtların henüz aktarılmadığı için sıfır göründüğünü doğrula
+- [x] Şu ana kadarki Global 1881 proje geliştirmeleri, mimari kararlar, güvenlik kuralları, doğrulamalar, açık işler ve merkezi geçiş durumunu bağlantılı Obsidian Markdown kasası olarak oluştur; indirilebilir ZIP paketiyle teslim et
