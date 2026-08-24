@@ -19,3 +19,5 @@ Dar ekran denetiminde üst mobil menü başlığı görünür ve tarih girişler
 24 Ağustos 2026 dar ekran incelemesinde Vade tablosundaki geniş tablo, grid öğesinin minimum içerik genişliğini büyüterek form kartını sağa taşırdı. Ortak `.workspace-content-frame .grid > * { min-width: 0; }` kuralı eklenerek tablo kaydırması kendi kabında tutuldu ve ana form/düğme taşması engellendi.
 
 Sonraki 375 px mobil denetiminde Vade formu kartı ekrana sığdı; `GG.AA.YYYY` giriş alanı ve “Takvime ekle” düğmesi tam genişlikte, okunur kontrastla göründü. 1440 px Sözleşmeler denetiminde yinelenen içerik logosu kaldırıldı; Global 1881 markası sol menüde tek ve güçlü kaynak olarak kaldı, belge çalışma alanı başlığı bununla daha dengeli göründü.
+
+24 Ağustos 2026 tarihli kullanıcı ekran kanıtında broker manager için koyu yeşil ana yönetim kartı ile anonim Ofis Akışı kartı dar görünümde alt alta doğrulandı. Kullanıcı görsel dili “şık” olarak değerlendirdi; koyu yeşil–altın düzeni ve manager anonimlik kuralı korunacak kabul yönü olarak kaydedildi.
