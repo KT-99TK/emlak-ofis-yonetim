@@ -33,6 +33,7 @@ describe("offline contract access", () => {
     expect(maskUnauthorizedOfficeRecord({ entity: "client", userId: "danisman-a", title: "Ayşe Malik", details: "Telefon" }, context)).toMatchObject({ title: "Başka danışmana ait müşteri", details: expect.stringContaining("gizli") });
     expect(maskUnauthorizedOfficeRecord({ entity: "property", userId: "danisman-a", title: "Urla adres", details: "Malik bağlantısı" }, context)).toMatchObject({ title: "Başka danışmana ait portföy", details: expect.stringContaining("gizli") });
     expect(maskUnauthorizedOfficeRecord({ entity: "contractArchive", userId: "danisman-a", title: "Ayşe Malik PDF", details: "Sözleşme içeriği" }, context)).toMatchObject({ title: "Başka danışmana ait arşiv belgesi", details: expect.stringContaining("gizli") });
+    expect(maskUnauthorizedOfficeRecord({ entity: "activeContractDocument", userId: "danisman-a", title: "Ayşe Malik imzalı PDF", details: "PDF adı ve müşteri bilgisi" }, context)).toMatchObject({ title: "Başka danışmana ait imzalı belge", details: expect.stringContaining("gizli") });
     expect(maskUnauthorizedOfficeRecord({ entity: "client", userId: "danisman-a", title: "Ayşe Malik", details: "Telefon" }, { ...context, role: "officeAssistant" })).toMatchObject({ title: "Ayşe Malik", details: "Telefon" });
   });
 });

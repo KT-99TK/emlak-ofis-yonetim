@@ -5,7 +5,7 @@ type Snapshot = Record<string, unknown>;
 const parse = (value: string): Snapshot | null => { try { const result = JSON.parse(value); return result && typeof result === "object" ? result as Snapshot : null; } catch { return null; } };
 const number = (value: unknown) => Math.max(0, Math.round(Number(value) || 0));
 const money = (value: unknown, currency = "TRY") => new Intl.NumberFormat("tr-TR", { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(number(value));
-const entityLabels: Record<OfflineRecord["entity"], string> = { client: "Müşteri", property: "Portföy", contract: "Sözleşme", contractArchive: "Sözleşme arşivi", obligation: "Vade kaydı", evacuation: "Tahliye bildirimi", ownerApproval: "Mülk sahibi onayı", ledger: "Ön muhasebe", target: "Ciro hedefi", request: "Müşteri talebi", transaction: "İşlem kapanışı" };
+const entityLabels: Record<OfflineRecord["entity"], string> = { client: "Müşteri", property: "Portföy", contract: "Sözleşme", contractArchive: "Sözleşme arşivi", activeContractDocument: "İmzalı aktif belge", obligation: "Vade kaydı", evacuation: "Tahliye bildirimi", ownerApproval: "Mülk sahibi onayı", ledger: "Ön muhasebe", target: "Ciro hedefi", request: "Müşteri talebi", transaction: "İşlem kapanışı" };
 
 export type OfflineRecordPresentation = { label: string; summary: string };
 
@@ -16,6 +16,10 @@ export function presentOfflineRecord(record: OfflineRecord): OfflineRecordPresen
   const schema = String(raw.schema ?? "");
   if (record.entity === "contractArchive" || schema === "global1881-offline-contract-archive-v1") {
     return { label: "Sözleşme arşivi", summary: [String(raw.customerName ?? "Müşteri belirtilmemiş"), String(raw.documentTypeLabel ?? "Eski sözleşme"), String(raw.documentDateDisplay ?? ""), String(raw.originalFileName ?? "")].filter(Boolean).join(" · ") };
+  }
+  if (record.entity === "activeContractDocument" || schema === "global1881-offline-active-contract-document-v1") {
+    const names = Array.isArray(raw.customerNames) ? raw.customerNames.map(String).filter(Boolean).join(" / ") : "Müşteri belirtilmemiş";
+    return { label: "İmzalı aktif belge", summary: [names, String(raw.contractNo ?? ""), String(raw.signatureDateDisplay ?? ""), String(raw.originalFileName ?? ""), raw.immutable === true ? "Silinemez" : ""].filter(Boolean).join(" · ") };
   }
   if (record.entity === "request" || schema === "global1881-offline-customer-request-v1") {
     const operation = raw.operation === "rental" ? "Kiralık" : "Satılık";

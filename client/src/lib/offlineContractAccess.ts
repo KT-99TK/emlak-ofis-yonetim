@@ -40,6 +40,7 @@ export function maskUnauthorizedOfficeRecord<T extends Pick<OfflineRecord, "enti
   if (canViewFullOfflineContract(record, context)) return record;
   if (record.entity === "contract") return { ...record, title: "Başka danışmana ait sözleşme", details: "Malik ve sözleşme bilgileri gizli. Belge önizlemesi ve yazdırma izni yok." };
   if (record.entity === "contractArchive") return { ...record, title: "Başka danışmana ait arşiv belgesi", details: "Eski sözleşme dosyası ve danışman bilgisi gizli. Açma izni yok." };
+  if (record.entity === "activeContractDocument") return { ...record, title: "Başka danışmana ait imzalı belge", details: "Müşteri dosyası ve imzalı PDF ayrıntıları gizli. Açma izni yok." };
   if (record.entity === "client") return { ...record, title: "Başka danışmana ait müşteri", details: "Ad, iletişim ve kimlik bilgileri gizli." };
   if (record.entity === "property") return { ...record, title: "Başka danışmana ait portföy", details: "Adres ve malik bağlantısı gizli." };
   return record;

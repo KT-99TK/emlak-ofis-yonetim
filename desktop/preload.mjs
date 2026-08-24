@@ -14,4 +14,9 @@ contextBridge.exposeInMainWorld("global1881Desktop", {
     registerPdf: (request) => ipcRenderer.invoke("contract-archive:register", request),
     openPdf: (request) => ipcRenderer.invoke("contract-archive:open", request),
   },
+  activeContractDocuments: {
+    selectPdfFiles: () => ipcRenderer.invoke("active-contract-document:select"),
+    registerPdf: (request) => ipcRenderer.invoke("active-contract-document:register", request),
+    openPdf: (request) => ipcRenderer.invoke("active-contract-document:open", request),
+  },
 });

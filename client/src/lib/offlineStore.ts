@@ -1,6 +1,6 @@
 export type OfflineRecord = {
   id: string;
-  entity: "client" | "property" | "contract" | "contractArchive" | "obligation" | "evacuation" | "ownerApproval" | "ledger" | "target" | "request" | "transaction";
+  entity: "client" | "property" | "contract" | "contractArchive" | "activeContractDocument" | "obligation" | "evacuation" | "ownerApproval" | "ledger" | "target" | "request" | "transaction";
   title: string;
   details: string;
   amount?: string;
@@ -30,7 +30,7 @@ const ENCRYPTION_ITERATIONS = 210_000;
 const MIN_BACKUP_PASSWORD_LENGTH = 8;
 const AUDIT_KEY = "global1881-offline-audit";
 
-export type OfflineAuditEvent = { id: string; action: "backup-exported" | "backup-verified" | "records-applied" | "manager-access-configured" | "manager-access-unlocked" | "manager-access-locked" | "contract-access-role-assigned" | "contract-archive-imported" | "contract-archive-opened"; userId: string; deviceId: string; at: string; metadata?: Record<string, string | number | boolean> };
+export type OfflineAuditEvent = { id: string; action: "backup-exported" | "backup-verified" | "records-applied" | "manager-access-configured" | "manager-access-unlocked" | "manager-access-locked" | "contract-access-role-assigned" | "contract-archive-imported" | "contract-archive-opened" | "active-contract-document-uploaded" | "active-contract-document-opened"; userId: string; deviceId: string; at: string; metadata?: Record<string, string | number | boolean> };
 
 export function validateBackupPassword(password: string) {
   if (password.trim().length < MIN_BACKUP_PASSWORD_LENGTH) {

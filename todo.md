@@ -507,3 +507,17 @@
 - [x] “Sözleşme Arşivi” kullanıcı dilini “Müşteri Dijital Arşivi” olarak güncelle; eski PDF ve geçmiş işlem bilgisini müşterinin belge geçmişi olarak konumlandır
 - [ ] İlk örnek “Kiracı Tevfik Ateş Kira Sözleşmesi” PDF’sini İbrahim Parin portföy danışmanı, Necip Hakan Özcan mülk sahibi ve Tevfik Ateş kiracı bağlamında indeksle; belge tarihini, müşteri kartı seçimini ve Windows kabul adımlarını doğrula
 - [x] Çok taraflı kira sözleşmesi arşivinde belgeyi hem mülk sahibi hem kiracı adıyla bulabilir kıl; tek PDF’nin iki müşteri kartında görünürken aktif sözleşme/finans kaydı oluşturmamasını ve danışman sahipliğini korumasını sağla
+- [ ] İkinci örnek “Bedriye Dede Kira Sözleşmesi” PDF’sini Kazım Taşlıarmut portföy danışmanı, Mustafa Ekin işyeri sahibi ve Bedriye Dede kiracı bağlamında indeksle; belge tarihini ve Windows kabul kartlarını doğrula
+- [ ] Mustafa Ekin daire sahibi ve Gökhan Erdim kiracı bilgisi için doğru karşılık PDF’yi teyit et; Kazım Taşlıarmut (`k_tasliarmut`) sahipliğiyle müşteri kartı indeksini Bedriye Dede örneğinden ayrı doğrula
+- [ ] “Gonca Ayberk Kira Sözleşmesi” PDF’sini Kazım Taşlıarmut (`k_tasliarmut`) danışman sahipliği, Mert Somuncu ana müşteri ve Gonca Ayberk kiracı tarafı olarak indeksle; belge tarihi ile Windows müşteri kartlarını doğrula
+- [x] Gonca Ayberg notu ile taranmış PDF’de görünen Gonca Ayberk kimliğindeki yazım farkını kullanıcı teyidiyle netleştir; arşivde PDF’deki resmi yazımı ve belge tarihi 15.04.2025’i kullan
+- [x] “Didem Özbay Kira Sözleşmesi” PDF’sini Kazım Taşlıarmut (`k_tasliarmut`) danışman sahipliği, Nurten Eroğlu ana müşteri ve Didem Özbay kiracı tarafı olarak incele; 01.02.2026–01.02.2027 aktif dönemi nedeniyle arşivden ayır
+- [x] Didem Özbay PDF’sindeki 01.02.2026–01.02.2027 kira dönemini aktif/geçmiş durumu açısından teyit et; aktifse Müşteri Dijital Arşivi’ne alma ve mevcut Kira Sözleşmeleri akışında ayrıca ele al
+- [x] “Ali Kağan Doğdu Kira Sözleşmesi” PDF’sini İbrahim Parin (`i_parin`) danışman sahipliği, Sevda Taşlıarmut ana müşteri ve Ali Kağan Doğdu kiracı tarafı olarak incele; 03.04.2026–03.04.2027 aktif dönemi nedeniyle arşivden ayır
+- [x] Ali Kağan Doğdu PDF’sindeki 03.04.2026–03.04.2027 kira dönemini aktif/geçmiş durumu açısından teyit et; aktifse Müşteri Dijital Arşivi’ne alma ve mevcut Kira Sözleşmeleri akışında ayrıca ele al
+- [x] Devam eden kira PDF’lerini tarih ve süre bilgisiyle aktif Kira Sözleşmeleri akışına alma yöntemini tasarla; arşivden ayırırken vade/tahliye takip verilerinin manuel doğrulamayla kaydedilmesini sağla
+- [x] Aktif imzalı sözleşme PDF’sini ilgili aktif müşteri/sözleşme dosyasına bağlayan ayrı `activeContractDocument` kayıt modelini tasarla; geçmiş Müşteri Dijital Arşivi kaydından ayır
+- [x] Danışmanın yalnız kendi kullanıcı kimliğiyle sahip olduğu aktif sözleşmeye PDF yükleyebilmesini; manager ve atanmış ofis asistanının yetkili görüntülemesini; diğer danışmanların müşteri adı ve PDF içeriğini görememesini uygula
+- [x] Aktif imzalı PDF yüklemesinde dosya türü/boyutu/SHA-256 bütünlük özeti/audit kaydı ve vade–tahliye akışını başlatmadan önce imza/işlem durumu doğrulamasını uygula
+- [x] Danışman eklediği veya sahip olduğu hiçbir aktif imzalı PDF’nin silinmesine/değiştirilmesine izin verme; silme arayüzü ve IPC yüzeyi sunma
+- [ ] Olası manager istisnasını gerekçe, çift doğrulama ve silinmeyen denetim iziyle ayrı belge geçersiz kılma sürecine bağla; dosyayı iz bırakmadan yok etme

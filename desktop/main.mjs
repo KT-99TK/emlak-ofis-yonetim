@@ -26,6 +26,28 @@ function archiveDirectory() {
 const ARCHIVE_MAX_BYTES = 50 * 1024 * 1024;
 const ARCHIVE_MANIFEST_FILE = "manifest.json";
 
+function activeDocumentDirectory() {
+  const directory = path.join(app.getPath("userData"), "active-contract-documents");
+  fs.mkdirSync(directory, { recursive: true });
+  return directory;
+}
+
+const ACTIVE_DOCUMENT_MAX_BYTES = 50 * 1024 * 1024;
+const ACTIVE_DOCUMENT_MANIFEST_FILE = "manifest.json";
+
+function activeDocumentManifestPath() { return path.join(activeDocumentDirectory(), ACTIVE_DOCUMENT_MANIFEST_FILE); }
+function readActiveDocumentManifest() {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(activeDocumentManifestPath(), "utf8"));
+    return manifest && typeof manifest === "object" ? manifest : {};
+  } catch { return {}; }
+}
+function writeActiveDocumentManifest(manifest) { fs.writeFileSync(activeDocumentManifestPath(), JSON.stringify(manifest, null, 2), "utf8"); }
+function activeDocumentPath(storageKey) {
+  if (!/^[a-zA-Z0-9-]+$/.test(storageKey)) throw new Error("Geçersiz aktif belge dosya anahtarı");
+  return path.join(activeDocumentDirectory(), `${storageKey}.pdf`);
+}
+
 function archiveManifestPath() { return path.join(archiveDirectory(), ARCHIVE_MANIFEST_FILE); }
 function readArchiveManifest() {
   try {
@@ -107,6 +129,55 @@ ipcMain.handle("contract-archive:open", async (_event, request) => {
   if (openError) return { ok: false, message: openError };
   writeStartupLog(`Arşiv PDF açıldı; record=${recordId}`);
   return { ok: true };
+});
+
+// Aktif imzalı belgeler append-only tutulur: bu süreçte silme/değiştirme IPC kanalı bilinçli olarak yoktur.
+ipcMain.handle("active-contract-document:select", async () => {
+  const result = await dialog.showOpenDialog({
+    title: "İmzalı güncel sözleşme PDF belgesini seçin",
+    properties: ["openFile", "multiSelections"],
+    filters: [{ name: "PDF belgeleri", extensions: ["pdf"] }],
+  });
+  if (result.canceled) return [];
+  return result.filePaths.map((sourcePath) => {
+    const sourceStat = fs.statSync(sourcePath);
+    if (!sourcePath.toLowerCase().endsWith(".pdf") || sourceStat.size <= 0 || sourceStat.size > ACTIVE_DOCUMENT_MAX_BYTES || !isPdfFile(sourcePath)) throw new Error("Yalnız 50 MB altındaki geçerli PDF belgeleri eklenebilir.");
+    const storageKey = crypto.randomUUID();
+    const destination = activeDocumentPath(storageKey);
+    fs.copyFileSync(sourcePath, destination, fs.constants.COPYFILE_EXCL);
+    const stat = fs.statSync(destination);
+    const sha256 = sha256File(destination);
+    writeStartupLog(`Aktif imzalı PDF eklendi; key=${storageKey}; bytes=${stat.size}`);
+    return { storageKey, originalName: path.basename(sourcePath), byteSize: stat.size, sha256 };
+  });
+});
+
+ipcMain.handle("active-contract-document:register", async (_event, request) => {
+  const documentRecordId = String(request?.documentRecordId ?? ""); const storageKey = String(request?.storageKey ?? ""); const ownerUserId = String(request?.ownerUserId ?? "").trim(); const contractRecordId = String(request?.contractRecordId ?? ""); const sha256 = String(request?.sha256 ?? "");
+  if (!validRecordId(documentRecordId) || !validRecordId(contractRecordId) || !validArchiveKey(storageKey) || !ownerUserId || !/^[a-f0-9]{64}$/i.test(sha256)) throw new Error("Aktif imzalı belge manifesti için geçersiz kayıt bilgisi.");
+  const filePath = activeDocumentPath(storageKey);
+  if (!fs.existsSync(filePath) || sha256File(filePath) !== sha256) throw new Error("Aktif imzalı PDF bütünlük doğrulaması başarısız.");
+  const manifest = readActiveDocumentManifest();
+  if (manifest[documentRecordId]) throw new Error("Bu imzalı belge kaydı zaten mevcuttur ve değiştirilemez.");
+  manifest[documentRecordId] = { storageKey, ownerUserId, contractRecordId, sha256, registeredAt: new Date().toISOString(), immutable: true };
+  writeActiveDocumentManifest(manifest);
+  return { ok: true, immutable: true };
+});
+
+ipcMain.handle("active-contract-document:open", async (_event, request) => {
+  const documentRecordId = String(request?.documentRecordId ?? "");
+  if (!validRecordId(documentRecordId)) return { ok: false, message: "Geçersiz imzalı belge kaydı." };
+  const access = normalizeArchiveAccess(request?.access);
+  const manifest = readActiveDocumentManifest(); const entry = manifest[documentRecordId];
+  if (!entry || !validArchiveKey(entry.storageKey)) return { ok: false, message: "İmzalı belge manifesti veya dosya eşleşmesi bu cihazda bulunamadı." };
+  if (!access.managerSessionActive && access.role !== "officeAssistant" && entry.ownerUserId !== access.userId) return { ok: false, message: "Bu imzalı belgeyi açma yetkiniz yok." };
+  const filePath = activeDocumentPath(entry.storageKey);
+  if (!fs.existsSync(filePath)) return { ok: false, message: "İmzalı PDF dosyası bu cihazda bulunamadı." };
+  if (sha256File(filePath) !== entry.sha256) return { ok: false, message: "PDF bütünlük doğrulaması başarısız; dosya açılmadı." };
+  const openError = await shell.openPath(filePath);
+  if (openError) return { ok: false, message: openError };
+  writeStartupLog(`Aktif imzalı PDF açıldı; record=${documentRecordId}`);
+  return { ok: true, immutable: true };
 });
 
 function createWindow() {
