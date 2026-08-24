@@ -23,3 +23,5 @@ Sunucu tarafı HTTPS denetiminde ana alan adı TLS 1.3 ile geçerli sertifika zi
 `https://global1881.com/` aktif Global 1881 web sitesi olarak doğrulandı. Kullanıcı, mevcut site içeriğini WordPress yönetim panelinden yönettiğini ve Hostinger web sitesi/hosting yüzeyine erişebildiğini bildirdi. Mobil ofis sistemi için ana siteyi değiştirmeden `ofis.global1881.com` alt alan adı önerildi.
 
 Hostinger hPanel adresi tarayıcıdan açıldı; ancak bu oturumda giriş formu henüz yüklenmediği için DNS ayarı yapılmadı. Alan adı yönetimi hesabına kullanıcı girişinin ardından yalnız yeni alt alan adına ait DNS kaydı eklenmelidir; mevcut `global1881.com` web sitesi kayıtları değiştirilmemelidir.
+
+24.08.2026 tarihinde kullanıcı `ofis.global1881.com` adresini denediğinde Chrome `DNS_PROBE_FINISHED_NXDOMAIN` sonucunu gösterdi. Bağımsız dış erişim denetimi de adın çözümlenmediğini doğruladı. Bu, alt alan adının henüz DNS’de oluşturulmadığını gösterir; uygulama rotası veya telefon kurulumunda yeni bir hata değildir. DNS kaydı, hedef platformdaki özel alan adı bağlama adımı tamamlandıktan ve yalnız yetkili alan adı yöneticisi tarafından eklenecektir.
