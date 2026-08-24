@@ -10,8 +10,21 @@ Merkezi sistemde gerçek bir manager hesabı ile en az bir gerçek danışman he
 
 | Telefon | Açılacak adres | Ana ekrana ekleme |
 |---|---|---|
-| Android | `https://emlakdash-kcw9r85v.manus.space/mobile` | Chrome menüsünden **Ana ekrana ekle** veya **Uygulamayı yükle** |
-| iPhone 13 Pro | `https://emlakdash-kcw9r85v.manus.space/mobile` | Safari Paylaş menüsünden **Ana Ekrana Ekle** |
+| Android | Kalıcı kabulde `https://ofis.global1881.com/mobile` | Chrome menüsünden **Ana ekrana ekle** veya **Uygulamayı yükle** |
+| iPhone 13 Pro | Kalıcı kabulde `https://ofis.global1881.com/mobile` | Safari Paylaş menüsünden **Ana Ekrana Ekle** |
+
+`ofis.global1881.com` DNS kaydı tamamlanıncaya kadar kullanılan teknik önizleme adresi yalnız geçici test içindir; kalıcı paylaşım veya ana ekrana ekleme için kullanılmaz.
+
+## Erişim sürekliliği
+
+Mobil ofis uygulamasının merkezi veri, API ve belge depolama katmanı Hostinger’daki WordPress web hostinginden bağımsızdır. Hostinger tarafında yalnız mevcut alan adı için DNS yönlendirmesi bulunur; `global1881.com` ve `www` kayıtları değiştirilmez.
+
+| Koruma | Uygulama |
+|---|---|
+| DNS sınırı | Yalnız `ofis` alt alan adı için ayrı kayıt eklenir; ana WordPress sitesi korunur. |
+| Yönetici yedeği | Alan adı/DNS hesabında ikinci yetkili erişim kaydı tutulur. |
+| Geçici erişim | Kalıcı alan adı taşınırken uygulanacak, kullanıcılarla paylaşılmayan teknik yedek erişim adresi işletme kaydında saklanır. |
+| Taşınabilirlik | Hosting/DNS sağlayıcısı değişirse, merkezi veriler aktarılmaz; yalnız alt alan adı yeni güvenli hedefe yönlendirilir. |
 
 ## Manager kabulü
 

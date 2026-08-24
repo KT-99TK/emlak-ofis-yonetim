@@ -39,3 +39,11 @@ Kira/satış sözleşmesinin tüm uzun formu ve muhasebe tahsilat girişi, telef
 ## Uygulama dağıtımı
 
 İlk deneme, Android ve iPhone’da mağazaya yayın yapmadan test bağlantısıyla çalıştırılır. Kabulden sonra aynı kod tabanından Android ve iOS için dağıtım paketi hazırlanır. Üretim aşamasında danışman daveti, merkezi hesap aktivasyonu, uygulama kilidi ve bildirim izinleri eklenir.
+
+## Alan adı ve hostingten bağımsızlık
+
+`global1881.com` üzerindeki WordPress sitesi ile merkezi ofis uygulaması ayrı bileşenlerdir. WordPress/Hostinger yalnız mevcut web sitesi ve alan adı DNS yönetimi için kullanılabilir; mobil uygulamanın merkezi veritabanı, API’si ve güvenli belge depolaması bu web hosting hesabına taşınmaz.
+
+Önerilen kalıcı adres `ofis.global1881.com` olur. Bu alt alan adı için yalnız yeni DNS yönlendirmesi eklenir; mevcut `www` ve ana alan adı kayıtları değiştirilmez. Hostinger web hosting hizmeti kesilse bile merkezi uygulama verisi kaybolmaz. Etki, DNS kaydının yönetimi kaybedilirse mobil adresin çözülmemesiyle sınırlıdır.
+
+> Süreklilik kuralı: Alan adı sahibinin kontrolündeki ayrı DNS yönetimi, yönetici erişimi yedeği ve yayımlanmış bir geçici erişim adresi dokümante edilir. Böylece bir hosting veya yönetici hesabı erişilemez olsa bile veri/uygulama taşınabilir kalır; yalnız alan adı yönlendirmesi yeniden bağlanır.
