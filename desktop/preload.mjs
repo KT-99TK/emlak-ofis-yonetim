@@ -1,4 +1,4 @@
-import { contextBridge } from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -9,4 +9,9 @@ contextBridge.exposeInMainWorld("global1881Desktop", {
   platform: process.platform,
   version: "offline-transition-v1",
   authoritySealSrc,
+  contractArchive: {
+    selectPdfFiles: () => ipcRenderer.invoke("contract-archive:select"),
+    registerPdf: (request) => ipcRenderer.invoke("contract-archive:register", request),
+    openPdf: (request) => ipcRenderer.invoke("contract-archive:open", request),
+  },
 });

@@ -1,9 +1,10 @@
-import { BarChart3, BellRing, ClipboardCheck, ClipboardList, FileSignature, GitMerge, HardDrive, Target, UserRound } from "lucide-react";
+import { Archive, BarChart3, BellRing, ClipboardCheck, ClipboardList, FileSignature, GitMerge, HardDrive, Target, UserRound } from "lucide-react";
 
 export const offlineNavigationItems = [
   { icon: HardDrive, label: "Yerel Çalışma Alanı", path: "#/offline" },
   { icon: FileSignature, label: "Yetki Sözleşmeleri", path: "#/offline-authority" },
   { icon: FileSignature, label: "Kira Sözleşmeleri", path: "#/offline-rental" },
+  { icon: Archive, label: "Müşteri Dijital Arşivi", path: "#/offline-archive" },
   { icon: BarChart3, label: "Sözleşme ve Finansal İstatistikler", path: "#/offline-performance" },
   { icon: UserRound, label: "Benim Sözleşmelerim", path: "#/offline-my-contracts" },
   { icon: ClipboardList, label: "Müşteri Talepleri", path: "#/offline-requests" },
@@ -14,5 +15,5 @@ export const offlineNavigationItems = [
 ];
 
 export function normalizeOfflineHash(hash: string | undefined) {
-  return hash === "#/offline-merge" || hash === "#/offline-authority" || hash === "#/offline-rental" || hash === "#/offline-performance" || hash === "#/offline-my-contracts" || hash === "#/offline-targets" || hash === "#/offline-requests" || hash === "#/offline-request-matches" || hash === "#/offline-transactions" ? hash : "#/offline";
+  return hash === "#/offline-merge" || hash === "#/offline-authority" || hash === "#/offline-rental" || hash === "#/offline-archive" || hash === "#/offline-performance" || hash === "#/offline-my-contracts" || hash === "#/offline-targets" || hash === "#/offline-requests" || hash === "#/offline-request-matches" || hash === "#/offline-transactions" ? hash : "#/offline";
 }

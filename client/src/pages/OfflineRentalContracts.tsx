@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, firstPaymentDeadline, formatWholeRentalAmount, type OfflineRentalDetails } from "@/lib/rentalContract";
 import { canViewFullOfflineContract, getOfflineAccessRole } from "@/lib/offlineContractAccess";
+import { listOfflineContractLookups, searchOfflineContractLookups } from "@/lib/offlineContractLookup";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 import { getUserId, listOfflineRecords, saveOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
 
@@ -37,6 +38,8 @@ export default function OfflineRentalContracts() {
   const [ownerRecordId, setOwnerRecordId] = useState("");
   const [tenantRecordId, setTenantRecordId] = useState("");
   const [propertyRecordId, setPropertyRecordId] = useState("");
+  const [sourceRentalRecordId, setSourceRentalRecordId] = useState("");
+  const [rentalSearch, setRentalSearch] = useState("");
   const [fontSize, setFontSize] = useState("10");
   const [printMode, setPrintMode] = useState<PrintMode>("contract");
   const [message, setMessage] = useState("");
@@ -45,6 +48,8 @@ export default function OfflineRentalContracts() {
   const summary = useMemo(() => calculateRentalSummary(details), [details]);
   const people = records.filter((record) => record.entity === "client" && canViewFullOfflineContract(record, contractAccess));
   const properties = records.filter((record) => record.entity === "property" && canViewFullOfflineContract(record, contractAccess));
+  const rentalSources = useMemo(() => listOfflineContractLookups(records.filter((record) => record.entity !== "contract" || canViewFullOfflineContract(record, contractAccess))).filter((row) => row.type === "rental"), [records, contractAccess]);
+  const matchingRentalSources = useMemo(() => searchOfflineContractLookups(rentalSources, rentalSearch), [rentalSources, rentalSearch]);
   const selectedAppendixCount = appendixOptions.filter((option) => details.appendixSelection[option.kind]).length;
 
   const refresh = async () => setRecords(await listOfflineRecords());
@@ -66,11 +71,24 @@ export default function OfflineRentalContracts() {
 
   const fillProperty = (id: string) => {
     setPropertyRecordId(id);
-    const record = properties.find((item) => item.id === id);
-    if (record) setDetails((current) => ({ ...current, propertyAddress: record.details ? `${record.title} · ${record.details}` : record.title }));
+  const record = properties.find((item) => item.id === id);
+  if (record) setDetails((current) => ({ ...current, propertyAddress: record.details ? `${record.title} · ${record.details}` : record.title }));
+};
+
+  const copyPreviousRental = (recordId: string) => {
+    setSourceRentalRecordId(recordId);
+    const source = rentalSources.find((row) => row.recordId === recordId);
+    if (!source) return;
+    const today = new Date().toISOString().slice(0, 10);
+    setOwnerRecordId(String(source.snapshot.sourceOwnerRecordId ?? ""));
+    setTenantRecordId(String(source.snapshot.sourceTenantRecordId ?? ""));
+    setPropertyRecordId(String(source.snapshot.sourcePropertyRecordId ?? ""));
+    setDetails({ ...emptyRentalDetails(), ...(source.snapshot as Partial<OfflineRentalDetails>), startDate: today, firstPaymentDueDate: firstPaymentDeadline(today), signedByParties: false, signedAt: "", ownerApproval: "pending" });
+    setContractNo("");
+    setMessage(`${source.contractNo} numaralı önceki kira sözleşmesi yeni taslağa kopyalandı. Yeni kayıt numarasını ve güncel bilgileri kontrol edip kaydedin.`);
   };
 
-  const saveDraft = async () => {
+const saveDraft = async () => {
     if (!userId.trim()) { setMessage("Önce Yerel Çalışma Alanı ekranından offline kullanıcı kodunu kaydedin."); return; }
     if (!contractNo.trim() || !details.ownerName.trim() || !details.tenantName.trim() || !details.propertyAddress.trim() || summary.monthlyRent <= 0) {
       setMessage("Kayıt numarası, kiraya veren, kiracı, taşınmaz adresi ve aylık kira tutarı zorunludur."); return;
@@ -97,6 +115,7 @@ export default function OfflineRentalContracts() {
     </header>
     <div className="mx-auto max-w-[1440px] space-y-6"><div className="offline-operation-grid print:block"><div className="offline-operation-main">
       <Card className="rounded-2xl border-[#e5e8e3] bg-white/85 print:hidden"><CardHeader><CardTitle className="font-serif text-xl">Doldurulabilir kira sözleşmesi bilgileri</CardTitle><p className="text-xs text-[#87938f]">Kira, depozito ve kefalet tutarları kuruşsuz girilir; binlik ayırıcı yazarken otomatik uygulanır.</p></CardHeader><CardContent className="space-y-5">
+        <section className="rounded-xl border border-[#dbe5dd] bg-[#f8fbf8] p-4"><h2 className="text-sm font-semibold text-[#34433f]">Önceki kira sözleşmesini çağır</h2><p className="mt-1 text-xs text-[#6f7a75]">Sözleşme numarası veya kiracı/malik adı–soyadıyla arayın. Seçilen kayıt değiştirilmez; bilgiler yeni taslağa kopyalanır.</p><div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1.35fr]"><Input value={rentalSearch} onChange={(event) => setRentalSearch(event.target.value)} placeholder="Sözleşme no veya müşteri adı soyadı ile ara" /><Select value={sourceRentalRecordId} onValueChange={copyPreviousRental}><SelectTrigger><SelectValue placeholder={rentalSources.length ? "Önceki kira sözleşmesini seçin" : "Bu cihazda önceki kira sözleşmesi yok"} /></SelectTrigger><SelectContent>{matchingRentalSources.map((source) => <SelectItem key={source.recordId} value={source.recordId}>{source.contractNo} · {source.customerNames.join(" / ") || "Müşteri belirtilmemiş"}</SelectItem>)}</SelectContent></Select></div>{rentalSearch && !matchingRentalSources.length && <p className="mt-2 text-xs text-[#a85745]">Bu numara veya müşteri adıyla eşleşen kira sözleşmesi bulunamadı.</p>}</section>
         <div className="grid gap-3 sm:grid-cols-2"><div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Kiralama türü</label><Select value={details.useType} onValueChange={(value) => selectType(value as OfflineRentalDetails["useType"])}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="residential">Konut Kira Sözleşmesi</SelectItem><SelectItem value="commercial">İşyeri Kira Sözleşmesi</SelectItem></SelectContent></Select></div><div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Kayıt numarası</label><Input value={contractNo} onChange={(event) => setContractNo(event.target.value)} placeholder="KIR-OF-2026-001" /></div></div>
         <div className="grid gap-3 sm:grid-cols-3"><div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Kiraya veren kaydı</label><Select value={ownerRecordId} onValueChange={(id) => fillPerson(id, "owner")}><SelectTrigger><SelectValue placeholder="Malik seçin" /></SelectTrigger><SelectContent>{people.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}</SelectContent></Select></div><div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Kiracı kaydı</label><Select value={tenantRecordId} onValueChange={(id) => fillPerson(id, "tenant")}><SelectTrigger><SelectValue placeholder="Kiracı seçin" /></SelectTrigger><SelectContent>{people.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}</SelectContent></Select></div><div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Portföy kaydı</label><Select value={propertyRecordId} onValueChange={fillProperty}><SelectTrigger><SelectValue placeholder="Mülk seçin" /></SelectTrigger><SelectContent>{properties.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}</SelectContent></Select></div></div>
         <section><h2 className="mb-3 text-sm font-semibold text-[#34433f]">Taraflar</h2><div className="grid gap-3 sm:grid-cols-2">{personFields.map(([key, label]) => <div key={key} className={key === "ownerAddress" || key === "tenantAddress" ? "sm:col-span-2" : ""}><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">{label}</label><Input value={details[key] as string} onChange={(event) => update(key, event.target.value)} /></div>)}</div></section>

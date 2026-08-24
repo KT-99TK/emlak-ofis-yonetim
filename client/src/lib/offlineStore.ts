@@ -1,6 +1,6 @@
 export type OfflineRecord = {
   id: string;
-  entity: "client" | "property" | "contract" | "obligation" | "evacuation" | "ownerApproval" | "ledger" | "target" | "request" | "transaction";
+  entity: "client" | "property" | "contract" | "contractArchive" | "obligation" | "evacuation" | "ownerApproval" | "ledger" | "target" | "request" | "transaction";
   title: string;
   details: string;
   amount?: string;
@@ -30,7 +30,7 @@ const ENCRYPTION_ITERATIONS = 210_000;
 const MIN_BACKUP_PASSWORD_LENGTH = 8;
 const AUDIT_KEY = "global1881-offline-audit";
 
-export type OfflineAuditEvent = { id: string; action: "backup-exported" | "backup-verified" | "records-applied" | "manager-access-configured" | "manager-access-unlocked" | "manager-access-locked" | "contract-access-role-assigned"; userId: string; deviceId: string; at: string; metadata?: Record<string, string | number | boolean> };
+export type OfflineAuditEvent = { id: string; action: "backup-exported" | "backup-verified" | "records-applied" | "manager-access-configured" | "manager-access-unlocked" | "manager-access-locked" | "contract-access-role-assigned" | "contract-archive-imported" | "contract-archive-opened"; userId: string; deviceId: string; at: string; metadata?: Record<string, string | number | boolean> };
 
 export function validateBackupPassword(password: string) {
   if (password.trim().length < MIN_BACKUP_PASSWORD_LENGTH) {
@@ -128,6 +128,20 @@ export async function saveOfflineRecord(input: Omit<OfflineRecord, "id" | "devic
   const db = await openDb();
   const randomId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const record: OfflineRecord = { ...input, id: `${getDeviceId()}-${randomId}`, deviceId: getDeviceId(), userId: getUserId(), recordVersion: 1, lastSyncAt: undefined, updatedAt: new Date().toISOString() };
+  return new Promise<OfflineRecord>((resolve, reject) => {
+    const request = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).put(record);
+    request.onsuccess = () => resolve(record);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/** Broker manager veya manager tarafından atanmış ofis asistanı arşiv belgesini ilgili danışmanın yerel sahipliğine bağlamak için kullanır. */
+export async function saveOfflineRecordForAssignedUser(input: Omit<OfflineRecord, "id" | "deviceId" | "updatedAt" | "userId" | "recordVersion">, assignedUserId: string) {
+  const userId = assignedUserId.trim();
+  if (!userId) throw new Error("Arşiv için danışman kullanıcı kimliği gereklidir.");
+  const db = await openDb();
+  const randomId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const record: OfflineRecord = { ...input, id: `${getDeviceId()}-${randomId}`, deviceId: getDeviceId(), userId, recordVersion: 1, lastSyncAt: undefined, updatedAt: new Date().toISOString() };
   return new Promise<OfflineRecord>((resolve, reject) => {
     const request = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).put(record);
     request.onsuccess = () => resolve(record);

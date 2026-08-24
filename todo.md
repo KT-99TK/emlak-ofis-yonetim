@@ -491,3 +491,17 @@
 - [ ] Online ve offline DashboardLayout, sol menü, içerik çerçevesi, form/kart, düğme, seçici ve sağ gündem paneli arasındaki renk ve ölçü farklarını envanterle
 - [ ] Ortak tasarım değişkenleriyle online/offline menü genişliği, marka alanı, aktif/pasif durum, boşluk, kart, form alanı ve düğme ölçülerini tek standartta birleştir
 - [ ] Birleşik arayüzün web ve Electron ekranlarında geniş/dar görünüm UI testlerini ve kabul kanıtını al
+
+## Geriye dönük PDF sözleşme arşivi
+
+- [x] Eski PDF sözleşmelerini aktif Yetki/Kira sözleşmesi, tahakkuk veya tahsilat kaydı oluşturmayan salt-okunur `contractArchive` kayıt türünde modelle
+- [x] Her arşiv belgesine danışman kullanıcı kimliği, müşteri adı, belge türü, geçmiş işlem özeti, düzenleme tarihi, gizli indeks bilgileri, orijinal dosya bütünlüğü ve içe aktarma audit kaydı ekle; sözleşme/kayıt numarasını arşivde zorunlu kılma
+- [x] Danışmana yalnız kendi arşiv belgelerini; broker manager ve manager tarafından atanmış ofis asistanına yetkili arşiv görüntüleme erişimini uygula
+- [x] Offline Electron’da arşiv PDF’sinin yerel saklanması, metadata yedek/merge manifesti ve gelecekte merkezi sunucuya aktarım stratejisini belirle
+- [x] Arşiv listesi, danışman filtresi, müşteri bazlı gruplanmış salt-okunur PDF açma ve aktif sözleşme ekranından ayrımı uygula
+- [ ] Örnek PDF paketiyle belge indeksleme, erişim gizliliği, dosya bütünlüğü ve Windows/Electron kabulünü doğrula
+- [x] Arşiv metadata ve içe aktarma formunda sözleşme/kayıt numarasını zorunlu olmayan müşteri adı alanıyla değiştir; müşteriye ait geçmiş işlem/bağlam bilgisini salt-okunur arşiv notunda tut
+- [x] Sözleşme Arşivi listesini müşteri adına göre gruplayıp ara; müşteri kartının altında ilgili eski PDF ve işlem notlarını gösterirken aktif sözleşme/finans tetikleyicilerinden kesin olarak ayrı tut
+- [x] Offline Yetki ve Kira sözleşmesi çağırma/seçme akışlarında sözleşme numarası yanında müşteri adı ve soyadıyla da güvenli arama yap; danışman sahipliği ve gizlilik filtrelerini koru
+- [x] Her müşteri arşivindeki PDF ve geçmiş işlem kayıtlarını belge/sözleşme tarihine göre eskiden yeniye sırala; tarihi belirsiz belgeleri listenin sonunda açıkça göster
+- [x] “Sözleşme Arşivi” kullanıcı dilini “Müşteri Dijital Arşivi” olarak güncelle; eski PDF ve geçmiş işlem bilgisini müşterinin belge geçmişi olarak konumlandır

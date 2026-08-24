@@ -27,6 +27,11 @@ export function canViewFullOfflineContract(record: Pick<OfflineRecord, "userId">
   return Boolean(context.userId) && record.userId === context.userId;
 }
 
+/** Salt-okunur eski PDF arşivi de aktif sözleşmeyle aynı danışman sahipliği politikasını kullanır. */
+export function canViewArchiveDocument(record: Pick<OfflineRecord, "userId">, context: OfflineContractAccessContext) {
+  return canViewFullOfflineContract(record, context);
+}
+
 export function isOfficeRecordAccessAllowed(record: Pick<OfflineRecord, "userId">, context: OfflineContractAccessContext) {
   return canViewFullOfflineContract(record, context);
 }
@@ -34,6 +39,7 @@ export function isOfficeRecordAccessAllowed(record: Pick<OfflineRecord, "userId"
 export function maskUnauthorizedOfficeRecord<T extends Pick<OfflineRecord, "entity" | "title" | "details" | "userId">>(record: T, context: OfflineContractAccessContext): T {
   if (canViewFullOfflineContract(record, context)) return record;
   if (record.entity === "contract") return { ...record, title: "Başka danışmana ait sözleşme", details: "Malik ve sözleşme bilgileri gizli. Belge önizlemesi ve yazdırma izni yok." };
+  if (record.entity === "contractArchive") return { ...record, title: "Başka danışmana ait arşiv belgesi", details: "Eski sözleşme dosyası ve danışman bilgisi gizli. Açma izni yok." };
   if (record.entity === "client") return { ...record, title: "Başka danışmana ait müşteri", details: "Ad, iletişim ve kimlik bilgileri gizli." };
   if (record.entity === "property") return { ...record, title: "Başka danışmana ait portföy", details: "Adres ve malik bağlantısı gizli." };
   return record;
