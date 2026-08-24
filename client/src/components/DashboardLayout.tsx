@@ -120,7 +120,7 @@ function DashboardLayoutContent({
   const isDesktop = typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
   const offlineUserId = isDesktop ? getUserId() : "";
   const [location, setLocation] = useLocation();
-  const currentOfflineHash = normalizeOfflineHash(typeof window === "undefined" ? undefined : window.location.hash);
+  const [currentOfflineHash, setCurrentOfflineHash] = useState(() => normalizeOfflineHash(typeof window === "undefined" ? undefined : window.location.hash));
   const visibleMenuItems = isDesktop ? offlineNavigationItems.filter((item) => !item.managerOnly || user?.role === "admin") : menuItems;
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -131,6 +131,11 @@ function DashboardLayoutContent({
     : menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
   const [isOnline, setIsOnline] = useState(() => typeof navigator === "undefined" ? true : navigator.onLine);
+  useEffect(() => {
+    const syncOfflineHash = () => setCurrentOfflineHash(normalizeOfflineHash(window.location.hash));
+    window.addEventListener("hashchange", syncOfflineHash);
+    return () => window.removeEventListener("hashchange", syncOfflineHash);
+  }, []);
   useEffect(() => { const onOnline = () => setIsOnline(true); const onOffline = () => setIsOnline(false); window.addEventListener("online", onOnline); window.addEventListener("offline", onOffline); return () => { window.removeEventListener("online", onOnline); window.removeEventListener("offline", onOffline); }; }, []);
 
   useEffect(() => {

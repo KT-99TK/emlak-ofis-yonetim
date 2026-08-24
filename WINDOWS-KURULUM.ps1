@@ -23,7 +23,7 @@ Set-Location $projectRoot
 Write-Host "Proje: $projectRoot" -ForegroundColor Cyan
 
 $packageJson = Get-Content -Raw -Path (Join-Path $projectRoot "package.json") | ConvertFrom-Json
-$expectedVersion = "1.0.5"
+$expectedVersion = "1.0.6"
 if ($packageJson.version -ne $expectedVersion) {
   Stop-WithMessage "Bu klasördeki package.json sürümü $($packageJson.version). Beklenen sürüm $expectedVersion. Eski ZIP/proje klasörünü kullanmayın; güncel checkpoint ZIP’ini yeniden çıkarın."
 }

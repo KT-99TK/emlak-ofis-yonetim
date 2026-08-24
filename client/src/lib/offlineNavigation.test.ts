@@ -19,7 +19,8 @@ describe("offline navigation", () => {
     expect(normalizeOfflineHash("#/offline-requests")).toBe("#/offline-requests");
     expect(normalizeOfflineHash("#/offline-request-matches")).toBe("#/offline-request-matches");
     expect(normalizeOfflineHash("#/offline-transactions")).toBe("#/offline-transactions");
-    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-active-documents", "#/offline-archive", "#/offline-performance", "#/offline-my-contracts", "#/offline-requests", "#/offline-transactions", "#/offline-targets", "#/offline-request-matches", "#/offline-merge"]);
+    expect(normalizeOfflineHash("#/offline-cash-bank")).toBe("#/offline-cash-bank");
+    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-active-documents", "#/offline-archive", "#/offline-performance", "#/offline-my-contracts", "#/offline-requests", "#/offline-transactions", "#/offline-cash-bank", "#/offline-targets", "#/offline-request-matches", "#/offline-merge"]);
     expect(offlineNavigationItems.find((item) => item.path === "#/offline-performance")?.label).toBe("Sözleşme ve Finansal İstatistikler");
   });
 });

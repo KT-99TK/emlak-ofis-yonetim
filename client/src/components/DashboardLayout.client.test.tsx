@@ -40,6 +40,8 @@ describe("DashboardLayout client viewport navigation", () => {
     root = undefined;
     document.body.innerHTML = "";
     window.localStorage.clear();
+    Object.defineProperty(window, "global1881Desktop", { configurable: true, value: undefined });
+    window.location.hash = "";
   });
 
   it("renders a desktop sidebar at wide width and the mobile navigation header at narrow width", async () => {
@@ -56,5 +58,19 @@ describe("DashboardLayout client viewport navigation", () => {
     expect(narrow).toContain("Genel Bakış");
     expect(narrow).toContain("sticky top-0 z-40");
     expect(narrow).not.toContain("Yetki Sözleşmeleri");
+  });
+
+  it("removes the base offline flow sidebar after navigation to an offline child route", async () => {
+    Object.defineProperty(window, "global1881Desktop", { configurable: true, value: { platform: "win32" } });
+    window.location.hash = "#/offline";
+    const baseLayout = await renderAt(1440);
+    expect(baseLayout).toContain('aria-label="Kişisel Ofis Akışı"');
+
+    await act(async () => {
+      window.location.hash = "#/offline-cash-bank";
+      window.dispatchEvent(new Event("hashchange"));
+      await Promise.resolve();
+    });
+    expect(document.body.innerHTML).not.toContain('aria-label="Kişisel Ofis Akışı"');
   });
 });
