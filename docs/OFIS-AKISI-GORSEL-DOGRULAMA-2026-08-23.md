@@ -17,3 +17,5 @@ Geniş ekran web denetiminde sol Global 1881 marka alanı, aktif menü rengi ve 
 Dar ekran denetiminde üst mobil menü başlığı görünür ve tarih girişleri taşmadan render olur. Kira & Vergi Vadeleri form kartının sağ kenarı ve birincil işlem düğmesi gerçek cihaz kabulünde ayrıca incelenecek; bu önizleme yatay alanın dar hissedildiğini gösterdi.
 
 24 Ağustos 2026 dar ekran incelemesinde Vade tablosundaki geniş tablo, grid öğesinin minimum içerik genişliğini büyüterek form kartını sağa taşırdı. Ortak `.workspace-content-frame .grid > * { min-width: 0; }` kuralı eklenerek tablo kaydırması kendi kabında tutuldu ve ana form/düğme taşması engellendi.
+
+Sonraki 375 px mobil denetiminde Vade formu kartı ekrana sığdı; `GG.AA.YYYY` giriş alanı ve “Takvime ekle” düğmesi tam genişlikte, okunur kontrastla göründü. 1440 px Sözleşmeler denetiminde yinelenen içerik logosu kaldırıldı; Global 1881 markası sol menüde tek ve güçlü kaynak olarak kaldı, belge çalışma alanı başlığı bununla daha dengeli göründü.
