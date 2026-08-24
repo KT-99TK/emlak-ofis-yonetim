@@ -25,3 +25,7 @@ Sunucu tarafı HTTPS denetiminde ana alan adı TLS 1.3 ile geçerli sertifika zi
 Hostinger hPanel adresi tarayıcıdan açıldı; ancak bu oturumda giriş formu henüz yüklenmediği için DNS ayarı yapılmadı. Alan adı yönetimi hesabına kullanıcı girişinin ardından yalnız yeni alt alan adına ait DNS kaydı eklenmelidir; mevcut `global1881.com` web sitesi kayıtları değiştirilmemelidir.
 
 24.08.2026 tarihinde kullanıcı `ofis.global1881.com` adresini denediğinde Chrome `DNS_PROBE_FINISHED_NXDOMAIN` sonucunu gösterdi. Bağımsız dış erişim denetimi de adın çözümlenmediğini doğruladı. Bu, alt alan adının henüz DNS’de oluşturulmadığını gösterir; uygulama rotası veya telefon kurulumunda yeni bir hata değildir. DNS kaydı, hedef platformdaki özel alan adı bağlama adımı tamamlandıktan ve yalnız yetkili alan adı yöneticisi tarafından eklenecektir.
+
+## Hesap erişimi bekleme notu
+
+Hostinger hesabına normal parola sıfırlamasında kayıtlı e-postaya erişim varsa bağlantı çoğu durumda birkaç dakika içinde gelir; Hostinger, istisnai e-posta gecikmelerinde bir saate kadar beklenmesini önerir. E-posta veya iki aşamalı doğrulama erişimi yoksa Hostinger hesap kurtarma formunun yanıtı alternatif e-postaya iki iş günü içinde gönderilir. Hesaba Google ile giriş yapılıyorsa Google kurtarma güvenlik incelemesi birkaç saat veya birkaç gün sürebilir. Bu süreler sağlayıcının resmî açıklamalarıdır; kesin sonuç tarihi başvuru ekranı/e-postasındaki bildirimle belirlenir.
