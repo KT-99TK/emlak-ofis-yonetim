@@ -481,7 +481,7 @@
 - [ ] Offline sol menüde Global 1881 marka alanını daha büyük mühür/logo ve güçlü tipografiyle; bölüm gruplarını, aktif/pasif menü hiyerarşisini ve alt kullanıcı alanını sağ Ofis Akışı paneliyle dengeli güçlü bir Windows görsel diline taşı
 - [ ] Sağ Ofis Akışı panelindeki “Kişisel akışım” ifadesini onaylanan “Size Özel Gündem” başlığıyla değiştir; adı güvenle bilinen danışman için alt satırda “Adı Beyin/Hanımın Dikkatine” kullan ve başka danışman adı göstermeme kuralını koru
 - [ ] Yetki, kira, yerel çalışma alanı ve işlem kapanışları ana form yüzeylerini bölümlenmiş kartlar, daha belirgin alan başlıkları, okunur giriş çerçeveleri ve kontrollü kontrastla ortak standartta düzenle; sağ Size Özel Gündem panelini yardımcı sütun olarak daraltıp ana formun önüne geçirmeme kuralını uygula
-- [ ] Native `input type="date"` alanlarının Windows yerel ayarından gelen ABD tarzı görünümü yerine Türkiye standardını kullanıcıya açıklayan ve `GG.AA.YYYY` gösteren ortak tarih giriş bileşeni uygula; ISO saklamayı koru
+- [x] Native `input type="date"` alanlarının Windows yerel ayarından gelen ABD tarzı görünümü yerine Türkiye standardını kullanıcıya açıklayan ve `GG.AA.YYYY` gösteren ortak tarih giriş bileşeni uygula; ISO saklamayı koru
 - [ ] Sol menü, form yüzeyi, sağ Ofis Akışı ve tarih girişlerinin geniş/dar ekran ekran görüntüsü ile UI testlerini ekle
 - [ ] Bütünleşik Windows arayüz düzenini gerçek Electron ekran kabulüyle doğrula
 
