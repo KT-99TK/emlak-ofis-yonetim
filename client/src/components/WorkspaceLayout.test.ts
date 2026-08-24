@@ -15,6 +15,8 @@ describe("workspace content layout", () => {
     const css = projectFile("client/src/index.css");
 
     expect(css).toContain(".workspace-content-frame { width: 100%; max-width: 1180px; margin-inline: auto; }");
+    expect(css).toContain(".workspace-content-frame .grid > * { min-width: 0; }");
+    expect(css).toContain('img[src="/manus-storage/01_logo_yatay_6b31c4b8.webp"] { display: none; }');
     expect(css).toContain(".workspace-content-frame:has(.authority-print-shell) { max-width: none; }");
   });
 
