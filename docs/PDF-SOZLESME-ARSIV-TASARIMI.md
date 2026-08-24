@@ -10,7 +10,7 @@
 | Mali/vade etkisi | Yok | İş kurallarına göre oluşur |
 | Düzenleme | Salt-okunur kaynak belge | Form/snapshot üzerinden sürümlü |
 | Görünüm | Ayrı **Müşteri Dijital Arşivi** ekranı | Yetki ve Kira çalışma ekranları |
-| Arama | Danışman, müşteri, belge türü ve tarih | Aktif iş akışı alanları |
+| Arama | Danışman, tüm ilgili müşteri tarafları, belge türü ve tarih | Aktif iş akışı alanları |
 
 ## Erişim matrisi
 
@@ -20,7 +20,7 @@
 | Ofis asistanı | Yetkili görüntüleme | Yetkili görüntüleme | Broker manager onayıyla |
 | Broker manager | Yetkili görüntüleme | Yetkili görüntüleme | Yetkili |
 
-Arşiv meta verisi danışman kullanıcı kimliği, **müşteri adı**, belge türü, düzenleme tarihi, müşteriye ait **zorunlu geçmiş işlem özeti**, orijinal dosya adı, SHA-256 bütünlük değeri ve içe aktarma audit olayı taşır. Sözleşme/kayıt numarası beklenmez. Aynı müşteri için birden fazla eski PDF ve işlem notu aynı müşteri arşivinde gruplu görünür. Telefon, TCKN/VKN ve adres yalnız yetkili PDF içeriğindedir; yetkisiz listelerde görünmez.
+Arşiv meta verisi danışman kullanıcı kimliği, **ana müşteri adı**, kira sözleşmesindeki malik ve kiracı gibi isteğe bağlı **ilgili müşteri tarafları**, belge türü, düzenleme tarihi, müşteriye ait **zorunlu geçmiş işlem özeti**, orijinal dosya adı, SHA-256 bütünlük değeri ve içe aktarma audit olayı taşır. Sözleşme/kayıt numarası beklenmez. Aynı müşteri için birden fazla eski PDF ve işlem notu aynı müşteri arşivinde gruplu görünür. Çok taraflı tek PDF, her ilgili müşterinin kartında görünür ve bu kartların herhangi birinde isimle aranabilir. Telefon, TCKN/VKN ve adres yalnız yetkili PDF içeriğindedir; yetkisiz listelerde görünmez.
 
 ## Offline dosya ve yedekleme kuralı
 
@@ -30,7 +30,7 @@ Electron uygulamasında PDF dosyaları uygulama paketine değil, Windows kullan�
 
 ## Kabul akışı
 
-1. Broker manager veya yetkili ofis asistanı PDF seçer; danışman kullanıcı kodu, müşteri adı ve isteğe bağlı geçmiş işlem özetini atar.
+1. Broker manager veya yetkili ofis asistanı PDF seçer; danışman kullanıcı kodu, ana müşteri adı, varsa ilgili müşteri tarafları ve geçmiş işlem özetini atar.
 2. Uygulama dosya türü, boyutu ve SHA-256 değerini doğrular; yerel audit kaydı oluşur.
 3. Belge yalnız **Müşteri Dijital Arşivi** ekranında görünür; aktif kira/yetki listelerine ve finansal hesaplara girmez.
 4. Danışman kendi arşivini açar; broker/ofis asistanı yetkili görüntüleme yapar; diğer danışmanlar belgeyi görmez.

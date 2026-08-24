@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CONTRACT_ARCHIVE_SCHEMA, compareContractArchiveChronologically, createContractArchiveMetadata, parseContractArchiveMetadata } from "./contractArchive";
+import { CONTRACT_ARCHIVE_SCHEMA, archiveCustomerNames, compareContractArchiveChronologically, createContractArchiveMetadata, parseContractArchiveMetadata } from "./contractArchive";
 
 const source = {
   documentType: "rental" as const,
@@ -26,6 +26,12 @@ describe("contract archive metadata", () => {
     expect(() => createContractArchiveMetadata({ ...source, originalFileName: "eski-sozlesme.exe" })).toThrow("PDF");
     expect(() => createContractArchiveMetadata({ ...source, sha256: "not-a-checksum" })).toThrow("bütünlük");
     expect(() => createContractArchiveMetadata({ ...source, storageKey: "../other-consultant" })).toThrow("depolama");
+  });
+
+  it("indexes a single historic rental PDF under its principal customer and its tenant without duplicate names", () => {
+    const metadata = createContractArchiveMetadata({ ...source, customerName: "Necip Hakan Özcan", relatedCustomers: [{ name: "Tevfik Ateş Kut", role: "tenant" }, { name: "Necip Hakan Özcan", role: "propertyOwner" }] });
+    expect(metadata.relatedCustomers).toEqual([{ name: "Tevfik Ateş Kut", role: "tenant" }]);
+    expect(archiveCustomerNames(metadata)).toEqual(["Necip Hakan Özcan", "Tevfik Ateş Kut"]);
   });
 
   it("does not accept invalid archive snapshots as active contract data", () => {

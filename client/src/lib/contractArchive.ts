@@ -13,12 +13,22 @@ export const contractArchiveDocumentTypes = [
 
 export type ContractArchiveDocumentType = (typeof contractArchiveDocumentTypes)[number]["value"];
 
+export const contractArchivePartyRoles = [
+  { value: "propertyOwner", label: "Mülk sahibi" },
+  { value: "tenant", label: "Kiracı" },
+  { value: "other", label: "Diğer ilgili taraf" },
+] as const;
+
+export type ContractArchivePartyRole = (typeof contractArchivePartyRoles)[number]["value"];
+export type ContractArchiveCustomerParty = { name: string; role: ContractArchivePartyRole };
+
 export type ContractArchiveMetadata = {
   schema: typeof CONTRACT_ARCHIVE_SCHEMA;
   readonly: true;
   documentType: ContractArchiveDocumentType;
   documentTypeLabel: string;
   customerName: string;
+  relatedCustomers: ContractArchiveCustomerParty[];
   documentDate: string;
   documentDateDisplay: string;
   originalFileName: string;
@@ -30,10 +40,25 @@ export type ContractArchiveMetadata = {
   archiveNote: string;
 };
 
-export type CreateContractArchiveMetadataInput = Omit<ContractArchiveMetadata, "schema" | "readonly" | "documentTypeLabel" | "documentDateDisplay" | "importedAt"> & { documentDate: string };
+export type CreateContractArchiveMetadataInput = Omit<ContractArchiveMetadata, "schema" | "readonly" | "documentTypeLabel" | "documentDateDisplay" | "importedAt" | "relatedCustomers"> & { documentDate: string; relatedCustomers?: ContractArchiveCustomerParty[] };
 
 const storageKeyPattern = /^[a-zA-Z0-9-]+$/;
 const checksumPattern = /^[a-f0-9]{64}$/i;
+
+function normalizeRelatedCustomers(parties: ContractArchiveCustomerParty[] | undefined, primaryCustomerName: string) {
+  const seen = new Set([primaryCustomerName.trim().toLocaleLowerCase("tr-TR")]);
+  return (parties ?? []).flatMap((party) => {
+    const name = String(party.name ?? "").trim();
+    if (!name || !contractArchivePartyRoles.some((item) => item.value === party.role) || seen.has(name.toLocaleLowerCase("tr-TR"))) return [];
+    seen.add(name.toLocaleLowerCase("tr-TR"));
+    return [{ name, role: party.role }];
+  });
+}
+
+/** Bir belge, ana müşteri yanında kira sözleşmesindeki malik ve kiracı gibi ilgili müşteri kartlarında da aranabilir. */
+export function archiveCustomerNames(metadata: Pick<ContractArchiveMetadata, "customerName" | "relatedCustomers">) {
+  return [metadata.customerName, ...metadata.relatedCustomers.map((party) => party.name)];
+}
 
 export function contractArchiveDocumentLabel(value: ContractArchiveDocumentType) {
   return contractArchiveDocumentTypes.find((item) => item.value === value)?.label ?? "Eski belge";
@@ -58,6 +83,7 @@ export function createContractArchiveMetadata(input: CreateContractArchiveMetada
     documentDateDisplay: formatTurkishDate(documentDate ?? "", "Tarih belirtilmemiş"),
     importedAt: new Date().toISOString(),
     customerName: input.customerName.trim(),
+    relatedCustomers: normalizeRelatedCustomers(input.relatedCustomers, input.customerName),
     historicalActivity: input.historicalActivity.trim(),
     originalFileName: input.originalFileName.trim(),
     archiveNote: input.archiveNote.trim(),
@@ -71,7 +97,8 @@ export function parseContractArchiveMetadata(record: Pick<OfflineRecord, "entity
     if (value.schema !== CONTRACT_ARCHIVE_SCHEMA || value.readonly !== true || !contractArchiveDocumentTypes.some((item) => item.value === value.documentType)) return null;
     if (typeof value.storageKey !== "string" || !storageKeyPattern.test(value.storageKey) || typeof value.sha256 !== "string" || !checksumPattern.test(value.sha256)) return null;
     if (typeof value.customerName !== "string" || !value.customerName.trim() || typeof value.historicalActivity !== "string" || !value.historicalActivity.trim() || typeof value.originalFileName !== "string" || !value.originalFileName.toLowerCase().endsWith(".pdf") || !Number.isFinite(value.byteSize) || Number(value.byteSize) <= 0) return null;
-    return value as ContractArchiveMetadata;
+    if (value.relatedCustomers !== undefined && (!Array.isArray(value.relatedCustomers) || value.relatedCustomers.some((party) => !party || typeof party.name !== "string" || !party.name.trim() || !contractArchivePartyRoles.some((item) => item.value === party.role)))) return null;
+    return { ...value, relatedCustomers: normalizeRelatedCustomers(value.relatedCustomers as ContractArchiveCustomerParty[] | undefined, value.customerName) } as ContractArchiveMetadata;
   } catch {
     return null;
   }

@@ -505,3 +505,5 @@
 - [x] Offline Yetki ve Kira sözleşmesi çağırma/seçme akışlarında sözleşme numarası yanında müşteri adı ve soyadıyla da güvenli arama yap; danışman sahipliği ve gizlilik filtrelerini koru
 - [x] Her müşteri arşivindeki PDF ve geçmiş işlem kayıtlarını belge/sözleşme tarihine göre eskiden yeniye sırala; tarihi belirsiz belgeleri listenin sonunda açıkça göster
 - [x] “Sözleşme Arşivi” kullanıcı dilini “Müşteri Dijital Arşivi” olarak güncelle; eski PDF ve geçmiş işlem bilgisini müşterinin belge geçmişi olarak konumlandır
+- [ ] İlk örnek “Kiracı Tevfik Ateş Kira Sözleşmesi” PDF’sini İbrahim Parin portföy danışmanı, Necip Hakan Özcan mülk sahibi ve Tevfik Ateş kiracı bağlamında indeksle; belge tarihini, müşteri kartı seçimini ve Windows kabul adımlarını doğrula
+- [x] Çok taraflı kira sözleşmesi arşivinde belgeyi hem mülk sahibi hem kiracı adıyla bulabilir kıl; tek PDF’nin iki müşteri kartında görünürken aktif sözleşme/finans kaydı oluşturmamasını ve danışman sahipliğini korumasını sağla
