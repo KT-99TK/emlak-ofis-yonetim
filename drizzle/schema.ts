@@ -95,6 +95,10 @@ export const contractDocuments = mysqlTable("contractDocuments", {
   clientId: int("clientId"),
   assignedUserId: int("assignedUserId").notNull(),
   category: mysqlEnum("category", ["activeSigned", "archive"]).notNull(),
+  documentType: varchar("documentType", { length: 40 }),
+  documentDate: timestamp("documentDate"),
+  historicalActivity: text("historicalActivity"),
+  archiveNote: text("archiveNote"),
   originalFileName: varchar("originalFileName", { length: 255 }).notNull(),
   storageKey: varchar("storageKey", { length: 255 }).notNull().unique(),
   sha256: varchar("sha256", { length: 64 }).notNull(),
@@ -103,6 +107,15 @@ export const contractDocuments = mysqlTable("contractDocuments", {
   createdByUserId: int("createdByUserId").notNull(),
   invalidatedAt: timestamp("invalidatedAt"),
   invalidationReason: text("invalidationReason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+/** Arşiv PDF’si; ana müşteri yanında malik, kiracı veya diğer ilgili müşteri kartlarında da tek belge olarak bulunabilir. */
+export const contractDocumentParticipants = mysqlTable("contractDocumentParticipants", {
+  id: int("id").autoincrement().primaryKey(),
+  documentId: int("documentId").notNull(),
+  clientId: int("clientId").notNull(),
+  partyRole: mysqlEnum("partyRole", ["primary", "propertyOwner", "tenant", "other"]).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

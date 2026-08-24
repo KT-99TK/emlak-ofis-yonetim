@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, auditLogs, clients, contractDocuments, contracts, ledgerEntries, properties, rentalObligations, reminderPreferences, teams, userProfiles, users } from "../drizzle/schema";
+import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, properties, rentalObligations, reminderPreferences, teams, userProfiles, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -52,6 +52,33 @@ export async function getContractForAssignedUser(contractId: number, userId: num
 export async function listContractDocuments(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(contractDocuments).where(isManager ? undefined : eq(contractDocuments.assignedUserId, userId)).orderBy(desc(contractDocuments.createdAt)); }
 export async function getContractDocumentForUser(documentId: number, userId: number, isManager: boolean) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(contractDocuments).where(and(eq(contractDocuments.id, documentId), isManager ? undefined : eq(contractDocuments.assignedUserId, userId))).limit(1); return rows[0]; }
 export async function createContractDocument(input: { contractId: number; clientId?: number | null; assignedUserId: number; category: "activeSigned" | "archive"; originalFileName: string; storageKey: string; sha256: string; byteSize: number; createdByUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(contractDocuments).values({ ...input, immutable: 1 }); const id = Number(result[0].insertId); await db.insert(auditLogs).values({ actorUserId: input.createdByUserId, action: "document_attached", entityType: "contractDocument", entityId: id, summary: `${input.originalFileName} silinemez belge olarak eklendi` }); return id; }
+export async function listCentralArchiveDocuments(userId: number, isManager: boolean) {
+  const db = await getDb(); if (!db) return [];
+  const documents = await db.select().from(contractDocuments).where(and(eq(contractDocuments.category, "archive"), isManager ? undefined : eq(contractDocuments.assignedUserId, userId)));
+  const archives = await Promise.all(documents.map(async (document) => {
+    const parties = await db.select({ clientId: contractDocumentParticipants.clientId, partyRole: contractDocumentParticipants.partyRole, name: clients.name }).from(contractDocumentParticipants).leftJoin(clients, eq(contractDocumentParticipants.clientId, clients.id)).where(eq(contractDocumentParticipants.documentId, document.id));
+    return { ...document, parties };
+  }));
+  return archives.sort((left, right) => {
+    const leftDate = left.documentDate?.toISOString().slice(0, 10) ?? "9999-12-31";
+    const rightDate = right.documentDate?.toISOString().slice(0, 10) ?? "9999-12-31";
+    return leftDate.localeCompare(rightDate) || left.createdAt.getTime() - right.createdAt.getTime();
+  });
+}
+export async function createCentralArchiveDocument(input: { assignedUserId: number; primaryClientId: number; relatedClients: Array<{ clientId: number; partyRole: "propertyOwner" | "tenant" | "other" }>; documentType: string; documentDate?: Date; historicalActivity: string; archiveNote?: string; originalFileName: string; storageKey: string; sha256: string; byteSize: number; createdByUserId: number }) {
+  const db = await getDb(); if (!db) return null;
+  const related = input.relatedClients.filter((party) => party.clientId !== input.primaryClientId);
+  const clientIds = Array.from(new Set([input.primaryClientId, ...related.map((party) => party.clientId)]));
+  for (const clientId of clientIds) {
+    const client = await db.select({ id: clients.id }).from(clients).where(eq(clients.id, clientId)).limit(1);
+    if (!client[0]) throw new Error("Arşiv için seçilen müşteri kaydı bulunamadı.");
+  }
+  const result = await db.insert(contractDocuments).values({ contractId: null, clientId: input.primaryClientId, assignedUserId: input.assignedUserId, category: "archive", documentType: input.documentType, documentDate: input.documentDate, historicalActivity: input.historicalActivity, archiveNote: input.archiveNote, originalFileName: input.originalFileName, storageKey: input.storageKey, sha256: input.sha256, byteSize: input.byteSize, immutable: 1, createdByUserId: input.createdByUserId });
+  const documentId = Number(result[0].insertId);
+  await db.insert(contractDocumentParticipants).values([{ documentId, clientId: input.primaryClientId, partyRole: "primary" }, ...related.map((party) => ({ documentId, clientId: party.clientId, partyRole: party.partyRole }))]);
+  await db.insert(auditLogs).values({ actorUserId: input.createdByUserId, action: "archive_document_attached", entityType: "contractDocument", entityId: documentId, summary: `${input.originalFileName} geçmiş müşteri arşivine silinemez belge olarak eklendi` });
+  return documentId;
+}
 export async function invalidateContractDocument(documentId: number, managerUserId: number, reason: string) { const db = await getDb(); if (!db) return false; const current = await db.select().from(contractDocuments).where(eq(contractDocuments.id, documentId)).limit(1); const document = current[0]; if (!document) throw new Error("Belge bulunamadı."); if (document.invalidatedAt) throw new Error("Bu belge daha önce geçersiz kılınmış."); await db.update(contractDocuments).set({ invalidatedAt: new Date(), invalidationReason: reason }).where(eq(contractDocuments.id, documentId)); await db.insert(auditLogs).values({ actorUserId: managerUserId, action: "document_invalidated", entityType: "contractDocument", entityId: documentId, summary: `${document.originalFileName} silinmeden geçersiz kılındı: ${reason}` }); return true; }
 export async function listClients(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(clients).where(isManager ? undefined : eq(clients.assignedUserId, userId)).orderBy(desc(clients.updatedAt)); }
 export async function listProperties(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(properties).where(isManager ? undefined : eq(properties.assignedUserId, userId)).orderBy(desc(properties.createdAt)); }

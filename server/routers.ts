@@ -4,7 +4,7 @@ import { parse as parseCookieHeader } from "cookie";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createClient, createContract, createContractDocument, decideOwnerApproval, getContractDocumentForUser, getContractForAssignedUser, invalidateContractDocument, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
+import { createCentralArchiveDocument, createClient, createContract, createContractDocument, decideOwnerApproval, getContractDocumentForUser, getContractForAssignedUser, invalidateContractDocument, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -31,6 +31,26 @@ export const appRouter = router({
   }),
   documents: router({
     list: protectedProcedure.query(({ ctx }) => listContractDocuments(ctx.user.id, isManager(ctx.user))),
+    archiveList: protectedProcedure.query(({ ctx }) => listCentralArchiveDocuments(ctx.user.id, isManager(ctx.user))),
+    attachArchive: adminProcedure.input(z.object({
+      assignedUserId: z.number().int().positive(),
+      primaryClientId: z.number().int().positive(),
+      relatedClients: z.array(z.object({ clientId: z.number().int().positive(), partyRole: z.enum(["propertyOwner", "tenant", "other"]) })).max(8).default([]),
+      documentType: z.enum(["authority", "rental", "sales", "appendix", "other"]),
+      documentDate: z.coerce.date().optional(),
+      historicalActivity: z.string().min(3).max(3000),
+      archiveNote: z.string().max(3000).optional(),
+      originalFileName: z.string().min(5).max(255),
+      pdfBase64: z.string().min(100).max(18_000_000),
+    })).mutation(async ({ ctx, input }) => {
+      const base64 = input.pdfBase64.replace(/^data:application\/pdf;base64,/i, "");
+      const bytes = Buffer.from(base64, "base64");
+      if (!bytes.length || bytes.length > MAX_MOBILE_PDF_BYTES || bytes.subarray(0, 4).toString() !== "%PDF") throw new Error("Yalnız 12 MB altındaki geçerli PDF belgeleri arşivlenebilir.");
+      const sha256 = createHash("sha256").update(bytes).digest("hex");
+      const stored = await storagePut(`office-documents/archive/${input.assignedUserId}/${Date.now()}/${safeFileName(input.originalFileName)}`, bytes, "application/pdf");
+      const documentId = await createCentralArchiveDocument({ ...input, originalFileName: safeFileName(input.originalFileName), storageKey: stored.key, sha256, byteSize: bytes.byteLength, createdByUserId: ctx.user.id });
+      return { id: documentId, sha256, byteSize: bytes.byteLength };
+    }),
     attachActiveSigned: protectedProcedure.input(z.object({
       contractId: z.number().int().positive(),
       originalFileName: z.string().min(5).max(255),

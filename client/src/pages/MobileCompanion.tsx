@@ -20,7 +20,9 @@ export default function MobileCompanion() {
   const [invalidationId, setInvalidationId] = useState<number | null>(null);
   const [invalidationReason, setInvalidationReason] = useState("");
   const [invalidationConfirmation, setInvalidationConfirmation] = useState("");
+  const [archiveDraft, setArchiveDraft] = useState({ assignedUserId: "", primaryClientId: "", relatedClientId: "none", relatedRole: "tenant" as "propertyOwner" | "tenant" | "other", documentType: "rental" as "authority" | "rental" | "sales" | "appendix" | "other", documentDate: "", historicalActivity: "", archiveNote: "" });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const archiveFileInputRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
 
   const summary = trpc.dashboard.summary.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true });
@@ -29,6 +31,8 @@ export default function MobileCompanion() {
   const contracts = trpc.contracts.list.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true });
   const obligations = trpc.obligations.list.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true });
   const documents = trpc.documents.list.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true });
+  const archiveDocuments = trpc.documents.archiveList.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true });
+  const team = trpc.team.list.useQuery(undefined, { enabled: isAuthenticated && user?.role === "admin" });
   const attachDocument = trpc.documents.attachActiveSigned.useMutation({
     onSuccess: () => {
       setNotice("İmzalı PDF merkezi dosyaya silinemez belge olarak eklendi.");
@@ -47,13 +51,23 @@ export default function MobileCompanion() {
     },
     onError: (error) => setNotice(error.message),
   });
+  const attachArchive = trpc.documents.attachArchive.useMutation({
+    onSuccess: () => {
+      setNotice("Geçmiş PDF merkezi Müşteri Dijital Arşivi’ne silinemez belge olarak eklendi.");
+      setArchiveDraft({ assignedUserId: "", primaryClientId: "", relatedClientId: "none", relatedRole: "tenant", documentType: "rental", documentDate: "", historicalActivity: "", archiveNote: "" });
+      if (archiveFileInputRef.current) archiveFileInputRef.current.value = "";
+      void Promise.all([documents.refetch(), archiveDocuments.refetch()]);
+    },
+    onError: (error) => setNotice(error.message),
+  });
 
   const isManager = user?.role === "admin";
   const upcoming = useMemo(() => (obligations.data ?? []).filter((item) => ["planned", "due", "overdue"].includes(item.status)).slice(0, 5), [obligations.data]);
   const uploadableContracts = useMemo(() => isManager ? [] : (contracts.data ?? []).filter((item) => ["signed", "active"].includes(item.status)), [contracts.data, isManager]);
+  const activeDocuments = useMemo(() => (documents.data ?? []).filter((document) => document.category === "activeSigned"), [documents.data]);
 
   const refresh = () => {
-    void Promise.all([summary.refetch(), clients.refetch(), properties.refetch(), contracts.refetch(), obligations.refetch(), documents.refetch()]);
+    void Promise.all([summary.refetch(), clients.refetch(), properties.refetch(), contracts.refetch(), obligations.refetch(), documents.refetch(), archiveDocuments.refetch()]);
   };
 
   const handlePdf = (file?: File) => {
@@ -90,6 +104,18 @@ export default function MobileCompanion() {
     if (!invalidationId || invalidationConfirmation !== "GEÇERSİZ KIL") return;
     if (!window.confirm("Belge silinmeyecek ancak danışmana kapatılacak ve denetim izine manager gerekçesi yazılacak. Devam edilsin mi?")) return;
     invalidateDocument.mutate({ id: invalidationId, reason: invalidationReason, confirmationText: "GEÇERSİZ KIL" });
+  };
+
+  const handleArchivePdf = (file?: File) => {
+    setNotice(null);
+    if (!file || !archiveDraft.assignedUserId || !archiveDraft.primaryClientId || !archiveDraft.historicalActivity.trim()) { setNotice("Arşiv için danışman, ana müşteri, geçmiş işlem özeti ve PDF seçimi zorunludur."); return; }
+    if (file.size > 12 * 1024 * 1024 || (!file.type.includes("pdf") && !file.name.toLowerCase().endsWith(".pdf"))) { setNotice("Yalnız 12 MB altındaki PDF belgeleri geçmiş arşive eklenebilir."); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") { setNotice("Arşiv PDF’i okunamadı."); return; }
+      attachArchive.mutate({ assignedUserId: Number(archiveDraft.assignedUserId), primaryClientId: Number(archiveDraft.primaryClientId), relatedClients: archiveDraft.relatedClientId === "none" ? [] : [{ clientId: Number(archiveDraft.relatedClientId), partyRole: archiveDraft.relatedRole }], documentType: archiveDraft.documentType, documentDate: archiveDraft.documentDate ? new Date(`${archiveDraft.documentDate}T00:00:00`) : undefined, historicalActivity: archiveDraft.historicalActivity, archiveNote: archiveDraft.archiveNote || undefined, originalFileName: file.name, pdfBase64: reader.result });
+    };
+    reader.readAsDataURL(file);
   };
 
   if (loading) return <main className="min-h-screen bg-[#f7f7f4] p-6 text-center text-sm text-[#60706b]">Güvenli mobil oturum hazırlanıyor…</main>;
@@ -152,8 +178,20 @@ export default function MobileCompanion() {
           {notice && <p className="mt-3 rounded-lg bg-[#eef5ef] p-2 text-xs text-[#355b4e]">{notice}</p>}
         </section>}
         <section className="rounded-2xl border border-[#dce7df] bg-white p-4">
-          <h2 className="font-serif text-xl">{isManager ? "Yetkili belge kayıtları" : "Dosyamdaki belgeler"}</h2>
-          {documents.data?.length ? <div className="mt-3 divide-y divide-[#e4ebe6]">{documents.data.map((document) => <div key={document.id} className="py-3"><div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#314842]">{document.originalFileName}</p><p className={`mt-1 text-xs ${document.invalidatedAt ? "text-[#a64c38]" : "text-[#71817b]"}`}>{formatDate(document.createdAt)} · {document.invalidatedAt ? "Geçersiz kılındı — dosya saklanıyor" : "Silinemez belge"}</p></div>{(!document.invalidatedAt || isManager) && <button type="button" onClick={() => void openDocument(document.id)} className="shrink-0 rounded-lg border border-[#bdcfbf] px-3 py-2 text-xs font-semibold text-[#285348]">Aç</button>}</div>{isManager && !document.invalidatedAt && <button type="button" onClick={() => { setInvalidationId(document.id); setInvalidationReason(""); setInvalidationConfirmation(""); }} className="mt-2 flex items-center gap-1 text-xs font-semibold text-[#9a503c]"><AlertTriangle className="h-3.5 w-3.5" />Geçersiz kıl</button>}{isManager && invalidationId === document.id && <div className="mt-3 rounded-xl border border-[#eed5cc] bg-[#fff8f5] p-3"><p className="text-xs font-semibold text-[#7c4131]">Silme yoktur. Gerekçe ve ikinci teyit zorunludur.</p><textarea value={invalidationReason} onChange={(event) => setInvalidationReason(event.target.value)} placeholder="Geçersiz kılma gerekçesi (en az 20 karakter)" className="mt-2 min-h-20 w-full rounded-lg border border-[#e6c8bd] bg-white p-2 text-xs" /><input value={invalidationConfirmation} onChange={(event) => setInvalidationConfirmation(event.target.value)} placeholder="GEÇERSİZ KIL yazın" className="mt-2 h-10 w-full rounded-lg border border-[#e6c8bd] bg-white px-2 text-xs" /><button type="button" disabled={invalidateDocument.isPending || invalidationReason.trim().length < 20 || invalidationConfirmation !== "GEÇERSİZ KIL"} onClick={submitInvalidation} className="mt-2 w-full rounded-lg bg-[#8f4839] px-3 py-2 text-xs font-semibold text-white disabled:bg-[#c9a9a0]">{invalidateDocument.isPending ? "Kaydediliyor…" : "Silmeden geçersiz kıl"}</button></div>}</div>)}</div> : <p className="mt-3 text-sm text-[#71817b]">Yetkili olduğunuz merkezi imzalı belge bulunmuyor.</p>}
+          <h2 className="font-serif text-xl">{isManager ? "Aktif imzalı belge kayıtları" : "Aktif imzalı belgelerim"}</h2>
+          {activeDocuments.length ? <div className="mt-3 divide-y divide-[#e4ebe6]">{activeDocuments.map((document) => <div key={document.id} className="py-3"><div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#314842]">{document.originalFileName}</p><p className={`mt-1 text-xs ${document.invalidatedAt ? "text-[#a64c38]" : "text-[#71817b]"}`}>{formatDate(document.createdAt)} · {document.invalidatedAt ? "Geçersiz kılındı — dosya saklanıyor" : "Silinemez aktif belge"}</p></div>{(!document.invalidatedAt || isManager) && <button type="button" onClick={() => void openDocument(document.id)} className="shrink-0 rounded-lg border border-[#bdcfbf] px-3 py-2 text-xs font-semibold text-[#285348]">Aç</button>}</div>{isManager && !document.invalidatedAt && <button type="button" onClick={() => { setInvalidationId(document.id); setInvalidationReason(""); setInvalidationConfirmation(""); }} className="mt-2 flex items-center gap-1 text-xs font-semibold text-[#9a503c]"><AlertTriangle className="h-3.5 w-3.5" />Geçersiz kıl</button>}{isManager && invalidationId === document.id && <div className="mt-3 rounded-xl border border-[#eed5cc] bg-[#fff8f5] p-3"><p className="text-xs font-semibold text-[#7c4131]">Silme yoktur. Gerekçe ve ikinci teyit zorunludur.</p><textarea value={invalidationReason} onChange={(event) => setInvalidationReason(event.target.value)} placeholder="Geçersiz kılma gerekçesi (en az 20 karakter)" className="mt-2 min-h-20 w-full rounded-lg border border-[#e6c8bd] bg-white p-2 text-xs" /><input value={invalidationConfirmation} onChange={(event) => setInvalidationConfirmation(event.target.value)} placeholder="GEÇERSİZ KIL yazın" className="mt-2 h-10 w-full rounded-lg border border-[#e6c8bd] bg-white px-2 text-xs" /><button type="button" disabled={invalidateDocument.isPending || invalidationReason.trim().length < 20 || invalidationConfirmation !== "GEÇERSİZ KIL"} onClick={submitInvalidation} className="mt-2 w-full rounded-lg bg-[#8f4839] px-3 py-2 text-xs font-semibold text-white disabled:bg-[#c9a9a0]">{invalidateDocument.isPending ? "Kaydediliyor…" : "Silmeden geçersiz kıl"}</button></div>}</div>)}</div> : <p className="mt-3 text-sm text-[#71817b]">Yetkili olduğunuz aktif imzalı belge bulunmuyor.</p>}
+        </section>
+        {isManager && <section className="rounded-2xl border border-[#dce7df] bg-white p-4">
+          <div className="flex items-center gap-2"><Upload className="h-4 w-4 text-[#a17b43]" /><h2 className="font-serif text-xl">Geçmiş PDF arşive ekle</h2></div>
+          <p className="mt-2 text-xs leading-5 text-[#697a74]">Yalnız bitmiş/geçmiş işlemler eklenir. Aktif kira PDF’leri Aktif İmzalı Belgeler akışında kalır. Bu formdaki açık manager işlemi dışında PDF yüklenmez.</p>
+          <div className="mt-3 grid gap-2"><select aria-label="Arşiv danışmanı" value={archiveDraft.assignedUserId} onChange={(event) => setArchiveDraft({ ...archiveDraft, assignedUserId: event.target.value })} className="h-11 w-full rounded-xl border border-[#d2dfd7] bg-white px-3 text-sm"><option value="">Portföy danışmanını seçin</option>{(team.data ?? []).filter((member) => member.status === "active").map((member) => <option key={member.userId} value={member.userId}>{member.name || member.consultantCode || `Kullanıcı #${member.userId}`}</option>)}</select><select aria-label="Arşiv ana müşterisi" value={archiveDraft.primaryClientId} onChange={(event) => setArchiveDraft({ ...archiveDraft, primaryClientId: event.target.value, relatedClientId: event.target.value === archiveDraft.relatedClientId ? "none" : archiveDraft.relatedClientId })} className="h-11 w-full rounded-xl border border-[#d2dfd7] bg-white px-3 text-sm"><option value="">Ana müşteriyi seçin</option>{(clients.data ?? []).map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select><div className="grid grid-cols-2 gap-2"><select aria-label="Arşiv ilgili tarafı" value={archiveDraft.relatedClientId} onChange={(event) => setArchiveDraft({ ...archiveDraft, relatedClientId: event.target.value })} className="h-11 rounded-xl border border-[#d2dfd7] bg-white px-3 text-sm"><option value="none">İlgili taraf yok</option>{(clients.data ?? []).filter((client) => String(client.id) !== archiveDraft.primaryClientId).map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select><select aria-label="Arşiv ilgili taraf rolü" value={archiveDraft.relatedRole} onChange={(event) => setArchiveDraft({ ...archiveDraft, relatedRole: event.target.value as "propertyOwner" | "tenant" | "other" })} className="h-11 rounded-xl border border-[#d2dfd7] bg-white px-3 text-sm"><option value="propertyOwner">Mülk sahibi</option><option value="tenant">Kiracı</option><option value="other">Diğer taraf</option></select></div><div className="grid grid-cols-2 gap-2"><select aria-label="Arşiv belge türü" value={archiveDraft.documentType} onChange={(event) => setArchiveDraft({ ...archiveDraft, documentType: event.target.value as "authority" | "rental" | "sales" | "appendix" | "other" })} className="h-11 rounded-xl border border-[#d2dfd7] bg-white px-3 text-sm"><option value="rental">Kira sözleşmesi</option><option value="authority">Yetki sözleşmesi</option><option value="sales">Satış sözleşmesi</option><option value="appendix">Sözleşme eki</option><option value="other">Diğer eski belge</option></select><input aria-label="Arşiv belge tarihi" type="date" value={archiveDraft.documentDate} onChange={(event) => setArchiveDraft({ ...archiveDraft, documentDate: event.target.value })} className="h-11 rounded-xl border border-[#d2dfd7] bg-white px-3 text-sm" /></div><textarea value={archiveDraft.historicalActivity} onChange={(event) => setArchiveDraft({ ...archiveDraft, historicalActivity: event.target.value })} placeholder="Geçmiş işlem özeti *" className="min-h-20 w-full rounded-xl border border-[#d2dfd7] bg-white p-3 text-sm" /><textarea value={archiveDraft.archiveNote} onChange={(event) => setArchiveDraft({ ...archiveDraft, archiveNote: event.target.value })} placeholder="Arşiv notu (opsiyonel)" className="min-h-16 w-full rounded-xl border border-[#d2dfd7] bg-white p-3 text-sm" /><input ref={archiveFileInputRef} type="file" accept="application/pdf,.pdf" className="block w-full text-xs" onChange={(event) => handleArchivePdf(event.target.files?.[0])} /></div>
+          <button type="button" disabled={attachArchive.isPending || !archiveDraft.assignedUserId || !archiveDraft.primaryClientId || !archiveDraft.historicalActivity.trim()} onClick={() => archiveFileInputRef.current?.click()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#173e39] px-4 py-3 text-sm font-semibold text-white disabled:bg-[#8ca39b]"><Upload className="h-4 w-4" />{attachArchive.isPending ? "Arşivleniyor…" : "Geçmiş PDF’i silinemez arşive ekle"}</button>
+          {notice && <p className="mt-3 rounded-lg bg-[#eef5ef] p-2 text-xs text-[#355b4e]">{notice}</p>}
+        </section>}
+        <section className="rounded-2xl border border-[#dce7df] bg-white p-4">
+          <div className="flex items-center gap-2"><Paperclip className="h-4 w-4 text-[#a17b43]" /><h2 className="font-serif text-xl">Müşteri Dijital Arşivi</h2></div>
+          <p className="mt-2 text-xs leading-5 text-[#697a74]">Geçmiş veya bitmiş işlemlere ait belgeler aktif sözleşme, vade ve tahsilat kayıtlarından ayrıdır; eski tarihli belge önce görünür.</p>
+          {archiveDocuments.data?.length ? <div className="mt-3 divide-y divide-[#e4ebe6]">{archiveDocuments.data.map((document) => <div key={document.id} className="py-3"><div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#314842]">{document.originalFileName}</p><p className="mt-1 text-xs text-[#71817b]">{formatDate(document.documentDate)} · {document.documentType || "Eski belge"} · Silinemez arşiv</p><p className="mt-1 text-xs text-[#526b62]">{document.parties.map((party) => party.name || `Müşteri #${party.clientId}`).join(" / ")}</p><p className="mt-1 line-clamp-2 text-xs text-[#71817b]">{document.historicalActivity}</p></div><button type="button" onClick={() => void openDocument(document.id)} className="shrink-0 rounded-lg border border-[#bdcfbf] px-3 py-2 text-xs font-semibold text-[#285348]">Aç</button></div></div>)}</div> : <p className="mt-3 text-sm text-[#71817b]">Yetkili olduğunuz geçmiş müşteri arşiv belgesi bulunmuyor.</p>}
         </section>
       </>}
     </section>

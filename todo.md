@@ -523,7 +523,7 @@
 - [x] Olası manager istisnasını gerekçe, çift doğrulama ve silinmeyen denetim iziyle ayrı belge geçersiz kılma sürecine bağla; dosyayı iz bırakmadan yok etme
 - [x] Geçiş yılı offline IndexedDB/manuel merge modelinden merkezi sunucu veri modeline geçişte müşteri, portföy, sözleşme, vade, aktif imzalı belge ve arşiv metadata eşleme planını çıkar
 - [ ] Danışmanların Android/iOS uygulamasından yalnız kendi müşteri, portföy, sözleşme, talep ve gündem bilgilerine güvenli erişeceği merkezi mobil rol matrisi ile oturum modelini tasarla
-- [ ] Merkezi API ve S3 belge depolama üzerinde aktif imzalı PDF ile geçmiş Müşteri Dijital Arşivi erişimini, yükleme ve denetim izini uygulamaya hazırla
+- [x] Merkezi API ve S3 belge depolama üzerinde aktif imzalı PDF ile geçmiş Müşteri Dijital Arşivi erişimini, yükleme ve denetim izini uygulamaya hazırla
 - [x] Global 1881 görsel dilini koruyan Android/iOS danışman uygulaması için ana ekran, müşteri/portföy, gündem, talep, belge ve bildirim kapsamını onayla; onaylanan ilk kapsamda mobil web uygulamasını geliştir
 - [ ] Offline geçiş modelinden bağımsız, danışmanların ofis dışından aynı güncel verilere erişeceği merkezi online çalışma modelini uygula; telefon denemesinde ayrı cihaz verisi/manuel merge kullanma
 - [x] Sahibinin Android/iOS telefonunda test edebileceği Global 1881 mobil danışman uygulaması için güvenli oturum, canlı gündem, müşteri/portföy, sözleşme görünümü, belge erişimi ve rol gizliliği MVP’sini geliştir
