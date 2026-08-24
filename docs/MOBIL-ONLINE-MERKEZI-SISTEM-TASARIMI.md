@@ -47,3 +47,15 @@ Kira/satış sözleşmesinin tüm uzun formu ve muhasebe tahsilat girişi, telef
 Önerilen kalıcı adres `ofis.global1881.com` olur. Bu alt alan adı için yalnız yeni DNS yönlendirmesi eklenir; mevcut `www` ve ana alan adı kayıtları değiştirilmez. Hostinger web hosting hizmeti kesilse bile merkezi uygulama verisi kaybolmaz. Etki, DNS kaydının yönetimi kaybedilirse mobil adresin çözülmemesiyle sınırlıdır.
 
 > Süreklilik kuralı: Alan adı sahibinin kontrolündeki ayrı DNS yönetimi, yönetici erişimi yedeği ve yayımlanmış bir geçici erişim adresi dokümante edilir. Böylece bir hosting veya yönetici hesabı erişilemez olsa bile veri/uygulama taşınabilir kalır; yalnız alan adı yönlendirmesi yeniden bağlanır.
+
+### Uygulanacak DNS süreklilik prosedürü
+
+| Kontrol | Uygulama | Sorumlu | Kabul kanıtı |
+|---|---|---|---|
+| Ayrı alt alan adı | Yalnız `ofis.global1881.com` için yeni kayıt oluşturulur; ana alan adı ve WordPress `A`/`www` kayıtlarına dokunulmaz | Alan adı yöneticisi | DNS Zone ekranı ve kayıt değişiklik günlüğü |
+| İki yönetici erişimi | Alan adı/DNS hesabında sahibin yanında ikinci, yetkili bir ofis yöneticisi tanımlanır | Alan adı sahibi | İkinci yönetici davetinin kabul edildiği ekran |
+| Kayıt envanteri | `ofis` kaydının türü, hedefi, oluşturma tarihi ve doğrulama notu şifre içermeyen ofis kaydına yazılır | Broker manager | Güncel DNS envanteri |
+| Yedek erişim | Geçici teknik erişim adresi yalnız tanı/aktarım amacıyla dokümante edilir; müşteri ve danışman dağıtımında kalıcı özel alan adı kullanılır | Teknik sorumlu | HTTPS kabul notu |
+| Hizmet taşıma | Merkezi uygulama sağlayıcısı değişirse önce yeni hedef doğrulanır, sonra yalnız `ofis` DNS kaydı yönlendirilir | Alan adı yöneticisi + teknik sorumlu | Yeni HTTPS kontrolü, ana WordPress alan adı değişmeden kalır |
+
+Bu prosedür uygulanmadan DNS bilgisi veya abonelik kontrolü paylaşıma açılmaz. Hostinger erişimi geri geldiğinde ilk yapılacak iş, mevcut WordPress kayıtlarını değiştirmeden yalnız bu prosedürün ilk iki satırını tamamlamaktır.
