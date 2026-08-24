@@ -22,7 +22,7 @@ import { isUpcomingEvacuation } from "@/lib/offlineReports";
 import ManifestPreviewRow from "@/components/ManifestPreviewRow";
 import { URLA_NEIGHBORHOODS, titleCaseTurkish } from "@/lib/urlaNeighborhoods";
 import { presentOfflineRecord } from "@/lib/offlineRecordPresentation";
-import { assignOfflineAccessRole, canViewFullOfflineContract, getOfflineAccessRole, type OfflineAccessRole } from "@/lib/offlineContractAccess";
+import { assignOfflineAccessRole, canViewFullOfflineContract, getOfflineAccessRole, maskUnauthorizedOfficeRecord, type OfflineAccessRole } from "@/lib/offlineContractAccess";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 import { formatTurkishDate, formatTurkishDateTime } from "@/lib/turkishDate";
 
@@ -52,13 +52,7 @@ export default function OfflineWorkspace() {
   const contractAccess = { userId, role: accessRole, managerSessionActive } as const;
 
   const visibleRecords = records.filter((record) => reportFilter === "all" ? true : reportFilter === "evacuationUpcoming" ? isUpcomingEvacuation(record) : record.entity === reportFilter);
-  const presentedVisibleRecords = visibleRecords.map((record) => {
-    if (canViewFullOfflineContract(record, contractAccess)) return record;
-    if (record.entity === "contract") return { ...record, title: "Başka danışmana ait sözleşme", details: "Malik ve sözleşme bilgileri gizli. Belge önizlemesi ve yazdırma izni yok." };
-    if (record.entity === "client") return { ...record, title: "Başka danışmana ait müşteri", details: "Ad, iletişim ve kimlik bilgileri gizli." };
-    if (record.entity === "property") return { ...record, title: "Başka danışmana ait portföy", details: "Adres ve malik bağlantısı gizli." };
-    return record;
-  });
+  const presentedVisibleRecords = visibleRecords.map((record) => maskUnauthorizedOfficeRecord(record, contractAccess));
   const upcomingEvacuations = records.filter(isUpcomingEvacuation).sort((a, b) => new Date(a.noticeDate ?? a.dueDate ?? 0).getTime() - new Date(b.noticeDate ?? b.dueDate ?? 0).getTime());
   const evacuationCount = records.filter((record) => record.entity === "evacuation").length;
   const pendingApprovalCount = records.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "pending").length;

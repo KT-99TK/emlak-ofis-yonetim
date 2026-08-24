@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canViewFullOfflineContract, maskedOwnerSummary } from "./offlineContractAccess";
+import { canViewFullOfflineContract, maskedOwnerSummary, maskUnauthorizedOfficeRecord } from "./offlineContractAccess";
 
 const contract = { userId: "danisman-a" };
 
@@ -13,5 +13,13 @@ describe("offline contract access", () => {
   it("denies a different consultant access to a full contract", () => {
     expect(canViewFullOfflineContract(contract, { userId: "danisman-b", role: "consultant", managerSessionActive: false })).toBe(false);
     expect(maskedOwnerSummary("Ayşe Malik")).toBe("A••• M••••");
+  });
+
+  it("masks another consultant's contract, client and property summaries without masking authorized roles", () => {
+    const context = { userId: "danisman-b", role: "consultant" as const, managerSessionActive: false };
+    expect(maskUnauthorizedOfficeRecord({ entity: "contract", userId: "danisman-a", title: "Ayşe Malik kira sözleşmesi", details: "Adres ve TCKN" }, context)).toMatchObject({ title: "Başka danışmana ait sözleşme", details: expect.stringContaining("gizli") });
+    expect(maskUnauthorizedOfficeRecord({ entity: "client", userId: "danisman-a", title: "Ayşe Malik", details: "Telefon" }, context)).toMatchObject({ title: "Başka danışmana ait müşteri", details: expect.stringContaining("gizli") });
+    expect(maskUnauthorizedOfficeRecord({ entity: "property", userId: "danisman-a", title: "Urla adres", details: "Malik bağlantısı" }, context)).toMatchObject({ title: "Başka danışmana ait portföy", details: expect.stringContaining("gizli") });
+    expect(maskUnauthorizedOfficeRecord({ entity: "client", userId: "danisman-a", title: "Ayşe Malik", details: "Telefon" }, { ...context, role: "officeAssistant" })).toMatchObject({ title: "Ayşe Malik", details: "Telefon" });
   });
 });

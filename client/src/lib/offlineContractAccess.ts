@@ -31,6 +31,14 @@ export function isOfficeRecordAccessAllowed(record: Pick<OfflineRecord, "userId"
   return canViewFullOfflineContract(record, context);
 }
 
+export function maskUnauthorizedOfficeRecord<T extends Pick<OfflineRecord, "entity" | "title" | "details" | "userId">>(record: T, context: OfflineContractAccessContext): T {
+  if (canViewFullOfflineContract(record, context)) return record;
+  if (record.entity === "contract") return { ...record, title: "Başka danışmana ait sözleşme", details: "Malik ve sözleşme bilgileri gizli. Belge önizlemesi ve yazdırma izni yok." };
+  if (record.entity === "client") return { ...record, title: "Başka danışmana ait müşteri", details: "Ad, iletişim ve kimlik bilgileri gizli." };
+  if (record.entity === "property") return { ...record, title: "Başka danışmana ait portföy", details: "Adres ve malik bağlantısı gizli." };
+  return record;
+}
+
 export function maskedOwnerSummary(ownerName: string) {
   const trimmed = ownerName.trim();
   if (!trimmed) return "Malik bilgisi gizli";
