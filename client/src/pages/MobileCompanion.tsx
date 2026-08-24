@@ -21,6 +21,8 @@ export default function MobileCompanion() {
   const [invalidationReason, setInvalidationReason] = useState("");
   const [invalidationConfirmation, setInvalidationConfirmation] = useState("");
   const [sharingDocumentId, setSharingDocumentId] = useState<number | null>(null);
+  const [cashDraft, setCashDraft] = useState({ movementType: "bankToCash" as "bankToCash" | "cashExpense" | "cashReceipt" | "cashDeposit" | "other", amount: "", counterparty: "", evidenceReference: "", note: "" });
+  const [countedCash, setCountedCash] = useState("");
   const [archiveDraft, setArchiveDraft] = useState({ assignedUserId: "", primaryClientId: "", relatedClientId: "none", relatedRole: "tenant" as "propertyOwner" | "tenant" | "other", documentType: "rental" as "authority" | "rental" | "sales" | "appendix" | "other", documentDate: "", historicalActivity: "", archiveNote: "" });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const archiveFileInputRef = useRef<HTMLInputElement>(null);
@@ -34,6 +36,7 @@ export default function MobileCompanion() {
   const documents = trpc.documents.list.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true });
   const archiveDocuments = trpc.documents.archiveList.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true });
   const team = trpc.team.list.useQuery(undefined, { enabled: isAuthenticated && user?.role === "admin" });
+  const treasury = trpc.treasury.summary.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: true, retry: false });
   const attachDocument = trpc.documents.attachActiveSigned.useMutation({
     onSuccess: () => {
       setNotice("İmzalı PDF merkezi dosyaya silinemez belge olarak eklendi.");
@@ -62,6 +65,9 @@ export default function MobileCompanion() {
     onError: (error) => setNotice(error.message),
   });
   const shareDocumentIntent = trpc.documents.shareIntent.useMutation();
+  const declareCashMovement = trpc.treasury.declareMovement.useMutation({ onSuccess: () => { setCashDraft({ movementType: "bankToCash", amount: "", counterparty: "", evidenceReference: "", note: "" }); setNotice("Kasa hareketi kanıt referansıyla beyan edildi; broker manager doğrulaması bekliyor."); void treasury.refetch(); }, onError: (error) => setNotice(error.message) });
+  const verifyCashMovement = trpc.treasury.verifyMovement.useMutation({ onSuccess: () => { setNotice("Kasa hareketi broker manager tarafından doğrulandı."); void treasury.refetch(); }, onError: (error) => setNotice(error.message) });
+  const closeCashDay = trpc.treasury.closeDay.useMutation({ onSuccess: () => { setNotice("Fizikî kasa sayımı manager tarafından gün sonu kaydına alındı."); setCountedCash(""); void treasury.refetch(); }, onError: (error) => setNotice(error.message) });
 
   const isManager = user?.role === "admin";
   const upcoming = useMemo(() => (obligations.data ?? []).filter((item) => ["planned", "due", "overdue"].includes(item.status)).slice(0, 5), [obligations.data]);
@@ -69,7 +75,7 @@ export default function MobileCompanion() {
   const activeDocuments = useMemo(() => (documents.data ?? []).filter((document) => document.category === "activeSigned"), [documents.data]);
 
   const refresh = () => {
-    void Promise.all([summary.refetch(), clients.refetch(), properties.refetch(), contracts.refetch(), obligations.refetch(), documents.refetch(), archiveDocuments.refetch()]);
+    void Promise.all([summary.refetch(), clients.refetch(), properties.refetch(), contracts.refetch(), obligations.refetch(), documents.refetch(), archiveDocuments.refetch(), treasury.refetch()]);
   };
 
   const handlePdf = (file?: File) => {
@@ -132,6 +138,17 @@ export default function MobileCompanion() {
     invalidateDocument.mutate({ id: invalidationId, reason: invalidationReason, confirmationText: "GEÇERSİZ KIL" });
   };
 
+  const submitCashMovement = () => {
+    const direction = cashDraft.movementType === "bankToCash" || cashDraft.movementType === "cashReceipt" ? "in" : "out";
+    declareCashMovement.mutate({ ...cashDraft, direction, occurredOn: new Date() });
+  };
+
+  const submitCashCount = () => {
+    if (!countedCash.trim()) { setNotice("Gün sonu için fiilî kasa sayım tutarını girin."); return; }
+    if (!window.confirm("Bu fizikî sayım broker manager gün sonu kaydı olarak yazılacak. Devam edilsin mi?")) return;
+    closeCashDay.mutate({ date: new Date(), openingCash: String(treasury.data?.openingCash ?? 0), countedCash, note: "Mobil manager gün sonu kasa sayımı" });
+  };
+
   const handleArchivePdf = (file?: File) => {
     setNotice(null);
     if (!file || !archiveDraft.assignedUserId || !archiveDraft.primaryClientId || !archiveDraft.historicalActivity.trim()) { setNotice("Arşiv için danışman, ana müşteri, geçmiş işlem özeti ve PDF seçimi zorunludur."); return; }
@@ -181,6 +198,14 @@ export default function MobileCompanion() {
           <div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[#a17b43]" /><h2 className="font-serif text-xl">Yaklaşan gündem</h2></div>
           {upcoming.length ? <div className="mt-3 space-y-2">{upcoming.map((item) => <div key={item.id} className="rounded-xl bg-[#f5f8f5] px-3 py-3"><p className="text-sm font-semibold">{item.title}</p><p className="mt-1 text-xs text-[#687a74]">Vade: {formatDate(item.dueDate)} · {item.status === "overdue" ? "Gecikmiş" : "Takipte"}</p></div>)}</div> : <p className="mt-3 text-sm text-[#687a74]">Şu an merkezi kaydınızda gösterilecek yaklaşan vade bulunmuyor.</p>}
         </section>
+        {treasury.data && <section className="rounded-2xl border border-[#d9c99e] bg-[#fffdf7] p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9b7840]">Yalnız ofis asistanı ve broker manager</p><h2 className="mt-1 font-serif text-xl">Günlük Kasa Balansı</h2></div><span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${treasury.data.difference === null || treasury.data.difference === 0 ? "bg-[#e7f0e8] text-[#356149]" : "bg-[#f9e4dd] text-[#934736]"}`}>{treasury.data.difference === null ? "Sayım bekliyor" : treasury.data.difference === 0 ? "Kasa mutabık" : "Kasa farkı var"}</span></div>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-xs"><BalanceLine label="Açılış kasası" value={treasury.data.openingCash} /><BalanceLine label="Banka → kasa" value={treasury.data.bankToCash} positive /><BalanceLine label="Nakit tahsilat" value={treasury.data.cashReceipts} positive /><BalanceLine label="Kasadan ödeme" value={treasury.data.cashExpenses} negative /><BalanceLine label="Beklenen kasa" value={treasury.data.expectedCash} strong /><BalanceLine label="Fiilî sayım" value={treasury.data.countedCash} /></div>
+          <div className="mt-3 rounded-xl bg-[#f4f7f3] p-3 text-xs text-[#49645a]"><p><strong>Kontrol:</strong> {treasury.data.unverifiedCount} doğrulama bekleyen hareket · {treasury.data.evidenceMissingCount} kanıt referansı eksik</p>{treasury.data.difference !== null && <p className="mt-1"><strong>Sayım farkı:</strong> ₺{new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 }).format(treasury.data.difference)}</p>}</div>
+          <details className="mt-3 rounded-xl border border-[#ded6bb] bg-white p-3"><summary className="cursor-pointer text-sm font-semibold text-[#38584c]">Kasa hareketi beyan et</summary><p className="mt-2 text-xs leading-5 text-[#6f7d76]">Fatura veya makbuz numarası zorunludur. Beyan, broker manager doğrulayana kadar bakiyeye girmez.</p><div className="mt-3 grid gap-2"><select value={cashDraft.movementType} onChange={(event) => setCashDraft({ ...cashDraft, movementType: event.target.value as typeof cashDraft.movementType })} className="h-10 rounded-lg border border-[#d9dfd8] bg-white px-2 text-xs"><option value="bankToCash">Bankadan ofis kasasına çekim</option><option value="cashExpense">Kasadan nakit ödeme</option><option value="cashReceipt">Kasaya nakit tahsilat</option><option value="cashDeposit">Kasadan bankaya yatırma</option><option value="other">Diğer kasa hareketi</option></select><input inputMode="decimal" value={cashDraft.amount} onChange={(event) => setCashDraft({ ...cashDraft, amount: event.target.value })} placeholder="Tutar (TL)" className="h-10 rounded-lg border border-[#d9dfd8] px-2 text-xs" /><input value={cashDraft.counterparty} onChange={(event) => setCashDraft({ ...cashDraft, counterparty: event.target.value })} placeholder="Ödeme yapılan / tahsil eden kişi veya firma" className="h-10 rounded-lg border border-[#d9dfd8] px-2 text-xs" /><input value={cashDraft.evidenceReference} onChange={(event) => setCashDraft({ ...cashDraft, evidenceReference: event.target.value })} placeholder="Fatura, makbuz veya banka dekont no *" className="h-10 rounded-lg border border-[#d9dfd8] px-2 text-xs" /><textarea value={cashDraft.note} onChange={(event) => setCashDraft({ ...cashDraft, note: event.target.value })} placeholder="Kısa açıklama (opsiyonel)" className="min-h-16 rounded-lg border border-[#d9dfd8] p-2 text-xs" /><button type="button" disabled={declareCashMovement.isPending || !cashDraft.amount || !cashDraft.counterparty || !cashDraft.evidenceReference} onClick={submitCashMovement} className="rounded-lg bg-[#173e39] px-3 py-2 text-xs font-semibold text-white disabled:bg-[#93aaa1]">{declareCashMovement.isPending ? "Kaydediliyor…" : "Kanıtla birlikte beyan et"}</button></div></details>
+          {treasury.data.movements.length > 0 && <div className="mt-3 divide-y divide-[#e9e5d6]">{treasury.data.movements.slice(0, 6).map((movement) => <div key={movement.id} className="flex items-center justify-between gap-2 py-2 text-xs"><div className="min-w-0"><p className="truncate font-semibold text-[#38584c]">{movement.movementType === "bankToCash" ? "Banka → kasa" : movement.movementType === "cashExpense" ? "Nakit ödeme" : movement.movementType === "cashReceipt" ? "Nakit tahsilat" : movement.movementType === "cashDeposit" ? "Kasadan bankaya" : "Diğer hareket"} · ₺{new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 }).format(Number(movement.amount))}</p><p className="mt-0.5 truncate text-[#77847f]">{movement.counterparty} · Kanıt: {movement.evidenceReference}</p></div>{isManager && movement.status === "declared" ? <button type="button" disabled={verifyCashMovement.isPending} onClick={() => verifyCashMovement.mutate({ id: movement.id })} className="shrink-0 rounded-lg border border-[#b9cdbd] px-2 py-1.5 font-semibold text-[#345c4d]">Doğrula</button> : <span className="shrink-0 text-[10px] font-semibold text-[#8a7042]">{movement.status === "declared" ? "Bekliyor" : "Doğrulandı"}</span>}</div>)}</div>}
+          {isManager && <details className="mt-3 rounded-xl border border-[#cfddcf] bg-[#f7fbf7] p-3"><summary className="cursor-pointer text-sm font-semibold text-[#345c4d]">Gün sonu fizikî kasa sayımı</summary><p className="mt-2 text-xs text-[#6f7d76]">Sayım yalnız broker manager tarafından kapanış kaydına alınır.</p><div className="mt-2 flex gap-2"><input inputMode="decimal" value={countedCash} onChange={(event) => setCountedCash(event.target.value)} placeholder="Fiilî kasa (TL)" className="h-10 min-w-0 flex-1 rounded-lg border border-[#c9d8ca] bg-white px-2 text-xs" /><button type="button" disabled={closeCashDay.isPending || !countedCash} onClick={submitCashCount} className="rounded-lg bg-[#315d4e] px-3 text-xs font-semibold text-white disabled:bg-[#9eb6a6]">Kapat</button></div></details>}
+        </section>}
         {isManager && <section className="rounded-2xl bg-[#eaf2ed] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#507268]">Yönetim notu</p><p className="mt-2 text-sm leading-6 text-[#37574e]">Bu görünüm yalnız merkezi sunucudaki güncel veriyi gösterir. Danışmanların müşteri gizliliği sunucu tarafında korunur.</p></section>}
       </>}
 
@@ -224,6 +249,11 @@ export default function MobileCompanion() {
 
     <nav className="fixed inset-x-0 bottom-0 border-t border-[#dce5df] bg-white/95 px-3 pb-4 pt-2 backdrop-blur"><div className="mx-auto flex max-w-xl items-center justify-between gap-1"><Tab label="Gündem" active={section === "gundem"} onClick={() => setSection("gundem")} icon={<BellRing />} /><Tab label="Kayıtlar" active={section === "kayitlar"} onClick={() => setSection("kayitlar")} icon={<UsersRound />} /><Tab label="Sözleşme" active={section === "sozlesmeler"} onClick={() => setSection("sozlesmeler")} icon={<FileText />} /><Tab label="Belgeler" active={section === "belgeler"} onClick={() => setSection("belgeler")} icon={<Paperclip />} /><button type="button" onClick={() => void logout()} className="flex flex-col items-center gap-1 px-2 py-1 text-[10px] font-medium text-[#8a6051]"><LogOut className="h-5 w-5" />Çıkış</button></div></nav>
   </main>;
+}
+
+function BalanceLine({ label, value, positive, negative, strong }: { label: string; value: number | null; positive?: boolean; negative?: boolean; strong?: boolean }) {
+  const amount = value === null ? "—" : `₺${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 }).format(value)}`;
+  return <div className={`rounded-lg border px-2.5 py-2 ${strong ? "border-[#c6ae76] bg-[#fff9e8]" : "border-[#e5e8e2] bg-white"}`}><p className="text-[10px] text-[#71817b]">{label}</p><p className={`mt-1 text-sm font-semibold ${positive ? "text-[#34705a]" : negative ? "text-[#a05643]" : "text-[#314842]"}`}>{positive && value !== null ? "+" : negative && value !== null ? "−" : ""}{amount}</p></div>;
 }
 
 function Metric({ label, value, icon }: { label: string; value: string | number | undefined; icon: ReactNode }) {

@@ -17,5 +17,9 @@ describe("MobileCompanion customer digital archive", () => {
     expect(source).toContain("navigator.share(shareData)");
     expect(source).toContain("Cihaz paylaşım menüsü açıldı; alıcı bilgisi sistemde saklanmadı.");
     expect(source).not.toContain("https://wa.me/");
+    expect(source).toContain("Günlük Kasa Balansı");
+    expect(source).toContain("Banka → kasa");
+    expect(source).toContain("Fatura, makbuz veya banka dekont no *");
+    expect(source).toContain("Gün sonu fizikî kasa sayımı");
   });
 });

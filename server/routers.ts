@@ -4,7 +4,7 @@ import { parse as parseCookieHeader } from "cookie";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createCentralArchiveDocument, createClient, createContract, createContractDocument, decideOwnerApproval, getCentralAccessScope, getContractDocumentForUser, getContractForAssignedUser, invalidateContractDocument, recordContractDocumentShareIntent, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, setOfficeAssistantAssignments, transitionContract } from "./db";
+import { closeTreasuryCashDay, createCentralArchiveDocument, createClient, createContract, createContractDocument, createTreasuryCashMovement, decideOwnerApproval, getCentralAccessScope, getContractDocumentForUser, getContractForAssignedUser, getTreasuryCashBalance, invalidateContractDocument, recordContractDocumentShareIntent, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, setOfficeAssistantAssignments, transitionContract, verifyTreasuryCashMovement } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -131,6 +131,20 @@ export const appRouter = router({
   ledger: router({
     list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listLedger(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
     create: protectedProcedure.input(z.object({ description: z.string().min(2), amount: z.string().min(1), entryType: z.enum(["income", "expense", "receivable", "payable"]) })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); if (scope.officeRole === "office_assistant") throw new Error("Ofis asistanı tahsilat veya gider kaydı oluşturamaz."); return createLedger({ ...input, assignedUserId: ctx.user.id }); }),
+  }),
+  treasury: router({
+    summary: protectedProcedure.input(z.object({ date: z.coerce.date().optional() }).optional()).query(async ({ ctx, input }) => {
+      const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+      if (!scope.isManager && scope.officeRole !== "office_assistant") throw new Error("Kasa balansı yalnız broker manager ve ofis asistanı için görünür.");
+      return getTreasuryCashBalance(input?.date ?? new Date());
+    }),
+    declareMovement: protectedProcedure.input(z.object({ movementType: z.enum(["bankToCash", "cashExpense", "cashReceipt", "cashDeposit", "other"]), direction: z.enum(["in", "out"]), amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Tutar sayı olmalıdır"), occurredOn: z.coerce.date(), counterparty: z.string().min(2).max(180), evidenceReference: z.string().min(2).max(180), note: z.string().max(1000).optional() })).mutation(async ({ ctx, input }) => {
+      const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+      if (!scope.isManager && scope.officeRole !== "office_assistant") throw new Error("Kasa hareketi yalnız broker manager veya ofis asistanı tarafından beyan edilebilir.");
+      return createTreasuryCashMovement({ ...input, enteredByUserId: ctx.user.id });
+    }),
+    verifyMovement: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(({ ctx, input }) => verifyTreasuryCashMovement(input.id, ctx.user.id)),
+    closeDay: adminProcedure.input(z.object({ date: z.coerce.date(), openingCash: z.string().regex(/^\d+(\.\d{1,2})?$/), countedCash: z.string().regex(/^\d+(\.\d{1,2})?$/), note: z.string().max(1000).optional() })).mutation(({ ctx, input }) => closeTreasuryCashDay({ ...input, managerUserId: ctx.user.id })),
   }),
   team: router({
     list: adminProcedure.query(() => listTeamMembers()),

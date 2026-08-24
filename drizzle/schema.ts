@@ -130,6 +130,34 @@ export const officeAssistantAssignments = mysqlTable("officeAssistantAssignments
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/** Bankadan çekilip kasaya alınan tutar ile kasadan yapılan ödemelerin dar kapsamlı günlük kontrol kaydı. */
+export const treasuryCashMovements = mysqlTable("treasuryCashMovements", {
+  id: int("id").autoincrement().primaryKey(),
+  movementType: mysqlEnum("movementType", ["bankToCash", "cashExpense", "cashReceipt", "cashDeposit", "other"]).notNull(),
+  direction: mysqlEnum("direction", ["in", "out"]).notNull(),
+  amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
+  occurredOn: timestamp("occurredOn").notNull(),
+  counterparty: varchar("counterparty", { length: 180 }).notNull(),
+  evidenceReference: varchar("evidenceReference", { length: 180 }).notNull(),
+  note: text("note"),
+  status: mysqlEnum("status", ["declared", "managerVerified", "reconciled", "voided"]).default("declared").notNull(),
+  enteredByUserId: int("enteredByUserId").notNull(),
+  verifiedByUserId: int("verifiedByUserId"),
+  verifiedAt: timestamp("verifiedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+/** Fizikî sayım ve managerın gün sonu kasa mutabakatı. */
+export const treasuryCashDailyCounts = mysqlTable("treasuryCashDailyCounts", {
+  id: int("id").autoincrement().primaryKey(),
+  controlDate: timestamp("controlDate").notNull(),
+  openingCash: decimal("openingCash", { precision: 14, scale: 2 }).default("0").notNull(),
+  countedCash: decimal("countedCash", { precision: 14, scale: 2 }),
+  closedByUserId: int("closedByUserId").notNull(),
+  managerVerifiedAt: timestamp("managerVerifiedAt").defaultNow().notNull(),
+  note: text("note"),
+});
+
 export const ledgerEntries = mysqlTable("ledgerEntries", {
   id: int("id").autoincrement().primaryKey(),
   entryType: mysqlEnum("entryType", ["income", "expense", "receivable", "payable"]).notNull(),

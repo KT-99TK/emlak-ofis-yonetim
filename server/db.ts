@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, officeAssistantAssignments, properties, rentalObligations, reminderPreferences, teams, userProfiles, users } from "../drizzle/schema";
+import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, officeAssistantAssignments, properties, rentalObligations, reminderPreferences, teams, treasuryCashDailyCounts, treasuryCashMovements, userProfiles, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -134,4 +134,52 @@ export async function setOfficeAssistantAssignments(input: { assistantUserId: nu
   if (consultantIds.length) await db.insert(officeAssistantAssignments).values(consultantIds.map((consultantUserId) => ({ assistantUserId: input.assistantUserId, consultantUserId, assignedByUserId: input.managerUserId, active: 1 })));
   await db.insert(auditLogs).values({ actorUserId: input.managerUserId, action: "office_assistant_scope_updated", entityType: "userProfile", entityId: input.assistantUserId, summary: `Ofis asistanı kapsamı ${consultantIds.length} danışman kaydı için güncellendi` });
   return true;
+}
+
+export async function listTreasuryCashMovements(date: Date) {
+  const db = await getDb(); if (!db) return [];
+  const day = date.toISOString().slice(0, 10);
+  return db.select().from(treasuryCashMovements).where(sql`date(${treasuryCashMovements.occurredOn}) = ${day}`).orderBy(desc(treasuryCashMovements.createdAt));
+}
+
+export async function getTreasuryCashBalance(date: Date) {
+  const db = await getDb();
+  if (!db) return { date, openingCash: 0, bankToCash: 0, cashReceipts: 0, cashExpenses: 0, cashDeposits: 0, expectedCash: 0, countedCash: null as number | null, difference: null as number | null, unverifiedCount: 0, evidenceMissingCount: 0, movements: [] as Awaited<ReturnType<typeof listTreasuryCashMovements>> };
+  const day = date.toISOString().slice(0, 10);
+  const movements = await listTreasuryCashMovements(date);
+  const previousCounts = await db.select().from(treasuryCashDailyCounts).where(sql`date(${treasuryCashDailyCounts.controlDate}) < ${day}`).orderBy(desc(treasuryCashDailyCounts.controlDate)).limit(1);
+  const todayCount = await db.select().from(treasuryCashDailyCounts).where(sql`date(${treasuryCashDailyCounts.controlDate}) = ${day}`).orderBy(desc(treasuryCashDailyCounts.managerVerifiedAt)).limit(1);
+  const openingCash = Number(previousCounts[0]?.countedCash ?? previousCounts[0]?.openingCash ?? 0);
+  const settled = movements.filter((movement) => ["managerVerified", "reconciled"].includes(movement.status));
+  const total = (type: "bankToCash" | "cashReceipt" | "cashExpense" | "cashDeposit") => settled.filter((movement) => movement.movementType === type).reduce((sum, movement) => sum + Number(movement.amount), 0);
+  const bankToCash = total("bankToCash"); const cashReceipts = total("cashReceipt"); const cashExpenses = total("cashExpense"); const cashDeposits = total("cashDeposit");
+  const expectedCash = openingCash + bankToCash + cashReceipts - cashExpenses - cashDeposits;
+  const countedCash = todayCount[0]?.countedCash === null || todayCount[0]?.countedCash === undefined ? null : Number(todayCount[0].countedCash);
+  return { date, openingCash, bankToCash, cashReceipts, cashExpenses, cashDeposits, expectedCash, countedCash, difference: countedCash === null ? null : countedCash - expectedCash, unverifiedCount: movements.filter((movement) => movement.status === "declared").length, evidenceMissingCount: movements.filter((movement) => !movement.evidenceReference.trim()).length, movements };
+}
+
+export async function createTreasuryCashMovement(input: { movementType: "bankToCash" | "cashExpense" | "cashReceipt" | "cashDeposit" | "other"; direction: "in" | "out"; amount: string; occurredOn: Date; counterparty: string; evidenceReference: string; note?: string; enteredByUserId: number }) {
+  const db = await getDb(); if (!db) return null;
+  const result = await db.insert(treasuryCashMovements).values({ ...input, status: "declared" });
+  const id = Number(result[0].insertId);
+  await db.insert(auditLogs).values({ actorUserId: input.enteredByUserId, action: "treasury_cash_declared", entityType: "treasuryCashMovement", entityId: id, summary: `${input.movementType} kasa hareketi belge referansıyla beyan edildi` });
+  return id;
+}
+
+export async function verifyTreasuryCashMovement(id: number, managerUserId: number) {
+  const db = await getDb(); if (!db) return false;
+  const current = await db.select().from(treasuryCashMovements).where(eq(treasuryCashMovements.id, id)).limit(1);
+  if (!current[0]) throw new Error("Kasa hareketi bulunamadı.");
+  if (current[0].status === "voided") throw new Error("İptal edilmiş kasa hareketi doğrulanamaz.");
+  await db.update(treasuryCashMovements).set({ status: "managerVerified", verifiedByUserId: managerUserId, verifiedAt: new Date() }).where(eq(treasuryCashMovements.id, id));
+  await db.insert(auditLogs).values({ actorUserId: managerUserId, action: "treasury_cash_verified", entityType: "treasuryCashMovement", entityId: id, summary: `${current[0].movementType} kasa hareketi broker manager tarafından doğrulandı` });
+  return true;
+}
+
+export async function closeTreasuryCashDay(input: { date: Date; openingCash: string; countedCash: string; note?: string; managerUserId: number }) {
+  const db = await getDb(); if (!db) return null;
+  const result = await db.insert(treasuryCashDailyCounts).values({ controlDate: input.date, openingCash: input.openingCash, countedCash: input.countedCash, note: input.note, closedByUserId: input.managerUserId, managerVerifiedAt: new Date() });
+  const id = Number(result[0].insertId);
+  await db.insert(auditLogs).values({ actorUserId: input.managerUserId, action: "treasury_cash_day_closed", entityType: "treasuryCashDailyCount", entityId: id, summary: "Gün sonu kasa sayımı broker manager tarafından kaydedildi" });
+  return id;
 }
