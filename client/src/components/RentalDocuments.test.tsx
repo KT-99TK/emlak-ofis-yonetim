@@ -72,8 +72,10 @@ describe("rental documents", () => {
     const subscriptionDetails = { ...details, electricityMeterNo: "ELEK-34017", waterMeterNo: "SU-9821", naturalGasMeterNo: "DOG-4410", daskPolicyNo: "DASK-2026-1881" };
     const contract = renderToStaticMarkup(<RentalContractDocument details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
     const handover = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
-    expect(contract).toContain("DASK poliçe numarası");
+    expect(contract).toContain("Taşınmaz Açık Adresi");
+    expect(contract).toContain("DASK Poliçe No");
     expect(contract).toContain("DASK-2026-1881");
+    expect(contract).not.toContain("mt-3 rounded-md border-2");
     expect(contract).toContain("ELEK-34017");
     expect(contract).toContain("SU-9821");
     expect(contract).toContain("DOG-4410");
