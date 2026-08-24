@@ -50,6 +50,7 @@ button:active { transform: scale(.98); }
 .rental-advisor-trace { width: fit-content; margin-top: 10mm; padding: 1.5mm 2mm; border-top: 1px solid #d8d0bc; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 7.2pt; opacity: .78; }
 .rental-contract-document { max-width: none; margin-left: 0; margin-right: 0; }
 .rental-appendix-document { display: none; margin-top: 8mm; }
+.rental-appendix-document.rental-appendix-preview-visible { display: block; }
 .rental-document-signatures { gap: 0; margin-top: 10mm; border: 1px solid #aab0ae; text-align: left; }
 .rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(3, 1fr); gap: 0; }
 .rental-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #aab0ae; }

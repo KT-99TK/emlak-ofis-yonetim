@@ -23,6 +23,13 @@ describe("rental documents", () => {
     expect(html).toContain("Düzenleme izi · DY · 23.08.2026 · Form: KIR-2026-001");
   });
 
+  it("adds the on-screen preview class only when an appendix is selected for the package", () => {
+    const selected = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={details} contractNo="KIR-2026-001" fontSize="10" screenVisible />);
+    const unselected = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={details} contractNo="KIR-2026-001" fontSize="10" screenVisible={false} />);
+    expect(selected).toContain("rental-appendix-preview-visible");
+    expect(unselected).not.toContain("rental-appendix-preview-visible");
+  });
+
   it("renders each structured fixture item as a numbered row in the independent appendix", () => {
     const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={{ ...details, fixtureItems: [{ id: "f-1", item: "Vestel klima", quantity: "2", condition: "Çalışır, temiz" }, { id: "f-2", item: "Daire anahtarı", quantity: "3", condition: "Teslim edildi" }] }} contractNo="KIR-2026-001" fontSize="10" />);
     expect(html).toContain("Cinsi / Markası");

@@ -447,6 +447,9 @@
 - [x] Kira demirbaş ekini ad, adet, durum ve açıklama sütunlu; satır ekleme/silme destekli dinamik tabloya dönüştür
 - [x] Kefil görünürlüğü ile tahliye, teslim etme, teslim alma ve demirbaş eklerinin yalnız istenen tekil belgede görünmesini test et
 - [ ] Her kira ekinin tek başına yazdırılmasını; offline snapshot, şifreli yedek/merge ve gerçek Windows baskı akışıyla doğrula
+- [x] Sözleşme paketinde işaretlenen Tahliye Taahhütnamesi, Teslim Etme, Teslim Alma ve Demirbaş eklerini ana kira sözleşmesinin hemen altında canlı A4 önizleme olarak göster; işaret kaldırıldığında ilgili önizlemeyi gizle
+- [x] Seçili ek önizlemelerini paket ve tekil yazdırma düğmeleriyle aynı seçim kurallarında UI/bileşen testiyle doğrula
+- [ ] Seçili eklerin ana kira sözleşmesi altında görünmesini ve işaret kaldırılınca gizlenmesini gerçek Windows/Electron ekranında doğrula
 
 ## Urla mahalle ve köy/yerleşim seçicisi
 
