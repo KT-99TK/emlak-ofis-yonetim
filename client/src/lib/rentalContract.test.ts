@@ -14,7 +14,7 @@ describe("offline rental contract calculations", () => {
   });
 
   it("builds a versioned offline rental snapshot with supplied residential conditions", () => {
-    const details = { ...emptyRentalDetails(), ownerName: "Ayşe Malik", tenantName: "Mehmet Kiracı", monthlyRent: "18000", signedByParties: true, signedAt: "2026-08-23", electricityMeterNo: "ELEK-34017", waterMeterNo: "SU-9821", naturalGasMeterNo: "DOG-4410", daskPolicyNo: "DASK-2026-1881" };
+    const details = { ...emptyRentalDetails(), startDate: "2026-08-23", ownerName: "Ayşe Malik", tenantName: "Mehmet Kiracı", monthlyRent: "18000", signedByParties: true, signedAt: "2026-08-23", electricityMeterNo: "ELEK-34017", waterMeterNo: "SU-9821", naturalGasMeterNo: "DOG-4410", daskPolicyNo: "DASK-2026-1881" };
     const snapshot = createOfflineRentalSnapshot(details, " KIR-OF-01 ");
     expect(snapshot.contractNo).toBe("KIR-OF-01");
     expect(snapshot.schema).toBe("global1881-offline-rental-v6");

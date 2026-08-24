@@ -459,3 +459,31 @@
 - [x] Urla mahalle açılır listesinin müşteri talep formu başlık ve alanlarını kapatmadan, opak ve okunaklı biçimde göster
 - [ ] Düzeltilen Urla seçicisini gerçek Windows offline uygulamasında ekran görüntüsüyle doğrula
 - [x] Talep formundaki danışman ve yerel müşteri adlarını Türkçe baş harf kurallarıyla blur anında normalleştir
+
+## Windows A4 mühür varlığı düzeltmesi
+
+- [x] Yetki Sözleşmeleri A4 önizlemesindeki kırık şeffaf mühür görselini Electron `file://` paketinde güvenilir yüklenen yerel varlık yoluna bağla
+- [ ] Yetki A4 mühür varlığını bileşen testi, production paket içeriği denetimi ve gerçek Windows ekran görüntüsüyle doğrula
+
+## Offline sözleşme erişimi ve malik verisi gizliliği
+
+- [ ] Yetki ve kira sözleşmelerinde sözleşme sahibi/atanmış danışman, broker, ofis asistanı ve diğer danışman için yazılı erişim matrisi oluştur
+- [ ] Sözleşme sahibi dışındaki danışmanların Yetki/Kira A4 önizlemesini ve yazdırma yolunu teknik olarak engelle; broker ve ofis asistanı için yetkili görüntülemeyi koru
+- [ ] Yetkisiz danışman listelerinde malik adı, kimlik/VKN, telefon ve adresi geri döndürülemez maskeli özet olarak göster; tam müşteri/sözleşme snapshot’ını istemciye açma
+- [ ] Rol ve sahiplik kurallarını Yetki, Kira, Benim Sözleşmelerim, kayıt listeleri ve yazdırma akışlarında birim/UI testleriyle doğrula
+- [ ] Malik verisi gizlilik kuralını danışman, sözleşme sahibi, broker ve ofis asistanı Windows/Electron senaryolarıyla kabul et
+
+## Offline Windows arayüz standardı — sol menü, form yüzeyi ve tarih girişi
+
+- [ ] Offline sol menüde Global 1881 marka alanını daha büyük mühür/logo ve güçlü tipografiyle; bölüm gruplarını, aktif/pasif menü hiyerarşisini ve alt kullanıcı alanını sağ Ofis Akışı paneliyle dengeli güçlü bir Windows görsel diline taşı
+- [ ] Sağ Ofis Akışı panelindeki “Kişisel akışım” ifadesini onaylanan “Size Özel Gündem” başlığıyla değiştir; adı güvenle bilinen danışman için alt satırda “Adı Beyin/Hanımın Dikkatine” kullan ve başka danışman adı göstermeme kuralını koru
+- [ ] Yetki, kira, yerel çalışma alanı ve işlem kapanışları ana form yüzeylerini bölümlenmiş kartlar, daha belirgin alan başlıkları, okunur giriş çerçeveleri ve kontrollü kontrastla ortak standartta düzenle; sağ Size Özel Gündem panelini yardımcı sütun olarak daraltıp ana formun önüne geçirmeme kuralını uygula
+- [ ] Native `input type="date"` alanlarının Windows yerel ayarından gelen ABD tarzı görünümü yerine Türkiye standardını kullanıcıya açıklayan ve `GG.AA.YYYY` gösteren ortak tarih giriş bileşeni uygula; ISO saklamayı koru
+- [ ] Sol menü, form yüzeyi, sağ Ofis Akışı ve tarih girişlerinin geniş/dar ekran ekran görüntüsü ile UI testlerini ekle
+- [ ] Bütünleşik Windows arayüz düzenini gerçek Electron ekran kabulüyle doğrula
+
+## Online ve offline birleşik arayüz standardı
+
+- [ ] Online ve offline DashboardLayout, sol menü, içerik çerçevesi, form/kart, düğme, seçici ve sağ gündem paneli arasındaki renk ve ölçü farklarını envanterle
+- [ ] Ortak tasarım değişkenleriyle online/offline menü genişliği, marka alanı, aktif/pasif durum, boşluk, kart, form alanı ve düğme ölçülerini tek standartta birleştir
+- [ ] Birleşik arayüzün web ve Electron ekranlarında geniş/dar görünüm UI testlerini ve kabul kanıtını al

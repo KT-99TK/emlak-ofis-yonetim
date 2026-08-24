@@ -86,10 +86,40 @@ button:active { transform: scale(.98); }
 .offline-operation-main { min-width: 0; }
 .offline-operation-aside { min-width: 0; }
 .offline-root-with-flow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.offline-operation-main > .rounded-2xl {
+  border-color: #dce7e1;
+  box-shadow: 0 16px 38px rgba(22, 55, 47, .07), 0 2px 8px rgba(22, 55, 47, .035);
+}
+.authority-contract-workspace .offline-operation-main > .rounded-2xl:not(.authority-print-shell),
+.offline-rental-contract-workspace .offline-operation-main > .rounded-2xl:not(.authority-print-shell) {
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(248,251,248,.96));
+}
+.authority-contract-workspace .offline-operation-main label,
+.offline-rental-contract-workspace .offline-operation-main label {
+  color: #3b514b;
+  font-weight: 650;
+}
+.authority-contract-workspace .offline-operation-main input,
+.offline-rental-contract-workspace .offline-operation-main input {
+  min-height: 2.75rem;
+  border-color: #d4e0d9;
+  background: rgba(255,255,255,.94);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 1px 2px rgba(23,62,57,.035);
+}
+.authority-contract-workspace .offline-operation-main input:focus,
+.offline-rental-contract-workspace .offline-operation-main input:focus {
+  border-color: #80aa97;
+  box-shadow: 0 0 0 3px rgba(128,170,151,.16);
+}
+.authority-contract-workspace .offline-operation-main > .rounded-2xl > [data-slot="card-header"],
+.offline-rental-contract-workspace .offline-operation-main > .rounded-2xl > [data-slot="card-header"] {
+  border-bottom: 1px solid #e5ede8;
+  background: linear-gradient(90deg, rgba(246,250,247,.95), rgba(255,255,255,.45));
+}
 @media (min-width: 1280px) {
-  .offline-operation-grid { grid-template-columns: minmax(0, 1fr) minmax(288px, 340px); align-items: start; }
+  .offline-operation-grid { grid-template-columns: minmax(0, 1fr) minmax(264px, 300px); align-items: start; }
   .offline-operation-aside { position: sticky; top: 1.25rem; }
-  .offline-root-with-flow { grid-template-columns: minmax(0, 1fr) minmax(288px, 340px); align-items: start; }
+  .offline-root-with-flow { grid-template-columns: minmax(0, 1fr) minmax(264px, 300px); align-items: start; }
 }
 
 @media print {

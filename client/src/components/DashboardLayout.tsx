@@ -29,6 +29,7 @@ import { Button } from "./ui/button";
 import { getUserId } from "@/lib/offlineStore";
 import { normalizeOfflineHash, offlineNavigationItems } from "@/lib/offlineNavigation";
 import OfflineOfficeFlowPanel from "@/components/OfflineOfficeFlowPanel";
+import GlobalBrandLockup from "@/components/GlobalBrandLockup";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Genel Bakış", path: "/" },
@@ -176,8 +177,8 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
+          <SidebarHeader className="h-auto border-b border-[#dce7e1] bg-[linear-gradient(135deg,#fbfcf8_0%,#f3f7f1_58%,#edf4ef_100%)] px-2 py-3">
+            <div className="flex w-full items-center gap-3 transition-all">
               <button
                 onClick={toggleSidebar}
                 className="h-8 w-8 flex items-center justify-center rounded-lg text-[#587068] transition-colors hover:bg-[#edf5f0] hover:text-[#173e39] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b99b5a] shrink-0"
@@ -185,23 +186,7 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
-              {!isCollapsed ? isDesktop ? (
-                <div className="flex min-w-0 items-center gap-2.5" aria-label="Global 1881 Gayrimenkul">
-                  <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-full border-2 border-double border-[#a6946e]/65 bg-[#fbfaf5] text-[#8d7a52] opacity-90">
-                    <span className="text-[5px] font-bold leading-none tracking-[0.12em]">GLOBAL</span>
-                    <strong className="my-0.5 font-serif text-[13px] font-semibold leading-none tracking-[0.04em]">1881</strong>
-                    <span className="text-[4px] font-bold leading-none tracking-[0.08em]">GAYRİMENKUL</span>
-                  </div>
-                  <div className="min-w-0 leading-none">
-                    <p className="truncate font-serif text-sm font-semibold tracking-[0.08em] text-[#223230]">GLOBAL 1881</p>
-                    <p className="mt-1 truncate text-[9px] uppercase tracking-[0.15em] text-[#8d6f3f]">Gayrimenkul</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 min-w-0">
-                  <img src="/manus-storage/01_logo_yatay_6b31c4b8.webp" alt="Global 1881 Gayrimenkul" className="h-9 w-auto max-w-[190px] object-contain object-left" />
-                </div>
-              ) : null}
+              {!isCollapsed && <GlobalBrandLockup />}
             </div>
           </SidebarHeader>
 

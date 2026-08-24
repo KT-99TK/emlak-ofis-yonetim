@@ -13,7 +13,7 @@ const ledgerEntries = [{ id: 1, entryType: "receivable", status: "pending", desc
 describe("OfficeFlowPanel", () => {
   it("shows a consultant only the work titles sent for that consultant", () => {
     const html = renderToStaticMarkup(<OfficeFlowPanel role="user" obligations={obligations} contracts={contracts} ledgerEntries={ledgerEntries} onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
-    expect(html).toContain("Kişisel akışım");
+    expect(html).toContain("Size Özel Gündem");
     expect(html).toContain("Kendi kira vadesi — Gizli Kiracı");
     expect(html).toContain("1 gün gecikmiş");
     expect(html).toContain("Sözleşme adımı");

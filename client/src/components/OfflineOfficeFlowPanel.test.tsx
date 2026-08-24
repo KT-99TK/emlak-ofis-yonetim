@@ -11,7 +11,7 @@ const record = (overrides: Partial<OfflineRecord>): OfflineRecord => ({
 describe("OfflineOfficeFlowPanel", () => {
   it("renders the personal green workflow sidebar with only the current user's due items", () => {
     const html = renderToStaticMarkup(<OfflineOfficeFlowPanel userId="danisman-a" records={[record({ title: "Kendi kira vadesi" }), record({ id: "r-2", title: "Başka danışmanın vadesi", userId: "danisman-b" })]} />);
-    expect(html).toContain("Kişisel akışım");
+    expect(html).toContain("Size Özel Gündem");
     expect(html).toContain("Kendi kira vadesi");
     expect(html).not.toContain("Başka danışmanın vadesi");
     expect(html).toContain("Rolünüze göre filtrelendi");

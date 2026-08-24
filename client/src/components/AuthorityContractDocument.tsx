@@ -9,6 +9,11 @@ type AuthorityContractDocumentProps = {
 };
 
 const value = (text: string) => text.trim() || "................................";
+const WEB_AUTHORITY_SEAL_SRC = "/manus-storage/global1881-muhur-seffaf_4acda0e7.png";
+
+export function resolveAuthoritySealSrc(desktopSealSrc?: string) {
+  return desktopSealSrc?.startsWith("file:") ? desktopSealSrc : WEB_AUTHORITY_SEAL_SRC;
+}
 
 function Row({ firstLabel, firstValue, secondLabel, secondValue }: { firstLabel: string; firstValue: string; secondLabel?: string; secondValue?: string }) {
   return <tr><th scope="row">{firstLabel}</th><td>{value(firstValue)}</td>{secondLabel && <><th scope="row">{secondLabel}</th><td>{value(secondValue ?? "")}</td></>}</tr>;
@@ -21,11 +26,13 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
   const isSale = normalized.mode === "sale";
   const priceLabel = normalized.mode === "sale" ? "Satış Bedeli (Sözleşmeye Esas)" : "Aylık Kira Bedeli (Sözleşmeye Esas)";
   const fullTax = [normalized.officeTaxOffice, normalized.officeTaxNo].filter(Boolean).join(" / ");
+  const desktopSealSrc = typeof window === "undefined" ? undefined : (window as Window & { global1881Desktop?: { authoritySealSrc?: string } }).global1881Desktop?.authoritySealSrc;
+  const authoritySealSrc = resolveAuthoritySealSrc(desktopSealSrc);
 
   return (
     <article className="authority-print-document authority-contract-document bg-[#fff] text-[#1c2524]" style={{ "--authority-print-font-size": `${fontSize}pt` } as React.CSSProperties}>
       <header className="authority-document-brand">
-        <img className="authority-document-seal-image" src="/manus-storage/global1881-muhur-seffaf_4acda0e7.png" alt="Global 1881 şeffaf mühür" />
+        <img className="authority-document-seal-image" src={authoritySealSrc} alt="Global 1881 şeffaf mühür" />
         <div><p className="authority-document-office-name">{value(normalized.officeName)}</p><p>{value(normalized.officeAddress)}</p><p>Tel: {value(normalized.officePhone)} · Yetki Belgesi No: {value(normalized.officeAuthorizationNo)}</p></div>
       </header>
       <div className="authority-document-rule" />

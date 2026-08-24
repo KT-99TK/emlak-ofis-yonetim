@@ -69,8 +69,8 @@ export function OfficeFlowPanel({ role, obligations, contracts = [], ledgerEntri
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dcd3]"><BellRing className="h-3.5 w-3.5 text-[#e6c47d]" /> {isManager ? "Broker manager" : "Size özel"}</div>
-            <h2 className="mt-2 font-serif text-2xl tracking-[-0.035em] text-white">{isManager ? "Ofis Akışı" : "Kişisel akışım"}</h2>
-            <p className="mt-1 max-w-[260px] text-xs leading-5 text-[#c3d7d2]">{isManager ? "Kişi detayı olmadan, müdahale gerektiren ofis istisnaları." : "Yalnız size atanmış sözleşme ve vade adımları."}</p>
+            <h2 className="mt-2 font-serif text-2xl tracking-[-0.035em] text-white">{isManager ? "Ofis Akışı" : "Size Özel Gündem"}</h2>
+            <p className="mt-1 max-w-[260px] text-xs leading-5 text-[#c3d7d2]">{isManager ? "Kişi detayı olmadan, müdahale gerektiren ofis istisnaları." : "Bugün önceliğiniz olan sözleşme, vade ve tahsilat adımları."}</p>
           </div>
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10"><CalendarClock className="h-5 w-5 text-[#e6c47d]" /></span>
         </div>
@@ -82,7 +82,7 @@ export function OfficeFlowPanel({ role, obligations, contracts = [], ledgerEntri
             <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => setShowManagerExceptions(true)} className="rounded-xl border border-white/10 bg-white/[.06] px-3 py-2 text-left transition-colors hover:bg-white/[.12]"><span className="block text-lg font-serif text-white">{reviewContractCount}</span><span className="block text-[10px] leading-4 text-[#b4d1ca]">Sözleşme işlemi</span></button><button type="button" onClick={() => setShowManagerExceptions(true)} className="rounded-xl border border-white/10 bg-white/[.06] px-3 py-2 text-left transition-colors hover:bg-white/[.12]"><span className="block text-lg font-serif text-white">{openCollectionCount}</span><span className="block text-[10px] leading-4 text-[#b4d1ca]">Açık tahsilat</span></button></div>
           </div>
         ) : visiblePersonalItems.length ? (
-          <div className="mt-6 space-y-2" aria-label="Kişisel vade listesi">
+          <div className="mt-6 space-y-2" aria-label="Size özel vade listesi">
             {visiblePersonalItems.map((item) => <div key={item.id} className="rounded-xl border border-white/[.08] px-3 py-3"><div className="flex items-start justify-between gap-2"><p className="line-clamp-2 text-xs font-semibold leading-5 text-white">{item.title}</p><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${dueTone(item.days)}`}>{dueLabel(item.days)}</span></div><p className="mt-1.5 text-[11px] text-[#b4d1ca]">Son tarih: {formatTurkishDate(item.dueDate)}</p></div>)}
           </div>
         ) : (
