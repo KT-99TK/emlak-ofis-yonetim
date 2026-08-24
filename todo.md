@@ -529,3 +529,10 @@
 - [x] Sahibinin Android/iOS telefonunda test edebileceği Global 1881 mobil danışman uygulaması için güvenli oturum, canlı gündem, müşteri/portföy, sözleşme görünümü, belge erişimi ve rol gizliliği MVP’sini geliştir
 - [x] Telefon testine önce sahibin manager hesabını; sonra bir danışmanın yalnız kendi kayıtlarını gördüğü ayrı rol senaryosunu ekle ve canlı online veri değişiminin iki cihazda doğrulandığı kabul akışını hazırla
 - [ ] Android telefon ve iPhone 13 Pro üzerinde aynı Global 1881 merkezi online deneme uygulamasını çalıştır; manager görünümü, danışman gizliliği ve iki cihaz arasındaki canlı veri güncellemesini kabul et
+- [ ] Android’de `88.255.216.16/landpag` yanlış ağ yönlendirmesi yerine `https://emlakdash-kcw9r85v.manus.space/mobile` mobil alan adının doğrudan açıldığını doğrula; 400 hatası sonrası Chrome kabulünü yeniden yap
+- [ ] Android Chrome’da doğru `emlakdash-kcw9r85v.manus.space` alan adına ait `ERR_SSL_PROTOCOL_ERROR` hatasını DNS/HTTPS/telefon ağ katmanında teşhis et; güvenli HTTPS erişimini doğrulayıp mobil kabulü yeniden yap
+- [ ] Mobil veri hattında doğru mobil alan adına gelen `ERR_CONNECTION_RESET` engelini kaydet; geçici test erişimi ile kalıcı özel alan adı/HTTPS erişimini ayrı kabul adımlarında doğrula
+- [ ] `sg1.manus.computer` önizleme alanında mobil giriş ekranının açıldığını ancak “not live / cannot be shared directly” uyarısı verdiğini kaydet; Android/iPhone kabulü için paylaşılabilir güvenli kamusal erişim alanı sağla
+- [ ] Global 1881’in mevcut `global1881.com` alan adı altında `ofis.global1881.com` veya onaylanan eşdeğer alt alan adını merkezi mobil sisteme bağla; HTTPS doğrulamasıyla Android/iPhone kamusal erişimini kabul et
+- [ ] Hostinger erişiminde kullanılan Google hesabı için yapılan kurtarma başvurusunun sonucunu bekle; hesap erişimi geri geldiğinde `ofis.global1881.com` DNS kaydını mevcut WordPress sitesine dokunmadan ekle
+- [x] Android telefonda geçici önizleme alanı üzerinden manager görünümünün açıldığını ve merkezi kayıtların henüz aktarılmadığı için sıfır göründüğünü doğrula
