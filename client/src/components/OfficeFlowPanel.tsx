@@ -24,6 +24,7 @@ type OfficeFlowPanelProps = {
   onOpenObligations: () => void;
   onOpenContracts?: () => void;
   onOpenAccounting?: () => void;
+  attentionLabel?: string;
   now?: Date;
 };
 
@@ -47,7 +48,7 @@ function dueTone(days: number) {
   return "bg-[#62c4ae] text-[#073d35]";
 }
 
-export function OfficeFlowPanel({ role, obligations, contracts = [], ledgerEntries = [], onOpenObligations, onOpenContracts, onOpenAccounting, now = new Date() }: OfficeFlowPanelProps) {
+export function OfficeFlowPanel({ role, obligations, contracts = [], ledgerEntries = [], onOpenObligations, onOpenContracts, onOpenAccounting, attentionLabel, now = new Date() }: OfficeFlowPanelProps) {
   const isManager = role === "admin";
   const [showManagerExceptions, setShowManagerExceptions] = React.useState(false);
   const openItems = obligations.filter((item) => item.status !== "paid" && item.status !== "cancelled");
@@ -70,6 +71,7 @@ export function OfficeFlowPanel({ role, obligations, contracts = [], ledgerEntri
           <div>
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dcd3]"><BellRing className="h-3.5 w-3.5 text-[#e6c47d]" /> {isManager ? "Broker manager" : "Size özel"}</div>
             <h2 className="mt-2 font-serif text-2xl tracking-[-0.035em] text-white">{isManager ? "Ofis Akışı" : "Size Özel Gündem"}</h2>
+            {!isManager && attentionLabel && <p className="mt-1 text-xs font-semibold text-[#e6c47d]">{attentionLabel}</p>}
             <p className="mt-1 max-w-[260px] text-xs leading-5 text-[#c3d7d2]">{isManager ? "Kişi detayı olmadan, müdahale gerektiren ofis istisnaları." : "Bugün önceliğiniz olan sözleşme, vade ve tahsilat adımları."}</p>
           </div>
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10"><CalendarClock className="h-5 w-5 text-[#e6c47d]" /></span>

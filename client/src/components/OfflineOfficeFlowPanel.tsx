@@ -1,6 +1,7 @@
 import React from "react";
 import { OfficeFlowPanel, type OfficeFlowContract, type OfficeFlowLedgerEntry, type OfficeFlowObligation } from "@/components/OfficeFlowPanel";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
+import { getOfflineProfileGreeting, OFFLINE_PROFILE_CHANGED_EVENT } from "@/lib/offlineProfile";
 import { listOfflineRecords, type OfflineRecord } from "@/lib/offlineStore";
 
 type OfflineOfficeFlowPanelProps = {
@@ -21,10 +22,16 @@ function goTo(hash: string) {
  */
 export default function OfflineOfficeFlowPanel({ records, userId, managerActive, className }: OfflineOfficeFlowPanelProps) {
   const [loadedRecords, setLoadedRecords] = React.useState<OfflineRecord[]>([]);
+  const [attentionLabel, setAttentionLabel] = React.useState(() => getOfflineProfileGreeting());
   React.useEffect(() => {
     if (records) return;
     void listOfflineRecords().then(setLoadedRecords).catch(() => setLoadedRecords([]));
   }, [records]);
+  React.useEffect(() => {
+    const refreshGreeting = () => setAttentionLabel(getOfflineProfileGreeting());
+    window.addEventListener(OFFLINE_PROFILE_CHANGED_EVENT, refreshGreeting);
+    return () => window.removeEventListener(OFFLINE_PROFILE_CHANGED_EVENT, refreshGreeting);
+  }, []);
 
   const localManagerActive = managerActive ?? (typeof window !== "undefined" && isLocalManagerSessionActive());
   const sourceRecords = records ?? loadedRecords;
@@ -56,6 +63,7 @@ export default function OfflineOfficeFlowPanel({ records, userId, managerActive,
         obligations={obligations}
         contracts={contracts}
         ledgerEntries={ledgerEntries}
+        attentionLabel={attentionLabel}
         onOpenObligations={() => goTo("#/offline")}
         onOpenContracts={() => goTo("#/offline-my-contracts")}
         onOpenAccounting={() => goTo("#/offline-transactions")}

@@ -12,8 +12,9 @@ const ledgerEntries = [{ id: 1, entryType: "receivable", status: "pending", desc
 
 describe("OfficeFlowPanel", () => {
   it("shows a consultant only the work titles sent for that consultant", () => {
-    const html = renderToStaticMarkup(<OfficeFlowPanel role="user" obligations={obligations} contracts={contracts} ledgerEntries={ledgerEntries} onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
+    const html = renderToStaticMarkup(<OfficeFlowPanel role="user" obligations={obligations} contracts={contracts} ledgerEntries={ledgerEntries} attentionLabel="Cahit Beyin Dikkatine" onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
     expect(html).toContain("Size Özel Gündem");
+    expect(html).toContain("Cahit Beyin Dikkatine");
     expect(html).toContain("Kendi kira vadesi — Gizli Kiracı");
     expect(html).toContain("1 gün gecikmiş");
     expect(html).toContain("Sözleşme adımı");
@@ -21,13 +22,14 @@ describe("OfficeFlowPanel", () => {
   });
 
   it("keeps obligation titles out of the broker manager summary", () => {
-    const html = renderToStaticMarkup(<OfficeFlowPanel role="admin" obligations={obligations} contracts={contracts} ledgerEntries={ledgerEntries} onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
+    const html = renderToStaticMarkup(<OfficeFlowPanel role="admin" obligations={obligations} contracts={contracts} ledgerEntries={ledgerEntries} attentionLabel="Cahit Beyin Dikkatine" onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
     expect(html).toContain("Ofis Akışı");
     expect(html).toContain("Gecikmiş vade");
     expect(html).not.toContain("Gizli Kiracı");
     expect(html).not.toContain("Kendi kira vadesi");
     expect(html).not.toContain("Gizli sözleşme başlığı");
     expect(html).not.toContain("Gizli tahsilat açıklaması");
+    expect(html).not.toContain("Cahit Beyin Dikkatine");
     expect(html).toContain("Sözleşme işlemi");
     expect(html).toContain("Açık tahsilat");
   });
