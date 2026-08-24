@@ -527,5 +527,5 @@
 - [x] Global 1881 görsel dilini koruyan Android/iOS danışman uygulaması için ana ekran, müşteri/portföy, gündem, talep, belge ve bildirim kapsamını onayla; onaylanan ilk kapsamda mobil web uygulamasını geliştir
 - [ ] Offline geçiş modelinden bağımsız, danışmanların ofis dışından aynı güncel verilere erişeceği merkezi online çalışma modelini uygula; telefon denemesinde ayrı cihaz verisi/manuel merge kullanma
 - [x] Sahibinin Android/iOS telefonunda test edebileceği Global 1881 mobil danışman uygulaması için güvenli oturum, canlı gündem, müşteri/portföy, sözleşme görünümü, belge erişimi ve rol gizliliği MVP’sini geliştir
-- [ ] Telefon testine önce sahibin manager hesabını; sonra bir danışmanın yalnız kendi kayıtlarını gördüğü ayrı rol senaryosunu ekle ve canlı online veri değişiminin iki cihazda doğrulandığı kabul akışını hazırla
+- [x] Telefon testine önce sahibin manager hesabını; sonra bir danışmanın yalnız kendi kayıtlarını gördüğü ayrı rol senaryosunu ekle ve canlı online veri değişiminin iki cihazda doğrulandığı kabul akışını hazırla
 - [ ] Android telefon ve iPhone 13 Pro üzerinde aynı Global 1881 merkezi online deneme uygulamasını çalıştır; manager görünümü, danışman gizliliği ve iki cihaz arasındaki canlı veri güncellemesini kabul et
