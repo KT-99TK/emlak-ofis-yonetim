@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { getContractDocumentForUser } from "./db";
+import { getCentralAccessScope, getContractDocumentForUser } from "./db";
 import { storageGetSignedUrl } from "./storage";
 import { sdk } from "./_core/sdk";
 
@@ -21,17 +21,19 @@ export function registerContractDocumentDownload(app: Express) {
       return;
     }
 
+    const scope = await getCentralAccessScope(user.id, isManager(user));
     const document = await getContractDocumentForUser(
       documentId,
       user.id,
-      isManager(user),
+      scope.isManager,
+      scope.permittedUserIds,
     );
     if (!document) {
       // Belgenin varlığını yetkisiz kullanıcıya açıklama.
       res.status(404).send("Belge bulunamadı");
       return;
     }
-    if (document.invalidatedAt && !isManager(user)) {
+    if (document.invalidatedAt && !scope.isManager) {
       res.status(403).send("Bu belge manager tarafından geçersiz kılındı");
       return;
     }

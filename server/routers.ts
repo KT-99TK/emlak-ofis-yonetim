@@ -4,7 +4,7 @@ import { parse as parseCookieHeader } from "cookie";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createCentralArchiveDocument, createClient, createContract, createContractDocument, decideOwnerApproval, getContractDocumentForUser, getContractForAssignedUser, invalidateContractDocument, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
+import { createCentralArchiveDocument, createClient, createContract, createContractDocument, decideOwnerApproval, getCentralAccessScope, getContractDocumentForUser, getContractForAssignedUser, invalidateContractDocument, recordContractDocumentShareIntent, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, setOfficeAssistantAssignments, transitionContract } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -20,18 +20,18 @@ export const appRouter = router({
     logout: publicProcedure.mutation(({ ctx }) => { const cookieOptions = getSessionCookieOptions(ctx.req); ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 }); return { success: true } as const; }),
   }),
   dashboard: router({
-    summary: protectedProcedure.query(({ ctx }) => getDashboardSummary(ctx.user.id, isManager(ctx.user))),
+    summary: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return getDashboardSummary(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
   }),
   contracts: router({
-    list: protectedProcedure.query(({ ctx }) => listContracts(ctx.user.id, isManager(ctx.user))),
-    create: protectedProcedure.input(z.object({ contractNo: z.string().min(3), type: z.enum(["rental", "sale", "authority"]), subtype: z.string().optional(), title: z.string().min(3), amount: z.string().optional(), clientId: z.number().optional(), propertyId: z.number().optional(), evictionNoticeDays: z.number().int().positive().optional(), evictionNoticeDate: z.date().optional(), ownerApprovalStatus: z.enum(["notRequired", "pending", "approved", "rejected"]).optional(), ownerApprovalDate: z.date().optional(), ownerApprovalNote: z.string().optional(), details: z.string().max(20000).optional() })).mutation(({ ctx, input }) => createContract({ ...input, assignedUserId: ctx.user.id, actorUserId: ctx.user.id })),
+    list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listContracts(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    create: protectedProcedure.input(z.object({ contractNo: z.string().min(3), type: z.enum(["rental", "sale", "authority"]), subtype: z.string().optional(), title: z.string().min(3), amount: z.string().optional(), clientId: z.number().optional(), propertyId: z.number().optional(), evictionNoticeDays: z.number().int().positive().optional(), evictionNoticeDate: z.date().optional(), ownerApprovalStatus: z.enum(["notRequired", "pending", "approved", "rejected"]).optional(), ownerApprovalDate: z.date().optional(), ownerApprovalNote: z.string().optional(), details: z.string().max(20000).optional() })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); if (scope.officeRole === "office_assistant") throw new Error("Ofis asistanı yeni sözleşme oluşturamaz."); return createContract({ ...input, assignedUserId: ctx.user.id, actorUserId: ctx.user.id }); }),
     requestOwnerApproval: protectedProcedure.input(z.object({ id: z.number() })).mutation(({ ctx, input }) => requestOwnerApproval(input.id, ctx.user.id)),
     decideOwnerApproval: adminProcedure.input(z.object({ id: z.number(), decision: z.enum(["approved", "rejected"]), note: z.string().optional() })).mutation(({ ctx, input }) => decideOwnerApproval(input.id, input.decision, input.note, ctx.user.id)),
     transition: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["draft", "review", "approved", "signed", "active", "completed", "cancelled"]) })).mutation(({ ctx, input }) => transitionContract(input.id, input.status, ctx.user.id)),
   }),
   documents: router({
-    list: protectedProcedure.query(({ ctx }) => listContractDocuments(ctx.user.id, isManager(ctx.user))),
-    archiveList: protectedProcedure.query(({ ctx }) => listCentralArchiveDocuments(ctx.user.id, isManager(ctx.user))),
+    list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listContractDocuments(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    archiveList: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listCentralArchiveDocuments(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
     attachArchive: adminProcedure.input(z.object({
       assignedUserId: z.number().int().positive(),
       primaryClientId: z.number().int().positive(),
@@ -78,9 +78,10 @@ export const appRouter = router({
       return { id: documentId, sha256, byteSize: bytes.byteLength };
     }),
     open: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ ctx, input }) => {
-      const document = await getContractDocumentForUser(input.id, ctx.user.id, isManager(ctx.user));
+      const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+      const document = await getContractDocumentForUser(input.id, ctx.user.id, scope.isManager, scope.permittedUserIds);
       if (!document) throw new Error("Bu belge için görüntüleme yetkiniz bulunmuyor.");
-      if (document.invalidatedAt && !isManager(ctx.user)) throw new Error("Bu belge manager tarafından geçersiz kılındı.");
+      if (document.invalidatedAt && !scope.isManager) throw new Error("Bu belge manager tarafından geçersiz kılındı.");
       return {
         id: document.id,
         originalFileName: document.originalFileName,
@@ -89,6 +90,11 @@ export const appRouter = router({
         immutable: Boolean(document.immutable),
         sha256: document.sha256,
       };
+    }),
+    shareIntent: protectedProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+      const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+      await recordContractDocumentShareIntent({ documentId: input.id, actorUserId: ctx.user.id, isManager: scope.isManager, permittedUserIds: scope.permittedUserIds });
+      return { ok: true };
     }),
     invalidate: protectedProcedure.input(z.object({
       id: z.number().int().positive(),
@@ -101,16 +107,16 @@ export const appRouter = router({
     }),
   }),
   clients: router({
-    list: protectedProcedure.query(({ ctx }) => listClients(ctx.user.id, isManager(ctx.user))),
-    create: protectedProcedure.input(z.object({ name: z.string().min(2) })).mutation(({ ctx, input }) => createClient({ ...input, assignedUserId: ctx.user.id })),
+    list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listClients(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    create: protectedProcedure.input(z.object({ name: z.string().min(2) })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); if (scope.officeRole === "office_assistant") throw new Error("Ofis asistanı yeni müşteri kaydı oluşturamaz."); return createClient({ ...input, assignedUserId: ctx.user.id }); }),
   }),
   properties: router({
-    list: protectedProcedure.query(({ ctx }) => listProperties(ctx.user.id, isManager(ctx.user))),
-    create: protectedProcedure.input(z.object({ referenceNo: z.string().min(2), title: z.string().min(2), address: z.string().min(2), listingType: z.enum(["sale", "rent"]).optional(), ownerApprovalStatus: z.enum(["notRequired", "pending", "approved", "rejected"]).optional() })).mutation(({ ctx, input }) => createProperty({ ...input, assignedUserId: ctx.user.id })),
+    list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listProperties(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    create: protectedProcedure.input(z.object({ referenceNo: z.string().min(2), title: z.string().min(2), address: z.string().min(2), listingType: z.enum(["sale", "rent"]).optional(), ownerApprovalStatus: z.enum(["notRequired", "pending", "approved", "rejected"]).optional() })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); if (scope.officeRole === "office_assistant") throw new Error("Ofis asistanı yeni portföy kaydı oluşturamaz."); return createProperty({ ...input, assignedUserId: ctx.user.id }); }),
   }),
   obligations: router({
-    list: protectedProcedure.query(({ ctx }) => listObligations(ctx.user.id, isManager(ctx.user))),
-    create: protectedProcedure.input(z.object({ title: z.string().min(2), obligationType: z.enum(["rent", "tax", "insurance", "other"]), dueDate: z.coerce.date(), periodStart: z.coerce.date(), periodEnd: z.coerce.date(), amount: z.string().min(1) })).mutation(({ ctx, input }) => createObligation({ ...input, assignedUserId: ctx.user.id })),
+    list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listObligations(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    create: protectedProcedure.input(z.object({ title: z.string().min(2), obligationType: z.enum(["rent", "tax", "insurance", "other"]), dueDate: z.coerce.date(), periodStart: z.coerce.date(), periodEnd: z.coerce.date(), amount: z.string().min(1) })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); if (scope.officeRole === "office_assistant") throw new Error("Ofis asistanı vade kaydı oluşturamaz."); return createObligation({ ...input, assignedUserId: ctx.user.id }); }),
   }),
   reminders: router({
     schedule: protectedProcedure.input(z.object({ cron: z.string().regex(/^\d+ \d+ \d+ \* \* \*$/, "6 alanlı UTC cron ifadesi girin") })).mutation(async ({ ctx, input }) => {
@@ -123,11 +129,12 @@ export const appRouter = router({
     }),
   }),
   ledger: router({
-    list: protectedProcedure.query(({ ctx }) => listLedger(ctx.user.id, isManager(ctx.user))),
-    create: protectedProcedure.input(z.object({ description: z.string().min(2), amount: z.string().min(1), entryType: z.enum(["income", "expense", "receivable", "payable"]) })).mutation(({ ctx, input }) => createLedger({ ...input, assignedUserId: ctx.user.id })),
+    list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listLedger(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    create: protectedProcedure.input(z.object({ description: z.string().min(2), amount: z.string().min(1), entryType: z.enum(["income", "expense", "receivable", "payable"]) })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); if (scope.officeRole === "office_assistant") throw new Error("Ofis asistanı tahsilat veya gider kaydı oluşturamaz."); return createLedger({ ...input, assignedUserId: ctx.user.id }); }),
   }),
   team: router({
     list: adminProcedure.query(() => listTeamMembers()),
+    setOfficeAssistantScope: adminProcedure.input(z.object({ assistantUserId: z.number().int().positive(), consultantUserIds: z.array(z.number().int().positive()).max(50) })).mutation(({ ctx, input }) => setOfficeAssistantAssignments({ ...input, managerUserId: ctx.user.id })),
   }),
   audit: router({
     list: adminProcedure.query(() => listAudit(true)),

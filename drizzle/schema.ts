@@ -24,7 +24,7 @@ export const userProfiles = mysqlTable("userProfiles", {
   userId: int("userId").notNull().unique(),
   teamId: int("teamId"),
   managerId: int("managerId"),
-  officeRole: mysqlEnum("officeRole", ["broker_manager", "consultant"]).default("consultant").notNull(),
+  officeRole: mysqlEnum("officeRole", ["broker_manager", "consultant", "office_assistant"]).default("consultant").notNull(),
   consultantCode: varchar("consultantCode", { length: 40 }),
   phone: varchar("phone", { length: 40 }),
   title: varchar("title", { length: 120 }),
@@ -117,6 +117,17 @@ export const contractDocumentParticipants = mysqlTable("contractDocumentParticip
   clientId: int("clientId").notNull(),
   partyRole: mysqlEnum("partyRole", ["primary", "propertyOwner", "tenant", "other"]).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+/** Ofis asistanı yalnız broker manager tarafından açıkça atandığı danışman kayıtlarına erişebilir. */
+export const officeAssistantAssignments = mysqlTable("officeAssistantAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  assistantUserId: int("assistantUserId").notNull(),
+  consultantUserId: int("consultantUserId").notNull(),
+  assignedByUserId: int("assignedByUserId").notNull(),
+  active: int("active").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export const ledgerEntries = mysqlTable("ledgerEntries", {

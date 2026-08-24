@@ -1,6 +1,6 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, properties, rentalObligations, reminderPreferences, teams, userProfiles, users } from "../drizzle/schema";
+import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, officeAssistantAssignments, properties, rentalObligations, reminderPreferences, teams, userProfiles, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -20,9 +20,28 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 }
 export async function getUserByOpenId(openId: string) { const db = await getDb(); if (!db) return undefined; const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1); return result[0]; }
 
-export async function getDashboardSummary(userId: number, isManager: boolean) {
+export type CentralAccessScope = { isManager: boolean; permittedUserIds: number[]; officeRole: "broker_manager" | "consultant" | "office_assistant" };
+
+/**
+ * Merkezi kayıtlarda kullanıcı arayüzünün rol etiketine güvenilmez. Danışman
+ * yalnız kendi kaydını; ofis asistanı yalnız managerın aktif atadığı danışmanları
+ * görür. Broker manager kapsamı ise ofis geneline açılır.
+ */
+export async function getCentralAccessScope(userId: number, isSystemManager: boolean): Promise<CentralAccessScope> {
+  const db = await getDb();
+  if (isSystemManager) return { isManager: true, permittedUserIds: [], officeRole: "broker_manager" };
+  if (!db) return { isManager: false, permittedUserIds: [userId], officeRole: "consultant" };
+  const profile = await db.select({ officeRole: userProfiles.officeRole }).from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
+  const officeRole = profile[0]?.officeRole ?? "consultant";
+  if (officeRole !== "office_assistant") return { isManager: false, permittedUserIds: [userId], officeRole };
+  const assignments = await db.select({ consultantUserId: officeAssistantAssignments.consultantUserId }).from(officeAssistantAssignments).where(and(eq(officeAssistantAssignments.assistantUserId, userId), eq(officeAssistantAssignments.active, 1)));
+  return { isManager: false, permittedUserIds: Array.from(new Set(assignments.map((assignment) => assignment.consultantUserId))), officeRole };
+}
+
+export async function getDashboardSummary(userId: number, isManager: boolean, permittedUserIds?: number[]) {
   const db = await getDb(); if (!db) return { contracts: 0, portfolio: 0, outstanding: "0", activeTeam: 0, recentContracts: [], recentLedger: [] };
-  const scope = isManager ? undefined : eq(contracts.assignedUserId, userId);
+  const scopedIds = permittedUserIds ?? [userId];
+  const scope = isManager ? undefined : scopedIds.length ? inArray(contracts.assignedUserId, scopedIds) : sql`1 = 0`;
   const profileRows = isManager ? await db.select({ userId: userProfiles.userId, teamId: userProfiles.teamId, teamName: teams.name, officeRole: userProfiles.officeRole }).from(userProfiles).leftJoin(teams, eq(userProfiles.teamId, teams.id)).where(eq(userProfiles.status, "active")) : [];
   const teamBreakdown = await Promise.all(profileRows.map(async (profile) => {
     const [contractsForUser, cashForUser] = await Promise.all([
@@ -34,11 +53,11 @@ export async function getDashboardSummary(userId: number, isManager: boolean) {
   }));
   const [contractCount, portfolioCount, outstanding, teamCount, recentContracts, recentLedger] = await Promise.all([
     db.select({ count: sql<number>`count(*)` }).from(contracts).where(scope),
-    db.select({ count: sql<number>`count(*)` }).from(properties).where(isManager ? undefined : eq(properties.assignedUserId, userId)),
-    db.select({ total: sql<string>`coalesce(sum(${ledgerEntries.amount} - ${ledgerEntries.paidAmount}), 0)` }).from(ledgerEntries).where(and(eq(ledgerEntries.status, "pending"), isManager ? undefined : eq(ledgerEntries.assignedUserId, userId))),
+    db.select({ count: sql<number>`count(*)` }).from(properties).where(isManager ? undefined : scopedIds.length ? inArray(properties.assignedUserId, scopedIds) : sql`1 = 0`),
+    db.select({ total: sql<string>`coalesce(sum(${ledgerEntries.amount} - ${ledgerEntries.paidAmount}), 0)` }).from(ledgerEntries).where(and(eq(ledgerEntries.status, "pending"), isManager ? undefined : scopedIds.length ? inArray(ledgerEntries.assignedUserId, scopedIds) : sql`1 = 0`)),
     isManager ? db.select({ count: sql<number>`count(*)` }).from(userProfiles).where(eq(userProfiles.status, "active")) : Promise.resolve([{ count: 1 }]),
     db.select().from(contracts).where(scope).orderBy(desc(contracts.updatedAt)).limit(5),
-    db.select().from(ledgerEntries).where(isManager ? undefined : eq(ledgerEntries.assignedUserId, userId)).orderBy(desc(ledgerEntries.createdAt)).limit(5),
+    db.select().from(ledgerEntries).where(isManager ? undefined : scopedIds.length ? inArray(ledgerEntries.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(desc(ledgerEntries.createdAt)).limit(5),
   ]);
   return { contracts: Number(contractCount[0]?.count ?? 0), portfolio: Number(portfolioCount[0]?.count ?? 0), outstanding: String(outstanding[0]?.total ?? "0"), activeTeam: Number(teamCount[0]?.count ?? 0), recentContracts, recentLedger, teamBreakdown };
 }
@@ -47,14 +66,15 @@ export async function createContract(input: { contractNo: string; type: "rental"
 export async function requestOwnerApproval(contractId: number, actorUserId: number) { const db = await getDb(); if (!db) return false; await db.update(contracts).set({ ownerApprovalStatus: "pending", ownerApprovalDate: null, ownerApprovalNote: null, version: sql`${contracts.version} + 1` }).where(eq(contracts.id, contractId)); await db.insert(auditLogs).values({ actorUserId, action: "owner_approval_requested", entityType: "contract", entityId: contractId, summary: "Mülk sahibi yeniden kiralama onayı bekliyor" }); return true; }
 export async function decideOwnerApproval(contractId: number, decision: "approved" | "rejected", note: string | undefined, actorUserId: number) { const db = await getDb(); if (!db) return false; await db.update(contracts).set({ ownerApprovalStatus: decision, ownerApprovalDate: new Date(), ownerApprovalNote: note, version: sql`${contracts.version} + 1` }).where(eq(contracts.id, contractId)); await db.insert(auditLogs).values({ actorUserId, action: `owner_approval_${decision}`, entityType: "contract", entityId: contractId, summary: `Mülk sahibi onayı ${decision === "approved" ? "verildi" : "reddedildi"}${note ? `: ${note}` : ""}` }); return true; }
 export async function transitionContract(id: number, status: "draft" | "review" | "approved" | "signed" | "active" | "completed" | "cancelled", actorUserId: number) { const db = await getDb(); if (!db) return false; const current = await db.select({ type: contracts.type, ownerApprovalStatus: contracts.ownerApprovalStatus }).from(contracts).where(eq(contracts.id, id)).limit(1); if (status === "active" && current[0]?.type === "rental" && current[0]?.ownerApprovalStatus !== "approved") throw new Error("Kira sözleşmesi mülk sahibi onayı olmadan aktifleştirilemez."); await db.update(contracts).set({ status, version: sql`${contracts.version} + 1` }).where(eq(contracts.id, id)); await db.insert(auditLogs).values({ actorUserId, action: "status_change", entityType: "contract", entityId: id, summary: `Sözleşme durumu ${status} olarak güncellendi` }); return true; }
-export async function listContracts(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(contracts).where(isManager ? undefined : eq(contracts.assignedUserId, userId)).orderBy(desc(contracts.updatedAt)); }
+export async function listContracts(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(contracts).where(isManager ? undefined : scopedIds.length ? inArray(contracts.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(desc(contracts.updatedAt)); }
 export async function getContractForAssignedUser(contractId: number, userId: number) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(contracts).where(and(eq(contracts.id, contractId), eq(contracts.assignedUserId, userId))).limit(1); return rows[0]; }
-export async function listContractDocuments(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(contractDocuments).where(isManager ? undefined : eq(contractDocuments.assignedUserId, userId)).orderBy(desc(contractDocuments.createdAt)); }
-export async function getContractDocumentForUser(documentId: number, userId: number, isManager: boolean) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(contractDocuments).where(and(eq(contractDocuments.id, documentId), isManager ? undefined : eq(contractDocuments.assignedUserId, userId))).limit(1); return rows[0]; }
+export async function listContractDocuments(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(contractDocuments).where(isManager ? undefined : scopedIds.length ? inArray(contractDocuments.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(desc(contractDocuments.createdAt)); }
+export async function getContractDocumentForUser(documentId: number, userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return undefined; const scopedIds = permittedUserIds ?? [userId]; const rows = await db.select().from(contractDocuments).where(and(eq(contractDocuments.id, documentId), isManager ? undefined : scopedIds.length ? inArray(contractDocuments.assignedUserId, scopedIds) : sql`1 = 0`)).limit(1); return rows[0]; }
 export async function createContractDocument(input: { contractId: number; clientId?: number | null; assignedUserId: number; category: "activeSigned" | "archive"; originalFileName: string; storageKey: string; sha256: string; byteSize: number; createdByUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(contractDocuments).values({ ...input, immutable: 1 }); const id = Number(result[0].insertId); await db.insert(auditLogs).values({ actorUserId: input.createdByUserId, action: "document_attached", entityType: "contractDocument", entityId: id, summary: `${input.originalFileName} silinemez belge olarak eklendi` }); return id; }
-export async function listCentralArchiveDocuments(userId: number, isManager: boolean) {
+export async function listCentralArchiveDocuments(userId: number, isManager: boolean, permittedUserIds?: number[]) {
   const db = await getDb(); if (!db) return [];
-  const documents = await db.select().from(contractDocuments).where(and(eq(contractDocuments.category, "archive"), isManager ? undefined : eq(contractDocuments.assignedUserId, userId)));
+  const scopedIds = permittedUserIds ?? [userId];
+  const documents = await db.select().from(contractDocuments).where(and(eq(contractDocuments.category, "archive"), isManager ? undefined : scopedIds.length ? inArray(contractDocuments.assignedUserId, scopedIds) : sql`1 = 0`));
   const archives = await Promise.all(documents.map(async (document) => {
     const parties = await db.select({ clientId: contractDocumentParticipants.clientId, partyRole: contractDocumentParticipants.partyRole, name: clients.name }).from(contractDocumentParticipants).leftJoin(clients, eq(contractDocumentParticipants.clientId, clients.id)).where(eq(contractDocumentParticipants.documentId, document.id));
     return { ...document, parties };
@@ -80,11 +100,19 @@ export async function createCentralArchiveDocument(input: { assignedUserId: numb
   return documentId;
 }
 export async function invalidateContractDocument(documentId: number, managerUserId: number, reason: string) { const db = await getDb(); if (!db) return false; const current = await db.select().from(contractDocuments).where(eq(contractDocuments.id, documentId)).limit(1); const document = current[0]; if (!document) throw new Error("Belge bulunamadı."); if (document.invalidatedAt) throw new Error("Bu belge daha önce geçersiz kılınmış."); await db.update(contractDocuments).set({ invalidatedAt: new Date(), invalidationReason: reason }).where(eq(contractDocuments.id, documentId)); await db.insert(auditLogs).values({ actorUserId: managerUserId, action: "document_invalidated", entityType: "contractDocument", entityId: documentId, summary: `${document.originalFileName} silinmeden geçersiz kılındı: ${reason}` }); return true; }
-export async function listClients(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(clients).where(isManager ? undefined : eq(clients.assignedUserId, userId)).orderBy(desc(clients.updatedAt)); }
-export async function listProperties(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(properties).where(isManager ? undefined : eq(properties.assignedUserId, userId)).orderBy(desc(properties.createdAt)); }
-export async function listLedger(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(ledgerEntries).where(isManager ? undefined : eq(ledgerEntries.assignedUserId, userId)).orderBy(desc(ledgerEntries.createdAt)); }
+export async function recordContractDocumentShareIntent(input: { documentId: number; actorUserId: number; isManager: boolean; permittedUserIds?: number[] }) {
+  const document = await getContractDocumentForUser(input.documentId, input.actorUserId, input.isManager, input.permittedUserIds);
+  if (!document) throw new Error("Bu belge için paylaşım yetkiniz bulunmuyor.");
+  if (document.invalidatedAt && !input.isManager) throw new Error("Geçersiz kılınmış belge paylaşılamaz.");
+  const db = await getDb(); if (!db) return false;
+  await db.insert(auditLogs).values({ actorUserId: input.actorUserId, action: "document_share_intent", entityType: "contractDocument", entityId: document.id, summary: `${document.originalFileName} için cihaz paylaşım menüsü açma isteği kaydedildi; alıcı bilgisi saklanmadı` });
+  return true;
+}
+export async function listClients(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(clients).where(isManager ? undefined : scopedIds.length ? inArray(clients.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(desc(clients.updatedAt)); }
+export async function listProperties(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(properties).where(isManager ? undefined : scopedIds.length ? inArray(properties.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(desc(properties.createdAt)); }
+export async function listLedger(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(ledgerEntries).where(isManager ? undefined : scopedIds.length ? inArray(ledgerEntries.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(desc(ledgerEntries.createdAt)); }
 export async function listAudit(isManager: boolean) { const db = await getDb(); if (!db || !isManager) return []; return db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(100); }
-export async function listObligations(userId: number, isManager: boolean) { const db = await getDb(); if (!db) return []; return db.select().from(rentalObligations).where(isManager ? undefined : eq(rentalObligations.assignedUserId, userId)).orderBy(rentalObligations.dueDate); }
+export async function listObligations(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(rentalObligations).where(isManager ? undefined : scopedIds.length ? inArray(rentalObligations.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(rentalObligations.dueDate); }
 export async function createObligation(input: { title: string; obligationType: "rent" | "tax" | "insurance" | "other"; dueDate: Date; periodStart: Date; periodEnd: Date; amount: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(rentalObligations).values(input); return Number(result[0].insertId); }
 export async function getReminderPreferenceByTaskUid(taskUid: string) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(reminderPreferences).where(eq(reminderPreferences.scheduleCronTaskUid, taskUid)).limit(1); return rows[0]; }
 export async function getReminderPreferenceByUserId(userId: number) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(reminderPreferences).where(eq(reminderPreferences.userId, userId)).limit(1); return rows[0]; }
@@ -95,3 +123,15 @@ export async function createClient(input: { name: string; assignedUserId: number
 export async function createProperty(input: { referenceNo: string; title: string; address: string; listingType?: "sale" | "rent"; ownerApprovalStatus?: "notRequired" | "pending" | "approved" | "rejected"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; if (input.listingType === "rent" && input.ownerApprovalStatus !== "approved") throw new Error("Kiralık ilan owner approval olmadan oluşturulamaz."); const result = await db.insert(properties).values({ referenceNo: input.referenceNo, title: input.title, address: input.address, listingType: input.listingType ?? "sale", ownerApprovalStatus: input.ownerApprovalStatus ?? "notRequired", assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
 export async function createLedger(input: { description: string; amount: string; entryType: "income" | "expense" | "receivable" | "payable"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(ledgerEntries).values({ description: input.description, amount: input.amount, entryType: input.entryType, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
 export async function listTeamMembers() { const db = await getDb(); if (!db) return []; return db.select({ userId: userProfiles.userId, name: users.name, email: users.email, teamId: userProfiles.teamId, teamName: teams.name, officeRole: userProfiles.officeRole, consultantCode: userProfiles.consultantCode, status: userProfiles.status }).from(userProfiles).leftJoin(users, eq(userProfiles.userId, users.id)).leftJoin(teams, eq(userProfiles.teamId, teams.id)).orderBy(desc(userProfiles.status)); }
+
+export async function setOfficeAssistantAssignments(input: { assistantUserId: number; consultantUserIds: number[]; managerUserId: number }) {
+  const db = await getDb(); if (!db) return false;
+  const assistant = await db.select({ userId: userProfiles.userId }).from(userProfiles).where(eq(userProfiles.userId, input.assistantUserId)).limit(1);
+  if (!assistant[0]) throw new Error("Ofis asistanı için kullanıcı profili bulunamadı.");
+  const consultantIds = Array.from(new Set(input.consultantUserIds.filter((id) => id !== input.assistantUserId)));
+  await db.update(userProfiles).set({ officeRole: "office_assistant", managerId: input.managerUserId }).where(eq(userProfiles.userId, input.assistantUserId));
+  await db.update(officeAssistantAssignments).set({ active: 0 }).where(eq(officeAssistantAssignments.assistantUserId, input.assistantUserId));
+  if (consultantIds.length) await db.insert(officeAssistantAssignments).values(consultantIds.map((consultantUserId) => ({ assistantUserId: input.assistantUserId, consultantUserId, assignedByUserId: input.managerUserId, active: 1 })));
+  await db.insert(auditLogs).values({ actorUserId: input.managerUserId, action: "office_assistant_scope_updated", entityType: "userProfile", entityId: input.assistantUserId, summary: `Ofis asistanı kapsamı ${consultantIds.length} danışman kaydı için güncellendi` });
+  return true;
+}

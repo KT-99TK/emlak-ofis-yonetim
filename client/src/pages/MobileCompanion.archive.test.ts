@@ -12,5 +12,10 @@ describe("MobileCompanion customer digital archive", () => {
     expect(source).toContain('document.category === "activeSigned"');
     expect(source).toContain("Yalnız bitmiş/geçmiş işlemler eklenir");
     expect(source).toContain("Silinemez arşiv");
+    expect(source).toContain("documents.shareIntent.useMutation");
+    expect(source).toContain("Alıcı bilgisi sistemde saklanmaz");
+    expect(source).toContain("navigator.share(shareData)");
+    expect(source).toContain("Cihaz paylaşım menüsü açıldı; alıcı bilgisi sistemde saklanmadı.");
+    expect(source).not.toContain("https://wa.me/");
   });
 });
