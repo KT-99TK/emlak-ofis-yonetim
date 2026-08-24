@@ -5,7 +5,7 @@ type Snapshot = Record<string, unknown>;
 const parse = (value: string): Snapshot | null => { try { const result = JSON.parse(value); return result && typeof result === "object" ? result as Snapshot : null; } catch { return null; } };
 const number = (value: unknown) => Math.max(0, Math.round(Number(value) || 0));
 const money = (value: unknown, currency = "TRY") => new Intl.NumberFormat("tr-TR", { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(number(value));
-const entityLabels: Record<OfflineRecord["entity"], string> = { client: "Müşteri", property: "Portföy", contract: "Sözleşme", contractArchive: "Sözleşme arşivi", activeContractDocument: "İmzalı aktif belge", obligation: "Vade kaydı", evacuation: "Tahliye bildirimi", ownerApproval: "Mülk sahibi onayı", ledger: "Ön muhasebe", target: "Ciro hedefi", request: "Müşteri talebi", transaction: "İşlem kapanışı" };
+const entityLabels: Record<OfflineRecord["entity"], string> = { client: "Müşteri", property: "Portföy", contract: "Sözleşme", contractArchive: "Sözleşme arşivi", activeContractDocument: "İmzalı aktif belge", obligation: "Vade kaydı", evacuation: "Tahliye bildirimi", ownerApproval: "Mülk sahibi onayı", ledger: "Ön muhasebe", target: "Ciro hedefi", request: "Müşteri talebi", transaction: "İşlem kapanışı", treasuryControl: "Kasa-banka gün sonu kontrolü" };
 
 export type OfflineRecordPresentation = { label: string; summary: string };
 
@@ -36,6 +36,10 @@ export function presentOfflineRecord(record: OfflineRecord): OfflineRecordPresen
     const expected = collections.reduce((total, item) => total + number((item as Snapshot).expectedAmount), 0);
     const verified = collections.filter((item) => (item as Snapshot).state === "verified").reduce((total, item) => total + number((item as Snapshot).collectedAmount), 0);
     return { label: "İşlem kapanışı", summary: [raw.kind === "rental" ? "Kira" : "Satış", String(raw.propertyLabel ?? ""), `Beklenen: ${money(expected)}`, `Doğrulanan: ${money(verified)}`, String(raw.status ?? "hazırlanıyor")].filter(Boolean).join(" · ") };
+  }
+  if (record.entity === "treasuryControl" || schema === "global1881-office-treasury-control-v1") {
+    const exceptions = Array.isArray(raw.exceptions) ? raw.exceptions.length : 0;
+    return { label: "Kasa-banka gün sonu kontrolü", summary: [String(raw.date ?? ""), exceptions ? `${exceptions} açık istisna` : "Fark yok", String(raw.reviewedBy ?? "")].filter(Boolean).join(" · ") };
   }
   if (record.entity === "contract" && schema.startsWith("global1881-offline-authority")) return { label: "Yetki sözleşmesi", summary: [raw.mode === "sale" ? "Satış" : "Kiralama", String(raw.contractNo ?? ""), String(raw.propertyNeighborhood ?? ""), String(raw.propertyAddress ?? ""), raw.price ? `Bedel: ${money(raw.price, String(raw.currency ?? "TRY"))}` : ""].filter(Boolean).join(" · ") };
   if (record.entity === "contract" && schema.startsWith("global1881-offline-rental")) return { label: "Kira sözleşmesi", summary: [String(raw.contractNo ?? ""), String(raw.propertyNeighborhood ?? ""), String(raw.propertyAddress ?? ""), raw.monthlyRent ? `Aylık kira: ${money(raw.monthlyRent)}` : ""].filter(Boolean).join(" · ") };

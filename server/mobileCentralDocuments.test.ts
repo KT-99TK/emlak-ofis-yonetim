@@ -8,6 +8,7 @@ describe("central mobile contract documents", () => {
     const schema = fs.readFileSync(path.join(root, "drizzle", "schema.ts"), "utf8");
     const db = fs.readFileSync(path.join(root, "server", "db.ts"), "utf8");
     const router = fs.readFileSync(path.join(root, "server", "routers.ts"), "utf8");
+    const download = fs.readFileSync(path.join(root, "server", "contractDocumentDownload.ts"), "utf8");
     expect(schema).toContain('export const contractDocuments');
     expect(schema).toContain('storageKey: varchar("storageKey"');
     expect(schema).not.toContain('blob("content")');
@@ -18,6 +19,11 @@ describe("central mobile contract documents", () => {
     expect(router).toContain("['signed', 'active']");
     expect(router).toContain("createHash(\"sha256\")");
     expect(router).toContain("storagePut(");
+    expect(router).not.toContain("storageGet(document.storageKey)");
+    expect(router).toContain("/api/contract-documents/${document.id}/download");
+    expect(download).toContain("sdk.authenticateRequest(req)");
+    expect(download).toContain("getContractDocumentForUser(");
+    expect(download).toContain("storageGetSignedUrl(document.storageKey)");
     expect(router).toContain("invalidate:");
     expect(router).toContain('confirmationText: z.literal("GEÇERSİZ KIL")');
     expect(db).toContain("invalidateContractDocument");
