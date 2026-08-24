@@ -2,14 +2,18 @@ import type { OfflineRecord } from "@/lib/offlineStore";
 
 export type OfflineAccessRole = "consultant" | "officeAssistant";
 
+import { recordOfflineAudit } from "./offlineStore";
+
 const ACCESS_ROLE_KEY = "global1881.offline.access-role.v1";
 
 export function getOfflineAccessRole(): OfflineAccessRole {
   return window.localStorage.getItem(ACCESS_ROLE_KEY) === "officeAssistant" ? "officeAssistant" : "consultant";
 }
 
-export function setOfflineAccessRole(role: OfflineAccessRole) {
+export function assignOfflineAccessRole(role: OfflineAccessRole, managerSessionActive: boolean) {
+  if (!managerSessionActive) throw new Error("Ofis asistanı erişim rolü yalnız açık yerel broker manager oturumunda atanabilir.");
   window.localStorage.setItem(ACCESS_ROLE_KEY, role);
+  recordOfflineAudit("contract-access-role-assigned", { role, localOnly: true });
 }
 
 export type OfflineContractAccessContext = {

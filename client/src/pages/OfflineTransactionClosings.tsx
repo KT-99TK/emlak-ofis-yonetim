@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { formatAuthorityCurrency, formatWholeCurrencyInput } from "@/lib/authorityContract";
 import OfflineOfficeFlowPanel from "@/components/OfflineOfficeFlowPanel";
+import { canViewFullOfflineContract, getOfflineAccessRole } from "@/lib/offlineContractAccess";
 import { getUserId, listOfflineRecords, saveOfflineRecord, updateOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
 import { configureLocalManagerPasscode, hasLocalManagerPasscode, isLocalManagerSessionActive, LOCAL_MANAGER_SESSION_MINUTES, lockLocalManagerAccess, unlockLocalManagerAccess } from "@/lib/offlineManagerAccess";
 import { addOptionalCollection, closeTransaction, collectionCategoryLabels, collectionStateLabels, createTransactionFromContract, declareCollection, parseOfflineTransaction, transactionExpectedTotal, transactionRisks, transactionVerifiedTotal, verifyCollection, type OfflineTransactionDetails, type PaymentMethod } from "@/lib/transactionClosing";
@@ -38,6 +39,7 @@ export default function OfflineTransactionClosings() {
   const isOfflineDesktop = typeof window !== "undefined" && window.location.protocol === "file:";
   const needsLocalManagerAccess = isOfflineDesktop && !serverManager;
   const isManager = serverManager || (needsLocalManagerAccess && localManagerUnlocked);
+  const contractAccess = { userId, role: getOfflineAccessRole(), managerSessionActive: isManager } as const;
   const refresh = async () => setRecords(await listOfflineRecords());
   useEffect(() => { void refresh(); setLocalManagerConfigured(hasLocalManagerPasscode()); setLocalManagerUnlocked(isLocalManagerSessionActive()); }, []);
 
@@ -45,15 +47,16 @@ export default function OfflineTransactionClosings() {
     const details = parseOfflineTransaction(record);
     return details ? [{ record, details }] : [];
   }), [records]);
-  const visibleTransactions = useMemo(() => isManager ? transactions : transactions.filter((item) => item.record.userId === userId), [isManager, transactions, userId]);
-  const eligibleSources = useMemo(() => records.filter((record) => record.entity === "contract" && !transactions.some((transaction) => transaction.details.sourceContractRecordId === record.id)).flatMap((record) => {
+  const visibleTransactions = useMemo(() => transactions.filter((item) => canViewFullOfflineContract(item.record, contractAccess)), [contractAccess, transactions]);
+  const eligibleSources = useMemo(() => records.filter((record) => record.entity === "contract" && canViewFullOfflineContract(record, contractAccess) && !transactions.some((transaction) => transaction.details.sourceContractRecordId === record.id)).flatMap((record) => {
     const preview = createTransactionFromContract(record, records, userId || "danışman");
     return preview ? [{ record, preview }] : [];
-  }), [records, transactions, userId]);
+  }), [contractAccess, records, transactions, userId]);
 
   const createTransaction = async (sourceId: string) => {
     const source = records.find((record) => record.id === sourceId);
-    if (!source || !userId.trim()) { setMessage("Önce Yerel Çalışma Alanı ekranından offline kullanıcı kodunu kaydedin."); return; }
+    if (!source || !userId.trim()) { setMessage("Önce Yerel Çalışma Alanı ekranından offline kullanıcı kodunuzu kaydedin."); return; }
+    if (!canViewFullOfflineContract(source, contractAccess)) { setMessage("Başka danışmana ait sözleşmeden işlem dosyası açma yetkiniz yok."); return; }
     const details = createTransactionFromContract(source, records, userId);
     if (!details) { setMessage("Bu sözleşme işlem kapanışına uygun bir satış yetkisi veya kira sözleşmesi değildir."); return; }
     await saveOfflineRecord({ entity: "transaction", title: `${details.transactionNo} — ${details.kind === "sale" ? "SATIŞ" : "KİRA"} İŞLEM KAPANIŞI`, details: JSON.stringify(details), amount: String(transactionExpectedTotal(details)), dueDate: details.collections.map((item) => item.dueDate).filter(Boolean).sort()[0], status: details.status });

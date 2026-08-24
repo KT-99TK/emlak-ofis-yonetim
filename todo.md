@@ -470,7 +470,7 @@
 
 ## Offline sözleşme erişimi ve malik verisi gizliliği
 
-- [ ] Yetki ve kira sözleşmelerinde sözleşme sahibi/atanmış danışman, broker, ofis asistanı ve diğer danışman için yazılı erişim matrisi oluştur
+- [x] Yetki ve kira sözleşmelerinde sözleşme sahibi/atanmış danışman, broker, ofis asistanı ve diğer danışman için yazılı erişim matrisi oluştur
 - [ ] Sözleşme sahibi dışındaki danışmanların Yetki/Kira A4 önizlemesini ve yazdırma yolunu teknik olarak engelle; broker ve ofis asistanı için yetkili görüntülemeyi koru
 - [ ] Yetkisiz danışman listelerinde malik adı, kimlik/VKN, telefon ve adresi geri döndürülemez maskeli özet olarak göster; tam müşteri/sözleşme snapshot’ını istemciye açma
 - [ ] Rol ve sahiplik kurallarını Yetki, Kira, Benim Sözleşmelerim, kayıt listeleri ve yazdırma akışlarında birim/UI testleriyle doğrula

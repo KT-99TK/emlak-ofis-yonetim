@@ -21,6 +21,8 @@ import {
   type AuthorityContractDetails,
 } from "@/lib/authorityContract";
 import { filterOfflineAuthorityDrafts, listOfflineAuthorityDrafts } from "@/lib/authorityDrafts";
+import { canViewFullOfflineContract, getOfflineAccessRole } from "@/lib/offlineContractAccess";
+import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 import { getUserId, listOfflineRecords, saveOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
 
 const detailsFields: Array<[keyof AuthorityContractDetails, string]> = [
@@ -58,12 +60,13 @@ export default function OfflineAuthorityContracts() {
   const [saveVisualState, setSaveVisualState] = useState<SaveVisualState>("idle");
   const [message, setMessage] = useState("");
   const userId = getUserId();
+  const contractAccess = { userId, role: getOfflineAccessRole(), managerSessionActive: isLocalManagerSessionActive() } as const;
   const refresh = async () => setRecords(await listOfflineRecords());
   useEffect(() => { void refresh(); }, []);
 
-  const clientRecords = records.filter((record) => record.entity === "client");
-  const propertyRecords = records.filter((record) => record.entity === "property");
-  const authorityDrafts = useMemo(() => listOfflineAuthorityDrafts(records), [records]);
+  const clientRecords = records.filter((record) => record.entity === "client" && canViewFullOfflineContract(record, contractAccess));
+  const propertyRecords = records.filter((record) => record.entity === "property" && canViewFullOfflineContract(record, contractAccess));
+  const authorityDrafts = useMemo(() => listOfflineAuthorityDrafts(records.filter((record) => record.entity !== "contract" || canViewFullOfflineContract(record, contractAccess))), [records, contractAccess]);
   const matchingAuthorityDrafts = useMemo(() => filterOfflineAuthorityDrafts(authorityDrafts, draftSearch), [authorityDrafts, draftSearch]);
   const contractNo = useMemo(() => nextAuthorityContractNo(existingAuthorityNumbers(records), details.consultantName, details.contractDate), [details.consultantName, details.contractDate, records]);
   const summary = useMemo(() => calculateAuthoritySummary(details), [details]);
