@@ -522,7 +522,8 @@
 - [x] Danışman eklediği veya sahip olduğu hiçbir aktif imzalı PDF’nin silinmesine/değiştirilmesine izin verme; silme arayüzü ve IPC yüzeyi sunma
 - [x] Olası manager istisnasını gerekçe, çift doğrulama ve silinmeyen denetim iziyle ayrı belge geçersiz kılma sürecine bağla; dosyayı iz bırakmadan yok etme
 - [x] Geçiş yılı offline IndexedDB/manuel merge modelinden merkezi sunucu veri modeline geçişte müşteri, portföy, sözleşme, vade, aktif imzalı belge ve arşiv metadata eşleme planını çıkar
-- [ ] Danışmanların Android/iOS uygulamasından yalnız kendi müşteri, portföy, sözleşme, talep ve gündem bilgilerine güvenli erişeceği merkezi mobil rol matrisi ile oturum modelini tasarla
+- [x] Danışmanların Android/iOS uygulamasından yalnız kendi müşteri, portföy, sözleşme, talep ve gündem bilgilerine güvenli erişeceği merkezi mobil rol matrisi ile oturum modelini tasarla
+- [ ] Merkezi ofis asistanı rolünü yalnız atanmış danışman/manager kapsamındaki operasyon kayıtlarında yetkilendir; diğer danışman müşteri, malik, telefon, adres ve belge verilerini görmesin; rol matrisi ve API testleriyle doğrula
 - [x] Merkezi API ve S3 belge depolama üzerinde aktif imzalı PDF ile geçmiş Müşteri Dijital Arşivi erişimini, yükleme ve denetim izini uygulamaya hazırla
 - [x] Global 1881 görsel dilini koruyan Android/iOS danışman uygulaması için ana ekran, müşteri/portföy, gündem, talep, belge ve bildirim kapsamını onayla; onaylanan ilk kapsamda mobil web uygulamasını geliştir
 - [ ] Offline geçiş modelinden bağımsız, danışmanların ofis dışından aynı güncel verilere erişeceği merkezi online çalışma modelini uygula; telefon denemesinde ayrı cihaz verisi/manuel merge kullanma
