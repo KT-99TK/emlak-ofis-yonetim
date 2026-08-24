@@ -25,6 +25,7 @@ import BrokerRequestMatches from "./pages/BrokerRequestMatches";
 import OfflineTransactionClosings from "./pages/OfflineTransactionClosings";
 import OfflineContractArchive from "./pages/OfflineContractArchive";
 import OfflineActiveContractDocuments from "./pages/OfflineActiveContractDocuments";
+import MobileCompanion from "./pages/MobileCompanion";
 import Obligations from "./pages/Obligations";
 
 const isElectronDesktop = () => typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
@@ -69,6 +70,7 @@ function DesktopRouter() {
 
 function Router() {
   if (isElectronDesktop()) return <DesktopRouter />;
+  if (typeof window !== "undefined" && window.location.pathname === "/mobile") return <MobileCompanion />;
 
   return (
     <DashboardLayout>

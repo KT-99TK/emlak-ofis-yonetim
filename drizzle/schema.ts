@@ -88,6 +88,24 @@ export const contracts = mysqlTable("contracts", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/** Dosya baytları güvenli obje depolamada kalır; merkezi veri tabanı yalnız erişim, bütünlük ve audit metadata’sını taşır. */
+export const contractDocuments = mysqlTable("contractDocuments", {
+  id: int("id").autoincrement().primaryKey(),
+  contractId: int("contractId"),
+  clientId: int("clientId"),
+  assignedUserId: int("assignedUserId").notNull(),
+  category: mysqlEnum("category", ["activeSigned", "archive"]).notNull(),
+  originalFileName: varchar("originalFileName", { length: 255 }).notNull(),
+  storageKey: varchar("storageKey", { length: 255 }).notNull().unique(),
+  sha256: varchar("sha256", { length: 64 }).notNull(),
+  byteSize: int("byteSize").notNull(),
+  immutable: int("immutable").default(1).notNull(),
+  createdByUserId: int("createdByUserId").notNull(),
+  invalidatedAt: timestamp("invalidatedAt"),
+  invalidationReason: text("invalidationReason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const ledgerEntries = mysqlTable("ledgerEntries", {
   id: int("id").autoincrement().primaryKey(),
   entryType: mysqlEnum("entryType", ["income", "expense", "receivable", "payable"]).notNull(),

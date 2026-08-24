@@ -4,10 +4,14 @@ import { parse as parseCookieHeader } from "cookie";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createClient, createContract, decideOwnerApproval, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listClients, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
+import { createClient, createContract, createContractDocument, decideOwnerApproval, getContractDocumentForUser, getContractForAssignedUser, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
+import { storageGet, storagePut } from "./storage";
+import { createHash } from "node:crypto";
 import { z } from "zod";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
+const MAX_MOBILE_PDF_BYTES = 12 * 1024 * 1024;
+const safeFileName = (value: string) => value.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/^_+/, "").slice(0, 120) || "imzali-sozlesme.pdf";
 
 export const appRouter = router({
   system: systemRouter,
@@ -24,6 +28,41 @@ export const appRouter = router({
     requestOwnerApproval: protectedProcedure.input(z.object({ id: z.number() })).mutation(({ ctx, input }) => requestOwnerApproval(input.id, ctx.user.id)),
     decideOwnerApproval: adminProcedure.input(z.object({ id: z.number(), decision: z.enum(["approved", "rejected"]), note: z.string().optional() })).mutation(({ ctx, input }) => decideOwnerApproval(input.id, input.decision, input.note, ctx.user.id)),
     transition: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["draft", "review", "approved", "signed", "active", "completed", "cancelled"]) })).mutation(({ ctx, input }) => transitionContract(input.id, input.status, ctx.user.id)),
+  }),
+  documents: router({
+    list: protectedProcedure.query(({ ctx }) => listContractDocuments(ctx.user.id, isManager(ctx.user))),
+    attachActiveSigned: protectedProcedure.input(z.object({
+      contractId: z.number().int().positive(),
+      originalFileName: z.string().min(5).max(255),
+      pdfBase64: z.string().min(100).max(18_000_000),
+    })).mutation(async ({ ctx, input }) => {
+      const contract = await getContractForAssignedUser(input.contractId, ctx.user.id);
+      if (!contract) throw new Error("Yalnız kendi sözleşmenize belge ekleyebilirsiniz.");
+      if (!['signed', 'active'].includes(contract.status)) throw new Error("PDF yalnız imza teyitli veya aktif sözleşmeye eklenebilir.");
+      const base64 = input.pdfBase64.replace(/^data:application\/pdf;base64,/i, "");
+      const bytes = Buffer.from(base64, "base64");
+      if (!bytes.length || bytes.length > MAX_MOBILE_PDF_BYTES || bytes.subarray(0, 4).toString() !== "%PDF") throw new Error("Yalnız 12 MB altındaki geçerli PDF belgeleri eklenebilir.");
+      const sha256 = createHash("sha256").update(bytes).digest("hex");
+      const stored = await storagePut(`office-documents/active-signed/${ctx.user.id}/${contract.id}/${safeFileName(input.originalFileName)}`, bytes, "application/pdf");
+      const documentId = await createContractDocument({
+        contractId: contract.id,
+        clientId: contract.clientId,
+        assignedUserId: ctx.user.id,
+        category: "activeSigned",
+        originalFileName: safeFileName(input.originalFileName),
+        storageKey: stored.key,
+        sha256,
+        byteSize: bytes.byteLength,
+        createdByUserId: ctx.user.id,
+      });
+      return { id: documentId, sha256, byteSize: bytes.byteLength };
+    }),
+    open: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ ctx, input }) => {
+      const document = await getContractDocumentForUser(input.id, ctx.user.id, isManager(ctx.user));
+      if (!document) throw new Error("Bu belge için görüntüleme yetkiniz bulunmuyor.");
+      const stored = await storageGet(document.storageKey);
+      return { id: document.id, originalFileName: document.originalFileName, url: stored.url, immutable: Boolean(document.immutable), sha256: document.sha256 };
+    }),
   }),
   clients: router({
     list: protectedProcedure.query(({ ctx }) => listClients(ctx.user.id, isManager(ctx.user))),

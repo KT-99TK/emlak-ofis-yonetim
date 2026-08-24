@@ -72,6 +72,12 @@ const trpcClient = trpc.createClient({
   ],
 });
 
+if (typeof window !== "undefined" && window.location.pathname === "/mobile" && "serviceWorker" in navigator) {
+  void navigator.serviceWorker.register("/mobile-sw.js").catch(() => {
+    // Mobil deneme tarayıcıdan da çalışır; PWA kaydı başarısız olursa oturum akışını bozma.
+  });
+}
+
 createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
