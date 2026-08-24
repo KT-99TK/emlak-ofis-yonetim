@@ -5,5 +5,13 @@
   "display": "standalone",
   "background_color": "#173e39",
   "theme_color": "#173e39",
-  "lang": "tr"
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "/manus-storage/21_muhur_seffaf_9a34c4d4.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

@@ -18,6 +18,7 @@ describe("mobile online companion", () => {
     expect(app).toContain('window.location.pathname === "/mobile"');
     expect(manifest).toContain('"start_url": "/mobile"');
     expect(manifest).toContain('"display": "standalone"');
+    expect(manifest).toContain('"purpose": "any maskable"');
     expect(entry).toContain('navigator.serviceWorker.register("/mobile-sw.js")');
     expect(worker).toContain("event.respondWith(fetch(event.request))");
   });
