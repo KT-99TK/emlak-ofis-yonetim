@@ -1,7 +1,7 @@
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { BellRing, Building2, FileText, LogOut, Paperclip, RefreshCw, ShieldCheck, Upload, UsersRound } from "lucide-react";
+import { AlertTriangle, BellRing, Building2, FileText, LogOut, Paperclip, RefreshCw, ShieldCheck, Upload, UsersRound } from "lucide-react";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 
 type MobileSection = "gundem" | "kayitlar" | "sozlesmeler" | "belgeler";
@@ -17,6 +17,9 @@ export default function MobileCompanion() {
   const [section, setSection] = useState<MobileSection>("gundem");
   const [selectedContractId, setSelectedContractId] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const [invalidationId, setInvalidationId] = useState<number | null>(null);
+  const [invalidationReason, setInvalidationReason] = useState("");
+  const [invalidationConfirmation, setInvalidationConfirmation] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
 
@@ -34,10 +37,20 @@ export default function MobileCompanion() {
     },
     onError: (error) => setNotice(error.message),
   });
+  const invalidateDocument = trpc.documents.invalidate.useMutation({
+    onSuccess: () => {
+      setNotice("Belge silinmedi; manager gerekçesiyle geçersiz kılındı ve denetim izine eklendi.");
+      setInvalidationId(null);
+      setInvalidationReason("");
+      setInvalidationConfirmation("");
+      void documents.refetch();
+    },
+    onError: (error) => setNotice(error.message),
+  });
 
   const isManager = user?.role === "admin";
   const upcoming = useMemo(() => (obligations.data ?? []).filter((item) => ["planned", "due", "overdue"].includes(item.status)).slice(0, 5), [obligations.data]);
-  const uploadableContracts = useMemo(() => (contracts.data ?? []).filter((item) => ["signed", "active"].includes(item.status)), [contracts.data]);
+  const uploadableContracts = useMemo(() => isManager ? [] : (contracts.data ?? []).filter((item) => ["signed", "active"].includes(item.status)), [contracts.data, isManager]);
 
   const refresh = () => {
     void Promise.all([summary.refetch(), clients.refetch(), properties.refetch(), contracts.refetch(), obligations.refetch(), documents.refetch()]);
@@ -71,6 +84,12 @@ export default function MobileCompanion() {
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Belge açılamadı.");
     }
+  };
+
+  const submitInvalidation = () => {
+    if (!invalidationId || invalidationConfirmation !== "GEÇERSİZ KIL") return;
+    if (!window.confirm("Belge silinmeyecek ancak danışmana kapatılacak ve denetim izine manager gerekçesi yazılacak. Devam edilsin mi?")) return;
+    invalidateDocument.mutate({ id: invalidationId, reason: invalidationReason, confirmationText: "GEÇERSİZ KIL" });
   };
 
   if (loading) return <main className="min-h-screen bg-[#f7f7f4] p-6 text-center text-sm text-[#60706b]">Güvenli mobil oturum hazırlanıyor…</main>;
@@ -121,7 +140,7 @@ export default function MobileCompanion() {
       {section === "sozlesmeler" && <ListCard title="Sözleşmeler" empty="Görüntüleyebileceğiniz sözleşme kaydı yok." items={(contracts.data ?? []).slice(0, 15).map((item) => ({ id: item.id, title: item.title, subtitle: `${item.contractNo} · ${item.type === "rental" ? "Kira" : item.type === "sale" ? "Satış" : "Yetki"} · ${item.status}` }))} />}
 
       {section === "belgeler" && <>
-        <section className="rounded-2xl border border-[#dce7df] bg-white p-4">
+        {!isManager && <section className="rounded-2xl border border-[#dce7df] bg-white p-4">
           <div className="flex items-center gap-2"><Paperclip className="h-4 w-4 text-[#a17b43]" /><h2 className="font-serif text-xl">Aktif imzalı belgeler</h2></div>
           <p className="mt-2 text-xs leading-5 text-[#697a74]">PDF yalnız kendi imza teyitli/aktif sözleşmenize eklenir. Eklenen belge silinemez veya değiştirilemez.</p>
           <select aria-label="İmzalı sözleşme seç" value={selectedContractId} onChange={(event) => setSelectedContractId(event.target.value)} className="mt-3 h-11 w-full rounded-xl border border-[#d2dfd7] bg-white px-3 text-sm">
@@ -131,10 +150,10 @@ export default function MobileCompanion() {
           <input ref={fileInputRef} type="file" accept="application/pdf,.pdf" className="mt-3 block w-full text-xs" onChange={(event) => handlePdf(event.target.files?.[0])} />
           <button type="button" disabled={attachDocument.isPending || !selectedContractId} onClick={() => fileInputRef.current?.click()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#173e39] px-4 py-3 text-sm font-semibold text-white disabled:bg-[#8ca39b]"><Upload className="h-4 w-4" />{attachDocument.isPending ? "PDF ekleniyor…" : "İmzalı PDF ekle"}</button>
           {notice && <p className="mt-3 rounded-lg bg-[#eef5ef] p-2 text-xs text-[#355b4e]">{notice}</p>}
-        </section>
+        </section>}
         <section className="rounded-2xl border border-[#dce7df] bg-white p-4">
-          <h2 className="font-serif text-xl">Dosyamdaki belgeler</h2>
-          {documents.data?.length ? <div className="mt-3 divide-y divide-[#e4ebe6]">{documents.data.map((document) => <div key={document.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#314842]">{document.originalFileName}</p><p className="mt-1 text-xs text-[#71817b]">{formatDate(document.createdAt)} · Silinemez belge</p></div><button type="button" onClick={() => void openDocument(document.id)} className="shrink-0 rounded-lg border border-[#bdcfbf] px-3 py-2 text-xs font-semibold text-[#285348]">Aç</button></div>)}</div> : <p className="mt-3 text-sm text-[#71817b]">Yetkili olduğunuz merkezi imzalı belge bulunmuyor.</p>}
+          <h2 className="font-serif text-xl">{isManager ? "Yetkili belge kayıtları" : "Dosyamdaki belgeler"}</h2>
+          {documents.data?.length ? <div className="mt-3 divide-y divide-[#e4ebe6]">{documents.data.map((document) => <div key={document.id} className="py-3"><div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#314842]">{document.originalFileName}</p><p className={`mt-1 text-xs ${document.invalidatedAt ? "text-[#a64c38]" : "text-[#71817b]"}`}>{formatDate(document.createdAt)} · {document.invalidatedAt ? "Geçersiz kılındı — dosya saklanıyor" : "Silinemez belge"}</p></div>{(!document.invalidatedAt || isManager) && <button type="button" onClick={() => void openDocument(document.id)} className="shrink-0 rounded-lg border border-[#bdcfbf] px-3 py-2 text-xs font-semibold text-[#285348]">Aç</button>}</div>{isManager && !document.invalidatedAt && <button type="button" onClick={() => { setInvalidationId(document.id); setInvalidationReason(""); setInvalidationConfirmation(""); }} className="mt-2 flex items-center gap-1 text-xs font-semibold text-[#9a503c]"><AlertTriangle className="h-3.5 w-3.5" />Geçersiz kıl</button>}{isManager && invalidationId === document.id && <div className="mt-3 rounded-xl border border-[#eed5cc] bg-[#fff8f5] p-3"><p className="text-xs font-semibold text-[#7c4131]">Silme yoktur. Gerekçe ve ikinci teyit zorunludur.</p><textarea value={invalidationReason} onChange={(event) => setInvalidationReason(event.target.value)} placeholder="Geçersiz kılma gerekçesi (en az 20 karakter)" className="mt-2 min-h-20 w-full rounded-lg border border-[#e6c8bd] bg-white p-2 text-xs" /><input value={invalidationConfirmation} onChange={(event) => setInvalidationConfirmation(event.target.value)} placeholder="GEÇERSİZ KIL yazın" className="mt-2 h-10 w-full rounded-lg border border-[#e6c8bd] bg-white px-2 text-xs" /><button type="button" disabled={invalidateDocument.isPending || invalidationReason.trim().length < 20 || invalidationConfirmation !== "GEÇERSİZ KIL"} onClick={submitInvalidation} className="mt-2 w-full rounded-lg bg-[#8f4839] px-3 py-2 text-xs font-semibold text-white disabled:bg-[#c9a9a0]">{invalidateDocument.isPending ? "Kaydediliyor…" : "Silmeden geçersiz kıl"}</button></div>}</div>)}</div> : <p className="mt-3 text-sm text-[#71817b]">Yetkili olduğunuz merkezi imzalı belge bulunmuyor.</p>}
         </section>
       </>}
     </section>

@@ -4,7 +4,7 @@ import { parse as parseCookieHeader } from "cookie";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createClient, createContract, createContractDocument, decideOwnerApproval, getContractDocumentForUser, getContractForAssignedUser, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
+import { createClient, createContract, createContractDocument, decideOwnerApproval, getContractDocumentForUser, getContractForAssignedUser, invalidateContractDocument, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, transitionContract } from "./db";
 import { storageGet, storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -60,8 +60,18 @@ export const appRouter = router({
     open: protectedProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ ctx, input }) => {
       const document = await getContractDocumentForUser(input.id, ctx.user.id, isManager(ctx.user));
       if (!document) throw new Error("Bu belge için görüntüleme yetkiniz bulunmuyor.");
+      if (document.invalidatedAt && !isManager(ctx.user)) throw new Error("Bu belge manager tarafından geçersiz kılındı.");
       const stored = await storageGet(document.storageKey);
       return { id: document.id, originalFileName: document.originalFileName, url: stored.url, immutable: Boolean(document.immutable), sha256: document.sha256 };
+    }),
+    invalidate: protectedProcedure.input(z.object({
+      id: z.number().int().positive(),
+      reason: z.string().min(20).max(1000),
+      confirmationText: z.literal("GEÇERSİZ KIL"),
+    })).mutation(async ({ ctx, input }) => {
+      if (!isManager(ctx.user)) throw new Error("Belgeyi geçersiz kılma yetkisi yalnız broker manager hesabındadır.");
+      await invalidateContractDocument(input.id, ctx.user.id, input.reason.trim());
+      return { ok: true };
     }),
   }),
   clients: router({

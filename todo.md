@@ -520,7 +520,7 @@
 - [x] Danışmanın yalnız kendi kullanıcı kimliğiyle sahip olduğu aktif sözleşmeye PDF yükleyebilmesini; manager ve atanmış ofis asistanının yetkili görüntülemesini; diğer danışmanların müşteri adı ve PDF içeriğini görememesini uygula
 - [x] Aktif imzalı PDF yüklemesinde dosya türü/boyutu/SHA-256 bütünlük özeti/audit kaydı ve vade–tahliye akışını başlatmadan önce imza/işlem durumu doğrulamasını uygula
 - [x] Danışman eklediği veya sahip olduğu hiçbir aktif imzalı PDF’nin silinmesine/değiştirilmesine izin verme; silme arayüzü ve IPC yüzeyi sunma
-- [ ] Olası manager istisnasını gerekçe, çift doğrulama ve silinmeyen denetim iziyle ayrı belge geçersiz kılma sürecine bağla; dosyayı iz bırakmadan yok etme
+- [x] Olası manager istisnasını gerekçe, çift doğrulama ve silinmeyen denetim iziyle ayrı belge geçersiz kılma sürecine bağla; dosyayı iz bırakmadan yok etme
 - [x] Geçiş yılı offline IndexedDB/manuel merge modelinden merkezi sunucu veri modeline geçişte müşteri, portföy, sözleşme, vade, aktif imzalı belge ve arşiv metadata eşleme planını çıkar
 - [ ] Danışmanların Android/iOS uygulamasından yalnız kendi müşteri, portföy, sözleşme, talep ve gündem bilgilerine güvenli erişeceği merkezi mobil rol matrisi ile oturum modelini tasarla
 - [ ] Merkezi API ve S3 belge depolama üzerinde aktif imzalı PDF ile geçmiş Müşteri Dijital Arşivi erişimini, yükleme ve denetim izini uygulamaya hazırla

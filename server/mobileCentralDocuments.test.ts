@@ -18,6 +18,9 @@ describe("central mobile contract documents", () => {
     expect(router).toContain("['signed', 'active']");
     expect(router).toContain("createHash(\"sha256\")");
     expect(router).toContain("storagePut(");
+    expect(router).toContain("invalidate:");
+    expect(router).toContain('confirmationText: z.literal("GEÇERSİZ KIL")');
+    expect(db).toContain("invalidateContractDocument");
     expect(router).not.toContain("documents: router({\n    delete");
   });
 });
