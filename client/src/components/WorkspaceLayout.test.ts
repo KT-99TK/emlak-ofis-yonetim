@@ -56,4 +56,27 @@ describe("workspace content layout", () => {
     expect(rentalPage.indexOf("Kiralama türü")).toBeLessThan(rentalPage.indexOf("Önceki kira sözleşmesini çağır"));
     expect(rentalPage).toContain("Konut veya işyeri türünü seçtikten sonra");
   });
+
+  it("keeps the DASK policy input in the same plain field rhythm as the property address", () => {
+    const css = projectFile("client/src/index.css");
+
+    expect(css).toContain('input[placeholder="DASK poliçe numarasını yazın"]) > :nth-child(5) {');
+    expect(css).toContain("padding: 0;");
+    expect(css).toContain("background: transparent;");
+  });
+
+  it("keeps customer-facing rental preview notes visually quiet until the document is assigned", () => {
+    const css = projectFile("client/src/index.css");
+
+    expect(css).toContain(".rental-selected-appendices-heading { display: none; }");
+    expect(css).toContain(".rental-trace-unassigned .rental-advisor-trace { display: none; }");
+  });
+
+  it("keeps the evacuation commitment date as a separate blank manual field", () => {
+    const rentalPage = projectFile("client/src/pages/OfflineRentalContracts.tsx");
+
+    expect(rentalPage).toContain("Taahhüt edilen tahliye tarihi");
+    expect(rentalPage).toContain('value={details.evacuationCommitmentDate ?? ""}');
+    expect(rentalPage).toContain('update("evacuationCommitmentDate", value)');
+  });
 });

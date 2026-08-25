@@ -23,6 +23,12 @@ describe("rental documents", () => {
     expect(html).toContain("Düzenleme izi · DY · 23.08.2026 · Form: KIR-2026-001");
   });
 
+  it("hides the consultant/form trace until a real rental contract number has been assigned", () => {
+    const draftHtml = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={details} contractNo="Kayıtta atanacak" fontSize="10" />);
+
+    expect(draftHtml).toContain("rental-trace-unassigned");
+  });
+
   it("adds the on-screen preview class only when an appendix is selected for the package", () => {
     const selected = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={details} contractNo="KIR-2026-001" fontSize="10" screenVisible />);
     const unselected = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={details} contractNo="KIR-2026-001" fontSize="10" screenVisible={false} />);
@@ -35,6 +41,10 @@ describe("rental documents", () => {
     expect(html).toContain("Sıra No");
     expect(html).toContain("Demirbaş / Marka-Cins");
     expect(html).toContain("Teslim Durumu / Açıklama");
+    expect(html).toContain('style="width:7%"');
+    expect(html).toContain('style="width:33%"');
+    expect(html).toContain('style="width:10%"');
+    expect(html).toContain('style="width:50%"');
     expect(html).toContain("Vestel klima");
     expect(html).toContain("Daire anahtarı");
     expect(html).toContain("Teslim edildi");
@@ -65,6 +75,19 @@ describe("rental documents", () => {
     expect(html).toContain("Teslim Durumu / Açıklama");
     expect(html.match(/text-center">[1-6]<\/td>/g)).toHaveLength(6);
     expect(html).not.toContain("Teslim edilen demirbaş bulunmuyor");
+  });
+
+  it("uses the supplied evacuation commitment format and keeps its date blank until manually chosen", () => {
+    const blank = renderToStaticMarkup(<RentalAppendixDocument kind="evacuation" details={{ ...details, ownerIdentity: "32431945506", tenantIdentity: "36907881664", propertyAddress: "Güvendik Mahallesi 223. Sokak Urla/İZMİR", durationMonths: "12", evacuationCommitmentDate: "" }} contractNo="KIR-2026-001" fontSize="10" />);
+    const selected = renderToStaticMarkup(<RentalAppendixDocument kind="evacuation" details={{ ...details, ownerIdentity: "32431945506", tenantIdentity: "36907881664", propertyAddress: "Güvendik Mahallesi 223. Sokak Urla/İZMİR", durationMonths: "12", evacuationCommitmentDate: "2027-11-15" }} contractNo="KIR-2026-001" fontSize="10" />);
+
+    expect(blank).toContain("Taahhüt Eden Kiracı");
+    expect(blank).toContain("Tahliye Edilecek Mecurun Adresi");
+    expect(blank).toContain("Türk Borçlar Kanunu’nun 352. Maddesi");
+    expect(blank).toContain("……/………/………. tarihinde");
+    expect(blank).not.toContain("23.08.2027 tarihinde");
+    expect(selected).toContain("15.11.2027 tarihinde");
+    expect(selected).toContain("Mehmet Kiracı");
   });
 
   it("includes the guarantor table and signature only when the Kefil var choice is enabled", () => {

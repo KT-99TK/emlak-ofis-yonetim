@@ -22,4 +22,15 @@ describe("application print preview", () => {
     expect(authority).toContain("const openPrintPreview = () => setPrintPreviewOpen(true)");
     expect(authority).toContain("<DocumentPrintPreview");
   });
+
+  it("keeps every rental appendix independently printable through the shared A4 preview", () => {
+    const rental = source("client/src/pages/OfflineRentalContracts.tsx");
+
+    expect(rental).toContain('{ kind: "evacuation", label: "Tahliye Taahhütnamesi" }');
+    expect(rental).toContain('{ kind: "handover", label: "Teslim Etme Formu" }');
+    expect(rental).toContain('{ kind: "return", label: "Teslim Alma Formu" }');
+    expect(rental).toContain('{ kind: "fixtures", label: "Demirbaş Listesi" }');
+    expect(rental).toContain('onClick={() => printDocument(option.kind)}');
+    expect(rental).toContain('screenVisible={printMode === "package" ? details.appendixSelection[option.kind] : printMode === option.kind}');
+  });
 });

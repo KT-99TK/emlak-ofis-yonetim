@@ -51,6 +51,7 @@ describe("offline rental contract calculations", () => {
     expect(snapshot.appendices.fixtures.fixtureItems[1]).toMatchObject({ item: "Daire anahtarı", quantity: "3" });
     expect(snapshot.appendices.handover.fixtureItems[1]).toMatchObject({ item: "Daire anahtarı", quantity: "3", condition: "Teslim edildi" });
     expect(snapshot.appendices.return.fixtureItems[0]).toMatchObject({ item: "Vestel klima", quantity: "2" });
+    expect(snapshot.appendices.evacuation).toMatchObject({ plannedDate: "", commitmentDate: "" });
     expect(renderRentalContract(details)).toContain("Vestel klima | 2 | Çalışır, temiz");
   });
 

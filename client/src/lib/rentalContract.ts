@@ -59,6 +59,8 @@ export type OfflineRentalDetails = {
   startDate: string;
   durationMonths: string;
   noticeDays: string;
+  /** Tahliye taahhüdünde tarafların ayrıca belirlediği tarih; sözleşme bitişinden otomatik türetilmez. */
+  evacuationCommitmentDate?: string;
   kdvIncluded: boolean;
   usagePurpose: string;
   residentsCount: string;
@@ -71,7 +73,7 @@ export type OfflineRentalDetails = {
   officeAuthorizationNo: string;
 };
 
-export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v3";
+export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v4";
 
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
@@ -175,6 +177,7 @@ export function renderRentalContract(details: OfflineRentalDetails) {
 
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
   const summary = calculateRentalSummary(details);
+  const evacuationCommitmentDate = details.evacuationCommitmentDate ?? "";
   return {
     schema: "global1881-offline-rental-v6" as const,
     contractNo: contractNo.trim(),
@@ -188,6 +191,6 @@ export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contr
     conditions: rentalContractConditions(details, summary.endDate),
     deliveryAppendix: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo, daskPolicyNo: details.daskPolicyNo, deliveryDate: details.startDate },
     appendixTemplateVersion: RENTAL_APPENDIX_TEMPLATE_VERSION,
-    appendices: { evacuation: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
+    appendices: { evacuation: { plannedDate: evacuationCommitmentDate, commitmentDate: evacuationCommitmentDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
   };
 }

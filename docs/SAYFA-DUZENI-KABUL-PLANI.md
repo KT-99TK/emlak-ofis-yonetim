@@ -96,7 +96,21 @@ Windows Yetki ekranındaki önceki kırık mühür ve aşırı üst boşluk soru
 | Yetki formu | Belge türü, para birimi ve yetki süresi; `Önceki yetki taslağını çağır` kartından önce taşındı. | İlk karar alanı Kiralama/Satış yetkisi olmalı; taslak arama bunun altında kalmalı. |
 | Kira formu | Konut/İşyeri türü ve kayıt numarası; `Önceki kira sözleşmesini çağır` kartından önce taşındı. | İlk karar alanı Konut/İşyeri seçimi olmalı; önceki sözleşme çağırma bunun altında kalmalı. |
 | Kira ana belge ve ekler | Ekran önizlemesindeki A4 belge ve ekler yatayda `margin-inline: auto` ile ortalandı. | Kâğıt çalışma alanına sola yaslanmadan ortalı görünmeli; oran, belge iç marjı ve yazdırma davranışı korunmalı. |
-| Bağımsız Demirbaş Listesi | Boş durumda altı yazılabilir satır, dolu durumda form sırasını koruyan `Sıra No`, `Demirbaş / Marka-Cins`, `Adet`, `Teslim Durumu / Açıklama` tablosu eklendi. | Çizgili dört sütunlu tablo görünmeli; varsa formdaki demirbaş satırları aynı sırada yer almalı. |
-| Teslim Etme / Teslim Alma ekleri | Her iki formun bilgi tablosunun altında, snapshot içindeki demirbaş satırlarını koruyan aynı dört sütunlu ayrıntılı çizelge eklendi. | Her iki formda da `Sıra No`, `Demirbaş / Marka-Cins`, `Adet`, `Teslim Durumu / Açıklama` başlıkları ve formdaki satırlar görünmeli. |
+| Bağımsız Demirbaş Listesi | Boş durumda altı yazılabilir satır, dolu durumda form sırasını koruyan `Sıra No`, `Demirbaş / Marka-Cins`, `Adet`, `Teslim Durumu / Açıklama` tablosu eklendi; sütunlar sırasıyla `%7 / %33 / %10 / %50` oranlandı. | Çizgili dört sütunlu tablo görünmeli; sıra no ve adet dar, özellikle açıklama yazım alanı geniş kalmalı; varsa formdaki demirbaş satırları aynı sırada yer almalı. |
+| Teslim Etme / Teslim Alma ekleri | Her iki formun bilgi tablosunun altında, snapshot içindeki demirbaş satırlarını koruyan aynı dört sütunlu ayrıntılı çizelge eklendi; aynı `%7 / %33 / %10 / %50` sütun oranı kullanılır. | Başlıklar tek satırda okunmalı; kısa alanlar dar, demirbaş ve açıklama alanları yazım için geniş görünmelidir. |
+| Tahliye Taahhütnamesi | Kullanıcı örneğindeki taraf/adres anlatımı ve TBK 352 metni kullanıldı; kiraya veren, kiracı, adres ve kira başlangıcı snapshot’tan gelir. Tahliye tarihi boş başlar ve yalnız kullanıcı seçerse yazılır. | Eski kısa tablo/metin görünmemeli; tahliye tarihi sözleşme bitişinden otomatik gelmemeli, boş veya seçilen manuel tarih görünmelidir. |
+| Kira eki ara notları ve kayıt izi | Ekler arasındaki yönlendirme metni gizlendi. Taslakta `Kayıtta atanacak` içeren düzenleme izi görünmez; gerçek kayıt numarasıyla oluşan iz yalnız küçük ve siliktir. | Formlar arasında büyük açıklama metni görünmemeli; taslakta atanmamış kayıt ifadesi çıkmamalı, kayıtlı belgede iz dikkat dağıtmamalıdır. |
+
+> 1.0.16 form ekranındaki DASK alanı, ayrı kartın iç boşluğu nedeniyle Taşınmaz Açık Adresi’ne göre aşağı kaymış görünmüştür. Kaynakta kart iç boşluğu kaldırıldı; sonraki toplu Windows kontrolünde DASK sağ hücresinin açık adres alanıyla aynı etiket ve giriş kutusu hizasında olduğu doğrulanacaktır.
 
 > Kullanıcının kararıyla bu maddeler ara ZIP paketleriyle bölünmeyecek; ilgili küçük düzeltmeler tek mantıklı kontrol noktasında test edilip bir Windows paketiyle sunulacaktır.
+
+## 25.08.2026 · 1.0.16 Windows kanıtı
+
+| Yüzey | Kullanıcı kanıtı | Kabul sonucu |
+|---|---|---|
+| Offline marka ve menü | Zümrüt marka alanında mühür ve `GLOBAL 1881` tam görünür; ortak ofis araçları üstte, `Kişisel Çalışma Alanı` alt grubu ayrıdır. | Marka taşması ve sol menü hiyerarşisi kabul edildi. |
+| Yetki A4 ilk sayfa | Mühür, kompakt sola hizalı ofis iletişimi, başlık altındaki `Kayıt No / Düzenleme Tarihi`, ilk bilgi tablosu ve yatay ortalanmış A4 yüzeyi görünür. | Yetki A4 üst bilgi, orta hizalama ve müşteri çıktısı gizliliği kabul edildi. |
+| Yetki A4 son sayfa | Koşullar sonrasında imza kutuları sayfa üzerinde dengeli; eski taslak/snapshot alt bilgisi ya da tek satırlık taşan dipnot görünmüyor. | İç sistem metni temizliği ve imza sayfası yerleşimi kabul edildi. |
+
+> 1.0.16 kümesinde Kira form sırası, Kira A4/demirbaş listesi ve Teslim Etme/Teslim Alma eklerindeki ayrıntılı demirbaş tablosu için kullanıcı kanıtı beklenmektedir.

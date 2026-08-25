@@ -149,8 +149,30 @@ button:active { transform: scale(.98); }
   .offline-rental-contract-workspace section > .grid:has(input[placeholder="DASK poliçe numarasını yazın"]) > :nth-child(5) {
     grid-column: 2;
     grid-row: 2;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .offline-rental-contract-workspace section > .grid:has(input[placeholder="DASK poliçe numarasını yazın"]) > :nth-child(5) > label {
+    color: #56635f;
   }
 }
+.evacuation-commitment-document > h3 { display: none; }
+.evacuation-commitment-parties { margin: 0; border-top: 1px solid #b6b9b5; border-bottom: 1px solid #b6b9b5; }
+.evacuation-commitment-parties > div { display: grid; grid-template-columns: minmax(190px, 34%) minmax(0, 1fr); border-bottom: 1px solid #c9ccca; }
+.evacuation-commitment-parties > div:last-child { border-bottom: 0; }
+.evacuation-commitment-parties dt, .evacuation-commitment-parties dd { margin: 0; padding: 8px 10px; }
+.evacuation-commitment-parties dt { font-weight: 700; background: #f2f3f2; border-right: 1px solid #c9ccca; }
+.evacuation-commitment-parties dd { min-height: 38px; }
+.evacuation-commitment-document .text-justify { line-height: 1.74; }
+.evacuation-commitment-signature { margin-top: 26px; margin-left: auto; width: min(100%, 420px); }
+.evacuation-commitment-signature p { display: grid; grid-template-columns: 150px 14px minmax(0, 1fr); gap: 8px; margin: 8px 0; }
+.evacuation-commitment-signature strong { font-weight: 700; }
+.evacuation-commitment-signature em { font-style: normal; }
+.rental-selected-appendices-heading { display: none; }
+.rental-trace-unassigned .rental-advisor-trace { display: none; }
+.rental-advisor-trace { margin-top: 10px; font-size: 9px; color: #8c9692; text-align: right; letter-spacing: .01em; }
 @media (min-width: 1280px) {
   .offline-operation-grid { grid-template-columns: minmax(0, 1fr) minmax(264px, 300px); align-items: start; }
   .offline-operation-aside { position: sticky; top: 1.25rem; }
