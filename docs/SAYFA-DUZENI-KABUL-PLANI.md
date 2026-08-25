@@ -74,3 +74,13 @@ Windows kabulüne giden yeni ZIP, bu kanıtların ardından ayrı sürümle haz�
 | Windows Electron · Kasa ve Banka | Kullanıcının 1.0.7 gerçek Windows ekranında sol menüde Kasa ve Banka hedefi görünür; işlem formu ile sağ yardımcı sütun dengelidir. DashboardLayout üst kabuğundan çıkarılan eski gündem paneli tekrar oluşmamış, yalnız sayfanın sağ sütununda tek `Size Özel Gündem` paneli kalmıştır. | Tek panel ve tek menü kabulü tamamlandı. |
 
 Windows Yetki ekranındaki önceki kırık mühür ve aşırı üst boşluk sorunu bu kullanıcı kanıtında tekrar gözlenmemiştir. Kabulün kapanması için belirtilen diğer Windows ekranları ve yazdırma önizlemesi ayrıca alınacaktır.
+
+## Ofiste yapılacak kalan Windows kabul kontrolü
+
+| Sıra | Ekran | Kullanıcının doğrulayacağı nokta |
+|---:|---|---|
+| 1 | Kira Sözleşmeleri formu | DASK poliçe numarası, taşınmaz bilgileri ile aynı grupta görünmeli; bağımsız alt kutu olarak kalmamalıdır. |
+| 2 | Kira A4 önizleme ve Windows yazdırma önizlemesi | A4 marjları, başlık, taşınmaz tablosu ve DASK satırı kesilmeden/taşmadan görünmelidir; menüler ve sağ gündem paneli yazdırılmamalıdır. |
+| 3 | İşlem Kapanışları | Sol menü tekil, ana form kolonu okunaklı ve sağ yardımcı alan dengeli olmalıdır; yinelenen üst menü veya panel görülmemelidir. |
+
+> Bu üç kanıt alınana kadar sayfa düzeni kabulü açık kalır ve yeni ürün işlevi kodlanmaz.
