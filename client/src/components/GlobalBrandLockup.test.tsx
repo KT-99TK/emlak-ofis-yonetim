@@ -11,4 +11,11 @@ describe("GlobalBrandLockup", () => {
     expect(html).toContain("Ofis yönetim sistemi");
     expect(html).toContain("h-14 w-14");
   });
+
+  it("provides a distinct emerald offline-sidebar lockup without changing the seal hierarchy", () => {
+    const html = renderToStaticMarkup(<GlobalBrandLockup variant="offline-sidebar" />);
+    expect(html).toContain("bg-[#123f39]");
+    expect(html).toContain("h-[62px] w-[62px]");
+    expect(html).toContain("text-[#fffdf6]");
+  });
 });

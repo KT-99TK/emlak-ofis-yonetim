@@ -181,16 +181,16 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-auto border-b border-[#dce7e1] bg-[linear-gradient(135deg,#fbfcf8_0%,#f3f7f1_58%,#edf4ef_100%)] px-2 py-3">
+          <SidebarHeader className="h-auto min-h-[102px] border-b border-[#315f56] bg-[#173e39] px-2 py-3">
             <div className="flex w-full items-center gap-3 transition-all">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center rounded-lg text-[#587068] transition-colors hover:bg-[#edf5f0] hover:text-[#173e39] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b99b5a] shrink-0"
+                className="h-8 w-8 flex items-center justify-center rounded-lg text-[#d7e9df] transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6c47d] shrink-0"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                <PanelLeft className="h-4 w-4" />
               </button>
-              {!isCollapsed && <GlobalBrandLockup />}
+              {!isCollapsed && <GlobalBrandLockup variant="offline-sidebar" />}
             </div>
           </SidebarHeader>
 
