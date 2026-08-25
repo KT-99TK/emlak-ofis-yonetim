@@ -74,6 +74,7 @@ Windows kabulüne giden yeni ZIP, bu kanıtların ardından ayrı sürümle haz�
 | Windows Electron · Kira formu · DASK | Kullanıcının güncel Windows ekranında DASK poliçe numarası, `Taşınmaz açık adresi` ile aynı taşınmaz/teslim/demirbaş bilgi grubunda sağ hücrede görünür. | Formdaki konum kabul edildi; Kira A4 ve yazdırma önizlemesindeki satır düzeni ayrıca beklenir. |
 | Windows Electron · Kira A4 · DASK | Kullanıcının güncel Kira A4 önizlemesinde `DASK Poliçe No`, `Taşınmaz Açık Adresi` ile aynı Taşınmaz/Bedel/Süre tablosunda görünür; ayrı alt kutu yoktur. | A4 yerleşimi kabul edildi; Windows yazdırma önizlemesi kanıtı beklenir. |
 | Windows Electron · Kasa ve Banka | Kullanıcının 1.0.7 gerçek Windows ekranında sol menüde Kasa ve Banka hedefi görünür; işlem formu ile sağ yardımcı sütun dengelidir. DashboardLayout üst kabuğundan çıkarılan eski gündem paneli tekrar oluşmamış, yalnız sayfanın sağ sütununda tek `Size Özel Gündem` paneli kalmıştır. | Tek panel ve tek menü kabulü tamamlandı. |
+| Windows Electron · İşlem Kapanışları | Kullanıcının gerçek Windows ekranında sol menü tekil, üst rota menüsü görünmez; yerel manager doğrulama kartı, işlem dosyası kartı ve boş durum hiyerarşisi okunaklıdır. Sağda yalnız tek `Size Özel Gündem` paneli vardır. | İşlem Kapanışları yerleşim kabulü tamamlandı. |
 
 Windows Yetki ekranındaki önceki kırık mühür ve aşırı üst boşluk sorunu bu kullanıcı kanıtında tekrar gözlenmemiştir. Kabulün kapanması için belirtilen diğer Windows ekranları ve yazdırma önizlemesi ayrıca alınacaktır.
 
