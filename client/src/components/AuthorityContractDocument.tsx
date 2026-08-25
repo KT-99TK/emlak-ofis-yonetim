@@ -34,7 +34,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
     <article className="authority-print-document authority-contract-document bg-[#fff] text-[#1c2524]" style={{ "--authority-print-font-size": `${fontSize}pt` } as React.CSSProperties}>
       <header className="authority-document-brand">
         {sealFailed ? <div className="authority-document-seal-fallback" aria-label="Global 1881 mühür"><span>GLOBAL</span><strong>1881</strong><small>MÜHÜR</small></div> : <img className="authority-document-seal-image" src={authoritySealSrc} alt="Global 1881 şeffaf mühür" onError={() => setSealFailed(true)} />}
-        <div><p className="authority-document-office-name">{value(normalized.officeName)}</p><p>{value(normalized.officeAddress)}</p><p>Tel: {value(normalized.officePhone)} · Yetki Belgesi No: {value(normalized.officeAuthorizationNo)}</p></div>
+        <div className="authority-document-office-details"><p className="authority-document-office-name">{value(normalized.officeName)}</p><p>{value(normalized.officeAddress)}</p><p>Tel: {value(normalized.officePhone)} · Yetki Belgesi No: {value(normalized.officeAuthorizationNo)}</p></div>
       </header>
       <div className="authority-document-rule" />
       <h2 className="authority-document-title">{authorityContractTitle(normalized.mode)}</h2>
@@ -74,14 +74,12 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
       <section className="authority-document-conditions">
         <h3>SÖZLEŞME KOŞULLARI</h3>
         <ol>{conditions.map((condition, index) => <li key={index}>{condition}</li>)}</ol>
-        <p className="authority-document-template-note">Koşul şablon sürümü: {"global1881-authority-conditions-2026-08-v1"}. Bu metin, ofis tarafından sağlanan şablonun offline sözleşme anındaki snapshot’ıdır.</p>
       </section>
 
       <section className="authority-document-signatures authority-party-signature-boxes">
         <div className="authority-party-signature-box"><p>TAŞINMAZ MALİKİ</p><strong>{value(normalized.ownerName)}</strong><span>İmza</span></div>
         <div className="authority-party-signature-box"><p>YETKİ ALAN EMLAK OFİSİ / DANIŞMAN</p><strong>{value(normalized.officeName)}</strong><small>Yetkili danışman: {value(normalized.consultantName)}</small><span>Kaşe / İmza</span></div>
       </section>
-      <footer className="authority-print-running-footer">Global 1881 Gayrimenkul · Yetki sözleşmesi taslağı · Kayıt: {contractNo}</footer>
     </article>
   );
 }

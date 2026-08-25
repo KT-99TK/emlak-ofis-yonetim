@@ -51,7 +51,7 @@ export default function RentalContractDocument({ details, contractNo, fontSize }
       {details.hasGuarantor && <Row firstLabel="Kefil" firstValue={details.guarantorName} secondLabel="Kefil TCKN / Azami Tutar" secondValue={[details.guarantorIdentity, details.guarantorLimit].filter(Boolean).join(" / ")} />}
     </tbody></table></section>
 
-    <section className="authority-document-conditions"><h3>SÖZLEŞME KOŞULLARI</h3><ol>{conditions.map((condition, index) => <li key={index}>{condition}</li>)}</ol><p className="authority-document-template-note">Koşul şablon sürümü: {RENTAL_CONDITIONS_TEMPLATE_VERSION}. Bu metin, kullanıcının sağladığı şablonun sözleşme anındaki offline snapshot’ıdır.</p></section>
+    <section className="authority-document-conditions"><h3>SÖZLEŞME KOŞULLARI</h3><ol>{conditions.map((condition, index) => <li key={index}>{condition}</li>)}</ol></section>
     <section className={`authority-document-signatures rental-document-signatures rental-party-signature-boxes ${details.hasGuarantor ? "rental-with-guarantor" : ""}`}><div className="rental-party-signature-box"><p>KİRAYA VEREN</p><strong>{value(details.ownerName)}</strong><span>İmza</span></div><div className="rental-party-signature-box"><p>KİRACI</p><strong>{value(details.tenantName)}</strong><span>İmza</span></div>{details.hasGuarantor && <div className="rental-party-signature-box"><p>KEFİL</p><strong>{value(details.guarantorName)}</strong><span>İmza</span></div>}</section>
     <footer className="rental-advisor-trace">Düzenleme izi · {consultantInitials(details.consultantName)} · {formatTurkishDate(details.startDate)} · Form: {value(contractNo)}</footer>
   </article>;
