@@ -49,4 +49,11 @@ describe("workspace content layout", () => {
     expect(authorityPage.indexOf("Belge türü")).toBeLessThan(authorityPage.indexOf("Önceki yetki taslağını çağır"));
     expect(authorityPage).toContain("Belge türünü seçtikten sonra");
   });
+
+  it("places the rental type decision before the optional previous-contract lookup", () => {
+    const rentalPage = projectFile("client/src/pages/OfflineRentalContracts.tsx");
+
+    expect(rentalPage.indexOf("Kiralama türü")).toBeLessThan(rentalPage.indexOf("Önceki kira sözleşmesini çağır"));
+    expect(rentalPage).toContain("Konut veya işyeri türünü seçtikten sonra");
+  });
 });
