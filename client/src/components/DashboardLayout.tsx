@@ -120,7 +120,10 @@ function DashboardLayoutContent({
   const offlineUserId = isDesktop ? getUserId() : "";
   const [location, setLocation] = useLocation();
   const [currentOfflineHash, setCurrentOfflineHash] = useState(() => normalizeOfflineHash(typeof window === "undefined" ? undefined : window.location.hash));
-  const visibleMenuItems = isDesktop ? offlineNavigationItems.filter((item) => !item.managerOnly || user?.role === "admin") : menuItems;
+  const visibleOfflineMenuItems = offlineNavigationItems.filter((item) => !item.managerOnly || user?.role === "admin");
+  const visibleMenuItems = isDesktop ? visibleOfflineMenuItems : menuItems;
+  const officeOfflineMenuItems = visibleOfflineMenuItems.filter((item) => item.section === "office");
+  const personalOfflineMenuItems = visibleOfflineMenuItems.filter((item) => item.section === "personal");
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
@@ -195,8 +198,54 @@ function DashboardLayoutContent({
           </SidebarHeader>
 
           <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
-              {visibleMenuItems.map(item => {
+            {isDesktop ? (
+              <>
+                <SidebarMenu aria-label="Offline menü: Ortak Ofis Operasyonları" className="px-2 py-1">
+                  {officeOfflineMenuItems.map(item => {
+                    const isActive = currentOfflineHash === item.path;
+                    return (
+                      <SidebarMenuItem key={item.path}>
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          onClick={() => window.location.hash = item.path.slice(1)}
+                          tooltip={item.label}
+                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                        >
+                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`} />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+                <div className="mx-4 mt-3 border-t border-[#d8e6df] pt-3 group-data-[collapsible=icon]:mx-2" />
+                <div className="px-5 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#78958b] group-data-[collapsible=icon]:sr-only">
+                  Kişisel Çalışma Alanı
+                </div>
+                <SidebarMenu aria-label="Offline menü: Kişisel Çalışma Alanı" className="px-2 py-1">
+                  {personalOfflineMenuItems.map(item => {
+                    const isActive = currentOfflineHash === item.path;
+                    return (
+                      <SidebarMenuItem key={item.path}>
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          onClick={() => window.location.hash = item.path.slice(1)}
+                          tooltip={item.label}
+                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                        >
+                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`} />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </>
+            ) : (
+              <SidebarMenu className="px-2 py-1">
+                {visibleMenuItems.map(item => {
                 const isActive = isDesktop ? currentOfflineHash === item.path : location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>
@@ -218,7 +267,8 @@ function DashboardLayoutContent({
                   </SidebarMenuItem>
                 );
               })}
-            </SidebarMenu>
+              </SidebarMenu>
+            )}
           </SidebarContent>
 
           <SidebarFooter className="p-3">

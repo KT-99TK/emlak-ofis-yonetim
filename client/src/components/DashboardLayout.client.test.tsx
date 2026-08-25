@@ -73,4 +73,27 @@ describe("DashboardLayout client viewport navigation", () => {
     });
     expect(document.body.innerHTML).not.toContain('aria-label="Kişisel Ofis Akışı"');
   });
+
+  it("groups offline navigation into shared office operations and a lower personal workspace without changing routes", async () => {
+    Object.defineProperty(window, "global1881Desktop", { configurable: true, value: { platform: "win32" } });
+    window.location.hash = "#/offline";
+    const desktop = await renderAt(1440);
+
+    expect(desktop).toContain('aria-label="Offline menü: Ortak Ofis Operasyonları"');
+    expect(desktop).toContain('aria-label="Offline menü: Kişisel Çalışma Alanı"');
+    expect(desktop).toContain("Kişisel Çalışma Alanı");
+    expect(desktop.indexOf("Kasa ve Banka")).toBeLessThan(desktop.indexOf("Benim Sözleşmelerim"));
+    expect(desktop.indexOf("Benim Sözleşmelerim")).toBeLessThan(desktop.indexOf("Aktif İmzalı Belgeler"));
+    expect(desktop.indexOf("Aktif İmzalı Belgeler")).toBeLessThan(desktop.indexOf("Müşteri Talepleri"));
+    expect(desktop.indexOf("Müşteri Talepleri")).toBeLessThan(desktop.indexOf("Müşteri Dijital Arşivi"));
+    const personalContractsButton = Array.from(document.querySelectorAll("button")).find((button) => button.textContent?.includes("Benim Sözleşmelerim"));
+    const archiveButton = Array.from(document.querySelectorAll("button")).find((button) => button.textContent?.includes("Müşteri Dijital Arşivi"));
+
+    expect(personalContractsButton).toBeDefined();
+    expect(archiveButton).toBeDefined();
+    await act(async () => personalContractsButton?.click());
+    expect(window.location.hash).toBe("#/offline-my-contracts");
+    await act(async () => archiveButton?.click());
+    expect(window.location.hash).toBe("#/offline-archive");
+  });
 });
