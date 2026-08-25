@@ -82,6 +82,8 @@ describe("DashboardLayout client viewport navigation", () => {
     expect(desktop).toContain('aria-label="Offline menü: Ortak Ofis Operasyonları"');
     expect(desktop).toContain('aria-label="Offline menü: Kişisel Çalışma Alanı"');
     expect(desktop).toContain("Kişisel Çalışma Alanı");
+    expect(desktop.indexOf("Sözleşme ve Finansal İstatistikler")).toBeLessThan(desktop.indexOf("Kasa ve Banka"));
+    expect(desktop.indexOf("Kasa ve Banka")).toBeLessThan(desktop.indexOf("Yedekleri Birleştir"));
     expect(desktop.indexOf("Kasa ve Banka")).toBeLessThan(desktop.indexOf("Benim Sözleşmelerim"));
     expect(desktop.indexOf("Benim Sözleşmelerim")).toBeLessThan(desktop.indexOf("Aktif İmzalı Belgeler"));
     expect(desktop.indexOf("Aktif İmzalı Belgeler")).toBeLessThan(desktop.indexOf("Müşteri Talepleri"));

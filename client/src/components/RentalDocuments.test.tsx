@@ -26,7 +26,20 @@ describe("rental documents", () => {
   it("hides the consultant/form trace until a real rental contract number has been assigned", () => {
     const draftHtml = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={details} contractNo="Kayıtta atanacak" fontSize="10" />);
 
-    expect(draftHtml).toContain("rental-trace-unassigned");
+    expect(draftHtml).not.toContain("rental-advisor-trace");
+    expect(draftHtml).not.toContain("Kayıtta atanacak");
+    expect(draftHtml).not.toContain("Kira sözleşmesi kaydı");
+  });
+
+  it("keeps common rental appendices free of internal record and fixture workflow notes", () => {
+    for (const kind of ["evacuation", "handover", "return", "fixtures"] as const) {
+      const html = renderToStaticMarkup(<RentalAppendixDocument kind={kind} details={details} contractNo="Kayıtta atanacak" fontSize="10" />);
+      expect(html).not.toContain("Kira sözleşmesi kaydı");
+      expect(html).not.toContain("formundaki demirbaş");
+      expect(html).not.toContain("otomatik eşleşir");
+      expect(html).not.toContain("teslim alma kontrolündeki");
+      expect(html).not.toContain("satır ekleme/silme tablosuyla");
+    }
   });
 
   it("adds the on-screen preview class only when an appendix is selected for the package", () => {
@@ -42,9 +55,9 @@ describe("rental documents", () => {
     expect(html).toContain("Demirbaş / Marka-Cins");
     expect(html).toContain("Teslim Durumu / Açıklama");
     expect(html).toContain('style="width:7%"');
-    expect(html).toContain('style="width:33%"');
-    expect(html).toContain('style="width:10%"');
-    expect(html).toContain('style="width:50%"');
+    expect(html).toContain('style="width:31%"');
+    expect(html).toContain('style="width:8%"');
+    expect(html).toContain('style="width:54%"');
     expect(html).toContain("Vestel klima");
     expect(html).toContain("Daire anahtarı");
     expect(html).toContain("Teslim edildi");
@@ -134,5 +147,14 @@ describe("rental documents", () => {
     expect(handover).toContain("Elektrik Sayaç No");
     expect(handover).toContain("Doğalgaz Sayaç No");
     expect(handover).toContain("DOG-4410");
+  });
+
+  it("uses full-width value cells for unpaired rental delivery and fixture rows", () => {
+    const html = renderToStaticMarkup(<RentalContractDocument details={{ ...details, electricityMeterNo: "ELEK-34017", waterMeterNo: "SU-9821", naturalGasMeterNo: "DOG-4410", meterNotes: "Sayaçlar teslimde kontrol edilecek", appendixSelection: { evacuation: true, handover: true, return: false, fixtures: true } }} contractNo="KIR-2026-001" fontSize="10" />);
+
+    expect(html).toContain("Doğalgaz Sayaç No</th><td colSpan=\"3\">DOG-4410</td>");
+    expect(html).toContain("Demirbaşlar ve Teslim Durumu</th><td colSpan=\"3\">");
+    expect(html).toContain("Diğer Sayaç / Abonelik Notları</th><td colSpan=\"3\">Sayaçlar teslimde kontrol edilecek</td>");
+    expect(html).toContain("Sözleşme Paketine Dahil Edilen Ekler</th><td colSpan=\"3\">Tahliye Taahhütnamesi · Teslim Etme Formu · Demirbaş Listesi</td>");
   });
 });

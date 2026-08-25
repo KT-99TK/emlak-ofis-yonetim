@@ -13,6 +13,10 @@ function Row({ firstLabel, firstValue, secondLabel, secondValue }: { firstLabel:
   return <tr><th scope="row">{firstLabel}</th><td>{value(firstValue)}</td>{secondLabel && <><th scope="row">{secondLabel}</th><td>{value(secondValue ?? "")}</td></>}</tr>;
 }
 
+function FullWidthRow({ label, text }: { label: string; text: string }) {
+  return <tr><th scope="row">{label}</th><td colSpan={3}>{value(text)}</td></tr>;
+}
+
 export default function RentalContractDocument({ details, contractNo, fontSize }: RentalContractDocumentProps) {
   const summary = calculateRentalSummary(details);
   const kind = details.useType === "commercial" ? "İŞYERİ KİRA SÖZLEŞMESİ" : "KONUT KİRA SÖZLEŞMESİ";
@@ -44,10 +48,10 @@ export default function RentalContractDocument({ details, contractNo, fontSize }
 
     <section className="authority-document-section"><h3>KİRA SÖZLEŞMESİ TESLİM / DEMİRBAŞ EKİ</h3><table><tbody>
       <Row firstLabel="Elektrik Sayaç No" firstValue={details.electricityMeterNo} secondLabel="Su Sayaç No" secondValue={details.waterMeterNo} />
-      <Row firstLabel="Doğalgaz Sayaç No" firstValue={details.naturalGasMeterNo} />
-      <Row firstLabel="Demirbaşlar ve Teslim Durumu" firstValue={rentalFixtureSummary(details)} />
-      <Row firstLabel="Diğer Sayaç / Abonelik Notları" firstValue={details.meterNotes} />
-      <Row firstLabel="Sözleşme Paketine Dahil Edilen Ekler" firstValue={selectedAppendices} />
+      <FullWidthRow label="Doğalgaz Sayaç No" text={details.naturalGasMeterNo} />
+      <FullWidthRow label="Demirbaşlar ve Teslim Durumu" text={rentalFixtureSummary(details)} />
+      <FullWidthRow label="Diğer Sayaç / Abonelik Notları" text={details.meterNotes} />
+      <FullWidthRow label="Sözleşme Paketine Dahil Edilen Ekler" text={selectedAppendices} />
       {details.hasGuarantor && <Row firstLabel="Kefil" firstValue={details.guarantorName} secondLabel="Kefil TCKN / Azami Tutar" secondValue={[details.guarantorIdentity, details.guarantorLimit].filter(Boolean).join(" / ")} />}
     </tbody></table></section>
 
