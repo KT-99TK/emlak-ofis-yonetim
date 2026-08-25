@@ -182,10 +182,10 @@ function DashboardLayoutContent({
           disableTransition={isResizing}
         >
           <SidebarHeader className="h-auto min-h-[102px] border-b border-[#315f56] bg-[#173e39] px-2 py-3">
-            <div className="flex w-full items-center gap-3 transition-all">
+            <div className="flex w-full items-center gap-2 transition-all">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center rounded-lg text-[#d7e9df] transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6c47d] shrink-0"
+                className="h-7 w-7 flex items-center justify-center rounded-lg text-[#d7e9df] transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6c47d] shrink-0"
                 aria-label="Toggle navigation"
               >
                 <PanelLeft className="h-4 w-4" />
