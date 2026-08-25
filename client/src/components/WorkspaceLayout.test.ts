@@ -42,4 +42,11 @@ describe("workspace content layout", () => {
     expect(workspace).toContain('<OfflineOfficeFlowPanel className="offline-operation-aside"');
     expect(dashboard).not.toContain("<OfflineOfficeFlowPanel");
   });
+
+  it("places the authority document type decision before the optional previous-draft lookup", () => {
+    const authorityPage = projectFile("client/src/pages/OfflineAuthorityContracts.tsx");
+
+    expect(authorityPage.indexOf("Belge türü")).toBeLessThan(authorityPage.indexOf("Önceki yetki taslağını çağır"));
+    expect(authorityPage).toContain("Belge türünü seçtikten sonra");
+  });
 });
