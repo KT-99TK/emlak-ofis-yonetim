@@ -4,6 +4,7 @@ import RentalContractDocument from "@/components/RentalContractDocument";
 import RentalAppendixDocument, { type RentalAppendixKind } from "@/components/RentalAppendixDocument";
 import RentalFixturesEditor from "@/components/RentalFixturesEditor";
 import OfflineOfficeFlowPanel from "@/components/OfflineOfficeFlowPanel";
+import DocumentPrintPreview from "@/components/DocumentPrintPreview";
 import TurkishDateInput from "@/components/TurkishDateInput";
 import UrlaLocationField from "@/components/UrlaLocationField";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export default function OfflineRentalContracts() {
   const [rentalSearch, setRentalSearch] = useState("");
   const [fontSize, setFontSize] = useState("10");
   const [printMode, setPrintMode] = useState<PrintMode>("contract");
+  const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [message, setMessage] = useState("");
   const userId = getUserId();
   const contractAccess = { userId, role: getOfflineAccessRole(), managerSessionActive: isLocalManagerSessionActive() } as const;
@@ -59,7 +61,8 @@ export default function OfflineRentalContracts() {
   const updateMoney = (key: "monthlyRent" | "deposit" | "guarantorLimit", value: string) => update(key, formatWholeRentalAmount(value));
   const updateAppendix = (kind: RentalAppendixKind, checked: boolean) => setDetails((current) => ({ ...current, appendixSelection: { ...current.appendixSelection, [kind]: checked } }));
   const selectType = (useType: OfflineRentalDetails["useType"]) => setDetails((current) => ({ ...current, useType, usagePurpose: useType === "commercial" ? "İşyeri" : "Konut" }));
-  const printDocument = (mode: PrintMode) => { setPrintMode(mode); window.setTimeout(() => window.print(), 0); };
+  const printDocument = (mode: PrintMode) => { setPrintMode(mode); setPrintPreviewOpen(true); };
+  const printFromPreview = () => { setPrintPreviewOpen(false); window.setTimeout(() => window.print(), 140); };
 
   const fillPerson = (id: string, kind: "owner" | "tenant") => {
     const record = people.find((item) => item.id === id);
@@ -127,6 +130,6 @@ const saveDraft = async () => {
       </CardContent></Card></div><OfflineOfficeFlowPanel className="offline-operation-aside print:hidden" records={records} userId={userId} /></div>
 
       <Card className={`authority-print-shell rental-print-${printMode} rental-package-${details.appendixSelection.evacuation ? "include" : "omit"}-evacuation rental-package-${details.appendixSelection.handover ? "include" : "omit"}-handover rental-package-${details.appendixSelection.return ? "include" : "omit"}-return rental-package-${details.appendixSelection.fixtures ? "include" : "omit"}-fixtures overflow-hidden rounded-2xl border-[#d9e2dc] bg-[#eef3ef]`}><CardHeader className="print:hidden"><div className="space-y-3"><div className="flex flex-wrap items-center justify-between gap-3"><div><CardTitle className="font-serif text-xl">Kira Sözleşmesi ve Ekleri</CardTitle><p className="text-xs text-[#87938f]">Paket için ekleri işaretleyin; isterseniz her belgeyi tek başına da yazdırabilirsiniz.</p></div><div className="flex items-center gap-2"><label className="text-xs font-semibold text-[#56635f]">Punto</label><Select value={fontSize} onValueChange={setFontSize}><SelectTrigger className="w-[94px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="9">9 punto</SelectItem><SelectItem value="10">10 punto</SelectItem><SelectItem value="11">11 punto</SelectItem><SelectItem value="12">12 punto</SelectItem></SelectContent></Select><FileSignature className="h-5 w-5 text-[#a17b43]" /></div></div><div className="rounded-xl border border-[#dbe5dd] bg-[#f8fbf8] p-3"><p className="mb-2 text-xs font-semibold text-[#34433f]">Sözleşme paketine dahil edilecek ekler</p><div className="flex flex-wrap gap-x-4 gap-y-2">{appendixOptions.map((option) => <label key={option.kind} className="flex cursor-pointer items-center gap-2 text-sm text-[#34433f]"><input type="checkbox" checked={details.appendixSelection[option.kind]} onChange={(event) => updateAppendix(option.kind, event.target.checked)} /> {option.label}</label>)}</div></div><div className="flex flex-wrap gap-2"><Button size="sm" onClick={() => printDocument("package")} disabled={selectedAppendixCount === 0}><Printer className="mr-1 h-3.5 w-3.5" /> Sözleşme + seçili ekler ({selectedAppendixCount})</Button><Button size="sm" variant="outline" onClick={() => printDocument("contract")}><Printer className="mr-1 h-3.5 w-3.5" /> Ana sözleşme</Button>{appendixOptions.map((option) => <Button key={option.kind} size="sm" variant="outline" onClick={() => printDocument(option.kind)}><Printer className="mr-1 h-3.5 w-3.5" /> {option.label}</Button>)}</div></div></CardHeader><CardContent className="p-0 print:p-0"><RentalContractDocument details={details} contractNo={contractNo || "Kayıtta atanacak"} fontSize={fontSize} />{selectedAppendixCount > 0 && <div className="rental-selected-appendices-heading print:hidden"><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8d6f3f]">Seçili ek önizlemeleri</p><p className="mt-1 text-sm text-[#52635e]">İşaretlediğiniz ekler ana sözleşmenin altında sırasıyla görünür.</p></div>}{appendixOptions.map((option) => <RentalAppendixDocument key={option.kind} kind={option.kind} details={details} contractNo={contractNo || "Kayıtta atanacak"} fontSize={fontSize} screenVisible={details.appendixSelection[option.kind]} />)}</CardContent></Card>
-    </div>
+    </div><DocumentPrintPreview open={printPreviewOpen} onOpenChange={setPrintPreviewOpen} title={printMode === "package" ? "Kira sözleşmesi ve seçili ekleri" : printMode === "contract" ? "Kira sözleşmesi" : appendixOptions.find((option) => option.kind === printMode)?.label ?? "Kira belgesi"} subtitle="Belge sistem yazdırma penceresine gönderilmeden önce burada gerçek A4 oranında incelenir." onPrint={printFromPreview}><RentalContractDocument details={details} contractNo={contractNo || "Kayıtta atanacak"} fontSize={fontSize} />{appendixOptions.map((option) => <RentalAppendixDocument key={`preview-${option.kind}`} kind={option.kind} details={details} contractNo={contractNo || "Kayıtta atanacak"} fontSize={fontSize} screenVisible={printMode === "package" ? details.appendixSelection[option.kind] : printMode === option.kind} />)}</DocumentPrintPreview>
   </div>;
 }
