@@ -65,9 +65,13 @@ button:active { transform: scale(.98); }
 .rental-document-header { display: flex; justify-content: flex-end; min-height: 7mm; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; color: #7b817e; }
 .rental-document-record { margin: 0; }
 .rental-advisor-trace { width: fit-content; margin-top: 10mm; padding: 1.5mm 2mm; border-top: 1px solid #d8d0bc; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 7.2pt; opacity: .78; }
-.rental-contract-document { max-width: none; margin-left: 0; margin-right: 0; }
-.rental-appendix-document { display: none; margin-top: 8mm; }
+.rental-contract-document { max-width: none; margin-inline: auto; }
+.rental-appendix-document { display: none; margin: 8mm auto 0; }
 .rental-appendix-document.rental-appendix-preview-visible { display: block; }
+.rental-fixture-table { font-family: 'DM Sans', sans-serif; font-size: 8.8pt; }
+.rental-fixture-table th, .rental-fixture-table td { min-height: 9mm; border: 1px solid #aeb8b5; padding: 2mm; vertical-align: middle; }
+.rental-fixture-table thead th { background: #edf3f8; font-size: 8.4pt; font-weight: 700; }
+.rental-fixture-table tbody td { height: 9mm; color: #35413d; }
 .rental-document-signatures { gap: 0; margin-top: 10mm; border: 1px solid #aab0ae; text-align: left; }
 .rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(3, 1fr); gap: 0; }
 .rental-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #aab0ae; }
@@ -178,6 +182,7 @@ button:active { transform: scale(.98); }
   .authority-print-shell .grid > .rounded-2xl, .authority-print-shell .rounded-2xl { break-inside: avoid-page; }
   .offline-operation-aside { display: none !important; }
   .authority-contract-document table { font-size: calc(var(--authority-print-font-size) - 1pt) !important; }
+  .rental-fixture-table { font-size: calc(var(--authority-print-font-size) - 1.2pt) !important; }
   .authority-document-conditions ol { list-style: decimal outside !important; }
   .authority-document-conditions li { display: list-item !important; list-style-type: decimal !important; }
   .authority-print-running-header { position: running(authority-header); }

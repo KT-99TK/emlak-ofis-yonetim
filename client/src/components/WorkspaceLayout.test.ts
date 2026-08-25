@@ -18,6 +18,8 @@ describe("workspace content layout", () => {
     expect(css).toContain(".workspace-content-frame .grid > * { min-width: 0; }");
     expect(css).toContain('img[src="/manus-storage/01_logo_yatay_6b31c4b8.webp"] { display: none; }');
     expect(css).toContain(".workspace-content-frame:has(.authority-print-shell) { max-width: none; }");
+    expect(css).toContain(".rental-contract-document { max-width: none; margin-inline: auto; }");
+    expect(css).toContain(".rental-appendix-document { display: none; margin: 8mm auto 0; }");
   });
 
   it("renders both offline A4 preview shells inside their document screen DOM", () => {

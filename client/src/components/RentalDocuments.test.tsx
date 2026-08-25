@@ -32,10 +32,22 @@ describe("rental documents", () => {
 
   it("renders each structured fixture item as a numbered row in the independent appendix", () => {
     const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={{ ...details, fixtureItems: [{ id: "f-1", item: "Vestel klima", quantity: "2", condition: "Çalışır, temiz" }, { id: "f-2", item: "Daire anahtarı", quantity: "3", condition: "Teslim edildi" }] }} contractNo="KIR-2026-001" fontSize="10" />);
-    expect(html).toContain("Cinsi / Markası");
+    expect(html).toContain("Sıra No");
+    expect(html).toContain("Demirbaş / Marka-Cins");
+    expect(html).toContain("Teslim Durumu / Açıklama");
     expect(html).toContain("Vestel klima");
     expect(html).toContain("Daire anahtarı");
     expect(html).toContain("Teslim edildi");
+  });
+
+  it("keeps six ruled Excel-style fixture rows visible when the form does not yet contain fixture items", () => {
+    const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={{ ...details, fixtureItems: [] }} contractNo="KIR-2026-001" fontSize="10" />);
+    expect(html).toContain("rental-fixture-table");
+    expect(html).toContain("Sıra No");
+    expect(html).toContain("Demirbaş / Marka-Cins");
+    expect(html).toContain("Teslim Durumu / Açıklama");
+    expect(html.match(/text-center">[1-6]<\/td>/g)).toHaveLength(6);
+    expect(html).not.toContain("Teslim edilen demirbaş bulunmuyor");
   });
 
   it("includes the guarantor table and signature only when the Kefil var choice is enabled", () => {
