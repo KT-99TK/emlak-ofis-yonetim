@@ -111,6 +111,7 @@ Windows Yetki ekranındaki önceki kırık mühür ve aşırı üst boşluk soru
 |---|---|---|
 | Kira formu · DASK alanı | `DASK poliçe numarası`, `Taşınmaz açık adresi` ile aynı satırda; iki alanın etiketi ve giriş kutusu aynı dikey ritim/yükseklikte görünür. | Formdaki önceki aşağı kayma sorunu kapandı. Kira A4/yazdırma davranışı genel kabul maddesinde izlenmeye devam eder. |
 | Offline sol menü · Kasa ve Banka sırası | Kullanıcının 1.0.17 Windows ekranında `Kasa ve Banka`, `Sözleşme ve Finansal İstatistikler` öğesinin üstünde görünür. | Kaynak sıralama düzeltmesi kurulu sürüme henüz dahil değildir; sonraki toplu pakette Finansal İstatistikler’in altına alınarak doğrulanacaktır. |
+| Offline sol menü · Kasa ve Banka sırası · 1.0.18 | `Sözleşme ve Finansal İstatistikler`, `Kasa ve Banka` öğesinin üstünde; `Yedekleri Birleştir` onun altında görünür. | Menü sırası gerçek Windows ekranında kabul edildi; rota ve rol erişimi değiştirilmedi. |
 
 ## 25.08.2026 · 1.0.16 Windows kanıtı
 

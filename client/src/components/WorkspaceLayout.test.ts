@@ -72,6 +72,24 @@ describe("workspace content layout", () => {
     expect(css).toContain(".rental-trace-unassigned .rental-advisor-trace { display: none; }");
   });
 
+  it("gives fixture sequence and quantity columns hard widths that override generic A4 table cells", () => {
+    const css = projectFile("client/src/index.css");
+
+    expect(css).toContain(".rental-fixture-table th:nth-child(1), .rental-fixture-table td:nth-child(1) { width: 7% !important; }");
+    expect(css).toContain(".rental-fixture-table th:nth-child(3), .rental-fixture-table td:nth-child(3) { width: 8% !important; }");
+    expect(css).toContain(".rental-fixture-table th:nth-child(4), .rental-fixture-table td:nth-child(4) { width: 54% !important; }");
+  });
+
+  it("uses a restrained emerald and gold matbu design language across A4 documents", () => {
+    const css = projectFile("client/src/index.css");
+
+    expect(css).toContain("--document-ink: #173e39;");
+    expect(css).toContain("--document-gold: #b48b42;");
+    expect(css).toContain("font-family: 'Playfair Display', Georgia, serif;");
+    expect(css).toContain("border-left: 2.2mm solid var(--document-gold);");
+    expect(css).toContain("background: linear-gradient(90deg, var(--document-ink) 0 84%, var(--document-gold) 84% 100%);");
+  });
+
   it("keeps the evacuation commitment date as a separate blank manual field", () => {
     const rentalPage = projectFile("client/src/pages/OfflineRentalContracts.tsx");
 

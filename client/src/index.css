@@ -48,11 +48,11 @@ button:active { transform: scale(.98); }
 ::selection { background: #d6ba7b55; color: #173e39; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 
-.authority-print-document { --authority-print-font-size: 11pt; font-size: var(--authority-print-font-size); line-height: 1.58; }
+.authority-print-document { --authority-print-font-size: 11pt; --document-ink: #173e39; --document-gold: #b48b42; --document-paper: #fffefd; --document-mist: #edf3ef; font-size: var(--authority-print-font-size); line-height: 1.58; }
 .authority-print-running-header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #d8d0bc; margin-bottom: 1.3rem; padding-bottom: .55rem; color: #7d6439; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; }
 .authority-print-body { white-space: pre-wrap; overflow-wrap: anywhere; }
 .authority-print-running-footer { border-top: 1px solid #d8d0bc; margin-top: 1.5rem; padding-top: .55rem; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 8pt; }
-.authority-contract-document { width: min(210mm, 100%); min-height: 297mm; margin: 0 auto; padding: 10mm 12mm 14mm; overflow-wrap: anywhere; box-shadow: 0 18px 42px rgba(25, 48, 41, .12); }
+.authority-contract-document { width: min(210mm, 100%); min-height: 297mm; margin: 0 auto; padding: 11mm 12mm 15mm; overflow-wrap: anywhere; background: var(--document-paper); box-shadow: 0 18px 42px rgba(25, 48, 41, .12); }
 .authority-document-brand { display: flex; align-items: center; gap: 4mm; min-height: 22mm; font-family: 'DM Sans', sans-serif; }
 .authority-document-office-details { align-self: center; min-width: 0; text-align: left; }
 .authority-document-office-name { margin: 0 0 .7mm; font-size: 14.2pt; font-weight: 700; letter-spacing: .018em; line-height: 1.16; }
@@ -70,33 +70,39 @@ button:active { transform: scale(.98); }
 .rental-appendix-document.rental-appendix-preview-visible { display: block; }
 .rental-fixture-table { font-family: 'DM Sans', sans-serif; font-size: 8.8pt; }
 .rental-fixture-table th, .rental-fixture-table td { min-height: 9mm; border: 1px solid #aeb8b5; padding: 2mm; vertical-align: middle; }
+.rental-fixture-table th:nth-child(1), .rental-fixture-table td:nth-child(1) { width: 7% !important; }
+.rental-fixture-table th:nth-child(2), .rental-fixture-table td:nth-child(2) { width: 31% !important; }
+.rental-fixture-table th:nth-child(3), .rental-fixture-table td:nth-child(3) { width: 8% !important; }
+.rental-fixture-table th:nth-child(4), .rental-fixture-table td:nth-child(4) { width: 54% !important; }
 .rental-fixture-table thead th { background: #edf3f8; font-size: 8.4pt; font-weight: 700; }
 .rental-fixture-table tbody td { height: 9mm; color: #35413d; }
-.rental-document-signatures { gap: 0; margin-top: 10mm; border: 1px solid #aab0ae; text-align: left; }
+.rental-document-signatures { gap: 0; margin-top: 10mm; border: 1px solid #92a19a; background: linear-gradient(180deg, #fbfdfb, #f5f8f5); text-align: left; }
 .rental-document-signatures.rental-with-guarantor { grid-template-columns: repeat(3, 1fr); gap: 0; }
-.rental-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #aab0ae; }
+.rental-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #b6c1bb; }
 .rental-party-signature-box:first-child { border-left: 0; }
 .rental-document-signatures p { margin: 0; font-size: 9pt; font-weight: 700; }
 .rental-document-signatures strong { margin-top: 3mm; font-weight: 500; }
 .rental-document-signatures span { margin-top: auto; padding-top: 16mm; color: #67716e; }
-.authority-document-rule { height: 1px; margin: 3.5mm 0; background: #1c2524; }
-.authority-document-title { margin: 0; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 15.5pt; font-weight: 700; }
-.authority-document-meta { margin: 2mm 0 3.5mm; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8.4pt; color: #45524e; }
-.authority-document-section, .authority-document-conditions { margin-top: 3.5mm; break-inside: avoid; }
-.authority-document-section h3, .authority-document-conditions h3 { margin: 0 0 1.5mm; padding: 1.4mm 2mm; background: #dfe8f2; font-family: 'DM Sans', sans-serif; font-size: 10pt; font-weight: 700; }
-.authority-contract-document table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 8.9pt; }
-.authority-contract-document th, .authority-contract-document td { border: 1px solid #aab0ae; padding: 1.7mm 2mm; text-align: left; vertical-align: top; line-height: 1.36; }
-.authority-contract-document th { width: 19%; background: #f0f1f0; font-weight: 700; }
-.authority-contract-document td { width: 31%; }
-.authority-document-conditions ol { margin: 3mm 0 0; padding-left: 8mm; list-style: decimal outside !important; }
-.authority-document-conditions li { display: list-item !important; margin: 0 0 2.8mm; padding-left: 1mm; list-style-type: decimal !important; text-align: justify; line-height: 1.58; }
+.authority-document-rule { height: 2px; margin: 4mm 0 3.2mm; background: linear-gradient(90deg, var(--document-ink) 0 84%, var(--document-gold) 84% 100%); }
+.authority-document-title { margin: 0; color: var(--document-ink); text-align: center; font-family: 'Playfair Display', Georgia, serif; font-size: 17pt; font-weight: 700; letter-spacing: .035em; line-height: 1.15; }
+.authority-document-meta { margin: 2.4mm 0 4.2mm; color: #50645c; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 8.3pt; letter-spacing: .015em; }
+.authority-document-meta strong { color: var(--document-ink); font-weight: 700; }
+.authority-document-section, .authority-document-conditions { margin-top: 4.5mm; break-inside: avoid; }
+.authority-document-section h3, .authority-document-conditions h3 { position: relative; margin: 0 0 1.6mm; padding: 1.6mm 2.8mm 1.5mm 4.2mm; border-left: 2.2mm solid var(--document-gold); background: linear-gradient(90deg, #e7f0ec, #f8faf8); color: var(--document-ink); font-family: 'DM Sans', sans-serif; font-size: 9.6pt; font-weight: 750; letter-spacing: .045em; }
+.authority-contract-document table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 8.8pt; }
+.authority-contract-document th, .authority-contract-document td { border: 1px solid #aebbb4; padding: 1.85mm 2.4mm; text-align: left; vertical-align: top; line-height: 1.4; }
+.authority-contract-document th { width: 19%; background: #f1f5f2; color: #294940; font-weight: 700; }
+.authority-contract-document td { width: 31%; color: #202b28; }
+.authority-document-conditions ol { margin: 3.5mm 0 0; padding-left: 8.5mm; list-style: decimal outside !important; }
+.authority-document-conditions li { display: list-item !important; margin: 0 0 3.1mm; padding-left: 1.4mm; list-style-type: decimal !important; text-align: justify; line-height: 1.62; }
+.authority-document-conditions li::marker { color: var(--document-gold); font-weight: 700; }
 .authority-document-template-note { margin: 3mm 0 0; color: #68736f; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; }
 .authority-document-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 15mm; margin-top: 12mm; break-inside: avoid; font-family: 'DM Sans', sans-serif; font-size: 9pt; text-align: center; }
-.authority-document-signatures p { margin: 0 0 7mm; font-weight: 700; }
+.authority-document-signatures p { margin: 0 0 7mm; color: var(--document-ink); font-weight: 750; letter-spacing: .04em; }
 .authority-document-signatures strong, .authority-document-signatures span { display: block; margin-top: 2mm; }
 .authority-document-signatures span { margin-top: 12mm; color: #67716e; }
-.authority-party-signature-boxes { gap: 0; margin-top: 10mm; border: 1px solid #aab0ae; text-align: left; }
-.authority-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #aab0ae; }
+.authority-party-signature-boxes { gap: 0; margin-top: 10mm; border: 1px solid #92a19a; background: linear-gradient(180deg, #fbfdfb, #f5f8f5); text-align: left; }
+.authority-party-signature-box { display: flex; min-height: 37mm; flex-direction: column; padding: 4mm; border-left: 1px solid #b6c1bb; }
 .authority-party-signature-box:first-child { border-left: 0; }
 .authority-party-signature-box p { margin: 0; font-size: 9pt; font-weight: 700; }
 .authority-party-signature-box strong { margin-top: 3mm; font-weight: 500; }

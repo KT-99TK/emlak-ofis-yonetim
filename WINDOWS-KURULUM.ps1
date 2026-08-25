@@ -23,7 +23,7 @@ Set-Location $projectRoot
 Write-Host "Proje: $projectRoot" -ForegroundColor Cyan
 
 $packageJson = Get-Content -Raw -Path (Join-Path $projectRoot "package.json") | ConvertFrom-Json
-$expectedVersion = "1.0.18"
+$expectedVersion = "1.0.19"
 if ($packageJson.version -ne $expectedVersion) {
   Stop-WithMessage "Bu klasördeki package.json sürümü $($packageJson.version). Beklenen sürüm $expectedVersion. Eski ZIP/proje klasörünü kullanmayın; güncel checkpoint ZIP’ini yeniden çıkarın."
 }
@@ -54,8 +54,8 @@ function Invoke-Pnpm([string[]]$Arguments) {
   if ($LASTEXITCODE -ne 0) { throw "pnpm komutu başarısız oldu: $($Arguments -join ' ')" }
 }
 
-Write-Host "Bağımlılıklar kuruluyor..." -ForegroundColor Cyan
-try { Invoke-Pnpm @("install") } catch { Stop-WithMessage "Bağımlılık kurulumu başarısız oldu. $($_.Exception.Message)" }
+Write-Host "Bağımlılıklar kilit dosyasına göre ve yerel önbellek önceliğiyle kuruluyor..." -ForegroundColor Cyan
+try { Invoke-Pnpm @("install", "--frozen-lockfile", "--prefer-offline") } catch { Stop-WithMessage "Bağımlılık kurulumu başarısız oldu. $($_.Exception.Message)" }
 
 Write-Host "TypeScript kontrolü çalışıyor..." -ForegroundColor Cyan
 try { Invoke-Pnpm @("check") } catch { Stop-WithMessage "TypeScript kontrolü başarısız oldu; kurulum paketi üretilmedi. $($_.Exception.Message)" }
