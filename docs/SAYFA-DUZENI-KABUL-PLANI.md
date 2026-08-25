@@ -88,3 +88,15 @@ Windows Yetki ekranındaki önceki kırık mühür ve aşırı üst boşluk soru
 | 3 | İşlem Kapanışları | Sol menü tekil, ana form kolonu okunaklı ve sağ yardımcı alan dengeli olmalıdır; yinelenen üst menü veya panel görülmemelidir. |
 
 > Bu üç kanıt alınana kadar sayfa düzeni kabulü açık kalır ve yeni ürün işlevi kodlanmaz.
+
+## Toplu Windows kontrol paketi — güncel bekleyenler
+
+| Yüzey | Kaynakta uygulanan düzeltme | Windows kabul ölçütü |
+|---|---|---|
+| Yetki formu | Belge türü, para birimi ve yetki süresi; `Önceki yetki taslağını çağır` kartından önce taşındı. | İlk karar alanı Kiralama/Satış yetkisi olmalı; taslak arama bunun altında kalmalı. |
+| Kira formu | Konut/İşyeri türü ve kayıt numarası; `Önceki kira sözleşmesini çağır` kartından önce taşındı. | İlk karar alanı Konut/İşyeri seçimi olmalı; önceki sözleşme çağırma bunun altında kalmalı. |
+| Kira ana belge ve ekler | Ekran önizlemesindeki A4 belge ve ekler yatayda `margin-inline: auto` ile ortalandı. | Kâğıt çalışma alanına sola yaslanmadan ortalı görünmeli; oran, belge iç marjı ve yazdırma davranışı korunmalı. |
+| Bağımsız Demirbaş Listesi | Boş durumda altı yazılabilir satır, dolu durumda form sırasını koruyan `Sıra No`, `Demirbaş / Marka-Cins`, `Adet`, `Teslim Durumu / Açıklama` tablosu eklendi. | Çizgili dört sütunlu tablo görünmeli; varsa formdaki demirbaş satırları aynı sırada yer almalı. |
+| Teslim Etme / Teslim Alma ekleri | Her iki formun bilgi tablosunun altında, snapshot içindeki demirbaş satırlarını koruyan aynı dört sütunlu ayrıntılı çizelge eklendi. | Her iki formda da `Sıra No`, `Demirbaş / Marka-Cins`, `Adet`, `Teslim Durumu / Açıklama` başlıkları ve formdaki satırlar görünmeli. |
+
+> Kullanıcının kararıyla bu maddeler ara ZIP paketleriyle bölünmeyecek; ilgili küçük düzeltmeler tek mantıklı kontrol noktasında test edilip bir Windows paketiyle sunulacaktır.

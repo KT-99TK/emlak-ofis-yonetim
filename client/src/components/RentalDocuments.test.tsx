@@ -40,6 +40,23 @@ describe("rental documents", () => {
     expect(html).toContain("Teslim edildi");
   });
 
+  it("attaches the same detailed fixture grid to both handover and return forms", () => {
+    const fixtureDetails = { ...details, fixtureItems: [{ id: "f-1", item: "Vestel klima", quantity: "2", condition: "Çalışır, temiz" }, { id: "f-2", item: "Daire anahtarı", quantity: "3", condition: "Teslim edildi" }] };
+    const handover = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={fixtureDetails} contractNo="KIR-2026-001" fontSize="10" />);
+    const returning = renderToStaticMarkup(<RentalAppendixDocument kind="return" details={fixtureDetails} contractNo="KIR-2026-001" fontSize="10" />);
+
+    for (const html of [handover, returning]) {
+      expect(html).toContain("rental-fixture-attachment");
+      expect(html).toContain("Sıra No");
+      expect(html).toContain("Demirbaş / Marka-Cins");
+      expect(html).toContain("Vestel klima");
+      expect(html).toContain("Daire anahtarı");
+      expect(html).toContain("Teslim edildi");
+    }
+    expect(handover).toContain("TESLİM EDİLEN DEMİRBAŞLAR");
+    expect(returning).toContain("TESLİM ALMA KONTROLÜ DEMİRBAŞLARI");
+  });
+
   it("keeps six ruled Excel-style fixture rows visible when the form does not yet contain fixture items", () => {
     const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={{ ...details, fixtureItems: [] }} contractNo="KIR-2026-001" fontSize="10" />);
     expect(html).toContain("rental-fixture-table");

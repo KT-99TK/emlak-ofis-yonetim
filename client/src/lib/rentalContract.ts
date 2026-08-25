@@ -71,7 +71,7 @@ export type OfflineRentalDetails = {
   officeAuthorizationNo: string;
 };
 
-export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v2";
+export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v3";
 
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
   useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
@@ -188,6 +188,6 @@ export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contr
     conditions: rentalContractConditions(details, summary.endDate),
     deliveryAppendix: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo, daskPolicyNo: details.daskPolicyNo, deliveryDate: details.startDate },
     appendixTemplateVersion: RENTAL_APPENDIX_TEMPLATE_VERSION,
-    appendices: { evacuation: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
+    appendices: { evacuation: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
   };
 }
