@@ -16,7 +16,7 @@ function FixtureTable({ details }: { details: OfflineRentalDetails }) {
     <table className="rental-fixture-table w-full table-fixed border-collapse text-left">
       <colgroup><col style={{ width: "7%" }} /><col style={{ width: "31%" }} /><col style={{ width: "8%" }} /><col style={{ width: "54%" }} /></colgroup>
       <thead><tr><th className="text-center whitespace-nowrap">Sıra No</th><th className="whitespace-nowrap">Demirbaş / Marka-Cins</th><th className="text-center whitespace-nowrap">Adet</th><th className="whitespace-nowrap">Teslim Durumu / Açıklama</th></tr></thead>
-      <tbody>{rows.map((item, index) => <tr key={item.id}><td className="text-center">{index + 1}</td><td>{value(item.item)}</td><td className="text-center">{value(item.quantity)}</td><td>{value(item.condition)}</td></tr>)}</tbody>
+      <tbody>{rows.map((item, index) => <tr key={item.id}><td className="text-center">{index + 1}</td><td>{value(item.item)}</td><td className="fixture-quantity text-center">{item.quantity.trim() || "—"}</td><td>{value(item.condition)}</td></tr>)}</tbody>
     </table>
   </div>;
 }

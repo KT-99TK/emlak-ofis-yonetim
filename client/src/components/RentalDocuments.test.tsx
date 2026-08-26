@@ -90,6 +90,13 @@ describe("rental documents", () => {
     expect(html).not.toContain("Teslim edilen demirbaş bulunmuyor");
   });
 
+  it("uses a compact one-line placeholder in an empty fixture quantity cell", () => {
+    const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={{ ...details, fixtureItems: [] }} contractNo="KIR-2026-001" fontSize="10" />);
+
+    expect(html).toContain('class="fixture-quantity text-center">—</td>');
+    expect(html).not.toContain('class="fixture-quantity text-center">................................</td>');
+  });
+
   it("uses the supplied evacuation commitment format and keeps its date blank until manually chosen", () => {
     const blank = renderToStaticMarkup(<RentalAppendixDocument kind="evacuation" details={{ ...details, ownerIdentity: "32431945506", tenantIdentity: "36907881664", propertyAddress: "Güvendik Mahallesi 223. Sokak Urla/İZMİR", durationMonths: "12", evacuationCommitmentDate: "" }} contractNo="KIR-2026-001" fontSize="10" />);
     const selected = renderToStaticMarkup(<RentalAppendixDocument kind="evacuation" details={{ ...details, ownerIdentity: "32431945506", tenantIdentity: "36907881664", propertyAddress: "Güvendik Mahallesi 223. Sokak Urla/İZMİR", durationMonths: "12", evacuationCommitmentDate: "2027-11-15" }} contractNo="KIR-2026-001" fontSize="10" />);

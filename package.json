@@ -1,6 +1,6 @@
 {
   "name": "emlak-ofis-yonetim",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "main": "desktop/main.mjs",
   "type": "module",
   "license": "MIT",

@@ -5,6 +5,9 @@ export type AuthorityContractDetails = {
   ownerIdentity: string;
   ownerPhone: string;
   ownerAddress: string;
+  eidsAuthorizationNumber: string;
+  eidsAuthorizedAt: string;
+  eidsAuthorizedBy: string;
   propertyNeighborhood: string;
   propertyAddress: string;
   parcelInfo: string;
@@ -42,6 +45,7 @@ export const AUTHORITY_CONDITIONS_TEMPLATE_VERSION = "global1881-authority-condi
 
 export const emptyAuthorityDetails = (): AuthorityContractDetails => ({
   mode: "rent", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
+  eidsAuthorizationNumber: "", eidsAuthorizedAt: "", eidsAuthorizedBy: "",
   propertyNeighborhood: "", propertyAddress: "", parcelInfo: "", propertyType: "", grossM2: "", roomCount: "",
   floorAndView: "", condition: "", price: "", currency: "TRY", serviceFeeRate: "", serviceFeeAmount: "", vatCollection: "separate",
   contractDate: new Date().toISOString().slice(0, 10), authorityDurationMonths: "3", consultantName: "", consultantPhone: "", consultantCode: "", consultantTitle: "",
@@ -150,6 +154,7 @@ export function normalizeAuthorityDetails(details: AuthorityContractDetails): Au
     ...details,
     ownerName: toTurkishTitleCase(details.ownerName),
     ownerAddress: toTurkishTitleCase(details.ownerAddress),
+    eidsAuthorizationNumber: details.eidsAuthorizationNumber.replace(/\D/g, ""),
     propertyAddress: toTurkishTitleCase(details.propertyAddress),
     propertyType: toTurkishTitleCase(details.propertyType),
     floorAndView: toTurkishTitleCase(details.floorAndView),

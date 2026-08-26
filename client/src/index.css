@@ -74,6 +74,7 @@ button:active { transform: scale(.98); }
 .rental-fixture-table th:nth-child(2), .rental-fixture-table td:nth-child(2) { width: 31% !important; }
 .rental-fixture-table th:nth-child(3), .rental-fixture-table td:nth-child(3) { width: 8% !important; }
 .rental-fixture-table th:nth-child(4), .rental-fixture-table td:nth-child(4) { width: 54% !important; }
+.rental-fixture-table .fixture-quantity { white-space: nowrap; font-weight: 600; letter-spacing: .04em; }
 .rental-fixture-table thead th { background: #edf3f8; font-size: 8.4pt; font-weight: 700; }
 .rental-fixture-table tbody td { height: 9mm; color: #35413d; }
 .rental-document-signatures { gap: 0; margin-top: 10mm; border: 1px solid #92a19a; background: linear-gradient(180deg, #fbfdfb, #f5f8f5); text-align: left; }

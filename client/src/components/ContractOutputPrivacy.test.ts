@@ -12,6 +12,8 @@ describe("customer-facing A4 contract output", () => {
     expect(authority).not.toContain("Koşul şablon sürümü:");
     expect(authority).not.toContain("offline sözleşme anındaki snapshot");
     expect(authority).not.toContain("authority-print-running-footer");
+    expect(authority).not.toContain("EİDS Yetki Numarası");
+    expect(authority).not.toContain("eidsAuthorizationNumber");
     expect(rental).not.toContain("Koşul şablon sürümü:");
     expect(rental).not.toContain("sözleşme anındaki offline snapshot");
   });

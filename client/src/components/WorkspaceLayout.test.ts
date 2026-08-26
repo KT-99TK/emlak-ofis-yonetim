@@ -50,6 +50,17 @@ describe("workspace content layout", () => {
     expect(authorityPage).toContain("Belge türünü seçtikten sonra");
   });
 
+  it("places the numeric EİDS authority number directly below the owner field and keeps it outside the A4 preview", () => {
+    const authorityPage = projectFile("client/src/pages/OfflineAuthorityContracts.tsx");
+    const authorityDocument = projectFile("client/src/components/AuthorityContractDocument.tsx");
+
+    expect(authorityPage.indexOf('key === "ownerName"')).toBeLessThan(authorityPage.indexOf("EİDS Yetki Numarası"));
+    expect(authorityPage).toContain('value={details.eidsAuthorizationNumber}');
+    expect(authorityPage).toContain('value.replace(/\\D/g, "")');
+    expect(authorityPage).toContain("authority-eids-confirmed");
+    expect(authorityDocument).not.toContain("EİDS Yetki Numarası");
+  });
+
   it("places the rental type decision before the optional previous-contract lookup", () => {
     const rentalPage = projectFile("client/src/pages/OfflineRentalContracts.tsx");
 

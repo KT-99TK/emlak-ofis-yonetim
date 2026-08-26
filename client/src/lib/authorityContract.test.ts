@@ -30,6 +30,15 @@ describe("authority contract template", () => {
     expect(snapshot.ownerName).toBe("Ayşe Malik");
     expect(snapshot.sourceClientRecordId).toBe("client-1");
     expect(snapshot.authorityDurationMonths).toBe("3");
+    expect(snapshot.eidsAuthorizationNumber).toBe("");
+  });
+
+  it("keeps an EİDS authority number numeric and preserves its approval metadata in the offline snapshot", () => {
+    const snapshot = createOfflineAuthoritySnapshot({ ...emptyAuthorityDetails(), eidsAuthorizationNumber: "EİDS-123 456", eidsAuthorizedAt: "2026-08-26T09:30:00.000Z", eidsAuthorizedBy: "AYSE-YILMAZ" }, "YET-2026-AY-001");
+
+    expect(snapshot.eidsAuthorizationNumber).toBe("123456");
+    expect(snapshot.eidsAuthorizedAt).toBe("2026-08-26T09:30:00.000Z");
+    expect(snapshot.eidsAuthorizedBy).toBe("AYSE-YILMAZ");
   });
 
   it("defaults authority duration to three months and reflects a user-selected duration in conditions", () => {
