@@ -50,12 +50,16 @@ describe("workspace content layout", () => {
     expect(authorityPage).toContain("Belge türünü seçtikten sonra");
   });
 
-  it("places the numeric EİDS authority number directly below the owner field and keeps it outside the A4 preview", () => {
+  it("places the numeric EİDS authority number below the owner name/TCKN row and keeps it outside the A4 preview", () => {
     const authorityPage = projectFile("client/src/pages/OfflineAuthorityContracts.tsx");
     const authorityDocument = projectFile("client/src/components/AuthorityContractDocument.tsx");
 
-    expect(authorityPage.indexOf('key === "ownerName"')).toBeLessThan(authorityPage.indexOf("EİDS Yetki Numarası"));
-    expect(authorityPage).toContain('value={details.eidsAuthorizationNumber}');
+    expect(authorityPage.indexOf("const ownerIdentityFields")).toBeLessThan(authorityPage.indexOf("const ownerContactFields"));
+    expect(authorityPage.indexOf("ownerIdentityFields.map(renderDetailsField)")).toBeLessThan(authorityPage.indexOf("EİDS Yetki Numarası"));
+    expect(authorityPage.indexOf("EİDS Yetki Numarası")).toBeLessThan(authorityPage.indexOf("ownerContactFields.map(renderDetailsField)"));
+    expect(authorityPage).not.toContain('["eidsAuthorizationNumber", "EİDS Yetki Numarası"]');
+    expect(authorityPage).toContain('inputMode="numeric" pattern="[0-9]*" value={details.eidsAuthorizationNumber}');
+    expect(authorityPage).not.toContain('key === "ownerName" &&');
     expect(authorityPage).toContain('value.replace(/\\D/g, "")');
     expect(authorityPage).toContain("authority-eids-confirmed");
     expect(authorityDocument).not.toContain("EİDS Yetki Numarası");

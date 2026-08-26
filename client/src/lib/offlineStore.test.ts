@@ -6,9 +6,10 @@ if (!globalThis.crypto) Object.defineProperty(globalThis, "crypto", { configurab
 
 describe("offline encrypted backup crypto", () => {
   it("encrypts and decrypts the canonical backup payload", async () => {
-    const source = JSON.stringify({ format: "global1881-offline-encrypted-v1", records: [{ id: "r-1", title: "Kira" }] });
+    const source = JSON.stringify({ format: "global1881-offline-encrypted-v1", records: [{ id: "r-1", title: "Kira" }, { id: "internal-1", entity: "internalControl", title: "Ofis payı iç denetimi", details: JSON.stringify({ schema: "global1881-office-contribution-v1", sourceTransactionNo: "ISK-2026-001" }) }] });
     const encrypted = await encryptBackupPayload(source, "Global1881!backup");
     expect(encrypted.ciphertext).not.toContain("Kira");
+    expect(encrypted.ciphertext).not.toContain("Ofis payı iç denetimi");
     await expect(decryptBackupPayload(encrypted, "Global1881!backup")).resolves.toBe(source);
   });
 

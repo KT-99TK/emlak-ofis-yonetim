@@ -27,6 +27,7 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { getUserId } from "@/lib/offlineStore";
+import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 import { normalizeOfflineHash, offlineNavigationItems } from "@/lib/offlineNavigation";
 import GlobalBrandLockup from "@/components/GlobalBrandLockup";
 
@@ -120,7 +121,7 @@ function DashboardLayoutContent({
   const offlineUserId = isDesktop ? getUserId() : "";
   const [location, setLocation] = useLocation();
   const [currentOfflineHash, setCurrentOfflineHash] = useState(() => normalizeOfflineHash(typeof window === "undefined" ? undefined : window.location.hash));
-  const visibleOfflineMenuItems = offlineNavigationItems.filter((item) => !item.managerOnly || user?.role === "admin");
+  const visibleOfflineMenuItems = offlineNavigationItems.filter((item) => !item.managerOnly || user?.role === "admin" || isLocalManagerSessionActive());
   const visibleMenuItems = isDesktop ? visibleOfflineMenuItems : menuItems;
   const officeOfflineMenuItems = visibleOfflineMenuItems.filter((item) => item.section === "office");
   const personalOfflineMenuItems = visibleOfflineMenuItems.filter((item) => item.section === "personal");

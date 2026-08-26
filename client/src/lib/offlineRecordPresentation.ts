@@ -5,7 +5,7 @@ type Snapshot = Record<string, unknown>;
 const parse = (value: string): Snapshot | null => { try { const result = JSON.parse(value); return result && typeof result === "object" ? result as Snapshot : null; } catch { return null; } };
 const number = (value: unknown) => Math.max(0, Math.round(Number(value) || 0));
 const money = (value: unknown, currency = "TRY") => new Intl.NumberFormat("tr-TR", { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(number(value));
-const entityLabels: Record<OfflineRecord["entity"], string> = { client: "Müşteri", property: "Portföy", contract: "Sözleşme", contractArchive: "Sözleşme arşivi", activeContractDocument: "İmzalı aktif belge", obligation: "Vade kaydı", evacuation: "Tahliye bildirimi", ownerApproval: "Mülk sahibi onayı", ledger: "Ön muhasebe", target: "Ciro hedefi", request: "Müşteri talebi", transaction: "İşlem kapanışı", treasuryControl: "Kasa-banka gün sonu kontrolü" };
+const entityLabels: Record<OfflineRecord["entity"], string> = { client: "Müşteri", property: "Portföy", contract: "Sözleşme", contractArchive: "Sözleşme arşivi", activeContractDocument: "İmzalı aktif belge", obligation: "Vade kaydı", evacuation: "Tahliye bildirimi", ownerApproval: "Mülk sahibi onayı", ledger: "Ön muhasebe", target: "Ciro hedefi", request: "Müşteri talebi", transaction: "İşlem kapanışı", treasuryControl: "Kasa-banka gün sonu kontrolü", internalControl: "İç denetim" };
 
 export type OfflineRecordPresentation = { label: string; summary: string };
 
@@ -40,6 +40,13 @@ export function presentOfflineRecord(record: OfflineRecord): OfflineRecordPresen
   if (record.entity === "treasuryControl" || schema === "global1881-office-treasury-control-v1") {
     const exceptions = Array.isArray(raw.exceptions) ? raw.exceptions.length : 0;
     return { label: "Kasa-banka gün sonu kontrolü", summary: [String(raw.date ?? ""), exceptions ? `${exceptions} açık istisna` : "Fark yok", String(raw.reviewedBy ?? "")].filter(Boolean).join(" · ") };
+  }
+  if (record.entity === "internalControl") {
+    if (schema === "global1881-internal-budget-plan-v1") return { label: "İç denetim bütçesi", summary: [String(raw.year ?? ""), `Ay: ${raw.month ?? "—"}`, String(raw.categoryCode ?? ""), `Plan: ${money(raw.originalBudget)}`].filter(Boolean).join(" · ") };
+    if (schema === "global1881-internal-budget-expense-v1") return { label: "İç denetim gideri", summary: [String(raw.categoryCode ?? ""), String(raw.supplier ?? ""), `Tutar: ${money(raw.amount)}`, String(raw.status ?? "")].filter(Boolean).join(" · ") };
+    if (schema === "global1881-office-contribution-v1") return { label: "Ofis payı / danışman katkısı", summary: [String(raw.consultantName ?? ""), String(raw.sourceTransactionNo ?? ""), `Net: ${money(raw.netServiceFee)}`, String(raw.collectionStatus ?? "")].filter(Boolean).join(" · ") };
+    if (schema === "global1881-internal-budget-transfer-v1") return { label: "Bütçe aktarımı", summary: [`${String(raw.sourceCategoryCode ?? "")} → ${String(raw.targetCategoryCode ?? "")}`, `Tutar: ${money(raw.amount)}`, String(raw.reason ?? "")].filter(Boolean).join(" · ") };
+    if (schema === "global1881-internal-vat-reference-v1") return { label: "KDV referans takibi", summary: [String(raw.year ?? ""), `Ay: ${raw.month ?? "—"}`, `Tahsil edilen: ${money(raw.collectedVat)}`, `Teyitli: ${money(raw.accountantConfirmedPaidOrOffset)}`].filter(Boolean).join(" · ") };
   }
   if (record.entity === "contract" && schema.startsWith("global1881-offline-authority")) return { label: "Yetki sözleşmesi", summary: [raw.mode === "sale" ? "Satış" : "Kiralama", String(raw.contractNo ?? ""), String(raw.propertyNeighborhood ?? ""), String(raw.propertyAddress ?? ""), raw.price ? `Bedel: ${money(raw.price, String(raw.currency ?? "TRY"))}` : ""].filter(Boolean).join(" · ") };
   if (record.entity === "contract" && schema.startsWith("global1881-offline-rental")) return { label: "Kira sözleşmesi", summary: [String(raw.contractNo ?? ""), String(raw.propertyNeighborhood ?? ""), String(raw.propertyAddress ?? ""), raw.monthlyRent ? `Aylık kira: ${money(raw.monthlyRent)}` : ""].filter(Boolean).join(" · ") };

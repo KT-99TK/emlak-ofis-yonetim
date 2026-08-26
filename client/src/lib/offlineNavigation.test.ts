@@ -20,8 +20,13 @@ describe("offline navigation", () => {
     expect(normalizeOfflineHash("#/offline-request-matches")).toBe("#/offline-request-matches");
     expect(normalizeOfflineHash("#/offline-transactions")).toBe("#/offline-transactions");
     expect(normalizeOfflineHash("#/offline-cash-bank")).toBe("#/offline-cash-bank");
-    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-transactions", "#/offline-performance", "#/offline-cash-bank", "#/offline-targets", "#/offline-request-matches", "#/offline-merge", "#/offline-my-contracts", "#/offline-active-documents", "#/offline-requests", "#/offline-archive"]);
-    expect(offlineNavigationItems.filter((item) => item.section === "personal").map((item) => item.path)).toEqual(["#/offline-my-contracts", "#/offline-active-documents", "#/offline-requests", "#/offline-archive"]);
+    expect(normalizeOfflineHash("#/offline-internal-control")).toBe("#/offline-internal-control");
+    expect(normalizeOfflineHash("#/offline-office-contributions")).toBe("#/offline-office-contributions");
+    expect(normalizeOfflineHash("#/offline-my-contributions")).toBe("#/offline-my-contributions");
+    expect(offlineNavigationItems.map((item) => item.path)).toEqual(["#/offline", "#/offline-authority", "#/offline-rental", "#/offline-transactions", "#/offline-performance", "#/offline-cash-bank", "#/offline-internal-control", "#/offline-office-contributions", "#/offline-targets", "#/offline-request-matches", "#/offline-merge", "#/offline-my-contracts", "#/offline-my-contributions", "#/offline-active-documents", "#/offline-requests", "#/offline-archive"]);
+    expect(offlineNavigationItems.filter((item) => item.section === "personal").map((item) => item.path)).toEqual(["#/offline-my-contracts", "#/offline-my-contributions", "#/offline-active-documents", "#/offline-requests", "#/offline-archive"]);
     expect(offlineNavigationItems.find((item) => item.path === "#/offline-performance")?.label).toBe("Sözleşme ve Finansal İstatistikler");
+    expect(offlineNavigationItems.find((item) => item.path === "#/offline-internal-control")).toMatchObject({ label: "Bütçe ve Gider Kontrolü", managerOnly: true });
+    expect(offlineNavigationItems.find((item) => item.path === "#/offline-office-contributions")).toMatchObject({ label: "Ofis Payı ve Danışman Katkısı", managerOnly: true });
   });
 });
