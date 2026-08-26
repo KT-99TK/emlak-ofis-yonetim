@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { Banknote, CalendarClock, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
+import { Banknote, CalendarClock, Cloud, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -40,13 +40,14 @@ const menuItems = [
   { icon: Banknote, label: "Ön Muhasebe", path: "/accounting" },
   { icon: CalendarClock, label: "Kira & Vergi Vadeleri", path: "/obligations" },
   { icon: Users, label: "Ekip Yönetimi", path: "/team" },
+  { icon: Cloud, label: "Online Başlangıç", path: "/online-start", managerOnly: true },
   { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
 const MIN_WIDTH = 200;
-const MAX_WIDTH = 480;
+const MAX_WIDTH = 360;
 
 export default function DashboardLayout({
   children,
@@ -122,7 +123,7 @@ function DashboardLayoutContent({
   const [location, setLocation] = useLocation();
   const [currentOfflineHash, setCurrentOfflineHash] = useState(() => normalizeOfflineHash(typeof window === "undefined" ? undefined : window.location.hash));
   const visibleOfflineMenuItems = offlineNavigationItems.filter((item) => !item.managerOnly || user?.role === "admin" || isLocalManagerSessionActive());
-  const visibleMenuItems = isDesktop ? visibleOfflineMenuItems : menuItems;
+  const visibleMenuItems = isDesktop ? visibleOfflineMenuItems : menuItems.filter((item) => !item.managerOnly || user?.role === "admin");
   const officeOfflineMenuItems = visibleOfflineMenuItems.filter((item) => item.section === "office");
   const personalOfflineMenuItems = visibleOfflineMenuItems.filter((item) => item.section === "personal");
   const { state, toggleSidebar } = useSidebar();
@@ -185,7 +186,7 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-auto min-h-[102px] border-b border-[#315f56] bg-[#173e39] px-2 py-3">
+          <SidebarHeader className="h-auto min-h-[116px] border-b border-[#315f56] bg-[#173e39] px-2 py-3">
             <div className="flex w-full items-center gap-2 transition-all">
               <button
                 onClick={toggleSidebar}
@@ -201,6 +202,9 @@ function DashboardLayoutContent({
           <SidebarContent className="gap-0">
             {isDesktop ? (
               <>
+                <div className="px-5 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#78958b] group-data-[collapsible=icon]:sr-only">
+                  Ofis Operasyonları
+                </div>
                 <SidebarMenu aria-label="Offline menü: Ortak Ofis Operasyonları" className="px-2 py-1">
                   {officeOfflineMenuItems.map(item => {
                     const isActive = currentOfflineHash === item.path;
@@ -272,10 +276,10 @@ function DashboardLayoutContent({
             )}
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className={isDesktop ? "border-t border-[#d8e6df] bg-[#f5f9f6] p-3" : "p-3"}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-[#e5f0e9] group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-9 w-9 border shrink-0">
                     <AvatarFallback className="text-xs font-medium">
                       {user?.name?.charAt(0).toUpperCase() || offlineUserId.charAt(0).toUpperCase() || "O"}

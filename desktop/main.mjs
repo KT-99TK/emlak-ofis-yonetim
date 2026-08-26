@@ -81,7 +81,12 @@ function normalizeArchiveAccess(value) {
   if (!value || typeof value !== "object") throw new Error("Geçersiz arşiv erişim isteği");
   const userId = String(value.userId ?? "").trim();
   const role = value.role === "officeAssistant" ? "officeAssistant" : "consultant";
-  return { userId, role, managerSessionActive: value.managerSessionActive === true };
+  const assistantAssignedUserIds = Array.isArray(value.assistantAssignedUserIds) ? [...new Set(value.assistantAssignedUserIds.filter((entry) => typeof entry === "string").map((entry) => entry.trim()).filter(Boolean))] : [];
+  return { userId, role, managerSessionActive: value.managerSessionActive === true, assistantAssignedUserIds };
+}
+
+function canOpenOfflineDocument(ownerUserId, access) {
+  return access.managerSessionActive || ownerUserId === access.userId || (access.role === "officeAssistant" && access.assistantAssignedUserIds.includes(ownerUserId));
 }
 
 ipcMain.handle("contract-archive:select", async () => {
@@ -121,7 +126,7 @@ ipcMain.handle("contract-archive:open", async (_event, request) => {
   const access = normalizeArchiveAccess(request?.access);
   const manifest = readArchiveManifest(); const entry = manifest[recordId];
   if (!entry || !validArchiveKey(entry.archiveKey)) return { ok: false, message: "Arşiv manifesti veya dosya eşleşmesi bu cihazda bulunamadı." };
-  if (!access.managerSessionActive && access.role !== "officeAssistant" && entry.ownerUserId !== access.userId) return { ok: false, message: "Bu arşiv belgesini açma yetkiniz yok." };
+  if (!canOpenOfflineDocument(entry.ownerUserId, access)) return { ok: false, message: "Bu arşiv belgesini açma yetkiniz yok." };
   const filePath = archivePath(entry.archiveKey);
   if (!fs.existsSync(filePath)) return { ok: false, message: "Arşiv PDF dosyası bu cihazda bulunamadı." };
   if (sha256File(filePath) !== entry.sha256) return { ok: false, message: "PDF bütünlük doğrulaması başarısız; dosya açılmadı." };
@@ -170,7 +175,7 @@ ipcMain.handle("active-contract-document:open", async (_event, request) => {
   const access = normalizeArchiveAccess(request?.access);
   const manifest = readActiveDocumentManifest(); const entry = manifest[documentRecordId];
   if (!entry || !validArchiveKey(entry.storageKey)) return { ok: false, message: "İmzalı belge manifesti veya dosya eşleşmesi bu cihazda bulunamadı." };
-  if (!access.managerSessionActive && access.role !== "officeAssistant" && entry.ownerUserId !== access.userId) return { ok: false, message: "Bu imzalı belgeyi açma yetkiniz yok." };
+  if (!canOpenOfflineDocument(entry.ownerUserId, access)) return { ok: false, message: "Bu imzalı belgeyi açma yetkiniz yok." };
   const filePath = activeDocumentPath(entry.storageKey);
   if (!fs.existsSync(filePath)) return { ok: false, message: "İmzalı PDF dosyası bu cihazda bulunamadı." };
   if (sha256File(filePath) !== entry.sha256) return { ok: false, message: "PDF bütünlük doğrulaması başarısız; dosya açılmadı." };

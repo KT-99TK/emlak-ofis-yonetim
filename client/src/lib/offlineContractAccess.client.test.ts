@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { assignOfflineAccessRole, getOfflineAccessRole } from "./offlineContractAccess";
+import { assignOfflineAccessRole, assignOfflineAssistantScope, getOfflineAccessRole, getOfflineAssistantAssignedUserIds } from "./offlineContractAccess";
 
 describe("offline contract access device role", () => {
   beforeEach(() => window.localStorage.clear());
@@ -10,5 +10,12 @@ describe("offline contract access device role", () => {
     assignOfflineAccessRole("officeAssistant", true);
     expect(getOfflineAccessRole()).toBe("officeAssistant");
     expect(window.localStorage.getItem("global1881-offline-audit")).toContain("contract-access-role-assigned");
+  });
+
+  it("stores an assistant's assigned consultant scope only through an active manager session", () => {
+    expect(() => assignOfflineAssistantScope(["consultant-a"], false)).toThrow("yalnız açık yerel broker manager oturumunda");
+    expect(assignOfflineAssistantScope(["consultant-a", " consultant-a ", "consultant-b"], true)).toEqual(["consultant-a", "consultant-b"]);
+    expect(getOfflineAssistantAssignedUserIds()).toEqual(["consultant-a", "consultant-b"]);
+    expect(window.localStorage.getItem("global1881-offline-audit")).toContain("contract-access-scope-assigned");
   });
 });

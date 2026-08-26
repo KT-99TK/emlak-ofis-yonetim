@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { calculateRentalSummary, createOfflineRentalSnapshot, emptyRentalDetails, firstPaymentDeadline, formatWholeRentalAmount, type OfflineRentalDetails } from "@/lib/rentalContract";
-import { canViewFullOfflineContract, getOfflineAccessRole } from "@/lib/offlineContractAccess";
+import { canViewFullOfflineContract, getOfflineAccessRole, getOfflineAssistantAssignedUserIds } from "@/lib/offlineContractAccess";
 import { listOfflineContractLookups, searchOfflineContractLookups } from "@/lib/offlineContractLookup";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 import { getUserId, listOfflineRecords, saveOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
@@ -46,7 +46,7 @@ export default function OfflineRentalContracts() {
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [message, setMessage] = useState("");
   const userId = getUserId();
-  const contractAccess = { userId, role: getOfflineAccessRole(), managerSessionActive: isLocalManagerSessionActive() } as const;
+  const contractAccess = { userId, role: getOfflineAccessRole(), managerSessionActive: isLocalManagerSessionActive(), assistantAssignedUserIds: getOfflineAssistantAssignedUserIds() } as const;
   const summary = useMemo(() => calculateRentalSummary(details), [details]);
   const people = records.filter((record) => record.entity === "client" && canViewFullOfflineContract(record, contractAccess));
   const properties = records.filter((record) => record.entity === "property" && canViewFullOfflineContract(record, contractAccess));

@@ -15,6 +15,13 @@ describe("mobile online companion", () => {
     expect(screen).toContain("trpc.properties.list.useQuery");
     expect(screen).toContain("trpc.contracts.list.useQuery");
     expect(screen).toContain("trpc.obligations.list.useQuery");
+    expect(screen).toContain("trpc.onlineStart.status.useQuery");
+    expect(screen).toContain("Merkezi online başlangıç bekliyor.");
+    expect(screen).toContain("Eski offline sözleşme, arşiv ve finans kayıtları taşınmaz.");
+    expect(screen).toContain("Geçmiş Offline Arşiv");
+    expect(screen).toContain("legacyArchiveImportEnabled = false");
+    expect(screen).toContain("const centralOperationsLocked = !onlineStart.isLoading && onlineStartPending");
+    expect(screen).toContain("Merkezi online başlangıç tarihi gelmeden kasa hareketi beyan edilemez.");
     expect(app).toContain('window.location.pathname === "/mobile"');
     expect(manifest).toContain('"start_url": "/mobile"');
     expect(manifest).toContain('"display": "standalone"');

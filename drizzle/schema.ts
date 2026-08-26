@@ -212,6 +212,22 @@ export const backupManifests = mysqlTable("backupManifests", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+/**
+ * Merkezi çalışma alanının eski offline veriyi taşımadan başlayacağı sınırı
+ * broker manager tarafından bir kez tanımlanır. Açılış bakiyesi veya devir
+ * tutarı tutulmaz; bu ayardan önce tarihli yeni merkezi kayıt oluşturulamaz.
+ */
+export const onlineStartSettings = mysqlTable("onlineStartSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  effectiveAt: timestamp("effectiveAt").notNull(),
+  mode: mysqlEnum("mode", ["freshStart"]).default("freshStart").notNull(),
+  noBalanceCarry: int("noBalanceCarry").default(1).notNull(),
+  noOfflineImport: int("noOfflineImport").default(1).notNull(),
+  configuredByUserId: int("configuredByUserId").notNull(),
+  configuredAt: timestamp("configuredAt").defaultNow().notNull(),
+  note: text("note"),
+});
+
 export const auditLogs = mysqlTable("auditLogs", {
   id: int("id").autoincrement().primaryKey(),
   actorUserId: int("actorUserId").notNull(),

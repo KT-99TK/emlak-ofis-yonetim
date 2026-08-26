@@ -4,13 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { canUploadOwnActiveContractDocument, createActiveContractDocumentMetadata, getActiveSignedRentalEligibility, parseActiveContractDocumentMetadata } from "@/lib/activeContractDocuments";
-import { canViewFullOfflineContract, getOfflineAccessRole } from "@/lib/offlineContractAccess";
+import { canViewFullOfflineContract, getOfflineAccessRole, getOfflineAssistantAssignedUserIds } from "@/lib/offlineContractAccess";
 import { formatArchiveByteSize } from "@/lib/contractArchive";
+import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 import { getUserId, listOfflineRecords, recordOfflineAudit, saveOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
 import { FileCheck2, FileLock2, FolderOpen, LoaderCircle, ShieldCheck, Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-type ActiveDocumentBridge = { activeContractDocuments?: { selectPdfFiles: () => Promise<Array<{ storageKey: string; originalName: string; byteSize: number; sha256: string }>>; registerPdf: (request: { documentRecordId: string; storageKey: string; ownerUserId: string; contractRecordId: string; sha256: string }) => Promise<{ ok: boolean; immutable: boolean }>; openPdf: (request: { documentRecordId: string; access: { userId: string; role: "consultant" | "officeAssistant"; managerSessionActive: boolean } }) => Promise<{ ok: boolean; message?: string }> } };
+type ActiveDocumentBridge = { activeContractDocuments?: { selectPdfFiles: () => Promise<Array<{ storageKey: string; originalName: string; byteSize: number; sha256: string }>>; registerPdf: (request: { documentRecordId: string; storageKey: string; ownerUserId: string; contractRecordId: string; sha256: string }) => Promise<{ ok: boolean; immutable: boolean }>; openPdf: (request: { documentRecordId: string; access: { userId: string; role: "consultant" | "officeAssistant"; managerSessionActive: boolean; assistantAssignedUserIds?: string[] } }) => Promise<{ ok: boolean; message?: string }> } };
 const desktopBridge = () => (window as Window & { global1881Desktop?: ActiveDocumentBridge }).global1881Desktop;
 
 export default function OfflineActiveContractDocuments() {
@@ -22,15 +23,16 @@ export default function OfflineActiveContractDocuments() {
   const [message, setMessage] = useState("");
   const localUserId = getUserId();
   const role = getOfflineAccessRole();
-  const managerSessionActive = user?.role === "admin";
-  const accessContext = { userId: localUserId, role, managerSessionActive } as const;
+  const managerSessionActive = user?.role === "admin" || isLocalManagerSessionActive();
+  const assistantAssignedUserIds = getOfflineAssistantAssignedUserIds();
+  const accessContext = { userId: localUserId, role, managerSessionActive, assistantAssignedUserIds } as const;
   const refresh = async () => setRecords(await listOfflineRecords());
   useEffect(() => { void refresh(); }, []);
 
   const ownEligibleContracts = useMemo(() => records.filter((record) => canUploadOwnActiveContractDocument(record, localUserId)), [records, localUserId]);
   const selectedContract = ownEligibleContracts.find((record) => record.id === selectedContractId);
   const selectedEligibility = selectedContract ? getActiveSignedRentalEligibility(selectedContract) : null;
-  const visibleDocuments = useMemo(() => records.filter((record) => record.entity === "activeContractDocument" && canViewFullOfflineContract(record, accessContext)).map((record) => ({ record, metadata: parseActiveContractDocumentMetadata(record) })).filter((item): item is { record: OfflineRecord; metadata: NonNullable<typeof item.metadata> } => Boolean(item.metadata)), [records, accessContext.userId, accessContext.role, accessContext.managerSessionActive]);
+  const visibleDocuments = useMemo(() => records.filter((record) => record.entity === "activeContractDocument" && canViewFullOfflineContract(record, accessContext)).map((record) => ({ record, metadata: parseActiveContractDocumentMetadata(record) })).filter((item): item is { record: OfflineRecord; metadata: NonNullable<typeof item.metadata> } => Boolean(item.metadata)), [records, accessContext.userId, accessContext.role, accessContext.managerSessionActive, assistantAssignedUserIds.join(",")]);
 
   useEffect(() => {
     if (!selectedContract) { setSignatureDate(""); return; }

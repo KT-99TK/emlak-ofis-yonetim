@@ -10,6 +10,8 @@ describe("active signed document Electron bridge", () => {
     expect(main).toContain('ipcMain.handle("active-contract-document:select"');
     expect(main).toContain('ipcMain.handle("active-contract-document:register"');
     expect(main).toContain('ipcMain.handle("active-contract-document:open"');
+    expect(main).toContain("assistantAssignedUserIds");
+    expect(main).toContain("canOpenOfflineDocument(entry.ownerUserId, access)");
     expect(main).not.toContain("active-contract-document:delete");
     expect(main).not.toContain("active-contract-document:update");
     expect(preload).toContain("activeContractDocuments");

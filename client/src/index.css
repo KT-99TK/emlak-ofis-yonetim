@@ -111,16 +111,34 @@ button:active { transform: scale(.98); }
 .authority-party-signature-box span { margin-top: auto; padding-top: 14mm; color: #67716e; }
 
 /* Windows offline operasyon ekranları: form/işlem alanı solda, rol filtresine sahip Ofis Akışı sağda. */
-.offline-operation-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 1440px; margin: 0 auto; }
+.offline-operation-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 1180px; margin: 0 auto; }
 .offline-operation-main { min-width: 0; }
 .offline-operation-aside { min-width: 0; }
-.offline-root-with-flow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.offline-root-with-flow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 1180px; margin: 0 auto; }
 .offline-page-surface > header { max-width: 960px; }
-.offline-page-surface > :where(.offline-operation-grid, .offline-root-with-flow, .grid) { max-width: 1440px; margin-inline: auto; }
-.offline-page-surface > .rounded-2xl { max-width: 1440px; margin-inline: auto; }
+.offline-page-surface > :where(.offline-operation-grid, .offline-root-with-flow, .grid) { max-width: 1180px; margin-inline: auto; }
+.offline-page-surface > .rounded-2xl { max-width: 1180px; margin-inline: auto; }
 .offline-operation-main > .rounded-2xl {
   border-color: #dce7e1;
   box-shadow: 0 16px 38px rgba(22, 55, 47, .07), 0 2px 8px rgba(22, 55, 47, .035);
+}
+.offline-page-surface .offline-operation-main > .rounded-2xl > [data-slot="card-header"] {
+  border-bottom: 1px solid #e5ede8;
+  background: linear-gradient(90deg, rgba(246,250,247,.95), rgba(255,255,255,.45));
+}
+.offline-page-surface .offline-operation-main label {
+  color: #3b514b;
+  font-weight: 650;
+}
+.offline-page-surface .offline-operation-main :is(input, textarea, [data-slot="select-trigger"]) {
+  border-color: #d4e0d9;
+  background: rgba(255,255,255,.94);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 1px 2px rgba(23,62,57,.035);
+}
+.offline-page-surface .offline-operation-main :is(input, [data-slot="select-trigger"]) { min-height: 2.75rem; }
+.offline-page-surface .offline-operation-main :is(input, textarea, [data-slot="select-trigger"]):focus-within {
+  border-color: #80aa97;
+  box-shadow: 0 0 0 3px rgba(128,170,151,.16);
 }
 .authority-contract-workspace .offline-operation-main > .rounded-2xl:not(.authority-print-shell),
 .offline-rental-contract-workspace .offline-operation-main > .rounded-2xl:not(.authority-print-shell) {
@@ -181,9 +199,9 @@ button:active { transform: scale(.98); }
 .rental-trace-unassigned .rental-advisor-trace { display: none; }
 .rental-advisor-trace { margin-top: 10px; font-size: 9px; color: #8c9692; text-align: right; letter-spacing: .01em; }
 @media (min-width: 1280px) {
-  .offline-operation-grid { grid-template-columns: minmax(0, 1fr) minmax(264px, 300px); align-items: start; }
+  .offline-operation-grid { grid-template-columns: minmax(0, 1fr) minmax(248px, 280px); align-items: start; }
   .offline-operation-aside { position: sticky; top: 1.25rem; }
-  .offline-root-with-flow { grid-template-columns: minmax(0, 1fr) minmax(264px, 300px); align-items: start; }
+  .offline-root-with-flow { grid-template-columns: minmax(0, 1fr) minmax(248px, 280px); align-items: start; }
 }
 @media (max-width: 640px) {
   .offline-page-surface > :where(.offline-operation-grid, .offline-root-with-flow, .grid) { gap: 1rem; }

@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { canViewArchiveDocument, getOfflineAccessRole } from "@/lib/offlineContractAccess";
+import { canViewArchiveDocument, getOfflineAccessRole, getOfflineAssistantAssignedUserIds } from "@/lib/offlineContractAccess";
 import { archiveCustomerNames, compareContractArchiveChronologically, contractArchiveDocumentTypes, contractArchivePartyRoles, createContractArchiveMetadata, formatArchiveByteSize, parseContractArchiveMetadata, type ContractArchiveCustomerParty, type ContractArchiveDocumentType } from "@/lib/contractArchive";
 import { getUserId, listOfflineRecords, recordOfflineAudit, saveOfflineRecordForAssignedUser, type OfflineRecord } from "@/lib/offlineStore";
+import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 
-type ArchiveDesktopBridge = { contractArchive?: { selectPdfFiles: () => Promise<Array<{ archiveKey: string; originalName: string; byteSize: number; sha256: string }>>; registerPdf: (request: { recordId: string; archiveKey: string; ownerUserId: string; sha256: string }) => Promise<{ ok: boolean }>; openPdf: (request: { recordId: string; access: { userId: string; role: "consultant" | "officeAssistant"; managerSessionActive: boolean } }) => Promise<{ ok: boolean; message?: string }> } };
+type ArchiveDesktopBridge = { contractArchive?: { selectPdfFiles: () => Promise<Array<{ archiveKey: string; originalName: string; byteSize: number; sha256: string }>>; registerPdf: (request: { recordId: string; archiveKey: string; ownerUserId: string; sha256: string }) => Promise<{ ok: boolean }>; openPdf: (request: { recordId: string; access: { userId: string; role: "consultant" | "officeAssistant"; managerSessionActive: boolean; assistantAssignedUserIds?: string[] } }) => Promise<{ ok: boolean; message?: string }> } };
 const desktopBridge = () => (window as Window & { global1881Desktop?: ArchiveDesktopBridge }).global1881Desktop;
 
 export default function OfflineContractArchive() {
@@ -29,9 +30,10 @@ export default function OfflineContractArchive() {
   const [message, setMessage] = useState("");
   const localUserId = getUserId();
   const accessRole = getOfflineAccessRole();
-  const managerSessionActive = user?.role === "admin";
-  const canImport = managerSessionActive || accessRole === "officeAssistant";
-  const accessContext = { userId: localUserId, role: accessRole, managerSessionActive } as const;
+  const managerSessionActive = user?.role === "admin" || isLocalManagerSessionActive();
+  const assistantAssignedUserIds = getOfflineAssistantAssignedUserIds();
+  const canImport = managerSessionActive || (accessRole === "officeAssistant" && assistantAssignedUserIds.length > 0);
+  const accessContext = { userId: localUserId, role: accessRole, managerSessionActive, assistantAssignedUserIds } as const;
 
   const refresh = async () => setRecords((await listOfflineRecords()).filter((record) => record.entity === "contractArchive"));
   useEffect(() => { void refresh(); }, []);
@@ -40,7 +42,7 @@ export default function OfflineContractArchive() {
     .filter((record) => canViewArchiveDocument(record, accessContext))
     .map((record) => ({ record, metadata: parseContractArchiveMetadata(record) }))
     .filter((row): row is { record: OfflineRecord; metadata: NonNullable<typeof row.metadata> } => Boolean(row.metadata))
-    .filter(({ record, metadata }) => [record.title, record.userId, ...archiveCustomerNames(metadata), metadata.historicalActivity, metadata.originalFileName, metadata.documentTypeLabel].join(" ").toLocaleLowerCase("tr-TR").includes(query.trim().toLocaleLowerCase("tr-TR"))), [records, accessContext.userId, accessContext.role, accessContext.managerSessionActive, query]);
+    .filter(({ record, metadata }) => [record.title, record.userId, ...archiveCustomerNames(metadata), metadata.historicalActivity, metadata.originalFileName, metadata.documentTypeLabel].join(" ").toLocaleLowerCase("tr-TR").includes(query.trim().toLocaleLowerCase("tr-TR"))), [records, accessContext.userId, accessContext.role, accessContext.managerSessionActive, assistantAssignedUserIds.join(","), query]);
 
   const customerGroups = useMemo(() => {
     const groups = new Map<string, typeof visibleRows>();
@@ -56,6 +58,7 @@ export default function OfflineContractArchive() {
   const importPdf = async () => {
     if (!canImport) { setMessage("Eski PDF arşivi yalnız açık broker manager oturumunda veya manager tarafından atanmış ofis asistanı rolüyle eklenebilir."); return; }
     if (!assignmentUserId.trim()) { setMessage("Belgenin bağlı olacağı danışman kullanıcı kimliğini yazın."); return; }
+    if (!managerSessionActive && !assistantAssignedUserIds.includes(assignmentUserId.trim())) { setMessage("Ofis asistanı yalnız manager tarafından atanmış danışman kullanıcı kodları için arşiv belgesi ekleyebilir."); return; }
     if (!customerName.trim()) { setMessage("Arşivin bağlı olacağı müşteri adını yazın."); return; }
     if (!historicalActivity.trim()) { setMessage("Müşteriye ait kısa geçmiş işlem özetini yazın."); return; }
     const bridge = desktopBridge()?.contractArchive;

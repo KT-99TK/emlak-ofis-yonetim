@@ -4,7 +4,7 @@ import { parse as parseCookieHeader } from "cookie";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { closeTreasuryCashDay, createCentralArchiveDocument, createClient, createContract, createContractDocument, createTreasuryCashMovement, decideOwnerApproval, getCentralAccessScope, getContractDocumentForUser, getContractForAssignedUser, getTreasuryCashBalance, invalidateContractDocument, recordContractDocumentShareIntent, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, setOfficeAssistantAssignments, transitionContract, verifyTreasuryCashMovement } from "./db";
+import { assertCentralOnlineStartAllowsRecord, closeTreasuryCashDay, configureFreshOnlineStart, createClient, createContract, createContractDocument, createTreasuryCashMovement, decideOwnerApproval, getCentralAccessScope, getContractDocumentForUser, getContractForAssignedUser, getOnlineStartSetting, getTreasuryCashBalance, invalidateContractDocument, recordContractDocumentShareIntent, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, setOfficeAssistantAssignments, transitionContract, verifyTreasuryCashMovement } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -21,6 +21,14 @@ export const appRouter = router({
   }),
   dashboard: router({
     summary: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return getDashboardSummary(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+  }),
+  onlineStart: router({
+    status: protectedProcedure.query(() => getOnlineStartSetting()),
+    configure: adminProcedure.input(z.object({
+      effectiveAt: z.coerce.date(),
+      note: z.string().max(1000).optional(),
+      confirmationText: z.string().min(1).max(120),
+    })).mutation(({ ctx, input }) => configureFreshOnlineStart({ ...input, managerUserId: ctx.user.id })),
   }),
   contracts: router({
     list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listContracts(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
@@ -42,14 +50,8 @@ export const appRouter = router({
       archiveNote: z.string().max(3000).optional(),
       originalFileName: z.string().min(5).max(255),
       pdfBase64: z.string().min(100).max(18_000_000),
-    })).mutation(async ({ ctx, input }) => {
-      const base64 = input.pdfBase64.replace(/^data:application\/pdf;base64,/i, "");
-      const bytes = Buffer.from(base64, "base64");
-      if (!bytes.length || bytes.length > MAX_MOBILE_PDF_BYTES || bytes.subarray(0, 4).toString() !== "%PDF") throw new Error("Yalnız 12 MB altındaki geçerli PDF belgeleri arşivlenebilir.");
-      const sha256 = createHash("sha256").update(bytes).digest("hex");
-      const stored = await storagePut(`office-documents/archive/${input.assignedUserId}/${Date.now()}/${safeFileName(input.originalFileName)}`, bytes, "application/pdf");
-      const documentId = await createCentralArchiveDocument({ ...input, originalFileName: safeFileName(input.originalFileName), storageKey: stored.key, sha256, byteSize: bytes.byteLength, createdByUserId: ctx.user.id });
-      return { id: documentId, sha256, byteSize: bytes.byteLength };
+    })).mutation(() => {
+      throw new Error("Temiz online başlangıçta eski offline PDF arşivi merkezi sisteme aktarılmaz. Eski dosyalar yerel geçmiş arşivinde korunur.");
     }),
     attachActiveSigned: protectedProcedure.input(z.object({
       contractId: z.number().int().positive(),
@@ -58,6 +60,7 @@ export const appRouter = router({
     })).mutation(async ({ ctx, input }) => {
       const contract = await getContractForAssignedUser(input.contractId, ctx.user.id);
       if (!contract) throw new Error("Yalnız kendi sözleşmenize belge ekleyebilirsiniz.");
+      await assertCentralOnlineStartAllowsRecord(contract.createdAt);
       if (!['signed', 'active'].includes(contract.status)) throw new Error("PDF yalnız imza teyitli veya aktif sözleşmeye eklenebilir.");
       const base64 = input.pdfBase64.replace(/^data:application\/pdf;base64,/i, "");
       const bytes = Buffer.from(base64, "base64");

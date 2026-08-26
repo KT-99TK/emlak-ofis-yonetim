@@ -22,7 +22,7 @@ import { isUpcomingEvacuation } from "@/lib/offlineReports";
 import ManifestPreviewRow from "@/components/ManifestPreviewRow";
 import { URLA_NEIGHBORHOODS, titleCaseTurkish } from "@/lib/urlaNeighborhoods";
 import { presentOfflineRecord } from "@/lib/offlineRecordPresentation";
-import { assignOfflineAccessRole, canViewFullOfflineContract, getOfflineAccessRole, maskUnauthorizedOfficeRecord, type OfflineAccessRole } from "@/lib/offlineContractAccess";
+import { assignOfflineAccessRole, assignOfflineAssistantScope, canViewFullOfflineContract, getOfflineAccessRole, getOfflineAssistantAssignedUserIds, maskUnauthorizedOfficeRecord, type OfflineAccessRole } from "@/lib/offlineContractAccess";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
 import { getOfflineProfileGreeting, setOfflineProfileGreeting } from "@/lib/offlineProfile";
 import { formatTurkishDate, formatTurkishDateTime } from "@/lib/turkishDate";
@@ -49,17 +49,20 @@ export default function OfflineWorkspace() {
   const [message, setMessage] = useState("");
   const [backupPassword, setBackupPassword] = useState("");
   const [accessRole, setAccessRole] = useState<OfflineAccessRole>(() => getOfflineAccessRole());
+  const [assistantScopeInput, setAssistantScopeInput] = useState(() => getOfflineAssistantAssignedUserIds().join(", "));
   const [profileGreeting, setProfileGreeting] = useState(() => getOfflineProfileGreeting());
 
   const managerSessionActive = isLocalManagerSessionActive();
-  const contractAccess = { userId, role: accessRole, managerSessionActive } as const;
+  const assistantAssignedUserIds = getOfflineAssistantAssignedUserIds();
+  const contractAccess = { userId, role: accessRole, managerSessionActive, assistantAssignedUserIds } as const;
 
-  const visibleRecords = records.filter((record) => reportFilter === "all" ? true : reportFilter === "evacuationUpcoming" ? isUpcomingEvacuation(record) : record.entity === reportFilter);
+  const authorizedRecords = records.filter((record) => canViewFullOfflineContract(record, contractAccess));
+  const visibleRecords = authorizedRecords.filter((record) => reportFilter === "all" ? true : reportFilter === "evacuationUpcoming" ? isUpcomingEvacuation(record) : record.entity === reportFilter);
   const presentedVisibleRecords = visibleRecords.map((record) => maskUnauthorizedOfficeRecord(record, contractAccess));
-  const upcomingEvacuations = records.filter(isUpcomingEvacuation).sort((a, b) => new Date(a.noticeDate ?? a.dueDate ?? 0).getTime() - new Date(b.noticeDate ?? b.dueDate ?? 0).getTime());
-  const evacuationCount = records.filter((record) => record.entity === "evacuation").length;
-  const pendingApprovalCount = records.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "pending").length;
-  const approvedCount = records.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "approved").length;
+  const upcomingEvacuations = authorizedRecords.filter(isUpcomingEvacuation).sort((a, b) => new Date(a.noticeDate ?? a.dueDate ?? 0).getTime() - new Date(b.noticeDate ?? b.dueDate ?? 0).getTime());
+  const evacuationCount = authorizedRecords.filter((record) => record.entity === "evacuation").length;
+  const pendingApprovalCount = authorizedRecords.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "pending").length;
+  const approvedCount = authorizedRecords.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "approved").length;
 
   const refresh = async () => setRecords((await listOfflineRecords()).map((record) => ({ ...record, details: presentOfflineRecord(record).summary })));
 
@@ -132,7 +135,7 @@ export default function OfflineWorkspace() {
     try {
       assignOfflineAccessRole(role, managerSessionActive);
       setAccessRole(role);
-      setMessage(role === "officeAssistant" ? "Bu cihaz ofis asistanı rolüne alındı. Sözleşme ve malik bilgileri operasyon için görünürdür." : "Bu cihaz danışman rolüne alındı. Yalnız kendi sözleşmeleriniz ve maskeli ofis özetleri görünürdür.");
+      setMessage(role === "officeAssistant" ? "Bu cihaz ofis asistanı rolüne alındı. Yalnız managerın atadığı danışman kapsamındaki sözleşme ve malik bilgileri görünürdür." : "Bu cihaz danışman rolüne alındı. Yalnız kendi sözleşmeleriniz ve maskeli ofis özetleri görünürdür.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Cihaz erişim rolü değiştirilemedi.");
     }
@@ -141,7 +144,17 @@ export default function OfflineWorkspace() {
   const saveProfileGreeting = () => {
     setOfflineProfileGreeting(profileGreeting);
     setProfileGreeting(getOfflineProfileGreeting());
-    setMessage(profileGreeting.trim() ? "Size Özel Gündem için cihazınıza ait hitap kaydedildi." : "Size Özel Gündem hitabı kaldırıldı; varsayılan başlık kullanılacak.");
+    setMessage(profileGreeting.trim() ? "Size Özel Gündem için cihazınıza ait hitap kaydedildi." : "Size Özel Gündem hitabı kaldırıldı; varsayılan başlık kullanılır.");
+  };
+
+  const saveAssistantScope = () => {
+    try {
+      const assigned = assignOfflineAssistantScope(assistantScopeInput.split(/[,;\n]/), managerSessionActive);
+      setAssistantScopeInput(assigned.join(", "));
+      setMessage(assigned.length ? `Ofis asistanı kapsamı ${assigned.length} danışman kullanıcı kodu için kaydedildi.` : "Ofis asistanı kapsamı boşaltıldı; bu cihazda başka danışman sözleşmesi görünmez.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Ofis asistanı kapsamı kaydedilemedi.");
+    }
   };
 
   const backup = async () => {
@@ -189,7 +202,7 @@ export default function OfflineWorkspace() {
 
     <div className="mb-6 grid gap-3 rounded-2xl border border-[#e7dfc9] bg-[#fffaf0] p-4 text-xs text-[#8d6f3f] md:grid-cols-[1fr_1fr_auto]"><span><strong>Cihaz kimliği:</strong> {getDeviceId()}</span><div className="flex items-center gap-2"><Input value={userId} onChange={(event) => setUserIdState(event.target.value)} placeholder="Offline kullanıcı kodu" className="h-8 bg-white" /><Button size="sm" variant="outline" onClick={saveUser}>Kimliği kaydet</Button></div><span className="flex items-center gap-2"><HardDrive className="h-4 w-4" /> Yerel veri deposu</span></div>
     <Card className="mb-6 rounded-2xl border-[#dbe5dd] bg-white/90"><CardHeader><CardTitle className="font-serif text-xl">Size Özel Gündem hitabı</CardTitle><p className="text-xs text-[#70807c]">Bu satır yalnız bu cihazın sağ gündem panelinde görünür. Boş bırakırsanız genel “Size Özel Gündem” başlığı kullanılır.</p></CardHeader><CardContent className="flex flex-col gap-3 sm:flex-row sm:items-end"><div className="w-full max-w-md"><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">İsteğe bağlı hitap</label><Input value={profileGreeting} onChange={(event) => setProfileGreeting(event.target.value)} maxLength={72} placeholder="Örn. Cahit Beyin Dikkatine" className="bg-white" /></div><Button type="button" onClick={saveProfileGreeting}>Hitabı kaydet</Button></CardContent></Card>
-    <Card className="mb-6 rounded-2xl border-[#dbe5dd] bg-white/90"><CardHeader><CardTitle className="font-serif text-xl">Sözleşme erişim rolü</CardTitle><p className="text-xs text-[#70807c]">Danışman yalnız kendi sözleşmesi için tam malik bilgisi ve A4 yazdırma görür. Ofis asistanı rolü, yalnız broker manager doğrulamasıyla bu cihaz için atanır.</p></CardHeader><CardContent className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div className="w-full max-w-sm"><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Bu cihazın rolü</label><Select value={accessRole} onValueChange={(value) => updateAccessRole(value as OfflineAccessRole)} disabled={!managerSessionActive}><SelectTrigger className="bg-white"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="consultant">Danışman — yalnız kendi sözleşmeleri</SelectItem><SelectItem value="officeAssistant">Ofis asistanı — yetkili sözleşme operasyonu</SelectItem></SelectContent></Select></div><p className={`text-xs ${managerSessionActive ? "text-[#287052]" : "text-[#8d6f3f]"}`}>{managerSessionActive ? "Yerel broker manager oturumu açık; rol değişikliği kayda alınır." : "Rol değişikliği için İşlem Kapanışları ekranından yerel broker manager oturumunu açın."}</p></CardContent></Card>
+    <Card className="mb-6 rounded-2xl border-[#dbe5dd] bg-white/90"><CardHeader><CardTitle className="font-serif text-xl">Sözleşme erişim rolü</CardTitle><p className="text-xs text-[#70807c]">Danışman yalnız kendi sözleşmesi için tam malik bilgisi ve A4 yazdırma görür. Ofis asistanı, yalnız broker managerın bu cihaz için atadığı danışman kapsamındaki sözleşmeleri görür.</p></CardHeader><CardContent className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div className="w-full max-w-sm"><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Bu cihazın rolü</label><Select value={accessRole} onValueChange={(value) => updateAccessRole(value as OfflineAccessRole)} disabled={!managerSessionActive}><SelectTrigger className="bg-white"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="consultant">Danışman — yalnız kendi sözleşmeleri</SelectItem><SelectItem value="officeAssistant">Ofis asistanı — atanmış danışman kapsamı</SelectItem></SelectContent></Select></div><p className={`text-xs ${managerSessionActive ? "text-[#287052]" : "text-[#8d6f3f]"}`}>{managerSessionActive ? "Yerel broker manager oturumu açık; rol değişikliği kayda alınır." : "Rol değişikliği için İşlem Kapanışları ekranından yerel broker manager oturumunu açın."}</p></CardContent></Card><Card className="mb-6 rounded-2xl border-[#dbe5dd] bg-white/90"><CardHeader><CardTitle className="font-serif text-xl">Ofis asistanı danışman kapsamı</CardTitle><p className="text-xs text-[#70807c]">Yalnız açık yerel broker manager oturumunda düzenlenir. Virgülle kullanıcı kodlarını yazın; boş kapsam, başka danışman kaydını tamamen gizler.</p></CardHeader><CardContent className="flex flex-col gap-3 sm:flex-row sm:items-end"><div className="w-full max-w-xl"><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Atanmış danışman kullanıcı kodları</label><Input value={assistantScopeInput} onChange={(event) => setAssistantScopeInput(event.target.value)} disabled={!managerSessionActive} placeholder="Örn. i_parin, k_tasliarmut" className="bg-white" /></div><Button type="button" onClick={saveAssistantScope} disabled={!managerSessionActive}>Kapsamı kaydet</Button></CardContent></Card>
 
     {upcomingEvacuations.length > 0 && <Card className="mb-6 rounded-2xl border-[#f0d8c8] bg-[#fff8f2]" role="status"><CardHeader><CardTitle className="font-serif text-xl text-[#8f4f38]">Tahliye uyarıları</CardTitle><p className="text-xs text-[#a06a51]">Danışman ve broker manager için, kayıtlı ihbar süresi eşiğine giren görevler.</p></CardHeader><CardContent><div className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]"><div className="space-y-2"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a06a51]">Görev listesi</p>{upcomingEvacuations.map((record) => <div key={record.id} className="flex items-center justify-between rounded-xl border border-[#f0d8c8] bg-white px-3 py-2 text-sm"><span className="font-medium text-[#5e3f34]">{record.title}</span><span className="text-xs text-[#a06a51]">{displayRecordDate(record.noticeDate ?? record.dueDate)} · {record.noticeDays ?? 60} gün</span></div>)}</div><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#a06a51]">Takvim</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{upcomingEvacuations.map((record) => <div key={`calendar-${record.id}`} className="rounded-xl bg-[#fbe9dc] p-3"><p className="text-sm font-semibold text-[#8f4f38]">{displayRecordDate(record.noticeDate ?? record.dueDate)}</p><p className="mt-1 truncate text-xs text-[#5e3f34]">{record.title}</p></div>)}</div></div></div></CardContent></Card>}
 

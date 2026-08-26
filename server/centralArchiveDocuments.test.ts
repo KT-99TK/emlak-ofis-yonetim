@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("central customer digital archive", () => {
-  it("keeps historical PDF metadata and multi-party indexes separate from active signed documents", () => {
+  it("mevcut arşiv metadata’sını korur ancak temiz başlangıçta eski offline PDF yüklemesini kapatır", () => {
     const root = process.cwd();
     const schema = fs.readFileSync(path.join(root, "drizzle", "schema.ts"), "utf8");
     const db = fs.readFileSync(path.join(root, "server", "db.ts"), "utf8");
@@ -17,7 +17,8 @@ describe("central customer digital archive", () => {
     expect(router).toContain("archiveList:");
     expect(router).toContain("attachArchive:");
     expect(router).toContain("adminProcedure.input");
-    expect(router).toContain("office-documents/archive/");
+    expect(router).toContain("Temiz online başlangıçta eski offline PDF arşivi merkezi sisteme aktarılmaz.");
+    expect(router).not.toContain("office-documents/archive/");
     expect(router).not.toContain("deleteArchive");
   });
 });

@@ -8,5 +8,13 @@ describe("dashboard office flow placement", () => {
 
     expect(home).toContain("<DashboardFlowGrid");
     expect(home).toContain("<OfficeFlowPanel");
+    expect(home).toContain("trpc.onlineStart.status.useQuery");
+    expect(home).toContain("const centralOperationsLocked = !onlineStartQuery.isLoading && onlineStartPending");
+    expect(home).toContain("Merkezi online başlangıç bekliyor.");
+    expect(home).toContain("disabled={centralOperationsLocked}");
+    expect(home).toContain("const dashboardSummary = centralOperationsLocked ? undefined : summary");
+    expect(home).toContain('value: dashboardSummary ? String(dashboardSummary.contracts) : "—"');
+    expect(home).not.toContain('value: "24", note: "Örnek görünüm"');
+    expect(home).not.toContain('value: "₺ 184.500", note: "Örnek görünüm"');
   });
 });

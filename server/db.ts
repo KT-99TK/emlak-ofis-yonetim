@@ -1,7 +1,8 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, officeAssistantAssignments, properties, rentalObligations, reminderPreferences, teams, treasuryCashDailyCounts, treasuryCashMovements, userProfiles, users } from "../drizzle/schema";
+import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, officeAssistantAssignments, onlineStartSettings, properties, rentalObligations, reminderPreferences, teams, treasuryCashDailyCounts, treasuryCashMovements, userProfiles, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
+import { assertCentralRecordDateIsAllowed, assertFreshStartConfirmation, startOfTurkeyBusinessDay, turkeyBusinessDateKey, type OnlineStartPolicy } from "./onlineStartPolicy";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() { if (!_db && process.env.DATABASE_URL) { try { _db = drizzle(process.env.DATABASE_URL); } catch (error) { console.warn("[Database] Failed to connect:", error); _db = null; } } return _db; }
@@ -38,6 +39,83 @@ export async function getCentralAccessScope(userId: number, isSystemManager: boo
   return { isManager: false, permittedUserIds: Array.from(new Set(assignments.map((assignment) => assignment.consultantUserId))), officeRole };
 }
 
+export type OnlineStartSetting = {
+  effectiveAt: Date;
+  noBalanceCarry: boolean;
+  noOfflineImport: boolean;
+  configuredByUserId: number;
+  configuredAt: Date;
+  note: string | null;
+};
+
+function toOnlineStartSetting(row: typeof onlineStartSettings.$inferSelect): OnlineStartSetting {
+  return {
+    effectiveAt: row.effectiveAt,
+    noBalanceCarry: Boolean(row.noBalanceCarry),
+    noOfflineImport: Boolean(row.noOfflineImport),
+    configuredByUserId: row.configuredByUserId,
+    configuredAt: row.configuredAt,
+    note: row.note,
+  };
+}
+
+export async function getOnlineStartSetting(): Promise<OnlineStartSetting | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(onlineStartSettings).orderBy(desc(onlineStartSettings.configuredAt)).limit(1);
+  return rows[0] ? toOnlineStartSetting(rows[0]) : undefined;
+}
+
+export async function configureFreshOnlineStart(input: {
+  effectiveAt: Date;
+  note?: string;
+  managerUserId: number;
+  confirmationText: string;
+}) {
+  assertFreshStartConfirmation(input.confirmationText);
+  const effectiveAt = startOfTurkeyBusinessDay(input.effectiveAt);
+  const turkeyToday = startOfTurkeyBusinessDay(new Date());
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor; temiz başlangıç ayarlanamadı.");
+  const existing = await getOnlineStartSetting();
+  if (existing && new Date().getTime() >= existing.effectiveAt.getTime()) {
+    throw new Error("Aktif merkezi başlangıç tarihi değiştirilemez; yeni başlangıç yerine manager denetim kaydı oluşturulmalıdır.");
+  }
+  if (effectiveAt.getTime() < turkeyToday.getTime()) {
+    throw new Error("Geçiş tarihi bugünden önce olamaz.");
+  }
+  const values = {
+    effectiveAt,
+    mode: "freshStart" as const,
+    noBalanceCarry: 1,
+    noOfflineImport: 1,
+    configuredByUserId: input.managerUserId,
+    note: input.note?.trim() || null,
+  };
+  if (existing) {
+    const row = await db.select({ id: onlineStartSettings.id }).from(onlineStartSettings).orderBy(desc(onlineStartSettings.configuredAt)).limit(1);
+    await db.update(onlineStartSettings).set(values).where(eq(onlineStartSettings.id, row[0]!.id));
+  } else {
+    await db.insert(onlineStartSettings).values(values);
+  }
+  await db.insert(auditLogs).values({
+    actorUserId: input.managerUserId,
+    action: "online_fresh_start_configured",
+    entityType: "onlineStartSettings",
+    summary: `Merkezi online çalışma ${turkeyBusinessDateKey(effectiveAt)} tarihinden itibaren sıfır bakiye ve offline veri aktarımı olmadan başlayacak.`,
+  });
+  return getOnlineStartSetting();
+}
+
+export async function assertCentralOnlineStartAllowsRecord(recordDate = new Date()) {
+  const setting = await getOnlineStartSetting();
+  const policy: OnlineStartPolicy | undefined = setting
+    ? { effectiveAt: setting.effectiveAt, noBalanceCarry: setting.noBalanceCarry, noOfflineImport: setting.noOfflineImport }
+    : undefined;
+  assertCentralRecordDateIsAllowed(policy, recordDate);
+  return setting!;
+}
+
 export async function getDashboardSummary(userId: number, isManager: boolean, permittedUserIds?: number[]) {
   const db = await getDb(); if (!db) return { contracts: 0, portfolio: 0, outstanding: "0", activeTeam: 0, recentContracts: [], recentLedger: [] };
   const scopedIds = permittedUserIds ?? [userId];
@@ -62,7 +140,7 @@ export async function getDashboardSummary(userId: number, isManager: boolean, pe
   return { contracts: Number(contractCount[0]?.count ?? 0), portfolio: Number(portfolioCount[0]?.count ?? 0), outstanding: String(outstanding[0]?.total ?? "0"), activeTeam: Number(teamCount[0]?.count ?? 0), recentContracts, recentLedger, teamBreakdown };
 }
 
-export async function createContract(input: { contractNo: string; type: "rental" | "sale" | "authority"; subtype?: string; title: string; amount?: string; clientId?: number; propertyId?: number; evictionNoticeDays?: number; evictionNoticeDate?: Date; ownerApprovalStatus?: "notRequired" | "pending" | "approved" | "rejected"; ownerApprovalDate?: Date; ownerApprovalNote?: string; details?: string; assignedUserId: number; actorUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(contracts).values({ contractNo: input.contractNo, type: input.type, subtype: input.subtype, title: input.title, amount: input.amount, clientId: input.clientId, propertyId: input.propertyId, evictionNoticeDays: input.evictionNoticeDays, evictionNoticeDate: input.evictionNoticeDate, ownerApprovalStatus: input.ownerApprovalStatus ?? (input.type === "rental" ? "pending" : "notRequired"), ownerApprovalDate: input.ownerApprovalDate, ownerApprovalNote: input.ownerApprovalNote, details: input.details, assignedUserId: input.assignedUserId, status: "draft" }); const id = Number(result[0].insertId); await db.insert(auditLogs).values({ actorUserId: input.actorUserId, action: "create", entityType: "contract", entityId: id, summary: `${input.contractNo} taslak olarak oluşturuldu` }); return id; }
+export async function createContract(input: { contractNo: string; type: "rental" | "sale" | "authority"; subtype?: string; title: string; amount?: string; clientId?: number; propertyId?: number; evictionNoticeDays?: number; evictionNoticeDate?: Date; ownerApprovalStatus?: "notRequired" | "pending" | "approved" | "rejected"; ownerApprovalDate?: Date; ownerApprovalNote?: string; details?: string; assignedUserId: number; actorUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); const result = await db.insert(contracts).values({ contractNo: input.contractNo, type: input.type, subtype: input.subtype, title: input.title, amount: input.amount, clientId: input.clientId, propertyId: input.propertyId, evictionNoticeDays: input.evictionNoticeDays, evictionNoticeDate: input.evictionNoticeDate, ownerApprovalStatus: input.ownerApprovalStatus ?? (input.type === "rental" ? "pending" : "notRequired"), ownerApprovalDate: input.ownerApprovalDate, ownerApprovalNote: input.ownerApprovalNote, details: input.details, assignedUserId: input.assignedUserId, status: "draft" }); const id = Number(result[0].insertId); await db.insert(auditLogs).values({ actorUserId: input.actorUserId, action: "create", entityType: "contract", entityId: id, summary: `${input.contractNo} taslak olarak oluşturuldu` }); return id; }
 export async function requestOwnerApproval(contractId: number, actorUserId: number) { const db = await getDb(); if (!db) return false; await db.update(contracts).set({ ownerApprovalStatus: "pending", ownerApprovalDate: null, ownerApprovalNote: null, version: sql`${contracts.version} + 1` }).where(eq(contracts.id, contractId)); await db.insert(auditLogs).values({ actorUserId, action: "owner_approval_requested", entityType: "contract", entityId: contractId, summary: "Mülk sahibi yeniden kiralama onayı bekliyor" }); return true; }
 export async function decideOwnerApproval(contractId: number, decision: "approved" | "rejected", note: string | undefined, actorUserId: number) { const db = await getDb(); if (!db) return false; await db.update(contracts).set({ ownerApprovalStatus: decision, ownerApprovalDate: new Date(), ownerApprovalNote: note, version: sql`${contracts.version} + 1` }).where(eq(contracts.id, contractId)); await db.insert(auditLogs).values({ actorUserId, action: `owner_approval_${decision}`, entityType: "contract", entityId: contractId, summary: `Mülk sahibi onayı ${decision === "approved" ? "verildi" : "reddedildi"}${note ? `: ${note}` : ""}` }); return true; }
 export async function transitionContract(id: number, status: "draft" | "review" | "approved" | "signed" | "active" | "completed" | "cancelled", actorUserId: number) { const db = await getDb(); if (!db) return false; const current = await db.select({ type: contracts.type, ownerApprovalStatus: contracts.ownerApprovalStatus }).from(contracts).where(eq(contracts.id, id)).limit(1); if (status === "active" && current[0]?.type === "rental" && current[0]?.ownerApprovalStatus !== "approved") throw new Error("Kira sözleşmesi mülk sahibi onayı olmadan aktifleştirilemez."); await db.update(contracts).set({ status, version: sql`${contracts.version} + 1` }).where(eq(contracts.id, id)); await db.insert(auditLogs).values({ actorUserId, action: "status_change", entityType: "contract", entityId: id, summary: `Sözleşme durumu ${status} olarak güncellendi` }); return true; }
@@ -113,15 +191,15 @@ export async function listProperties(userId: number, isManager: boolean, permitt
 export async function listLedger(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(ledgerEntries).where(isManager ? undefined : scopedIds.length ? inArray(ledgerEntries.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(desc(ledgerEntries.createdAt)); }
 export async function listAudit(isManager: boolean) { const db = await getDb(); if (!db || !isManager) return []; return db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(100); }
 export async function listObligations(userId: number, isManager: boolean, permittedUserIds?: number[]) { const db = await getDb(); if (!db) return []; const scopedIds = permittedUserIds ?? [userId]; return db.select().from(rentalObligations).where(isManager ? undefined : scopedIds.length ? inArray(rentalObligations.assignedUserId, scopedIds) : sql`1 = 0`).orderBy(rentalObligations.dueDate); }
-export async function createObligation(input: { title: string; obligationType: "rent" | "tax" | "insurance" | "other"; dueDate: Date; periodStart: Date; periodEnd: Date; amount: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(rentalObligations).values(input); return Number(result[0].insertId); }
+export async function createObligation(input: { title: string; obligationType: "rent" | "tax" | "insurance" | "other"; dueDate: Date; periodStart: Date; periodEnd: Date; amount: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); const result = await db.insert(rentalObligations).values(input); return Number(result[0].insertId); }
 export async function getReminderPreferenceByTaskUid(taskUid: string) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(reminderPreferences).where(eq(reminderPreferences.scheduleCronTaskUid, taskUid)).limit(1); return rows[0]; }
 export async function getReminderPreferenceByUserId(userId: number) { const db = await getDb(); if (!db) return undefined; const rows = await db.select().from(reminderPreferences).where(eq(reminderPreferences.userId, userId)).limit(1); return rows[0]; }
 export async function saveReminderSchedule(userId: number, taskUid: string) { const db = await getDb(); if (!db) return false; await db.insert(reminderPreferences).values({ userId, scheduleCronTaskUid: taskUid }).onDuplicateKeyUpdate({ set: { scheduleCronTaskUid: taskUid } }); return true; }
 export async function listDueObligationsForReminder(userId: number, now = new Date()) { const db = await getDb(); if (!db) return []; const rows = await db.select().from(rentalObligations).where(and(eq(rentalObligations.assignedUserId, userId), sql`${rentalObligations.status} in ('planned', 'due', 'overdue')`)); return rows.filter((row) => { const days = Math.ceil((new Date(row.dueDate).getTime() - now.getTime()) / 86_400_000); return days <= 30 && days >= -1; }); }
 export async function markReminderRun(userId: number, runKey: string) { const db = await getDb(); if (!db) return false; const current = await db.select({ lastReminderRunKey: reminderPreferences.lastReminderRunKey }).from(reminderPreferences).where(eq(reminderPreferences.userId, userId)).limit(1); if (!current[0] || current[0].lastReminderRunKey === runKey) return false; await db.update(reminderPreferences).set({ lastReminderRunKey: runKey }).where(eq(reminderPreferences.userId, userId)); return true; }
-export async function createClient(input: { name: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(clients).values({ name: input.name, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
-export async function createProperty(input: { referenceNo: string; title: string; address: string; listingType?: "sale" | "rent"; ownerApprovalStatus?: "notRequired" | "pending" | "approved" | "rejected"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; if (input.listingType === "rent" && input.ownerApprovalStatus !== "approved") throw new Error("Kiralık ilan owner approval olmadan oluşturulamaz."); const result = await db.insert(properties).values({ referenceNo: input.referenceNo, title: input.title, address: input.address, listingType: input.listingType ?? "sale", ownerApprovalStatus: input.ownerApprovalStatus ?? "notRequired", assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
-export async function createLedger(input: { description: string; amount: string; entryType: "income" | "expense" | "receivable" | "payable"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; const result = await db.insert(ledgerEntries).values({ description: input.description, amount: input.amount, entryType: input.entryType, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
+export async function createClient(input: { name: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); const result = await db.insert(clients).values({ name: input.name, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
+export async function createProperty(input: { referenceNo: string; title: string; address: string; listingType?: "sale" | "rent"; ownerApprovalStatus?: "notRequired" | "pending" | "approved" | "rejected"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); if (input.listingType === "rent" && input.ownerApprovalStatus !== "approved") throw new Error("Kiralık ilan owner approval olmadan oluşturulamaz."); const result = await db.insert(properties).values({ referenceNo: input.referenceNo, title: input.title, address: input.address, listingType: input.listingType ?? "sale", ownerApprovalStatus: input.ownerApprovalStatus ?? "notRequired", assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
+export async function createLedger(input: { description: string; amount: string; entryType: "income" | "expense" | "receivable" | "payable"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); const result = await db.insert(ledgerEntries).values({ description: input.description, amount: input.amount, entryType: input.entryType, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
 export async function listTeamMembers() { const db = await getDb(); if (!db) return []; return db.select({ userId: userProfiles.userId, name: users.name, email: users.email, teamId: userProfiles.teamId, teamName: teams.name, officeRole: userProfiles.officeRole, consultantCode: userProfiles.consultantCode, status: userProfiles.status }).from(userProfiles).leftJoin(users, eq(userProfiles.userId, users.id)).leftJoin(teams, eq(userProfiles.teamId, teams.id)).orderBy(desc(userProfiles.status)); }
 
 export async function setOfficeAssistantAssignments(input: { assistantUserId: number; consultantUserIds: number[]; managerUserId: number }) {
@@ -160,6 +238,7 @@ export async function getTreasuryCashBalance(date: Date) {
 
 export async function createTreasuryCashMovement(input: { movementType: "bankToCash" | "cashExpense" | "cashReceipt" | "cashDeposit" | "other"; direction: "in" | "out"; amount: string; occurredOn: Date; counterparty: string; evidenceReference: string; note?: string; enteredByUserId: number }) {
   const db = await getDb(); if (!db) return null;
+  await assertCentralOnlineStartAllowsRecord(input.occurredOn);
   const result = await db.insert(treasuryCashMovements).values({ ...input, status: "declared" });
   const id = Number(result[0].insertId);
   await db.insert(auditLogs).values({ actorUserId: input.enteredByUserId, action: "treasury_cash_declared", entityType: "treasuryCashMovement", entityId: id, summary: `${input.movementType} kasa hareketi belge referansıyla beyan edildi` });
@@ -178,6 +257,7 @@ export async function verifyTreasuryCashMovement(id: number, managerUserId: numb
 
 export async function closeTreasuryCashDay(input: { date: Date; openingCash: string; countedCash: string; note?: string; managerUserId: number }) {
   const db = await getDb(); if (!db) return null;
+  await assertCentralOnlineStartAllowsRecord(input.date);
   const result = await db.insert(treasuryCashDailyCounts).values({ controlDate: input.date, openingCash: input.openingCash, countedCash: input.countedCash, note: input.note, closedByUserId: input.managerUserId, managerVerifiedAt: new Date() });
   const id = Number(result[0].insertId);
   await db.insert(auditLogs).values({ actorUserId: input.managerUserId, action: "treasury_cash_day_closed", entityType: "treasuryCashDailyCount", entityId: id, summary: "Gün sonu kasa sayımı broker manager tarafından kaydedildi" });

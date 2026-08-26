@@ -2,40 +2,44 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import DashboardLayout from "./components/DashboardLayout";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { useAuth } from "@/_core/hooks/useAuth";
 import Home from "./pages/Home";
 import Contracts from "./pages/Contracts";
 import AuthorityContracts from "./pages/AuthorityContracts";
-import Records from "./pages/Records";
-import Audit from "./pages/Audit";
-import Team from "./pages/Team";
 import OfflineWorkspace from "./pages/OfflineWorkspace";
-import BackupMerge from "./pages/BackupMerge";
 import OfflineAuthorityContracts from "./pages/OfflineAuthorityContracts";
 import OfflineRentalContracts from "./pages/OfflineRentalContracts";
-import OfflineConsultantPerformance from "./pages/OfflineConsultantPerformance";
-import MyOfflineContracts from "./pages/MyOfflineContracts";
-import BrokerAnnualTargets from "./pages/BrokerAnnualTargets";
-import CustomerRequests from "./pages/CustomerRequests";
-import BrokerRequestMatches from "./pages/BrokerRequestMatches";
 import OfflineTransactionClosings from "./pages/OfflineTransactionClosings";
-import OfflineCashBankControl from "./pages/OfflineCashBankControl";
-import OfflineInternalControl from "./pages/OfflineInternalControl";
-import OfflineOfficeContributionControl from "./pages/OfflineOfficeContributionControl";
-import MyOfficeContributionSummary from "./pages/MyOfficeContributionSummary";
-import OfflineContractArchive from "./pages/OfflineContractArchive";
-import OfflineActiveContractDocuments from "./pages/OfflineActiveContractDocuments";
-import MobileCompanion from "./pages/MobileCompanion";
-import Obligations from "./pages/Obligations";
+
+const Records = lazy(() => import("./pages/Records"));
+const Audit = lazy(() => import("./pages/Audit"));
+const Team = lazy(() => import("./pages/Team"));
+const OnlineStart = lazy(() => import("./pages/OnlineStart"));
+const Obligations = lazy(() => import("./pages/Obligations"));
+const MobileCompanion = lazy(() => import("./pages/MobileCompanion"));
+const BackupMerge = lazy(() => import("./pages/BackupMerge"));
+const OfflineConsultantPerformance = lazy(() => import("./pages/OfflineConsultantPerformance"));
+const MyOfflineContracts = lazy(() => import("./pages/MyOfflineContracts"));
+const BrokerAnnualTargets = lazy(() => import("./pages/BrokerAnnualTargets"));
+const CustomerRequests = lazy(() => import("./pages/CustomerRequests"));
+const BrokerRequestMatches = lazy(() => import("./pages/BrokerRequestMatches"));
+const OfflineCashBankControl = lazy(() => import("./pages/OfflineCashBankControl"));
+const OfflineInternalControl = lazy(() => import("./pages/OfflineInternalControl"));
+const OfflineOfficeContributionControl = lazy(() => import("./pages/OfflineOfficeContributionControl"));
+const MyOfficeContributionSummary = lazy(() => import("./pages/MyOfficeContributionSummary"));
+const OfflineContractArchive = lazy(() => import("./pages/OfflineContractArchive"));
+const OfflineActiveContractDocuments = lazy(() => import("./pages/OfflineActiveContractDocuments"));
 
 const isElectronDesktop = () => typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
 
+function RouteLoader() {
+  return <div className="mx-auto flex min-h-[240px] max-w-xl items-center justify-center rounded-2xl border border-[#dbe5dd] bg-white px-6 py-10 text-center text-sm text-[#52635e]">Çalışma alanı hazırlanıyor…</div>;
+}
+
 function DesktopRouter() {
-  const { user } = useAuth();
   const routeFromHash = () => window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : window.location.hash === "#/offline-rental" ? "rental" : window.location.hash === "#/offline-active-documents" ? "active-documents" : window.location.hash === "#/offline-archive" ? "archive" : window.location.hash === "#/offline-performance" ? "performance" : window.location.hash === "#/offline-my-contracts" ? "my-contracts" : window.location.hash === "#/offline-my-contributions" ? "my-contributions" : window.location.hash === "#/offline-targets" ? "targets" : window.location.hash === "#/offline-requests" ? "requests" : window.location.hash === "#/offline-request-matches" ? "request-matches" : window.location.hash === "#/offline-transactions" ? "transactions" : window.location.hash === "#/offline-cash-bank" ? "cash-bank" : window.location.hash === "#/offline-internal-control" ? "internal-control" : window.location.hash === "#/offline-office-contributions" ? "office-contributions" : "offline";
   const [route, setRoute] = useState<"offline" | "authority" | "rental" | "active-documents" | "archive" | "performance" | "my-contracts" | "my-contributions" | "targets" | "requests" | "request-matches" | "transactions" | "cash-bank" | "internal-control" | "office-contributions" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
 
@@ -45,44 +49,20 @@ function DesktopRouter() {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const navigate = (next: "offline" | "authority" | "rental" | "active-documents" | "archive" | "performance" | "my-contracts" | "my-contributions" | "targets" | "requests" | "request-matches" | "transactions" | "cash-bank" | "internal-control" | "office-contributions" | "merge") => {
-    window.location.hash = next === "merge" ? "/offline-merge" : next === "authority" ? "/offline-authority" : next === "rental" ? "/offline-rental" : next === "active-documents" ? "/offline-active-documents" : next === "archive" ? "/offline-archive" : next === "performance" ? "/offline-performance" : next === "my-contracts" ? "/offline-my-contracts" : next === "my-contributions" ? "/offline-my-contributions" : next === "targets" ? "/offline-targets" : next === "requests" ? "/offline-requests" : next === "transactions" ? "/offline-transactions" : next === "cash-bank" ? "/offline-cash-bank" : next === "internal-control" ? "/offline-internal-control" : next === "office-contributions" ? "/offline-office-contributions" : "/offline";
-    setRoute(next);
-  };
-
   return (
     <DashboardLayout>
-      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#e7dfc9] bg-[#fffaf0] px-3 py-2 text-xs text-[#8d6f3f] md:hidden">
-        <strong>Offline cihaz:</strong>
-        <button type="button" onClick={() => navigate("offline")} className={`rounded-md px-2 py-1 font-medium ${route === "offline" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Çalışma alanı</button>
-        <button type="button" onClick={() => navigate("authority")} className={`rounded-md px-2 py-1 font-medium ${route === "authority" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yetki sözleşmeleri</button>
-        <button type="button" onClick={() => navigate("rental")} className={`rounded-md px-2 py-1 font-medium ${route === "rental" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Kira sözleşmeleri</button>
-        <button type="button" onClick={() => navigate("active-documents")} className={`rounded-md px-2 py-1 font-medium ${route === "active-documents" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Aktif imzalı belgeler</button>
-        <button type="button" onClick={() => navigate("archive")} className={`rounded-md px-2 py-1 font-medium ${route === "archive" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Müşteri dijital arşivi</button>
-        <button type="button" onClick={() => navigate("performance")} className={`rounded-md px-2 py-1 font-medium ${route === "performance" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Sözleşme ve finansal istatistikler</button>
-        <button type="button" onClick={() => navigate("my-contracts")} className={`rounded-md px-2 py-1 font-medium ${route === "my-contracts" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Benim sözleşmelerim</button>
-        <button type="button" onClick={() => navigate("requests")} className={`rounded-md px-2 py-1 font-medium ${route === "requests" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Müşteri talepleri</button>
-        <button type="button" onClick={() => navigate("transactions")} className={`rounded-md px-2 py-1 font-medium ${route === "transactions" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>İşlem kapanışları</button>
-        <button type="button" onClick={() => navigate("cash-bank")} className={`rounded-md px-2 py-1 font-medium ${route === "cash-bank" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Kasa ve banka</button>
-        <button type="button" onClick={() => navigate("my-contributions")} className={`rounded-md px-2 py-1 font-medium ${route === "my-contributions" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Benim ofis payı özetim</button>
-        {user?.role === "admin" && <button type="button" onClick={() => navigate("internal-control")} className={`rounded-md px-2 py-1 font-medium ${route === "internal-control" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Bütçe ve gider kontrolü</button>}
-        {user?.role === "admin" && <button type="button" onClick={() => navigate("office-contributions")} className={`rounded-md px-2 py-1 font-medium ${route === "office-contributions" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Ofis payı ve danışman katkısı</button>}
-        {user?.role === "admin" && <button type="button" onClick={() => navigate("targets")} className={`rounded-md px-2 py-1 font-medium ${route === "targets" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yıllık ciro hedefleri</button>}
-        {user?.role === "admin" && <button type="button" onClick={() => navigate("request-matches")} className={`rounded-md px-2 py-1 font-medium ${route === "request-matches" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Talep eşleşmeleri</button>}
-        <button type="button" onClick={() => navigate("merge")} className={`rounded-md px-2 py-1 font-medium ${route === "merge" ? "bg-[#173e39] text-white" : "bg-white text-[#34433f]"}`}>Yedekleri birleştir</button>
-      </div>
-      {route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "active-documents" ? <OfflineActiveContractDocuments /> : route === "archive" ? <OfflineContractArchive /> : route === "performance" ? <OfflineConsultantPerformance /> : route === "my-contracts" ? <MyOfflineContracts /> : route === "my-contributions" ? <MyOfficeContributionSummary /> : route === "targets" ? <BrokerAnnualTargets /> : route === "requests" ? <CustomerRequests /> : route === "request-matches" ? <BrokerRequestMatches /> : route === "transactions" ? <OfflineTransactionClosings /> : route === "cash-bank" ? <OfflineCashBankControl /> : route === "internal-control" ? <OfflineInternalControl /> : route === "office-contributions" ? <OfflineOfficeContributionControl /> : <OfflineWorkspace />}
+      <Suspense fallback={<RouteLoader />}>{route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "active-documents" ? <OfflineActiveContractDocuments /> : route === "archive" ? <OfflineContractArchive /> : route === "performance" ? <OfflineConsultantPerformance /> : route === "my-contracts" ? <MyOfflineContracts /> : route === "my-contributions" ? <MyOfficeContributionSummary /> : route === "targets" ? <BrokerAnnualTargets /> : route === "requests" ? <CustomerRequests /> : route === "request-matches" ? <BrokerRequestMatches /> : route === "transactions" ? <OfflineTransactionClosings /> : route === "cash-bank" ? <OfflineCashBankControl /> : route === "internal-control" ? <OfflineInternalControl /> : route === "office-contributions" ? <OfflineOfficeContributionControl /> : <OfflineWorkspace />}</Suspense>
     </DashboardLayout>
   );
 }
 
 function Router() {
   if (isElectronDesktop()) return <DesktopRouter />;
-  if (typeof window !== "undefined" && window.location.pathname === "/mobile") return <MobileCompanion />;
+  if (typeof window !== "undefined" && window.location.pathname === "/mobile") return <Suspense fallback={<RouteLoader />}><MobileCompanion /></Suspense>;
 
   return (
     <DashboardLayout>
-      <Switch>
+      <Suspense fallback={<RouteLoader />}><Switch>
         <Route path="/" component={Home} />
         <Route path="/contracts" component={Contracts} />
         <Route path="/authority-contracts" component={AuthorityContracts} />
@@ -91,6 +71,7 @@ function Router() {
         <Route path="/accounting" component={Records} />
         <Route path="/obligations" component={Obligations} />
         <Route path="/team" component={Team} />
+        <Route path="/online-start" component={OnlineStart} />
         <Route path="/audit" component={Audit} />
         <Route path="/offline" component={OfflineWorkspace} />
         <Route path="/offline-archive" component={OfflineContractArchive} />
@@ -98,7 +79,7 @@ function Router() {
         <Route path="/offline-merge" component={BackupMerge} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
-      </Switch>
+      </Switch></Suspense>
     </DashboardLayout>
   );
 }

@@ -43,6 +43,17 @@ describe("workspace content layout", () => {
     expect(dashboard).not.toContain("<OfflineOfficeFlowPanel");
   });
 
+  it("uses a compact shared offline operation surface without letting the helper panel dominate the form", () => {
+    const css = projectFile("client/src/index.css");
+
+    expect(css).toContain('.offline-page-surface .offline-operation-main > .rounded-2xl > [data-slot="card-header"]');
+    expect(css).toContain('.offline-page-surface .offline-operation-main :is(input, textarea, [data-slot="select-trigger"])');
+    expect(css).toContain('.offline-operation-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 1180px; margin: 0 auto; }');
+    expect(css).toContain('.offline-root-with-flow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 1180px; margin: 0 auto; }');
+    expect(css).toContain('grid-template-columns: minmax(0, 1fr) minmax(248px, 280px);');
+    expect(css).toContain('.offline-operation-aside { position: sticky; top: 1.25rem; }');
+  });
+
   it("places the authority document type decision before the optional previous-draft lookup", () => {
     const authorityPage = projectFile("client/src/pages/OfflineAuthorityContracts.tsx");
 
@@ -62,6 +73,8 @@ describe("workspace content layout", () => {
     expect(authorityPage).not.toContain('key === "ownerName" &&');
     expect(authorityPage).toContain('value.replace(/\\D/g, "")');
     expect(authorityPage).toContain("authority-eids-confirmed");
+    expect(authorityPage).toContain("canEditOfflineContractEids");
+    expect(authorityPage).toContain("kayıt sahibi danışman veya açık broker manager");
     expect(authorityDocument).not.toContain("EİDS Yetki Numarası");
   });
 
@@ -111,5 +124,15 @@ describe("workspace content layout", () => {
     expect(rentalPage).toContain("Taahhüt edilen tahliye tarihi");
     expect(rentalPage).toContain('value={details.evacuationCommitmentDate ?? ""}');
     expect(rentalPage).toContain('update("evacuationCommitmentDate", value)');
+  });
+
+  it("uses the Turkish date input for transaction collection and optional reservation dates", () => {
+    const transactionPage = projectFile("client/src/pages/OfflineTransactionClosings.tsx");
+
+    expect(transactionPage).toContain('import TurkishDateInput from "@/components/TurkishDateInput";');
+    expect(transactionPage).toContain('aria-label="Tahsilat tarihi"');
+    expect(transactionPage).toContain('aria-label="Kapora vade tarihi"');
+    expect(transactionPage).not.toContain('type="date" value={collectionEditor.collectedAt}');
+    expect(transactionPage).not.toContain('type="date" value={optionalEditor.dueDate}');
   });
 });
