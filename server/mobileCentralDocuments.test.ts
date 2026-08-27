@@ -15,8 +15,8 @@ describe("central mobile contract documents", () => {
     expect(db).toContain("getContractForAssignedUser");
     expect(db).toContain("listContractDocuments");
     expect(router).toContain("attachActiveSigned");
-    expect(router).toContain("getContractForAssignedUser(input.contractId, ctx.user.id)");
-    expect(router).toContain("['signed', 'active']");
+    expect(router).toMatch(/getContractForAssignedUser\s*\(\s*input\.contractId\s*,\s*ctx\.user\.id/);
+    expect(router).toMatch(/\[\s*["']signed["']\s*,\s*["']active["']\s*\]/);
     expect(router).toContain("createHash(\"sha256\")");
     expect(router).toContain("storagePut(");
     expect(router).not.toContain("storageGet(document.storageKey)");

@@ -1,8 +1,16 @@
 # Project TODO
 
+- [x] Güncel kaynak kodu güvenli ZIP olarak ve mimari notları Türkçe Markdown dosyası olarak hazırla; secrets, kullanıcı verisi, veritabanı yedeği ve node_modules dışarıda kalsın
+
 - [x] 27.08.2026 temiz online başlangıcıyla 21 aktif kira özetini kontrollü Excel önizlemesi ve manager onayıyla aktar; aynı malike ait çoklu taşınmazı kısa konum bilgisiyle ayır ve IP1/KT1 sorumluluğuna bağla
 - [x] Broker manager için danışman bazlı aktif kiralama dağılımını gerçek merkezi kayıttan üreten, müşteri/telefon bilgisi göstermeyen ve boş durumunu destekleyen grafik ekle
-- [ ] Danışman kısa kodunu büyük harfle IP1, KT1, CT1 ve çakışmada CT2/CT3 biçiminde doğrula; merkezi sözleşme numarası önerisini KOD-001 standardına bağla
+- [x] 27.08.2026 başlangıcındaki 21 aktif kira için manager onayıyla ilk manuel müşteri hizmet görevlerini yenile; görev türü, danışman dağılımı ve dış iletişim yapılmadığını doğrula
+- [x] Yıllık kira dönemi sonunu tahliye varsayımı olmaktan çıkar; yalnız açık kiracı tahliye bildirimi veya ayrı takip kaydıyla tahliye görevi üret
+- [x] Malik bazlı kira geliri vergisi ön bilgisini yıllık kümülatif gelir, hisse ve gider seçimine göre otomatik hesapla; resmî beyan ve tahakkuk olmadığı uyarısını koru
+- [x] Emlak vergisi için belediyece doğrulanan son ödeme gününden 15 gün önce danışmanın maliki aramasına yönelik kaynak notlu görev üret
+- [x] Kira dönemi dolmadan 60 gün önce malike kiracı tahliye isteği olup olmadığını sormaya yönelik ön kontrol görevi üret; talep varsa ilan/yeniden kiralama iş akışını kira kaybını önlemeye yönelik ayrı kayıt olarak başlat
+- [x] Malik kontrolü paylaşımında kiracıdan açık ayrılma isteği olup olmadığını kalıcı karar alanında kaydet; yalnız olumlu teyit sonrasında yeniden kiralama iç hazırlığını başlatılabilir kıl
+- [x] Seçilen çalışma: danışman kısa kodunu büyük harfle IP1, KT1, CT1 ve çakışmada CT2/CT3 biçiminde doğrula; merkezi sözleşme numarası önerisini KOD-001 standardına bağla
 - [x] İncelenecek HTML örnek paketini projeye al ve sayfa, navigasyon, iş akışı, arayüz kalıpları ve veri alanları envanterini çıkar
 - [x] Broker manager ve consultant rolleri için hiyerarşi, görünürlük ve işlem yetki matrisi oluştur
 - [x] Güvenli giriş, kullanıcı yönetimi, takım/manager ilişkisi, rol tabanlı ekran/işlem izinlerini uygula

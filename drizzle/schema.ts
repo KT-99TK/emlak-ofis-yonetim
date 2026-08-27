@@ -1,4 +1,12 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal } from "drizzle-orm/mysql-core";
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+  decimal,
+} from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -24,16 +32,26 @@ export const userProfiles = mysqlTable("userProfiles", {
   userId: int("userId").notNull().unique(),
   teamId: int("teamId"),
   managerId: int("managerId"),
-  officeRole: mysqlEnum("officeRole", ["broker_manager", "consultant", "office_assistant"]).default("consultant").notNull(),
+  officeRole: mysqlEnum("officeRole", [
+    "broker_manager",
+    "consultant",
+    "office_assistant",
+  ])
+    .default("consultant")
+    .notNull(),
   consultantCode: varchar("consultantCode", { length: 40 }).unique(),
   phone: varchar("phone", { length: 40 }),
   title: varchar("title", { length: 120 }),
-  status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
+  status: mysqlEnum("status", ["active", "inactive"])
+    .default("active")
+    .notNull(),
 });
 
 export const clients = mysqlTable("clients", {
   id: int("id").autoincrement().primaryKey(),
-  type: mysqlEnum("type", ["individual", "company"]).default("individual").notNull(),
+  type: mysqlEnum("type", ["individual", "company"])
+    .default("individual")
+    .notNull(),
   name: varchar("name", { length: 180 }).notNull(),
   identityOrTaxNo: varchar("identityOrTaxNo", { length: 40 }),
   phone: varchar("phone", { length: 40 }),
@@ -47,9 +65,20 @@ export const clients = mysqlTable("clients", {
 export const properties = mysqlTable("properties", {
   id: int("id").autoincrement().primaryKey(),
   referenceNo: varchar("referenceNo", { length: 40 }).notNull().unique(),
-  type: mysqlEnum("type", ["residential", "commercial", "land", "office"]).default("residential").notNull(),
-  listingType: mysqlEnum("listingType", ["sale", "rent"]).default("sale").notNull(),
-  ownerApprovalStatus: mysqlEnum("ownerApprovalStatus", ["notRequired", "pending", "approved", "rejected"]).default("notRequired").notNull(),
+  type: mysqlEnum("type", ["residential", "commercial", "land", "office"])
+    .default("residential")
+    .notNull(),
+  listingType: mysqlEnum("listingType", ["sale", "rent"])
+    .default("sale")
+    .notNull(),
+  ownerApprovalStatus: mysqlEnum("ownerApprovalStatus", [
+    "notRequired",
+    "pending",
+    "approved",
+    "rejected",
+  ])
+    .default("notRequired")
+    .notNull(),
   title: varchar("title", { length: 180 }).notNull(),
   address: text("address").notNull(),
   district: varchar("district", { length: 100 }),
@@ -58,7 +87,9 @@ export const properties = mysqlTable("properties", {
   price: decimal("price", { precision: 14, scale: 2 }),
   ownerClientId: int("ownerClientId"),
   assignedUserId: int("assignedUserId"),
-  status: mysqlEnum("status", ["active", "reserved", "closed"]).default("active").notNull(),
+  status: mysqlEnum("status", ["active", "reserved", "closed"])
+    .default("active")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -67,7 +98,17 @@ export const contracts = mysqlTable("contracts", {
   contractNo: varchar("contractNo", { length: 60 }).notNull().unique(),
   type: mysqlEnum("type", ["rental", "sale", "authority"]).notNull(),
   subtype: varchar("subtype", { length: 80 }),
-  status: mysqlEnum("status", ["draft", "review", "approved", "signed", "active", "completed", "cancelled"]).default("draft").notNull(),
+  status: mysqlEnum("status", [
+    "draft",
+    "review",
+    "approved",
+    "signed",
+    "active",
+    "completed",
+    "cancelled",
+  ])
+    .default("draft")
+    .notNull(),
   version: int("version").default(1).notNull(),
   title: varchar("title", { length: 200 }).notNull(),
   clientId: int("clientId"),
@@ -77,7 +118,14 @@ export const contracts = mysqlTable("contracts", {
   endDate: timestamp("endDate"),
   evictionNoticeDays: int("evictionNoticeDays"),
   evictionNoticeDate: timestamp("evictionNoticeDate"),
-  ownerApprovalStatus: mysqlEnum("ownerApprovalStatus", ["notRequired", "pending", "approved", "rejected"]).default("notRequired").notNull(),
+  ownerApprovalStatus: mysqlEnum("ownerApprovalStatus", [
+    "notRequired",
+    "pending",
+    "approved",
+    "rejected",
+  ])
+    .default("notRequired")
+    .notNull(),
   ownerApprovalDate: timestamp("ownerApprovalDate"),
   ownerApprovalNote: text("ownerApprovalNote"),
   amount: decimal("amount", { precision: 14, scale: 2 }),
@@ -111,36 +159,60 @@ export const contractDocuments = mysqlTable("contractDocuments", {
 });
 
 /** Arşiv PDF’si; ana müşteri yanında malik, kiracı veya diğer ilgili müşteri kartlarında da tek belge olarak bulunabilir. */
-export const contractDocumentParticipants = mysqlTable("contractDocumentParticipants", {
-  id: int("id").autoincrement().primaryKey(),
-  documentId: int("documentId").notNull(),
-  clientId: int("clientId").notNull(),
-  partyRole: mysqlEnum("partyRole", ["primary", "propertyOwner", "tenant", "other"]).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const contractDocumentParticipants = mysqlTable(
+  "contractDocumentParticipants",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    documentId: int("documentId").notNull(),
+    clientId: int("clientId").notNull(),
+    partyRole: mysqlEnum("partyRole", [
+      "primary",
+      "propertyOwner",
+      "tenant",
+      "other",
+    ]).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  }
+);
 
 /** Ofis asistanı yalnız broker manager tarafından açıkça atandığı danışman kayıtlarına erişebilir. */
-export const officeAssistantAssignments = mysqlTable("officeAssistantAssignments", {
-  id: int("id").autoincrement().primaryKey(),
-  assistantUserId: int("assistantUserId").notNull(),
-  consultantUserId: int("consultantUserId").notNull(),
-  assignedByUserId: int("assignedByUserId").notNull(),
-  active: int("active").default(1).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+export const officeAssistantAssignments = mysqlTable(
+  "officeAssistantAssignments",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    assistantUserId: int("assistantUserId").notNull(),
+    consultantUserId: int("consultantUserId").notNull(),
+    assignedByUserId: int("assignedByUserId").notNull(),
+    active: int("active").default(1).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  }
+);
 
 /** Bankadan çekilip kasaya alınan tutar ile kasadan yapılan ödemelerin dar kapsamlı günlük kontrol kaydı. */
 export const treasuryCashMovements = mysqlTable("treasuryCashMovements", {
   id: int("id").autoincrement().primaryKey(),
-  movementType: mysqlEnum("movementType", ["bankToCash", "cashExpense", "cashReceipt", "cashDeposit", "other"]).notNull(),
+  movementType: mysqlEnum("movementType", [
+    "bankToCash",
+    "cashExpense",
+    "cashReceipt",
+    "cashDeposit",
+    "other",
+  ]).notNull(),
   direction: mysqlEnum("direction", ["in", "out"]).notNull(),
   amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
   occurredOn: timestamp("occurredOn").notNull(),
   counterparty: varchar("counterparty", { length: 180 }).notNull(),
   evidenceReference: varchar("evidenceReference", { length: 180 }).notNull(),
   note: text("note"),
-  status: mysqlEnum("status", ["declared", "managerVerified", "reconciled", "voided"]).default("declared").notNull(),
+  status: mysqlEnum("status", [
+    "declared",
+    "managerVerified",
+    "reconciled",
+    "voided",
+  ])
+    .default("declared")
+    .notNull(),
   enteredByUserId: int("enteredByUserId").notNull(),
   verifiedByUserId: int("verifiedByUserId"),
   verifiedAt: timestamp("verifiedAt"),
@@ -151,7 +223,9 @@ export const treasuryCashMovements = mysqlTable("treasuryCashMovements", {
 export const treasuryCashDailyCounts = mysqlTable("treasuryCashDailyCounts", {
   id: int("id").autoincrement().primaryKey(),
   controlDate: timestamp("controlDate").notNull(),
-  openingCash: decimal("openingCash", { precision: 14, scale: 2 }).default("0").notNull(),
+  openingCash: decimal("openingCash", { precision: 14, scale: 2 })
+    .default("0")
+    .notNull(),
   countedCash: decimal("countedCash", { precision: 14, scale: 2 }),
   closedByUserId: int("closedByUserId").notNull(),
   managerVerifiedAt: timestamp("managerVerifiedAt").defaultNow().notNull(),
@@ -160,11 +234,20 @@ export const treasuryCashDailyCounts = mysqlTable("treasuryCashDailyCounts", {
 
 export const ledgerEntries = mysqlTable("ledgerEntries", {
   id: int("id").autoincrement().primaryKey(),
-  entryType: mysqlEnum("entryType", ["income", "expense", "receivable", "payable"]).notNull(),
-  status: mysqlEnum("status", ["pending", "partial", "paid", "cancelled"]).default("pending").notNull(),
+  entryType: mysqlEnum("entryType", [
+    "income",
+    "expense",
+    "receivable",
+    "payable",
+  ]).notNull(),
+  status: mysqlEnum("status", ["pending", "partial", "paid", "cancelled"])
+    .default("pending")
+    .notNull(),
   description: varchar("description", { length: 240 }).notNull(),
   amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
-  paidAmount: decimal("paidAmount", { precision: 14, scale: 2 }).default("0").notNull(),
+  paidAmount: decimal("paidAmount", { precision: 14, scale: 2 })
+    .default("0")
+    .notNull(),
   dueDate: timestamp("dueDate"),
   contractId: int("contractId"),
   clientId: int("clientId"),
@@ -178,14 +261,29 @@ export const rentalObligations = mysqlTable("rentalObligations", {
   propertyId: int("propertyId"),
   clientId: int("clientId"),
   assignedUserId: int("assignedUserId"),
-  obligationType: mysqlEnum("obligationType", ["rent", "tax", "insurance", "other"]).notNull(),
+  obligationType: mysqlEnum("obligationType", [
+    "rent",
+    "tax",
+    "insurance",
+    "other",
+  ]).notNull(),
   title: varchar("title", { length: 180 }).notNull(),
   periodStart: timestamp("periodStart").notNull(),
   periodEnd: timestamp("periodEnd").notNull(),
   dueDate: timestamp("dueDate").notNull(),
   amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
-  paidAmount: decimal("paidAmount", { precision: 14, scale: 2 }).default("0").notNull(),
-  status: mysqlEnum("status", ["planned", "due", "paid", "overdue", "cancelled"]).default("planned").notNull(),
+  paidAmount: decimal("paidAmount", { precision: 14, scale: 2 })
+    .default("0")
+    .notNull(),
+  status: mysqlEnum("status", [
+    "planned",
+    "due",
+    "paid",
+    "overdue",
+    "cancelled",
+  ])
+    .default("planned")
+    .notNull(),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -205,18 +303,34 @@ export const activeRentalSummaries = mysqlTable("activeRentalSummaries", {
   evictionDate: timestamp("evictionDate"),
   monthlyRent: decimal("monthlyRent", { precision: 14, scale: 2 }).notNull(),
   neighborhood: varchar("neighborhood", { length: 120 }).notNull(),
-  propertyLocation: varchar("propertyLocation", { length: 180 }).notNull().default(""),
+  propertyLocation: varchar("propertyLocation", { length: 180 })
+    .notNull()
+    .default(""),
   unitInfo: varchar("unitInfo", { length: 100 }).notNull().default(""),
   assignedUserId: int("assignedUserId").notNull(),
-  importFingerprint: varchar("importFingerprint", { length: 64 }).notNull().unique(),
+  importFingerprint: varchar("importFingerprint", { length: 64 })
+    .notNull()
+    .unique(),
   importedByUserId: int("importedByUserId").notNull(),
   increaseRate: decimal("increaseRate", { precision: 7, scale: 4 }),
   increaseRateSource: varchar("increaseRateSource", { length: 180 }),
   increaseRatePeriod: varchar("increaseRatePeriod", { length: 20 }),
-  increaseRateEntryMethod: mysqlEnum("increaseRateEntryMethod", ["official_reference", "manual"]).default("manual").notNull(),
+  increaseRateEntryMethod: mysqlEnum("increaseRateEntryMethod", [
+    "official_reference",
+    "manual",
+  ])
+    .default("manual")
+    .notNull(),
   increaseRateEnteredByUserId: int("increaseRateEnteredByUserId"),
   increaseRateEnteredAt: timestamp("increaseRateEnteredAt"),
-  noticeStatus: mysqlEnum("noticeStatus", ["notPrepared", "prepared", "reviewed", "shared"]).default("notPrepared").notNull(),
+  noticeStatus: mysqlEnum("noticeStatus", [
+    "notPrepared",
+    "prepared",
+    "reviewed",
+    "shared",
+  ])
+    .default("notPrepared")
+    .notNull(),
   noticePreparedAt: timestamp("noticePreparedAt"),
   noticeReviewedByUserId: int("noticeReviewedByUserId"),
   noticeReviewedAt: timestamp("noticeReviewedAt"),
@@ -233,9 +347,25 @@ export const rentalServiceTasks = mysqlTable("rentalServiceTasks", {
   activeRentalSummaryId: int("activeRentalSummaryId"),
   clientId: int("clientId").notNull(),
   assignedUserId: int("assignedUserId").notNull(),
-  serviceType: mysqlEnum("serviceType", ["rentIncrease", "eviction", "propertyTaxFirstInstallment", "propertyTaxSecondInstallment", "rentalIncomeTaxDeclaration"]).notNull(),
+  serviceType: mysqlEnum("serviceType", [
+    "rentIncrease",
+    "eviction",
+    "propertyTaxFirstInstallment",
+    "propertyTaxSecondInstallment",
+    "rentalIncomeTaxDeclaration",
+    "ownerLeaseReview",
+    "relettingPreparation",
+  ]).notNull(),
   dueDate: timestamp("dueDate").notNull(),
-  status: mysqlEnum("status", ["planned", "prepared", "reviewed", "shared", "completed"]).default("planned").notNull(),
+  status: mysqlEnum("status", [
+    "planned",
+    "prepared",
+    "reviewed",
+    "shared",
+    "completed",
+  ])
+    .default("planned")
+    .notNull(),
   preparedByUserId: int("preparedByUserId"),
   preparedAt: timestamp("preparedAt"),
   reviewedByUserId: int("reviewedByUserId"),
@@ -243,6 +373,9 @@ export const rentalServiceTasks = mysqlTable("rentalServiceTasks", {
   sharedByUserId: int("sharedByUserId"),
   sharedAt: timestamp("sharedAt"),
   customerResponseNote: text("customerResponseNote"),
+  ownerConfirmedTenantExit: int("ownerConfirmedTenantExit")
+    .default(0)
+    .notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -251,7 +384,9 @@ export const reminderPreferences = mysqlTable("reminderPreferences", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
   enabled: int("enabled").default(1).notNull(),
-  leadDays: varchar("leadDays", { length: 80 }).default("30,14,7,3,1").notNull(),
+  leadDays: varchar("leadDays", { length: 80 })
+    .default("30,14,7,3,1")
+    .notNull(),
   inAppEnabled: int("inAppEnabled").default(1).notNull(),
   emailEnabled: int("emailEnabled").default(0).notNull(),
   scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }).unique(),

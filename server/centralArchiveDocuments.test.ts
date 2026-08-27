@@ -16,7 +16,7 @@ describe("central customer digital archive", () => {
     expect(db).toContain('category: "archive"');
     expect(router).toContain("archiveList:");
     expect(router).toContain("attachArchive:");
-    expect(router).toContain("adminProcedure.input");
+    expect(router).toMatch(/adminProcedure\s*\.input/);
     expect(router).toContain("Temiz online başlangıçta eski offline PDF arşivi merkezi sisteme aktarılmaz.");
     expect(router).not.toContain("office-documents/archive/");
     expect(router).not.toContain("deleteArchive");

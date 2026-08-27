@@ -1,0 +1,1 @@
+ALTER TABLE `rentalServiceTasks` MODIFY COLUMN `serviceType` enum('rentIncrease','eviction','propertyTaxFirstInstallment','propertyTaxSecondInstallment','rentalIncomeTaxDeclaration','ownerLeaseReview','relettingPreparation') NOT NULL;

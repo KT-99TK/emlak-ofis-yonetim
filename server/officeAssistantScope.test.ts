@@ -16,11 +16,11 @@ describe("central office assistant scope", () => {
     const routerSource = fs.readFileSync(path.join(process.cwd(), "server", "routers.ts"), "utf8");
     const downloadSource = fs.readFileSync(path.join(process.cwd(), "server", "contractDocumentDownload.ts"), "utf8");
     const schemaSource = fs.readFileSync(path.join(process.cwd(), "drizzle", "schema.ts"), "utf8");
-    expect(routerSource).toContain("getCentralAccessScope(ctx.user.id, isManager(ctx.user))");
+    expect(routerSource).toMatch(/getCentralAccessScope\s*\(\s*ctx\.user\.id\s*,\s*isManager\s*\(\s*ctx\.user\s*\)\s*\)/);
     expect(routerSource).toContain("setOfficeAssistantScope: adminProcedure");
     expect(routerSource).toContain("Ofis asistanı tahsilat veya gider kaydı oluşturamaz.");
     expect(routerSource).toContain("Ofis asistanı yeni sözleşme oluşturamaz.");
-    expect(downloadSource).toContain("getCentralAccessScope(user.id, isManager(user))");
+    expect(downloadSource).toMatch(/getCentralAccessScope\s*\(\s*user\.id\s*,\s*isManager\s*\(\s*user\s*\)\s*\)/);
     expect(downloadSource).toContain("scope.permittedUserIds");
     expect(schemaSource).toContain('"office_assistant"');
     expect(schemaSource).toContain("officeAssistantAssignments");

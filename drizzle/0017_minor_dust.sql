@@ -1,0 +1,1 @@
+ALTER TABLE `rentalServiceTasks` ADD `ownerConfirmedTenantExit` int DEFAULT 0 NOT NULL;
