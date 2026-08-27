@@ -99,6 +99,7 @@ export default function Home() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const [showCriticalFlowPopup, setShowCriticalFlowPopup] = useState(false);
+  const [brokerGuidanceNotice, setBrokerGuidanceNotice] = useState("");
   const isDashboard = location === "/";
   const summaryQuery = trpc.dashboard.summary.useQuery(undefined, {
     retry: false,
@@ -117,6 +118,27 @@ export default function Home() {
     undefined,
     { retry: false }
   );
+  const brokerGuidanceNotesQuery = trpc.brokerGuidanceNotes.list.useQuery(
+    undefined,
+    { enabled: user?.role === "admin", retry: false }
+  );
+  const createBrokerGuidanceNote = trpc.brokerGuidanceNotes.create.useMutation({
+    onSuccess: () => {
+      setBrokerGuidanceNotice("Anonim broker yönlendirme notu kaydedildi.");
+      void brokerGuidanceNotesQuery.refetch();
+    },
+    onError: error => setBrokerGuidanceNotice(error.message),
+  });
+  const resolveBrokerGuidanceNote =
+    trpc.brokerGuidanceNotes.resolve.useMutation({
+      onSuccess: () => {
+        setBrokerGuidanceNotice(
+          "Broker yönlendirme notu çözüldü olarak işaretlendi."
+        );
+        void brokerGuidanceNotesQuery.refetch();
+      },
+      onError: error => setBrokerGuidanceNotice(error.message),
+    });
   const openObligations =
     obligationsQuery.data?.filter(
       item => item.status !== "paid" && item.status !== "cancelled"
@@ -447,8 +469,38 @@ export default function Home() {
               rentalServiceSummary={
                 user?.role === "admin" ? rentalServiceTaskSummary : undefined
               }
-              rentalServiceState={rentalServiceTasksQuery.isLoading ? "loading" : rentalServiceTasksQuery.isError ? "error" : undefined}
-              onRefreshRentalServiceTasks={() => void rentalServiceTasksQuery.refetch()}
+              rentalServiceState={
+                rentalServiceTasksQuery.isLoading
+                  ? "loading"
+                  : rentalServiceTasksQuery.isError
+                    ? "error"
+                    : undefined
+              }
+              onRefreshRentalServiceTasks={() =>
+                void rentalServiceTasksQuery.refetch()
+              }
+              brokerGuidanceNotes={brokerGuidanceNotesQuery.data}
+              brokerGuidanceState={
+                brokerGuidanceNotesQuery.isLoading
+                  ? "loading"
+                  : brokerGuidanceNotesQuery.isError
+                    ? "error"
+                    : undefined
+              }
+              onRefreshBrokerGuidanceNotes={() =>
+                void brokerGuidanceNotesQuery.refetch()
+              }
+              onCreateBrokerGuidanceNote={input =>
+                createBrokerGuidanceNote.mutate(input)
+              }
+              onResolveBrokerGuidanceNote={noteId =>
+                resolveBrokerGuidanceNote.mutate({ noteId })
+              }
+              brokerGuidanceSaving={
+                createBrokerGuidanceNote.isPending ||
+                resolveBrokerGuidanceNote.isPending
+              }
+              brokerGuidanceNotice={brokerGuidanceNotice}
               onOpenObligations={() => setLocation("/obligations")}
               onOpenContracts={() => setLocation("/contracts")}
               onOpenAccounting={() => setLocation("/accounting")}

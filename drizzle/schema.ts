@@ -418,6 +418,26 @@ export const rentalIncomeTaxProfiles = mysqlTable(
   ]
 );
 
+/** Broker managerın yalnız ofis operasyonuna ilişkin, müşteri detayı içermeyen yönlendirme notu. */
+export const brokerGuidanceNotes = mysqlTable("brokerGuidanceNotes", {
+  id: int("id").autoincrement().primaryKey(),
+  subject: mysqlEnum("subject", [
+    "rental_service",
+    "contract_review",
+    "collection",
+    "general",
+  ]).notNull(),
+  summary: varchar("summary", { length: 280 }).notNull(),
+  status: mysqlEnum("status", ["open", "resolved"])
+    .default("open")
+    .notNull(),
+  createdByUserId: int("createdByUserId").notNull(),
+  resolvedByUserId: int("resolvedByUserId"),
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const reminderPreferences = mysqlTable("reminderPreferences", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),

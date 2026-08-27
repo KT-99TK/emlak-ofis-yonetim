@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import {
   InsertUser,
   auditLogs,
+  brokerGuidanceNotes,
   clients,
   contractDocumentParticipants,
   contractDocuments,
@@ -886,6 +887,111 @@ export async function listClients(
           : sql`1 = 0`
     )
     .orderBy(desc(clients.updatedAt));
+}
+
+async function assertAnonymousBrokerGuidanceSummary(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
+  summary: string
+) {
+  const normalized = summary.trim();
+  if (/\b\d[\d\s-]{8,}\d\b/.test(normalized) || /\S+@\S+\.\S+/.test(normalized))
+    throw new Error(
+      "Broker yönlendirme notuna telefon, kimlik veya e-posta bilgisi yazılamaz."
+    );
+  const [knownClients, knownRentals] = await Promise.all([
+    db.select({ name: clients.name }).from(clients),
+    db
+      .select({
+        tenantName: activeRentalSummaries.tenantName,
+        propertyLocation: activeRentalSummaries.propertyLocation,
+        unitInfo: activeRentalSummaries.unitInfo,
+      })
+      .from(activeRentalSummaries),
+  ]);
+  const privateTerms = [
+    ...knownClients.map(item => item.name),
+    ...knownRentals.flatMap(item => [
+      item.tenantName,
+      item.propertyLocation,
+      item.unitInfo,
+    ]),
+  ]
+    .map(value => value.trim().toLocaleLowerCase("tr-TR"))
+    .filter(value => value.length >= 4);
+  if (
+    privateTerms.some(term =>
+      normalized.toLocaleLowerCase("tr-TR").includes(term)
+    )
+  )
+    throw new Error(
+      "Broker yönlendirme notuna merkezi müşteri, kiracı veya taşınmaz adı yazılamaz."
+    );
+  return normalized;
+}
+
+export async function listBrokerGuidanceNotes() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(brokerGuidanceNotes)
+    .orderBy(desc(brokerGuidanceNotes.createdAt));
+}
+
+export async function createBrokerGuidanceNote(input: {
+  subject: "rental_service" | "contract_review" | "collection" | "general";
+  summary: string;
+  actorUserId: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const summary = await assertAnonymousBrokerGuidanceSummary(db, input.summary);
+  await assertCentralOnlineStartAllowsRecord();
+  const result = await db.insert(brokerGuidanceNotes).values({
+    subject: input.subject,
+    summary,
+    createdByUserId: input.actorUserId,
+  });
+  const id = Number(result[0].insertId);
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "broker_guidance_note_created",
+    entityType: "brokerGuidanceNote",
+    entityId: id,
+    summary: `Anonim broker yönlendirme notu oluşturuldu: ${input.subject}`,
+  });
+  return id;
+}
+
+export async function resolveBrokerGuidanceNote(
+  noteId: number,
+  managerUserId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const current = await db
+    .select()
+    .from(brokerGuidanceNotes)
+    .where(eq(brokerGuidanceNotes.id, noteId))
+    .limit(1);
+  if (!current[0]) throw new Error("Broker yönlendirme notu bulunamadı.");
+  if (current[0].status === "resolved") return false;
+  await db
+    .update(brokerGuidanceNotes)
+    .set({
+      status: "resolved",
+      resolvedAt: new Date(),
+      resolvedByUserId: managerUserId,
+    })
+    .where(eq(brokerGuidanceNotes.id, noteId));
+  await db.insert(auditLogs).values({
+    actorUserId: managerUserId,
+    action: "broker_guidance_note_resolved",
+    entityType: "brokerGuidanceNote",
+    entityId: noteId,
+    summary: "Anonim broker yönlendirme notu çözüldü.",
+  });
+  return true;
 }
 export async function listProperties(
   userId: number,

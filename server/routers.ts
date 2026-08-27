@@ -13,6 +13,7 @@ import {
   assertCentralOnlineStartAllowsRecord,
   closeTreasuryCashDay,
   configureFreshOnlineStart,
+  createBrokerGuidanceNote,
   createClient,
   createContract,
   createContractDocument,
@@ -27,11 +28,13 @@ import {
   recordContractDocumentShareIntent,
   requestOwnerApproval,
   createLedger,
+  resolveBrokerGuidanceNote,
   createObligation,
   createProperty,
   getDashboardSummary,
   getReminderPreferenceByUserId,
   listAudit,
+  listBrokerGuidanceNotes,
   listCentralArchiveDocuments,
   listClients,
   listContractDocuments,
@@ -590,6 +593,29 @@ export const appRouter = router({
           throw new Error("Ofis asistanı yeni müşteri kaydı oluşturamaz.");
         return createClient({ ...input, assignedUserId: ctx.user.id });
       }),
+  }),
+  brokerGuidanceNotes: router({
+    list: adminProcedure.query(() => listBrokerGuidanceNotes()),
+    create: adminProcedure
+      .input(
+        z.object({
+          subject: z.enum([
+            "rental_service",
+            "contract_review",
+            "collection",
+            "general",
+          ]),
+          summary: z.string().min(8).max(280),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        createBrokerGuidanceNote({ ...input, actorUserId: ctx.user.id })
+      ),
+    resolve: adminProcedure
+      .input(z.object({ noteId: z.number().int().positive() }))
+      .mutation(({ ctx, input }) =>
+        resolveBrokerGuidanceNote(input.noteId, ctx.user.id)
+      ),
   }),
   properties: router({
     list: protectedProcedure.query(async ({ ctx }) => {

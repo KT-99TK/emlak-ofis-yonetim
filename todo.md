@@ -44,6 +44,10 @@
 - [x] Danışman girişinde yalnız kendi açık vade kayıtlarını denetle; bugün, gecikmiş veya en fazla üç gün içindeki kritik işlemler için popup göster
 - [x] Kritik olmayan yaklaşan vadeleri yalnız Ofis Akışı sağ panelinde bilgi kartı olarak göster; popup ve panel eşiklerini test et
 - [ ] Ofis Akışı paneline güvenli talep-eşleşme, eksik işlem ve broker notu özetleri için merkezi veri kaynakları ve kartlar ekle
+- [x] Broker managerın müşteri adı, telefon veya taşınmaz ayrıntısı içermeyen merkezi yönlendirme notu oluşturmasını; açık/çözüldü durumlarıyla Ofis Akışında izlemesini sağla
+- [x] Broker yönlendirme notlarında açık ve çözülen durumları Ofis Akışında ayrı görünür kıl; çözülen not geçmişi veya sayacını göster
+- [x] Broker yönlendirme notu kartında açık/çözüldü ayrımını ve mahremiyet uyarısını render testiyle doğrula
+- [x] Broker yönlendirme notu iletişim penceresindeki mahremiyet uyarısını açık durum render testiyle doğrula
 - [x] Danışman görünümüne kendi sözleşme ve tahsilat sorumluluklarını da rol bazlı bağla; başka danışmana ait kayıtları dışarıda bırak
 - [x] Broker manager için kişi adı yaymadan sınırlı istisna detayına inen ayrı akış ekle ve test et
 - [x] Ofis Akışı panelinin sağ sütun/alt yığın responsive davranışını render/UI testiyle doğrula

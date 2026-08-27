@@ -16,6 +16,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatTurkishDate } from "@/lib/turkishDate";
+import {
+  BrokerGuidanceNotesCard,
+  type BrokerGuidanceNote,
+} from "@/components/BrokerGuidanceNotesCard";
 
 export type OfficeFlowObligation = {
   id: number | string;
@@ -52,6 +56,16 @@ type OfficeFlowPanelProps = {
   rentalServiceSummary?: OfficeFlowServiceTaskSummary;
   rentalServiceState?: "loading" | "error";
   onRefreshRentalServiceTasks?: () => void;
+  brokerGuidanceNotes?: BrokerGuidanceNote[];
+  brokerGuidanceState?: "loading" | "error";
+  onRefreshBrokerGuidanceNotes?: () => void;
+  onCreateBrokerGuidanceNote?: (input: {
+    subject: BrokerGuidanceNote["subject"];
+    summary: string;
+  }) => void;
+  onResolveBrokerGuidanceNote?: (noteId: number) => void;
+  brokerGuidanceSaving?: boolean;
+  brokerGuidanceNotice?: string;
   onOpenObligations: () => void;
   onOpenContracts?: () => void;
   onOpenAccounting?: () => void;
@@ -95,6 +109,13 @@ export function OfficeFlowPanel({
   rentalServiceSummary,
   rentalServiceState,
   onRefreshRentalServiceTasks,
+  brokerGuidanceNotes,
+  brokerGuidanceState,
+  onRefreshBrokerGuidanceNotes,
+  onCreateBrokerGuidanceNote,
+  onResolveBrokerGuidanceNote,
+  brokerGuidanceSaving,
+  brokerGuidanceNotice,
   onOpenObligations,
   onOpenContracts,
   onOpenAccounting,
@@ -191,25 +212,49 @@ export function OfficeFlowPanel({
               </p>
             </div>
             {rentalServiceState === "loading" ? (
-              <div className="rounded-xl border border-white/10 bg-white/[.08] px-3 py-3 text-xs text-[#d8e8e3]" role="status">Müşteri hizmeti görevleri yükleniyor…</div>
-            ) : rentalServiceState === "error" ? (
-              <div className="rounded-xl border border-[#ffb099]/50 bg-[#6f332c]/45 px-3 py-3 text-xs text-[#ffe0d7]" role="alert"><p>Müşteri hizmeti görevleri yüklenemedi. Sıfır görev bilgisi gösterilmez.</p>{onRefreshRentalServiceTasks && <button type="button" onClick={onRefreshRentalServiceTasks} className="mt-2 rounded-lg border border-[#ffc1af]/60 px-2.5 py-1.5 font-semibold text-white hover:bg-white/10">Tekrar dene</button>}</div>
-            ) : rentalServiceSummary && (
-              <div className="rounded-xl border border-white/10 bg-white/[.08] px-3 py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-medium text-[#d8e8e3]">
-                    Müşteri hizmeti
-                  </span>
-                  <strong className="font-serif text-2xl text-[#e6c47d]">
-                    {rentalServiceSummary.open}
-                  </strong>
-                </div>
-                <p className="mt-1 text-[11px] text-[#aac8c0]">
-                  Gecikmiş: {rentalServiceSummary.overdue} · Manager incelemesi:{" "}
-                  {rentalServiceSummary.prepared} · Paylaşım için hazır:{" "}
-                  {rentalServiceSummary.reviewed}
-                </p>
+              <div
+                className="rounded-xl border border-white/10 bg-white/[.08] px-3 py-3 text-xs text-[#d8e8e3]"
+                role="status"
+              >
+                Müşteri hizmeti görevleri yükleniyor…
               </div>
+            ) : rentalServiceState === "error" ? (
+              <div
+                className="rounded-xl border border-[#ffb099]/50 bg-[#6f332c]/45 px-3 py-3 text-xs text-[#ffe0d7]"
+                role="alert"
+              >
+                <p>
+                  Müşteri hizmeti görevleri yüklenemedi. Sıfır görev bilgisi
+                  gösterilmez.
+                </p>
+                {onRefreshRentalServiceTasks && (
+                  <button
+                    type="button"
+                    onClick={onRefreshRentalServiceTasks}
+                    className="mt-2 rounded-lg border border-[#ffc1af]/60 px-2.5 py-1.5 font-semibold text-white hover:bg-white/10"
+                  >
+                    Tekrar dene
+                  </button>
+                )}
+              </div>
+            ) : (
+              rentalServiceSummary && (
+                <div className="rounded-xl border border-white/10 bg-white/[.08] px-3 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-medium text-[#d8e8e3]">
+                      Müşteri hizmeti
+                    </span>
+                    <strong className="font-serif text-2xl text-[#e6c47d]">
+                      {rentalServiceSummary.open}
+                    </strong>
+                  </div>
+                  <p className="mt-1 text-[11px] text-[#aac8c0]">
+                    Gecikmiş: {rentalServiceSummary.overdue} · Manager
+                    incelemesi: {rentalServiceSummary.prepared} · Paylaşım için
+                    hazır: {rentalServiceSummary.reviewed}
+                  </p>
+                </div>
+              )
             )}
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -236,6 +281,15 @@ export function OfficeFlowPanel({
                   Açık tahsilat
                 </span>
               </button>
+              <BrokerGuidanceNotesCard
+                notes={brokerGuidanceNotes}
+                state={brokerGuidanceState}
+                onRetry={onRefreshBrokerGuidanceNotes ?? (() => undefined)}
+                onCreate={onCreateBrokerGuidanceNote ?? (() => undefined)}
+                onResolve={onResolveBrokerGuidanceNote ?? (() => undefined)}
+                isSaving={brokerGuidanceSaving}
+                notice={brokerGuidanceNotice}
+              />
             </div>
           </div>
         ) : visiblePersonalItems.length ? (
@@ -355,20 +409,44 @@ export function OfficeFlowPanel({
               </p>
             </div>
             {rentalServiceState === "loading" ? (
-              <div className="rounded-xl border border-white/10 bg-white/[.08] px-3 py-3 text-xs text-[#d8e8e3]" role="status">Müşteri hizmeti görevleri yükleniyor…</div>
-            ) : rentalServiceState === "error" ? (
-              <div className="rounded-xl border border-[#ffb099]/50 bg-[#6f332c]/45 px-3 py-3 text-xs text-[#ffe0d7]" role="alert"><p>Müşteri hizmeti görevleri yüklenemedi. Sıfır görev bilgisi gösterilmez.</p>{onRefreshRentalServiceTasks && <button type="button" onClick={onRefreshRentalServiceTasks} className="mt-2 rounded-lg border border-[#ffc1af]/60 px-2.5 py-1.5 font-semibold text-white hover:bg-white/10">Tekrar dene</button>}</div>
-            ) : rentalServiceSummary && (
-              <div className="rounded-xl border border-[#dce8e4] bg-white p-3">
-                <strong className="text-[#24413b]">
-                  {rentalServiceSummary.open} açık müşteri hizmeti görevi
-                </strong>
-                <p className="mt-1 text-xs text-[#6a7e77]">
-                  Gecikmiş: {rentalServiceSummary.overdue} · Manager incelemesi:{" "}
-                  {rentalServiceSummary.prepared} · Paylaşım için hazır:{" "}
-                  {rentalServiceSummary.reviewed}
-                </p>
+              <div
+                className="rounded-xl border border-white/10 bg-white/[.08] px-3 py-3 text-xs text-[#d8e8e3]"
+                role="status"
+              >
+                Müşteri hizmeti görevleri yükleniyor…
               </div>
+            ) : rentalServiceState === "error" ? (
+              <div
+                className="rounded-xl border border-[#ffb099]/50 bg-[#6f332c]/45 px-3 py-3 text-xs text-[#ffe0d7]"
+                role="alert"
+              >
+                <p>
+                  Müşteri hizmeti görevleri yüklenemedi. Sıfır görev bilgisi
+                  gösterilmez.
+                </p>
+                {onRefreshRentalServiceTasks && (
+                  <button
+                    type="button"
+                    onClick={onRefreshRentalServiceTasks}
+                    className="mt-2 rounded-lg border border-[#ffc1af]/60 px-2.5 py-1.5 font-semibold text-white hover:bg-white/10"
+                  >
+                    Tekrar dene
+                  </button>
+                )}
+              </div>
+            ) : (
+              rentalServiceSummary && (
+                <div className="rounded-xl border border-[#dce8e4] bg-white p-3">
+                  <strong className="text-[#24413b]">
+                    {rentalServiceSummary.open} açık müşteri hizmeti görevi
+                  </strong>
+                  <p className="mt-1 text-xs text-[#6a7e77]">
+                    Gecikmiş: {rentalServiceSummary.overdue} · Manager
+                    incelemesi: {rentalServiceSummary.prepared} · Paylaşım için
+                    hazır: {rentalServiceSummary.reviewed}
+                  </p>
+                </div>
+              )
             )}
           </div>
           <div className="flex justify-end gap-2">
