@@ -62,6 +62,7 @@
 - [x] Sayaç numaralarını teslim alma/teslim etme eklerinde tutarlı ve yazdırılabilir biçimde göster
 - [x] DASK poliçe numarasını ana kira sözleşmesinin taşınmaz/teslim bilgileri bölümünde belirgin kutuda göster
 - [ ] Yeni abonelik/DASK alanlarını birim test, A4 render ve Windows/Electron görsel doğrulama kapsamına ekle
+- [x] DASK ve abonelik alanlarının offline snapshotta, ana sözleşmede, teslim etme, teslim alma ve demirbaş eklerinde A4 renderını birim testle doğrula
 - [x] Yerel Çalışma Alanı kayıt filtresi açılır listesini opak zemin, yeterli satır yüksekliği ve arka içerikten bağımsız katmanla okunur hâle getir
 - [ ] Kayıt filtresi seçicisinin Windows/dar görünümde istatistik kartları ve kayıt satırları üzerinde karışmadan açıldığını UI testi ve ekran görüntüsüyle doğrula
 - [x] Offline kayıt formundaki kayıt türü seçicisini de aynı opak ve yüksek katmanlı seçim paneli kuralına bağla
@@ -628,6 +629,7 @@
 - [x] EİDS Yetki Numarası alanının Yetki Sözleşmeleri formunun üst karar bölümündeki yerleşimini, kodlamadan önce kullanıcı onayına sunulacak sade tel kafes tasarımıyla göster
 - [x] Aktif sayfa düzeni kabulünde sol menüde `Kasa ve Banka` öğesini `Sözleşme ve Finansal İstatistikler` öğesinin hemen altına taşı; rota/rol erişimini değiştirme, `Yedekleri Birleştir` bunun altında kalsın ve sonraki toplu Windows paketinde kullanıcıyla doğrula; 1.0.18 güncel Windows ekranında sıra kabul edildi
 - [ ] Aktif Windows A4/sayfa düzeni kabulünün hemen ardından temizleme ve hızlandırma çalışmasını başlat: yalnız güvenle yeniden üretilebilen cache/build/release çıktıları ve gereksiz bağımlılık adaylarını envanterle; `userData`, IndexedDB kayıtları, şifreli yedekler, imzalı PDF’ler ve kullanıcı kaynak dosyalarına hiçbir silme işlemi uygulama
+- [x] Merkezi ve offline büyük sayfa modüllerini dinamik yüklemeye alarak ilk web yükündeki ana JavaScript paketini azalt; rota davranışını koru
 - [ ] Kullanıcının verdiği yürütme yetkisiyle 1.0.17 Windows kabul kontrolünü tek kısa geri bildirim setinde tamamla; kabulden sonra performans/temizlik analizini başlat, küçük düzeltmeler için ayrı Windows kaynak ZIP’i veya kurulum paketi hazırlama
 - [ ] Kullanıcının açık tercihi doğrultusunda küçük görünüm/düzenleme değişikliklerini aynı kabul kümesinde biriktir; yalnız birden çok ilişkili iş tamamlanıp Windows kontrolü anlamlı olduğunda tek kaynak ZIP/kurulum paketi üret, her küçük değişiklikte yeniden indirme-kurulum talep etme
 - [x] Mevcut kabul kümesinde Electron `file://` varlık yolunu koruyarak seyrek kullanılan offline yönetim ekranlarını güvenli tembel yüklemeye taşı; başlangıç paketi boyutunu ölç, rota/rol erişimi ve hata geri dönüşünü test et, acil hata yoksa yeni ZIP üretme

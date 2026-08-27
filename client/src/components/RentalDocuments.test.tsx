@@ -144,6 +144,8 @@ describe("rental documents", () => {
     const subscriptionDetails = { ...details, electricityMeterNo: "ELEK-34017", waterMeterNo: "SU-9821", naturalGasMeterNo: "DOG-4410", daskPolicyNo: "DASK-2026-1881" };
     const contract = renderToStaticMarkup(<RentalContractDocument details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
     const handover = renderToStaticMarkup(<RentalAppendixDocument kind="handover" details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
+    const returning = renderToStaticMarkup(<RentalAppendixDocument kind="return" details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
+    const fixtures = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={subscriptionDetails} contractNo="KIR-2026-001" fontSize="10" />);
     expect(contract).toContain("Taşınmaz Açık Adresi");
     expect(contract).toContain("DASK Poliçe No");
     expect(contract).toContain("DASK-2026-1881");
@@ -154,6 +156,10 @@ describe("rental documents", () => {
     expect(handover).toContain("Elektrik Sayaç No");
     expect(handover).toContain("Doğalgaz Sayaç No");
     expect(handover).toContain("DOG-4410");
+    expect(returning).toContain("TESLİM ALMA BİLGİLERİ");
+    expect(returning).toContain("SU-9821");
+    expect(fixtures).toContain("Elektrik / Su / Doğalgaz Sayaç No");
+    expect(fixtures).toContain("ELEK-34017 / SU-9821 / DOG-4410");
   });
 
   it("uses full-width value cells for unpaired rental delivery and fixture rows", () => {

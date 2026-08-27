@@ -3,11 +3,13 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("offline route code splitting", () => {
-  it("keeps frequent contract entry pages immediate and lazy-loads secondary management screens with an offline-safe fallback", () => {
+  it("merkezi ve offline sözleşme ekranlarını dinamik yüklerken rota ile offline fallback akışını korur", () => {
     const app = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
 
-    expect(app).toContain('import OfflineAuthorityContracts from "./pages/OfflineAuthorityContracts";');
-    expect(app).toContain('import OfflineRentalContracts from "./pages/OfflineRentalContracts";');
+    expect(app).toMatch(/const OfflineAuthorityContracts = lazy\(\s*\(\) => import\("\.\/pages\/OfflineAuthorityContracts"\)/);
+    expect(app).toMatch(/const OfflineRentalContracts = lazy\(\s*\(\) => import\("\.\/pages\/OfflineRentalContracts"\)/);
+    expect(app).not.toContain('import OfflineAuthorityContracts from "./pages/OfflineAuthorityContracts";');
+    expect(app).not.toContain('import OfflineRentalContracts from "./pages/OfflineRentalContracts";');
     expect(app).toContain('const OfflineContractArchive = lazy(() => import("./pages/OfflineContractArchive"));');
     expect(app).toContain('const OfflineInternalControl = lazy(() => import("./pages/OfflineInternalControl"));');
     expect(app).toContain('const Records = lazy(() => import("./pages/Records"));');

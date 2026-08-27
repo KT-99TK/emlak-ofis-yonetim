@@ -18,5 +18,15 @@ describe("Turkish date formatting", () => {
     expect(parseTurkishDateInput("24.08.2026")).toBe("2026-08-24");
     expect(parseTurkishDateInput("4/2/2026")).toBe("2026-02-04");
     expect(parseTurkishDateInput("31.02.2026")).toBeNull();
+    expect(parseTurkishDateInput("2026-02-29")).toBeNull();
+    expect(parseTurkishDateInput("29.02.2024")).toBe("2024-02-29");
+    expect(parseTurkishDateInput("")).toBe("");
+    expect(parseTurkishDateInput("bugün")).toBeNull();
+  });
+
+  it("uses an explicit fallback for missing or invalid display values", () => {
+    expect(formatTurkishDate(null, "Kayıtlı değil")).toBe("Kayıtlı değil");
+    expect(formatTurkishDate("2026-99-99", "Kayıtlı değil")).toBe("Kayıtlı değil");
+    expect(formatTurkishDateTime(undefined, "—")).toBe("—");
   });
 });

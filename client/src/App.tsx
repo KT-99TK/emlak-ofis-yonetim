@@ -6,14 +6,20 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import DashboardLayout from "./components/DashboardLayout";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
-import Contracts from "./pages/Contracts";
-import AuthorityContracts from "./pages/AuthorityContracts";
-import OfflineWorkspace from "./pages/OfflineWorkspace";
-import OfflineAuthorityContracts from "./pages/OfflineAuthorityContracts";
-import OfflineRentalContracts from "./pages/OfflineRentalContracts";
-import OfflineTransactionClosings from "./pages/OfflineTransactionClosings";
 
+const Home = lazy(() => import("./pages/Home"));
+const Contracts = lazy(() => import("./pages/Contracts"));
+const AuthorityContracts = lazy(() => import("./pages/AuthorityContracts"));
+const OfflineWorkspace = lazy(() => import("./pages/OfflineWorkspace"));
+const OfflineAuthorityContracts = lazy(
+  () => import("./pages/OfflineAuthorityContracts")
+);
+const OfflineRentalContracts = lazy(
+  () => import("./pages/OfflineRentalContracts")
+);
+const OfflineTransactionClosings = lazy(
+  () => import("./pages/OfflineTransactionClosings")
+);
 const Records = lazy(() => import("./pages/Records"));
 const Audit = lazy(() => import("./pages/Audit"));
 const Team = lazy(() => import("./pages/Team"));

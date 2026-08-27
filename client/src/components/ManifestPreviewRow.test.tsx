@@ -27,6 +27,8 @@ describe("ManifestPreviewRow", () => {
     expect(html).toContain("device-a");
     expect(html).toContain("7 kayıt");
     expect(html).toContain(formatTurkishDateTime("2026-08-22T10:00:00.000Z"));
+    expect(html).toMatch(/22\.08\.2026/);
+    expect(html).not.toContain("2026-08-22T10:00:00.000Z");
     expect(html).toContain("checksum: doğrulandı");
     expect(html).toContain("ECDSA: doğrulandı");
   });

@@ -30,7 +30,15 @@ export function formatTurkishLongDate(value?: Date | string | null, fallback = "
 export function parseTurkishDateInput(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return "";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return Number.isNaN(toLocalDate(trimmed).getTime()) ? null : trimmed;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    const [year, month, day] = trimmed.split("-").map(Number);
+    const date = new Date(year, month - 1, day, 12);
+    return date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+      ? trimmed
+      : null;
+  }
   const match = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/.exec(trimmed);
   if (!match) return null;
   const day = Number(match[1]);
