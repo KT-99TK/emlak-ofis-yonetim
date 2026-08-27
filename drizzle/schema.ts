@@ -25,7 +25,7 @@ export const userProfiles = mysqlTable("userProfiles", {
   teamId: int("teamId"),
   managerId: int("managerId"),
   officeRole: mysqlEnum("officeRole", ["broker_manager", "consultant", "office_assistant"]).default("consultant").notNull(),
-  consultantCode: varchar("consultantCode", { length: 40 }),
+  consultantCode: varchar("consultantCode", { length: 40 }).unique(),
   phone: varchar("phone", { length: 40 }),
   title: varchar("title", { length: 120 }),
   status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
@@ -189,6 +189,62 @@ export const rentalObligations = mysqlTable("rentalObligations", {
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/**
+ * Geçmiş sözleşme/PDF veya finans verisini taşımadan, halen devam eden kira
+ * ilişkilerinin operasyonel takibi için broker manager onaylı kısa özet.
+ */
+export const activeRentalSummaries = mysqlTable("activeRentalSummaries", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  tenantName: varchar("tenantName", { length: 180 }).notNull(),
+  tenantPhone: varchar("tenantPhone", { length: 40 }).notNull(),
+  contractDate: timestamp("contractDate").notNull(),
+  rentIncreaseDate: timestamp("rentIncreaseDate"),
+  evictionDate: timestamp("evictionDate"),
+  monthlyRent: decimal("monthlyRent", { precision: 14, scale: 2 }).notNull(),
+  neighborhood: varchar("neighborhood", { length: 120 }).notNull(),
+  propertyLocation: varchar("propertyLocation", { length: 180 }).notNull().default(""),
+  unitInfo: varchar("unitInfo", { length: 100 }).notNull().default(""),
+  assignedUserId: int("assignedUserId").notNull(),
+  importFingerprint: varchar("importFingerprint", { length: 64 }).notNull().unique(),
+  importedByUserId: int("importedByUserId").notNull(),
+  increaseRate: decimal("increaseRate", { precision: 7, scale: 4 }),
+  increaseRateSource: varchar("increaseRateSource", { length: 180 }),
+  increaseRatePeriod: varchar("increaseRatePeriod", { length: 20 }),
+  increaseRateEntryMethod: mysqlEnum("increaseRateEntryMethod", ["official_reference", "manual"]).default("manual").notNull(),
+  increaseRateEnteredByUserId: int("increaseRateEnteredByUserId"),
+  increaseRateEnteredAt: timestamp("increaseRateEnteredAt"),
+  noticeStatus: mysqlEnum("noticeStatus", ["notPrepared", "prepared", "reviewed", "shared"]).default("notPrepared").notNull(),
+  noticePreparedAt: timestamp("noticePreparedAt"),
+  noticeReviewedByUserId: int("noticeReviewedByUserId"),
+  noticeReviewedAt: timestamp("noticeReviewedAt"),
+  noticeSharedByUserId: int("noticeSharedByUserId"),
+  noticeSharedAt: timestamp("noticeSharedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/** Müşteriye dış mesaj göndermeden önce danışman/broker tarafından izlenen hizmet görevi. */
+export const rentalServiceTasks = mysqlTable("rentalServiceTasks", {
+  id: int("id").autoincrement().primaryKey(),
+  serviceKey: varchar("serviceKey", { length: 160 }).notNull().unique(),
+  activeRentalSummaryId: int("activeRentalSummaryId"),
+  clientId: int("clientId").notNull(),
+  assignedUserId: int("assignedUserId").notNull(),
+  serviceType: mysqlEnum("serviceType", ["rentIncrease", "eviction", "propertyTaxFirstInstallment", "propertyTaxSecondInstallment", "rentalIncomeTaxDeclaration"]).notNull(),
+  dueDate: timestamp("dueDate").notNull(),
+  status: mysqlEnum("status", ["planned", "prepared", "reviewed", "shared", "completed"]).default("planned").notNull(),
+  preparedByUserId: int("preparedByUserId"),
+  preparedAt: timestamp("preparedAt"),
+  reviewedByUserId: int("reviewedByUserId"),
+  reviewedAt: timestamp("reviewedAt"),
+  sharedByUserId: int("sharedByUserId"),
+  sharedAt: timestamp("sharedAt"),
+  customerResponseNote: text("customerResponseNote"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export const reminderPreferences = mysqlTable("reminderPreferences", {

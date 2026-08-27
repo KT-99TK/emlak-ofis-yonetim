@@ -1,0 +1,21 @@
+CREATE TABLE `rentalServiceTasks` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`serviceKey` varchar(160) NOT NULL,
+	`activeRentalSummaryId` int,
+	`clientId` int NOT NULL,
+	`assignedUserId` int NOT NULL,
+	`serviceType` enum('rentIncrease','eviction','propertyTaxFirstInstallment','propertyTaxSecondInstallment','rentalIncomeTaxDeclaration') NOT NULL,
+	`dueDate` timestamp NOT NULL,
+	`status` enum('planned','prepared','reviewed','shared','completed') NOT NULL DEFAULT 'planned',
+	`preparedByUserId` int,
+	`preparedAt` timestamp,
+	`reviewedByUserId` int,
+	`reviewedAt` timestamp,
+	`sharedByUserId` int,
+	`sharedAt` timestamp,
+	`customerResponseNote` text,
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `rentalServiceTasks_id` PRIMARY KEY(`id`),
+	CONSTRAINT `rentalServiceTasks_serviceKey_unique` UNIQUE(`serviceKey`)
+);

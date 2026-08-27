@@ -1,5 +1,8 @@
 # Project TODO
 
+- [x] 27.08.2026 temiz online başlangıcıyla 21 aktif kira özetini kontrollü Excel önizlemesi ve manager onayıyla aktar; aynı malike ait çoklu taşınmazı kısa konum bilgisiyle ayır ve IP1/KT1 sorumluluğuna bağla
+- [x] Broker manager için danışman bazlı aktif kiralama dağılımını gerçek merkezi kayıttan üreten, müşteri/telefon bilgisi göstermeyen ve boş durumunu destekleyen grafik ekle
+- [ ] Danışman kısa kodunu büyük harfle IP1, KT1, CT1 ve çakışmada CT2/CT3 biçiminde doğrula; merkezi sözleşme numarası önerisini KOD-001 standardına bağla
 - [x] İncelenecek HTML örnek paketini projeye al ve sayfa, navigasyon, iş akışı, arayüz kalıpları ve veri alanları envanterini çıkar
 - [x] Broker manager ve consultant rolleri için hiyerarşi, görünürlük ve işlem yetki matrisi oluştur
 - [x] Güvenli giriş, kullanıcı yönetimi, takım/manager ilişkisi, rol tabanlı ekran/işlem izinlerini uygula

@@ -1,0 +1,1 @@
+ALTER TABLE `userProfiles` ADD CONSTRAINT `userProfiles_consultantCode_unique` UNIQUE(`consultantCode`);

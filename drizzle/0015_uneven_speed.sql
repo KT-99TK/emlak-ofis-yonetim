@@ -1,0 +1,2 @@
+ALTER TABLE `activeRentalSummaries` ADD `propertyLocation` varchar(180) DEFAULT '' NOT NULL;--> statement-breakpoint
+ALTER TABLE `activeRentalSummaries` ADD `unitInfo` varchar(100) DEFAULT '' NOT NULL;

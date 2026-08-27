@@ -1,6 +1,7 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, officeAssistantAssignments, onlineStartSettings, properties, rentalObligations, reminderPreferences, teams, treasuryCashDailyCounts, treasuryCashMovements, userProfiles, users } from "../drizzle/schema";
+import { createHash } from "node:crypto";
+import { InsertUser, auditLogs, clients, contractDocumentParticipants, contractDocuments, contracts, ledgerEntries, officeAssistantAssignments, onlineStartSettings, properties, rentalObligations, reminderPreferences, teams, treasuryCashDailyCounts, treasuryCashMovements, userProfiles, users, activeRentalSummaries, rentalServiceTasks } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { assertCentralRecordDateIsAllowed, assertFreshStartConfirmation, startOfTurkeyBusinessDay, turkeyBusinessDateKey, type OnlineStartPolicy } from "./onlineStartPolicy";
 
@@ -200,7 +201,18 @@ export async function markReminderRun(userId: number, runKey: string) { const db
 export async function createClient(input: { name: string; assignedUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); const result = await db.insert(clients).values({ name: input.name, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
 export async function createProperty(input: { referenceNo: string; title: string; address: string; listingType?: "sale" | "rent"; ownerApprovalStatus?: "notRequired" | "pending" | "approved" | "rejected"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); if (input.listingType === "rent" && input.ownerApprovalStatus !== "approved") throw new Error("Kiralık ilan owner approval olmadan oluşturulamaz."); const result = await db.insert(properties).values({ referenceNo: input.referenceNo, title: input.title, address: input.address, listingType: input.listingType ?? "sale", ownerApprovalStatus: input.ownerApprovalStatus ?? "notRequired", assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
 export async function createLedger(input: { description: string; amount: string; entryType: "income" | "expense" | "receivable" | "payable"; assignedUserId: number }) { const db = await getDb(); if (!db) return null; await assertCentralOnlineStartAllowsRecord(); const result = await db.insert(ledgerEntries).values({ description: input.description, amount: input.amount, entryType: input.entryType, assignedUserId: input.assignedUserId }); return Number(result[0].insertId); }
-export async function listTeamMembers() { const db = await getDb(); if (!db) return []; return db.select({ userId: userProfiles.userId, name: users.name, email: users.email, teamId: userProfiles.teamId, teamName: teams.name, officeRole: userProfiles.officeRole, consultantCode: userProfiles.consultantCode, status: userProfiles.status }).from(userProfiles).leftJoin(users, eq(userProfiles.userId, users.id)).leftJoin(teams, eq(userProfiles.teamId, teams.id)).orderBy(desc(userProfiles.status)); }
+export async function listTeamMembers() { const db = await getDb(); if (!db) return []; return db.select({ userId: users.id, name: users.name, email: users.email, teamId: userProfiles.teamId, teamName: teams.name, officeRole: userProfiles.officeRole, consultantCode: userProfiles.consultantCode, status: userProfiles.status }).from(users).leftJoin(userProfiles, eq(userProfiles.userId, users.id)).leftJoin(teams, eq(userProfiles.teamId, teams.id)).orderBy(desc(userProfiles.status), users.id); }
+
+export async function setConsultantCode(userId: number, consultantCode: string, managerUserId: number) {
+  const db = await getDb(); if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const normalized = consultantCode.trim().toLocaleUpperCase("en-US");
+  if (!/^[A-Z]{2,4}\d{1,2}$/.test(normalized)) throw new Error("Danışman kodu IP1, KT1, CT1 veya CT2 biçiminde olmalıdır.");
+  const existing = await db.select({ id: userProfiles.id }).from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
+  if (existing[0]) await db.update(userProfiles).set({ consultantCode: normalized, status: "active" }).where(eq(userProfiles.userId, userId));
+  else await db.insert(userProfiles).values({ userId, consultantCode: normalized, officeRole: "consultant", status: "active" });
+  await db.insert(auditLogs).values({ actorUserId: managerUserId, action: "consultant_code_updated", entityType: "userProfile", entityId: userId, summary: `${normalized} danışman kodu güncellendi` });
+  return { userId, consultantCode: normalized };
+}
 
 export async function setOfficeAssistantAssignments(input: { assistantUserId: number; consultantUserIds: number[]; managerUserId: number }) {
   const db = await getDb(); if (!db) return false;
@@ -262,4 +274,248 @@ export async function closeTreasuryCashDay(input: { date: Date; openingCash: str
   const id = Number(result[0].insertId);
   await db.insert(auditLogs).values({ actorUserId: input.managerUserId, action: "treasury_cash_day_closed", entityType: "treasuryCashDailyCount", entityId: id, summary: "Gün sonu kasa sayımı broker manager tarafından kaydedildi" });
   return id;
+}
+
+
+export type ActiveRentalSummaryWithScope = {
+  id: number;
+  clientId: number;
+  clientName: string;
+  clientPhone: string | null;
+  tenantName: string;
+  tenantPhone: string;
+  contractDate: Date;
+  rentIncreaseDate: Date | null;
+  evictionDate: Date | null;
+  monthlyRent: string;
+  neighborhood: string;
+  propertyLocation: string;
+  unitInfo: string;
+  assignedUserId: number;
+  consultantCode: string | null;
+  increaseRate: string | null;
+  increaseRateSource: string | null;
+  increaseRatePeriod: string | null;
+  increaseRateEntryMethod: "official_reference" | "manual";
+  noticeStatus: "notPrepared" | "prepared" | "reviewed" | "shared";
+  noticePreparedAt: Date | null;
+  noticeReviewedByUserId: number | null;
+  noticeReviewedAt: Date | null;
+  noticeSharedByUserId: number | null;
+  noticeSharedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+function activeRentalScope(userId: number, isManager: boolean, permittedUserIds: number[]) {
+  if (isManager) return undefined;
+  return permittedUserIds.length ? inArray(activeRentalSummaries.assignedUserId, permittedUserIds) : sql`1 = 0`;
+}
+
+export async function getActiveRentalAccess(userId: number, isManager: boolean, permittedUserIds: number[]) {
+  return { isManager, permittedUserIds, canImport: isManager, canManageNotices: isManager || permittedUserIds.includes(userId) };
+}
+
+export async function listActiveRentalSummaries(userId: number, isManager: boolean, permittedUserIds: number[]) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({
+    summary: activeRentalSummaries,
+    clientName: clients.name,
+    clientPhone: clients.phone,
+    consultantCode: userProfiles.consultantCode,
+  }).from(activeRentalSummaries)
+    .innerJoin(clients, eq(activeRentalSummaries.clientId, clients.id))
+    .leftJoin(userProfiles, eq(activeRentalSummaries.assignedUserId, userProfiles.userId))
+    .where(activeRentalScope(userId, isManager, permittedUserIds))
+    .orderBy(activeRentalSummaries.clientId, activeRentalSummaries.propertyLocation, activeRentalSummaries.unitInfo);
+  return rows.map((row) => ({ ...row.summary, clientName: row.clientName, clientPhone: row.clientPhone, consultantCode: row.consultantCode }));
+}
+
+export type ActiveRentalImportRow = {
+  clientName: string;
+  clientPhone: string;
+  tenantName: string;
+  tenantPhone: string;
+  contractDate: Date;
+  rentIncreaseDate?: Date;
+  evictionDate?: Date;
+  monthlyRent: string;
+  neighborhood: string;
+  propertyLocation: string;
+  unitInfo: string;
+  assignedUserId: number;
+  consultantCode: string;
+};
+
+function normalizeImportValue(value: string) {
+  return value.trim().toLocaleLowerCase("tr-TR").replace(/\s+/g, " ");
+}
+
+function importFingerprint(row: ActiveRentalImportRow) {
+  return createHash("sha256").update([
+    normalizeImportValue(row.clientName),
+    normalizeImportValue(row.clientPhone),
+    normalizeImportValue(row.tenantName),
+    normalizeImportValue(row.tenantPhone),
+    row.contractDate.toISOString().slice(0, 10),
+    normalizeImportValue(row.neighborhood),
+    normalizeImportValue(row.propertyLocation),
+    normalizeImportValue(row.unitInfo),
+    row.assignedUserId,
+  ].join("|")).digest("hex");
+}
+
+export async function importActiveRentalSummaries(rows: ActiveRentalImportRow[], importedByUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  if (!rows.length) throw new Error("Aktarılacak geçerli aktif kira satırı bulunamadı.");
+  await assertCentralOnlineStartAllowsRecord();
+  const fingerprints = new Set<string>();
+  for (const row of rows) {
+    const fingerprint = importFingerprint(row);
+    if (fingerprints.has(fingerprint)) throw new Error(`${row.clientName} için aynı taşınmaz satırı dosya içinde mükerrer.`);
+    fingerprints.add(fingerprint);
+    const existingFingerprint = await db.select({ id: activeRentalSummaries.id }).from(activeRentalSummaries).where(eq(activeRentalSummaries.importFingerprint, fingerprint)).limit(1);
+    if (existingFingerprint.length) throw new Error(`${row.clientName} için aynı aktif kira özeti daha önce aktarılmış.`);
+    const existingClient = await db.select({ id: clients.id, phone: clients.phone, assignedUserId: clients.assignedUserId }).from(clients).where(and(eq(clients.name, row.clientName), eq(clients.assignedUserId, row.assignedUserId))).limit(1);
+    if (existingClient[0]?.phone && normalizeImportValue(existingClient[0].phone) !== normalizeImportValue(row.clientPhone)) throw new Error(`${row.clientName} müşteri telefonu mevcut kayıtla uyuşmuyor; aktarım durduruldu.`);
+  }
+  let createdClients = 0;
+  let imported = 0;
+  for (const row of rows) {
+    let client = (await db.select({ id: clients.id, phone: clients.phone }).from(clients).where(and(eq(clients.name, row.clientName), eq(clients.assignedUserId, row.assignedUserId))).limit(1))[0];
+    if (!client) {
+      const result = await db.insert(clients).values({ name: row.clientName, phone: row.clientPhone, assignedUserId: row.assignedUserId });
+      client = { id: Number(result[0].insertId), phone: row.clientPhone };
+      createdClients += 1;
+    } else if (!client.phone) {
+      await db.update(clients).set({ phone: row.clientPhone }).where(eq(clients.id, client.id));
+    }
+    await db.insert(activeRentalSummaries).values({
+      clientId: client.id,
+      tenantName: row.tenantName,
+      tenantPhone: row.tenantPhone,
+      contractDate: row.contractDate,
+      rentIncreaseDate: row.rentIncreaseDate,
+      evictionDate: row.evictionDate,
+      monthlyRent: row.monthlyRent,
+      neighborhood: row.neighborhood,
+      propertyLocation: row.propertyLocation,
+      unitInfo: row.unitInfo,
+      assignedUserId: row.assignedUserId,
+      importFingerprint: importFingerprint(row),
+      importedByUserId,
+    });
+    imported += 1;
+  }
+  await db.insert(auditLogs).values({ actorUserId: importedByUserId, action: "active_rental_summaries_imported", entityType: "activeRentalSummaries", summary: `${imported} aktif kira özeti ve ${createdClients} müşteri kartı broker manager onayıyla aktarıldı.` });
+  return { imported, createdClients };
+}
+
+export async function saveActiveRentalIncreaseReference(input: { summaryId: number; increaseRate: string; source: string; period: string; entryMethod: "official_reference" | "manual"; actorUserId: number; isManager: boolean; permittedUserIds: number[] }) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const row = await db.select({ assignedUserId: activeRentalSummaries.assignedUserId }).from(activeRentalSummaries).where(and(eq(activeRentalSummaries.id, input.summaryId), activeRentalScope(input.actorUserId, input.isManager, input.permittedUserIds))).limit(1);
+  if (!row[0]) throw new Error("Bu aktif kira özeti için yetkiniz bulunmuyor.");
+  await db.update(activeRentalSummaries).set({ increaseRate: input.increaseRate, increaseRateSource: input.source.trim(), increaseRatePeriod: input.period.trim(), increaseRateEntryMethod: input.entryMethod, increaseRateEnteredByUserId: input.actorUserId, increaseRateEnteredAt: new Date(), noticeStatus: "prepared", noticePreparedAt: new Date() }).where(eq(activeRentalSummaries.id, input.summaryId));
+  return true;
+}
+
+export async function reviewActiveRentalNotice(summaryId: number, managerUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  await db.update(activeRentalSummaries).set({ noticeStatus: "reviewed", noticeReviewedByUserId: managerUserId, noticeReviewedAt: new Date() }).where(eq(activeRentalSummaries.id, summaryId));
+  return true;
+}
+
+export async function markActiveRentalNoticeShared(input: { summaryId: number; actorUserId: number; isManager: boolean; permittedUserIds: number[] }) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const row = await db.select({ noticeStatus: activeRentalSummaries.noticeStatus }).from(activeRentalSummaries).where(and(eq(activeRentalSummaries.id, input.summaryId), activeRentalScope(input.actorUserId, input.isManager, input.permittedUserIds))).limit(1);
+  if (!row[0]) throw new Error("Bu aktif kira özeti için yetkiniz bulunmuyor.");
+  if (row[0].noticeStatus !== "reviewed") throw new Error("Paylaşım kaydı için önce broker manager gözden geçirmesi gerekir.");
+  await db.update(activeRentalSummaries).set({ noticeStatus: "shared", noticeSharedByUserId: input.actorUserId, noticeSharedAt: new Date() }).where(eq(activeRentalSummaries.id, input.summaryId));
+  return true;
+}
+
+function serviceKeyFor(kind: string, clientId: number, summaryId: number | null, year: number) {
+  return `${kind}-${clientId}-${summaryId ?? "owner"}-${year}`;
+}
+
+export async function refreshRentalServiceTasks(managerUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const summaries = await listActiveRentalSummaries(managerUserId, true, []);
+  const now = new Date();
+  let created = 0;
+  for (const summary of summaries) {
+    const events: Array<{ serviceType: "rentIncrease" | "eviction"; dueDate: Date }> = [];
+    const increaseDate = summary.rentIncreaseDate ? new Date(summary.rentIncreaseDate) : new Date(now.getFullYear(), new Date(summary.contractDate).getMonth(), new Date(summary.contractDate).getDate());
+    if (increaseDate.getTime() < now.getTime()) increaseDate.setFullYear(increaseDate.getFullYear() + 1);
+    if (Math.ceil((increaseDate.getTime() - now.getTime()) / 86_400_000) <= 45) events.push({ serviceType: "rentIncrease", dueDate: increaseDate });
+    if (summary.evictionDate) {
+      const eviction = new Date(summary.evictionDate);
+      if (Math.ceil((eviction.getTime() - now.getTime()) / 86_400_000) <= 45) events.push({ serviceType: "eviction", dueDate: eviction });
+    }
+    for (const event of events) {
+      const key = serviceKeyFor(event.serviceType, summary.clientId, summary.id, event.dueDate.getFullYear());
+      const exists = await db.select({ id: rentalServiceTasks.id }).from(rentalServiceTasks).where(eq(rentalServiceTasks.serviceKey, key)).limit(1);
+      if (!exists.length) { await db.insert(rentalServiceTasks).values({ serviceKey: key, activeRentalSummaryId: summary.id, clientId: summary.clientId, assignedUserId: summary.assignedUserId, serviceType: event.serviceType, dueDate: event.dueDate, status: "planned" }); created += 1; }
+    }
+  }
+  const ownerIds = Array.from(new Set(summaries.map((summary) => summary.clientId)));
+  for (const clientId of ownerIds) {
+    const summary = summaries.find((candidate) => candidate.clientId === clientId)!;
+    for (const [serviceType, month, day] of [["propertyTaxFirstInstallment", 4, 31], ["propertyTaxSecondInstallment", 10, 30], ["rentalIncomeTaxDeclaration", 2, 31]] as const) {
+      const date = new Date(now.getFullYear(), month, day);
+      if (date.getTime() < now.getTime()) date.setFullYear(date.getFullYear() + 1);
+      const key = serviceKeyFor(serviceType, clientId, null, date.getFullYear());
+      const exists = await db.select({ id: rentalServiceTasks.id }).from(rentalServiceTasks).where(eq(rentalServiceTasks.serviceKey, key)).limit(1);
+      if (!exists.length) { await db.insert(rentalServiceTasks).values({ serviceKey: key, clientId, assignedUserId: summary.assignedUserId, serviceType, dueDate: date, status: "planned" }); created += 1; }
+    }
+  }
+  return { created };
+}
+
+async function rentalServiceTaskInScope(taskId: number, userId: number, isManager: boolean, permittedUserIds: number[]) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(rentalServiceTasks).where(and(eq(rentalServiceTasks.id, taskId), isManager ? undefined : permittedUserIds.length ? inArray(rentalServiceTasks.assignedUserId, permittedUserIds) : sql`1 = 0`)).limit(1);
+  return rows[0];
+}
+
+export async function listRentalServiceTasks(userId: number, isManager: boolean, permittedUserIds: number[]) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ task: rentalServiceTasks, clientName: clients.name, tenantName: activeRentalSummaries.tenantName, propertyLocation: activeRentalSummaries.propertyLocation, unitInfo: activeRentalSummaries.unitInfo, consultantCode: userProfiles.consultantCode }).from(rentalServiceTasks).innerJoin(clients, eq(rentalServiceTasks.clientId, clients.id)).leftJoin(activeRentalSummaries, eq(rentalServiceTasks.activeRentalSummaryId, activeRentalSummaries.id)).leftJoin(userProfiles, eq(rentalServiceTasks.assignedUserId, userProfiles.userId)).where(isManager ? undefined : permittedUserIds.length ? inArray(rentalServiceTasks.assignedUserId, permittedUserIds) : sql`1 = 0`).orderBy(rentalServiceTasks.dueDate);
+}
+
+export async function prepareRentalServiceTask(taskId: number, actorUserId: number, isManager: boolean, permittedUserIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const task = await rentalServiceTaskInScope(taskId, actorUserId, isManager, permittedUserIds);
+  if (!task) throw new Error("Bu müşteri hizmet görevi için yetkiniz bulunmuyor.");
+  await db.update(rentalServiceTasks).set({ status: "prepared", preparedByUserId: actorUserId, preparedAt: new Date() }).where(eq(rentalServiceTasks.id, taskId));
+  return true;
+}
+
+export async function reviewRentalServiceTask(taskId: number, managerUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const task = await rentalServiceTaskInScope(taskId, managerUserId, true, []);
+  if (!task) throw new Error("Müşteri hizmet görevi bulunamadı.");
+  if (task.status !== "prepared") throw new Error("Önce danışman veya yetkili kullanıcı taslağı hazırlamalıdır.");
+  await db.update(rentalServiceTasks).set({ status: "reviewed", reviewedByUserId: managerUserId, reviewedAt: new Date() }).where(eq(rentalServiceTasks.id, taskId));
+  return true;
+}
+
+export async function markRentalServiceTaskShared(input: { taskId: number; actorUserId: number; isManager: boolean; permittedUserIds: number[]; responseNote?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const task = await rentalServiceTaskInScope(input.taskId, input.actorUserId, input.isManager, input.permittedUserIds);
+  if (!task) throw new Error("Bu müşteri hizmet görevi için yetkiniz bulunmuyor.");
+  if (task.status !== "reviewed") throw new Error("Paylaşım kaydı için önce manager gözden geçirmesi gerekir.");
+  await db.update(rentalServiceTasks).set({ status: "shared", sharedByUserId: input.actorUserId, sharedAt: new Date(), customerResponseNote: input.responseNote?.trim().slice(0, 1000) || null }).where(eq(rentalServiceTasks.id, input.taskId));
+  return true;
 }

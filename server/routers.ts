@@ -4,7 +4,7 @@ import { parse as parseCookieHeader } from "cookie";
 import { createHeartbeatJob } from "./_core/heartbeat";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { assertCentralOnlineStartAllowsRecord, closeTreasuryCashDay, configureFreshOnlineStart, createClient, createContract, createContractDocument, createTreasuryCashMovement, decideOwnerApproval, getCentralAccessScope, getContractDocumentForUser, getContractForAssignedUser, getOnlineStartSetting, getTreasuryCashBalance, invalidateContractDocument, recordContractDocumentShareIntent, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, setOfficeAssistantAssignments, transitionContract, verifyTreasuryCashMovement } from "./db";
+import { assertCentralOnlineStartAllowsRecord, closeTreasuryCashDay, configureFreshOnlineStart, createClient, createContract, createContractDocument, createTreasuryCashMovement, decideOwnerApproval, getCentralAccessScope, getContractDocumentForUser, getContractForAssignedUser, getOnlineStartSetting, getTreasuryCashBalance, invalidateContractDocument, recordContractDocumentShareIntent, requestOwnerApproval, createLedger, createObligation, createProperty, getDashboardSummary, getReminderPreferenceByUserId, listAudit, listCentralArchiveDocuments, listClients, listContractDocuments, listContracts, listLedger, listObligations, listProperties, listTeamMembers, saveReminderSchedule, setOfficeAssistantAssignments, transitionContract, verifyTreasuryCashMovement, setConsultantCode, getActiveRentalAccess, listActiveRentalSummaries, importActiveRentalSummaries, saveActiveRentalIncreaseReference, reviewActiveRentalNotice, markActiveRentalNoticeShared, refreshRentalServiceTasks, listRentalServiceTasks, prepareRentalServiceTask, reviewRentalServiceTask, markRentalServiceTaskShared } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -29,6 +29,21 @@ export const appRouter = router({
       note: z.string().max(1000).optional(),
       confirmationText: z.string().min(1).max(120),
     })).mutation(({ ctx, input }) => configureFreshOnlineStart({ ...input, managerUserId: ctx.user.id })),
+  }),
+  activeRentals: router({
+    access: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return getActiveRentalAccess(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listActiveRentalSummaries(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+    importSummaries: adminProcedure.input(z.object({ rows: z.array(z.object({ clientName: z.string().min(2).max(180), clientPhone: z.string().min(5).max(40), tenantName: z.string().min(2).max(180), tenantPhone: z.string().min(5).max(40), contractDate: z.coerce.date(), rentIncreaseDate: z.coerce.date().optional(), evictionDate: z.coerce.date().optional(), monthlyRent: z.string().regex(/^\d+(\.\d{1,2})?$/), neighborhood: z.string().min(2).max(120), propertyLocation: z.string().min(1).max(180), unitInfo: z.string().min(1).max(100), assignedUserId: z.number().int().positive(), consultantCode: z.string().min(2).max(40) })).max(500) })).mutation(({ ctx, input }) => importActiveRentalSummaries(input.rows, ctx.user.id)),
+    saveIncreaseReference: protectedProcedure.input(z.object({ summaryId: z.number().int().positive(), increaseRate: z.string().regex(/^\d+(\.\d{1,4})?$/), source: z.string().min(2).max(180), period: z.string().min(2).max(20), entryMethod: z.enum(["official_reference", "manual"]) })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return saveActiveRentalIncreaseReference({ ...input, actorUserId: ctx.user.id, isManager: scope.isManager, permittedUserIds: scope.permittedUserIds }); }),
+    reviewNotice: adminProcedure.input(z.object({ summaryId: z.number().int().positive() })).mutation(({ ctx, input }) => reviewActiveRentalNotice(input.summaryId, ctx.user.id)),
+    markNoticeShared: protectedProcedure.input(z.object({ summaryId: z.number().int().positive() })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return markActiveRentalNoticeShared({ summaryId: input.summaryId, actorUserId: ctx.user.id, isManager: scope.isManager, permittedUserIds: scope.permittedUserIds }); }),
+    serviceTasks: router({
+      list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listRentalServiceTasks(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+      refresh: adminProcedure.mutation(({ ctx }) => refreshRentalServiceTasks(ctx.user.id)),
+      prepare: protectedProcedure.input(z.object({ taskId: z.number().int().positive() })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return prepareRentalServiceTask(input.taskId, ctx.user.id, scope.isManager, scope.permittedUserIds); }),
+      review: adminProcedure.input(z.object({ taskId: z.number().int().positive() })).mutation(({ ctx, input }) => reviewRentalServiceTask(input.taskId, ctx.user.id)),
+      markShared: protectedProcedure.input(z.object({ taskId: z.number().int().positive(), responseNote: z.string().max(1000).optional() })).mutation(async ({ ctx, input }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return markRentalServiceTaskShared({ taskId: input.taskId, actorUserId: ctx.user.id, isManager: scope.isManager, permittedUserIds: scope.permittedUserIds, responseNote: input.responseNote }); }),
+    }),
   }),
   contracts: router({
     list: protectedProcedure.query(async ({ ctx }) => { const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user)); return listContracts(ctx.user.id, scope.isManager, scope.permittedUserIds); }),
@@ -151,6 +166,7 @@ export const appRouter = router({
   }),
   team: router({
     list: adminProcedure.query(() => listTeamMembers()),
+    setConsultantCode: adminProcedure.input(z.object({ userId: z.number().int().positive(), consultantCode: z.string().min(2).max(40) })).mutation(({ ctx, input }) => setConsultantCode(input.userId, input.consultantCode, ctx.user.id)),
     setOfficeAssistantScope: adminProcedure.input(z.object({ assistantUserId: z.number().int().positive(), consultantUserIds: z.array(z.number().int().positive()).max(50) })).mutation(({ ctx, input }) => setOfficeAssistantAssignments({ ...input, managerUserId: ctx.user.id })),
   }),
   audit: router({
