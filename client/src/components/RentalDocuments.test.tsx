@@ -17,6 +17,18 @@ describe("rental documents", () => {
     expect(html).toContain("Düzenleme izi · DY · 23.08.2026 · Form: KIR-2026-001");
   });
 
+  it("renders the supplied 22-item hususi şart section for residential contracts", () => {
+    const html = renderToStaticMarkup(<RentalContractDocument details={{ ...details, useType: "residential", monthlyRent: "40000", deposit: "850", paymentDay: "5", durationMonths: "12", documentPlace: "Ankara", courtCity: "Çankaya" }} contractNo="KIR-2026-001" fontSize="10" />);
+
+    expect(html).toContain("HUSUSİ ŞARTLAR");
+    expect(html).toContain("Hususi şartlar kira sözleşmesinin ayrılmaz bir parçasıdır.");
+    expect(html.match(/<li>/g)).toHaveLength(22);
+    expect(html).toContain("Aylık kira bedeli net 40.000 ₺&#x27;dır.");
+    expect(html).toContain("Ödenmeyen, eksik ödenen veya geç ödenen kira bedelleri için aylık %5 faiz uygulanır.");
+    expect(html).toContain("Çankaya Mahkemeleri ve İcra Daireleri yetkilidir.");
+    expect(html).toContain("22 hususi şarttan ibaret olup, 2026-08-23 tarihinde Ankara&#x27;da");
+  });
+
   it("keeps the same non-signature trace on rental appendices", () => {
     const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={details} contractNo="KIR-2026-001" fontSize="10" />);
     expect(html).not.toContain("DÜZENLEYEN DANIŞMAN");

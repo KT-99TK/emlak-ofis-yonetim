@@ -4,6 +4,7 @@
 
 - [x] Kullanıcının paylaştığı son kira sözleşmesi hususi şart metnini, mevcut form alanları ve offline snapshot akışı korunarak A4 kira belgesine uygula ve render testleriyle doğrula
 - [x] Yalnız konut kira sözleşmesi hususi şartlarını güncelle; işyeri kira sözleşmesi şablonunu ve işleyişini değiştirmeden koru
+- [x] Kira sözleşmesi arayüzü doğrulamalarında kırılgan kaynak metni denetimlerini anlamlı render davranışı testleriyle güçlendir
 
 - [x] 27.08.2026 temiz online başlangıcıyla 21 aktif kira özetini kontrollü Excel önizlemesi ve manager onayıyla aktar; aynı malike ait çoklu taşınmazı kısa konum bilgisiyle ayır ve IP1/KT1 sorumluluğuna bağla
 - [x] Broker manager için danışman bazlı aktif kiralama dağılımını gerçek merkezi kayıttan üreten, müşteri/telefon bilgisi göstermeyen ve boş durumunu destekleyen grafik ekle
