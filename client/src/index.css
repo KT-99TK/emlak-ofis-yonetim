@@ -166,23 +166,6 @@ button:active { transform: scale(.98); }
   border-bottom: 1px solid #e5ede8;
   background: linear-gradient(90deg, rgba(246,250,247,.95), rgba(255,255,255,.45));
 }
-@media (min-width: 640px) {
-  .offline-rental-contract-workspace section > .grid:has(input[placeholder="DASK poliçe numarasını yazın"]) > :nth-child(2) {
-    grid-column: 1 / 2 !important;
-    grid-row: 2;
-  }
-  .offline-rental-contract-workspace section > .grid:has(input[placeholder="DASK poliçe numarasını yazın"]) > :nth-child(5) {
-    grid-column: 2;
-    grid-row: 2;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-  .offline-rental-contract-workspace section > .grid:has(input[placeholder="DASK poliçe numarasını yazın"]) > :nth-child(5) > label {
-    color: #56635f;
-  }
-}
 .evacuation-commitment-document > h3 { display: none; }
 .evacuation-commitment-parties { margin: 0; border-top: 1px solid #b6b9b5; border-bottom: 1px solid #b6b9b5; }
 .evacuation-commitment-parties > div { display: grid; grid-template-columns: minmax(190px, 34%) minmax(0, 1fr); border-bottom: 1px solid #c9ccca; }

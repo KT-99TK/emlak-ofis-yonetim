@@ -85,12 +85,15 @@ describe("workspace content layout", () => {
     expect(rentalPage).toContain("Konut veya işyeri türünü seçtikten sonra");
   });
 
-  it("keeps the DASK policy input in the same plain field rhythm as the property address", () => {
-    const css = projectFile("client/src/index.css");
+  it("keeps the DASK policy input with the property address in the shared property detail group", () => {
+    const rentalPage = projectFile("client/src/pages/OfflineRentalContracts.tsx");
 
-    expect(css).toContain('input[placeholder="DASK poliçe numarasını yazın"]) > :nth-child(5) {');
-    expect(css).toContain("padding: 0;");
-    expect(css).toContain("background: transparent;");
+    expect(rentalPage).toContain("export function PropertyAddressDaskFields");
+    expect(rentalPage).toContain("propertyAddress={details.propertyAddress}");
+    expect(rentalPage).toContain("daskPolicyNo={details.daskPolicyNo}");
+    expect(rentalPage).toContain('onChange("propertyAddress", event.target.value)');
+    expect(rentalPage).toContain('onChange("daskPolicyNo", event.target.value)');
+    expect(rentalPage).not.toContain("border-[#b8d0c6]");
   });
 
   it("keeps customer-facing rental preview notes visually quiet until the document is assigned", () => {

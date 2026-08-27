@@ -31,6 +31,8 @@ describe("application print preview", () => {
     expect(rental).toContain('{ kind: "return", label: "Teslim Alma Formu" }');
     expect(rental).toContain('{ kind: "fixtures", label: "Demirbaş Listesi" }');
     expect(rental).toContain('onClick={() => printDocument(option.kind)}');
-    expect(rental).toContain('screenVisible={printMode === "package" ? details.appendixSelection[option.kind] : printMode === option.kind}');
+    expect(rental).toMatch(
+      /screenVisible=\{\s*printMode === "package"\s*\? details\.appendixSelection\[option\.kind\]\s*:\s*printMode === option\.kind\s*\}/
+    );
   });
 });

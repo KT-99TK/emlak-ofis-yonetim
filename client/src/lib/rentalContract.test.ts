@@ -30,7 +30,8 @@ describe("offline rental contract calculations", () => {
     expect(formatWholeRentalAmount("1250000")).toBe("1.250.000");
     expect(renderRentalContract(details)).toContain("KONUT KİRA SÖZLEŞMESİ");
     expect(renderRentalContract(details)).toContain("Ayşe Malik");
-    expect(renderRentalContract(details)).toContain("SÖZLEŞME KOŞULLARI");
+    expect(renderRentalContract(details)).toContain("HUSUSİ ŞARTLAR");
+    expect(renderRentalContract(details)).toContain("Hususi şartlar kira sözleşmesinin ayrılmaz bir parçasıdır.");
     expect(renderRentalContract(details)).toContain("DASK poliçe no: DASK-2026-1881");
   });
 
@@ -61,5 +62,38 @@ describe("offline rental contract calculations", () => {
     expect(conditions[0]).toContain("KİRA SÜRESİ");
     expect(conditions.some((condition) => condition.includes("KEFALET"))).toBe(true);
     expect(rentalContractConditions({ ...commercial, hasGuarantor: false }, "2027-08-23").some((condition) => condition.includes("KEFALET"))).toBe(false);
+  });
+
+  it("uses the supplied 22-item hususi şart set only for residential contracts", () => {
+    const residential = {
+      ...emptyRentalDetails(),
+      useType: "residential" as const,
+      monthlyRent: "40000",
+      deposit: "850",
+      paymentDay: "5",
+      durationMonths: "12",
+      startDate: "2026-08-03",
+      documentPlace: "Ankara",
+      courtCity: "Çankaya",
+    };
+    const conditions = rentalContractConditions(residential, "2027-08-03");
+
+    expect(conditions).toHaveLength(22);
+    expect(conditions[0]).toContain("Mecur, Kiracı'ya sağlam, tam ve kullanılmaya elverişli şekilde teslim edilmiştir.");
+    expect(conditions[3]).toContain("40.000 ₺");
+    expect(conditions[3]).toContain("her ayın en geç 5. günü");
+    expect(conditions[4]).toContain("aylık %5 faiz uygulanır");
+    expect(conditions[6]).toContain("850 ₺ sözleşme tarihinde nakit olarak öder");
+    expect(conditions[10]).toContain("Kira süresi 12 ay olup");
+    expect(conditions[18]).toContain("Çankaya Mahkemeleri ve İcra Daireleri yetkilidir");
+    expect(conditions[21]).toContain("22 hususi şarttan ibaret olup, 2026-08-03 tarihinde Ankara'da");
+    expect(conditions.join(" ")).not.toContain("turizm amaçlı");
+
+    const commercial = rentalContractConditions(
+      { ...residential, useType: "commercial" as const },
+      "2027-08-03"
+    );
+    expect(commercial[0]).toContain("KİRA SÜRESİ");
+    expect(commercial.join(" ")).not.toContain("aylık %5 faiz uygulanır");
   });
 });

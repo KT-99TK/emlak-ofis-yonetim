@@ -169,7 +169,7 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     `Elektrik / su / doğalgaz sayaç no: ${value(details.electricityMeterNo)} / ${value(details.waterMeterNo)} / ${value(details.naturalGasMeterNo)}`,
     `DASK poliçe no: ${value(details.daskPolicyNo)} | Sayaç / abonelik notu: ${value(details.meterNotes)}`,
     details.hasGuarantor ? "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Kefil imza: ____________________" : "Kiraya Veren imza: ____________________    Kiracı imza: ____________________",
-    "", "SÖZLEŞME KOŞULLARI",
+    "", "HUSUSİ ŞARTLAR", "Hususi şartlar kira sözleşmesinin ayrılmaz bir parçasıdır.",
     ...rentalContractConditions(details, summary.endDate).map((condition, index) => `${index + 1}. ${condition}`),
     "", "Bu taslak offline cihazda oluşturulmuştur. Aktifleştirme, owner approval ve imza kontrolünden sonra gerçekleştirilmelidir.",
   ].join("\n");
