@@ -11,7 +11,7 @@ describe("MobileCompanion customer digital archive", () => {
     expect(source).toContain("Geçmiş PDF arşive ekle");
     expect(source).toContain('document.category === "activeSigned"');
     expect(source).toContain("Yalnız bitmiş/geçmiş işlemler eklenir");
-    expect(source).toContain("Silinemez arşiv");
+    expect(source).toMatch(/Silinemez\s+arşiv/);
     expect(source).toContain("documents.shareIntent.useMutation");
     expect(source).toContain("Alıcı bilgisi sistemde saklanmaz");
     expect(source).toContain("navigator.share(shareData)");
