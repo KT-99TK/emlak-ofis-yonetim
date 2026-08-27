@@ -48,6 +48,13 @@ type TaxInput = {
   expenseMethod: RentalExpenseMethod;
   actualExpenseTotal: string;
 };
+const TAX_YEAR = 2026;
+const defaultTaxInput = (): TaxInput => ({
+  ownershipSharePercent: "100",
+  residentialExemptionEligible: false,
+  expenseMethod: "lump_sum",
+  actualExpenseTotal: "0",
+});
 
 function clean(value: unknown) {
   return String(value ?? "").trim();
@@ -344,6 +351,9 @@ export default function ActiveRentalSummaries() {
   const team = trpc.team.list.useQuery(undefined, { enabled: isManager });
   const summaries = trpc.activeRentals.list.useQuery();
   const tasks = trpc.activeRentals.serviceTasks.list.useQuery();
+  const taxProfiles = trpc.activeRentals.rentalIncomeTaxProfiles.list.useQuery({
+    taxYear: TAX_YEAR,
+  });
   const [parsed, setParsed] = useState<ParsedWorkbook | null>(null);
   const [message, setMessage] = useState("");
   const [taxInputs, setTaxInputs] = useState<Record<number, TaxInput>>({});
@@ -409,6 +419,40 @@ export default function ActiveRentalSummaries() {
       },
       onError: error => setMessage(error.message),
     });
+  const saveTaxProfileMutation =
+    trpc.activeRentals.rentalIncomeTaxProfiles.save.useMutation({
+      onSuccess: (_profile, variables) => {
+        setTaxInputs(current => {
+          const next = { ...current };
+          delete next[variables.clientId];
+          return next;
+        });
+        setMessage(
+          `${TAX_YEAR} kira geliri vergisi ön bilgi parametreleri kaydedildi; resmî beyan veya tahakkuk oluşturulmadı.`
+        );
+        void utils.activeRentals.rentalIncomeTaxProfiles.list.invalidate({
+          taxYear: TAX_YEAR,
+        });
+      },
+      onError: error => setMessage(error.message),
+    });
+  const savedTaxInputs = useMemo(
+    () =>
+      new Map(
+        (taxProfiles.data ?? []).map(profile => [
+          profile.clientId,
+          {
+            ownershipSharePercent: String(profile.ownershipSharePercent),
+            residentialExemptionEligible: Boolean(
+              profile.residentialExemptionEligible
+            ),
+            expenseMethod: profile.expenseMethod as RentalExpenseMethod,
+            actualExpenseTotal: String(profile.actualExpenseTotal),
+          } satisfies TaxInput,
+        ])
+      ),
+    [taxProfiles.data]
+  );
   const taxes = useMemo(() => {
     const groups = new Map<
       number,
@@ -430,12 +474,10 @@ export default function ActiveRentalSummaries() {
       groups.set(item.clientId, group);
     });
     return Array.from(groups.values()).map(group => {
-      const input = taxInputs[group.clientId] ?? {
-        ownershipSharePercent: "100",
-        residentialExemptionEligible: false,
-        expenseMethod: "lump_sum" as const,
-        actualExpenseTotal: "",
-      };
+      const input =
+        taxInputs[group.clientId] ??
+        savedTaxInputs.get(group.clientId) ??
+        defaultTaxInput();
       return {
         ...group,
         input,
@@ -448,7 +490,7 @@ export default function ActiveRentalSummaries() {
         }),
       };
     });
-  }, [summaries.data, taxInputs]);
+  }, [summaries.data, savedTaxInputs, taxInputs]);
   const advisorDistribution = useMemo(
     () => getActiveRentalAdvisorDistribution(summaries.data ?? []),
     [summaries.data]
@@ -460,7 +502,8 @@ export default function ActiveRentalSummaries() {
     prepareMutation.isPending ||
     reviewMutation.isPending ||
     shareMutation.isPending ||
-    startRelettingMutation.isPending;
+    startRelettingMutation.isPending ||
+    saveTaxProfileMutation.isPending;
   const readWorkbook = async (file?: File) => {
     if (!file) return;
     setMessage("");
@@ -910,7 +953,8 @@ export default function ActiveRentalSummaries() {
           Aktif taşınmazların yıllıklaştırılmış kira bedelleri malik bazında
           otomatik toplanır. 2026 tarifesi üzerinden yalnız yaklaşık ön
           bilgidir; hisse, istisna ve gider yöntemi teyit edilmeden
-          kullanılmamalıdır.
+          kullanılmamalıdır. Seçimler yalnız bu karttaki kaydet düğmesiyle
+          merkezi profile yazılır; resmî beyan, tahakkuk veya belge üretilmez.
         </p>
         <div className="mt-4 grid gap-3 xl:grid-cols-2">
           {taxes.map(row => (
@@ -969,6 +1013,25 @@ export default function ActiveRentalSummaries() {
                     <option value="actual">Gerçek gider</option>
                   </select>
                 </label>
+                {row.input.expenseMethod === "actual" && (
+                  <label className="text-xs text-[#6f7d76] sm:col-span-2">
+                    Teyit edilen yıllık gerçek gider (₺)
+                    <input
+                      inputMode="decimal"
+                      className="mt-1 w-full rounded-md border border-[#d9e3dc] px-3 py-2"
+                      value={row.input.actualExpenseTotal}
+                      onChange={event =>
+                        setTaxInputs(current => ({
+                          ...current,
+                          [row.clientId]: {
+                            ...row.input,
+                            actualExpenseTotal: event.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </label>
+                )}
               </div>
               <label className="mt-3 flex items-center gap-2 text-xs text-[#6f7d76]">
                 <input
@@ -991,6 +1054,49 @@ export default function ActiveRentalSummaries() {
                 {money(row.estimate.residentialExemption)} · Gider:{" "}
                 {money(row.estimate.deductibleExpense)}
               </p>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[11px] text-[#718079]">
+                  {taxProfiles.isLoading
+                    ? "Kaydedilmiş parametreler yükleniyor…"
+                    : taxProfiles.isError
+                      ? "Kaydedilmiş parametreler yüklenemedi; mevcut merkezi kaydı korumak için kayıt kapalı"
+                    : taxInputs[row.clientId]
+                      ? "Kaydedilmemiş değişiklik var"
+                      : savedTaxInputs.has(row.clientId)
+                        ? "Merkezi ön bilgi parametresi kullanılıyor"
+                        : "Varsayılan ön bilgi parametresi kullanılıyor"}
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={
+                    taxProfiles.isLoading ||
+                    taxProfiles.isError ||
+                    saveTaxProfileMutation.isPending ||
+                    Number(row.input.ownershipSharePercent) <= 0 ||
+                    Number(row.input.ownershipSharePercent) > 100 ||
+                    Number(row.input.actualExpenseTotal || 0) < 0
+                  }
+                  onClick={() =>
+                    saveTaxProfileMutation.mutate({
+                      clientId: row.clientId,
+                      taxYear: TAX_YEAR,
+                      ownershipSharePercent: row.input.ownershipSharePercent,
+                      residentialExemptionEligible:
+                        row.input.residentialExemptionEligible,
+                      expenseMethod: row.input.expenseMethod,
+                      actualExpenseTotal:
+                        row.input.expenseMethod === "actual"
+                          ? row.input.actualExpenseTotal || "0"
+                          : "0",
+                    })
+                  }
+                >
+                  {saveTaxProfileMutation.isPending
+                    ? "Kaydediliyor…"
+                    : "Vergi ön bilgisini kaydet"}
+                </Button>
+              </div>
             </div>
           ))}
         </div>

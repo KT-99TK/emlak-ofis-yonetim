@@ -20,6 +20,7 @@ import {
   userProfiles,
   users,
   activeRentalSummaries,
+  rentalIncomeTaxProfiles,
   rentalServiceTasks,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -1477,6 +1478,106 @@ export async function listActiveRentalSummaries(
     clientPhone: row.clientPhone,
     consultantCode: row.consultantCode,
   }));
+}
+
+export type RentalIncomeTaxProfileInput = {
+  clientId: number;
+  taxYear: number;
+  ownershipSharePercent: string;
+  residentialExemptionEligible: boolean;
+  expenseMethod: "lump_sum" | "actual";
+  actualExpenseTotal: string;
+  actorUserId: number;
+  isManager: boolean;
+  permittedUserIds: number[];
+};
+
+export async function listRentalIncomeTaxProfiles(
+  userId: number,
+  isManager: boolean,
+  permittedUserIds: number[],
+  taxYear: number
+) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({ profile: rentalIncomeTaxProfiles })
+    .from(rentalIncomeTaxProfiles)
+    .innerJoin(
+      activeRentalSummaries,
+      eq(rentalIncomeTaxProfiles.clientId, activeRentalSummaries.clientId)
+    )
+    .where(
+      and(
+        eq(rentalIncomeTaxProfiles.taxYear, taxYear),
+        activeRentalScope(userId, isManager, permittedUserIds)
+      )
+    )
+    .groupBy(rentalIncomeTaxProfiles.id)
+    .orderBy(rentalIncomeTaxProfiles.clientId);
+  return rows.map(row => row.profile);
+}
+
+export async function saveRentalIncomeTaxProfile(
+  input: RentalIncomeTaxProfileInput
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const accessibleRental = await db
+    .select({ id: activeRentalSummaries.id })
+    .from(activeRentalSummaries)
+    .where(
+      and(
+        eq(activeRentalSummaries.clientId, input.clientId),
+        activeRentalScope(
+          input.actorUserId,
+          input.isManager,
+          input.permittedUserIds
+        )
+      )
+    )
+    .limit(1);
+  if (!accessibleRental[0])
+    throw new Error("Bu malik için vergi ön bilgisi güncelleme yetkiniz bulunmuyor.");
+  await assertCentralOnlineStartAllowsRecord();
+  await db
+    .insert(rentalIncomeTaxProfiles)
+    .values({
+      clientId: input.clientId,
+      taxYear: input.taxYear,
+      ownershipSharePercent: input.ownershipSharePercent,
+      residentialExemptionEligible: input.residentialExemptionEligible ? 1 : 0,
+      expenseMethod: input.expenseMethod,
+      actualExpenseTotal: input.actualExpenseTotal,
+      updatedByUserId: input.actorUserId,
+    })
+    .onDuplicateKeyUpdate({
+      set: {
+        ownershipSharePercent: input.ownershipSharePercent,
+        residentialExemptionEligible: input.residentialExemptionEligible ? 1 : 0,
+        expenseMethod: input.expenseMethod,
+        actualExpenseTotal: input.actualExpenseTotal,
+        updatedByUserId: input.actorUserId,
+      },
+    });
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "rental_income_tax_profile_saved",
+    entityType: "client",
+    entityId: input.clientId,
+    summary: `${input.taxYear} kira geliri vergisi ön bilgi parametreleri güncellendi; resmî beyan veya tahakkuk değildir.`,
+  });
+  const rows = await db
+    .select()
+    .from(rentalIncomeTaxProfiles)
+    .where(
+      and(
+        eq(rentalIncomeTaxProfiles.clientId, input.clientId),
+        eq(rentalIncomeTaxProfiles.taxYear, input.taxYear)
+      )
+    )
+    .limit(1);
+  return rows[0];
 }
 
 export type ActiveRentalImportRow = {

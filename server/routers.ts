@@ -48,6 +48,7 @@ import {
   setConsultantCode,
   getActiveRentalAccess,
   listActiveRentalSummaries,
+  listRentalIncomeTaxProfiles,
   importActiveRentalSummaries,
   saveActiveRentalIncreaseReference,
   reviewActiveRentalNotice,
@@ -58,6 +59,7 @@ import {
   reviewRentalServiceTask,
   markRentalServiceTaskShared,
   startRelettingPreparation,
+  saveRentalIncomeTaxProfile,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -199,6 +201,51 @@ export const appRouter = router({
           permittedUserIds: scope.permittedUserIds,
         });
       }),
+    rentalIncomeTaxProfiles: router({
+      list: protectedProcedure
+        .input(z.object({ taxYear: z.number().int().min(2026).max(2100) }))
+        .query(async ({ ctx, input }) => {
+          const scope = await getCentralAccessScope(
+            ctx.user.id,
+            isManager(ctx.user)
+          );
+          return listRentalIncomeTaxProfiles(
+            ctx.user.id,
+            scope.isManager,
+            scope.permittedUserIds,
+            input.taxYear
+          );
+        }),
+      save: protectedProcedure
+        .input(
+          z.object({
+            clientId: z.number().int().positive(),
+            taxYear: z.number().int().min(2026).max(2100),
+            ownershipSharePercent: z
+              .string()
+              .regex(/^\d+(\.\d{1,2})?$/)
+              .refine(value => Number(value) > 0 && Number(value) <= 100),
+            residentialExemptionEligible: z.boolean(),
+            expenseMethod: z.enum(["lump_sum", "actual"]),
+            actualExpenseTotal: z
+              .string()
+              .regex(/^\d+(\.\d{1,2})?$/)
+              .refine(value => Number(value) >= 0 && Number(value) <= 99_999_999),
+          })
+        )
+        .mutation(async ({ ctx, input }) => {
+          const scope = await getCentralAccessScope(
+            ctx.user.id,
+            isManager(ctx.user)
+          );
+          return saveRentalIncomeTaxProfile({
+            ...input,
+            actorUserId: ctx.user.id,
+            isManager: scope.isManager,
+            permittedUserIds: scope.permittedUserIds,
+          });
+        }),
+    }),
     serviceTasks: router({
       list: protectedProcedure.query(async ({ ctx }) => {
         const scope = await getCentralAccessScope(

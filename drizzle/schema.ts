@@ -4,6 +4,7 @@ import {
   mysqlTable,
   text,
   timestamp,
+  uniqueIndex,
   varchar,
   decimal,
 } from "drizzle-orm/mysql-core";
@@ -379,6 +380,43 @@ export const rentalServiceTasks = mysqlTable("rentalServiceTasks", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+/** Malik tarafından teyit edilmesi gereken, yalnız yaklaşık kira geliri vergisi ön bilgi parametreleri. */
+export const rentalIncomeTaxProfiles = mysqlTable(
+  "rentalIncomeTaxProfiles",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    clientId: int("clientId").notNull(),
+    taxYear: int("taxYear").notNull(),
+    ownershipSharePercent: decimal("ownershipSharePercent", {
+      precision: 5,
+      scale: 2,
+    })
+      .default("100")
+      .notNull(),
+    residentialExemptionEligible: int("residentialExemptionEligible")
+      .default(0)
+      .notNull(),
+    expenseMethod: mysqlEnum("expenseMethod", ["lump_sum", "actual"])
+      .default("lump_sum")
+      .notNull(),
+    actualExpenseTotal: decimal("actualExpenseTotal", {
+      precision: 14,
+      scale: 2,
+    })
+      .default("0")
+      .notNull(),
+    updatedByUserId: int("updatedByUserId").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("rentalIncomeTaxProfiles_client_year_unique").on(
+      table.clientId,
+      table.taxYear
+    ),
+  ]
+);
 
 export const reminderPreferences = mysqlTable("reminderPreferences", {
   id: int("id").autoincrement().primaryKey(),

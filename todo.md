@@ -16,6 +16,7 @@
 - [x] Mobil ve broker hizmet görevi sorguları için loading/error durumlarını gerçek boş görev listesinden ayır; hata anında yanıltıcı sıfır gösterme
 - [x] Mobil danışman ve broker manager görev görünümlerini render düzeyinde; boş, hata ve gizlilik durumlarıyla doğrula
 - [x] Hizmet görevi özeti sorgusu başarısız olduğunda görünür yenileme yönlendirmesi göster
+- [x] Kira geliri vergisi ön bilgi ekranındaki malik hisse ve gider parametrelerini kalıcı merkezi kayda al; yalnız yaklaşık ön bilgi ve resmî beyan dışı sınırını koru
 - [x] Seçilen çalışma: danışman kısa kodunu büyük harfle IP1, KT1, CT1 ve çakışmada CT2/CT3 biçiminde doğrula; merkezi sözleşme numarası önerisini KOD-001 standardına bağla
 - [x] İncelenecek HTML örnek paketini projeye al ve sayfa, navigasyon, iş akışı, arayüz kalıpları ve veri alanları envanterini çıkar
 - [x] Broker manager ve consultant rolleri için hiyerarşi, görünürlük ve işlem yetki matrisi oluştur
