@@ -72,8 +72,8 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] OfflineWorkspace ekranında kayıt türü seçicisinin dar görünüm yerleşimini ve erişilebilirliğini gerçek UI testiyle doğrula
 - [x] Source-inspection yerine viewport/dar genişlik koşulunda kullanıcıya görünen DOM ve sınıf davranışını assert eden test ekle; ardından bu maddeyi kapat
 - [x] OnlineStart geçiş tarihi sunumunu `formatTurkishDate` ile GG.AA.YYYY biçimine taşı ve hedefli testle doğrula; işlem saklama biçimi ISO olarak korundu
-- [ ] İşlem kapanışı ekranında kullanıcıya görünen tarihlerin GG.AA.YYYY renderını gerçek render/UI testiyle doğrula
-- [ ] Rapor/vade ekranlarında kullanıcıya görünen tarih özetlerini GG.AA.YYYY olarak assert eden gerçek render testleri ekle
+- [x] İşlem kapanışı ekranında kullanıcıya görünen tarihlerin GG.AA.YYYY renderını gerçek render/UI testiyle doğrula
+- [x] Rapor/vade ekranlarında kullanıcıya görünen tarih özetlerini GG.AA.YYYY olarak assert eden gerçek render testleri ekle
 - [x] Manifest/yedek önizleme akışında görünen tarihlerin GG.AA.YYYY SS:DD formatında render edildiğini doğrudan test et
-- [ ] Source-inspection testlerini destekleyici kanıt olarak bırak; üst tarih standardı maddesini ekran/akış render testleri tamamlanınca yeniden değerlendir
+- [x] Source-inspection testlerini destekleyici kanıt olarak bırak; rapor/vade, işlem kapanışı ve manifest/yedek önizleme render testleri tamamlandıktan sonra üst tarih standardını yeniden değerlendir
 - [x] Obligations vade raporu ve kartında `30.11.2026` gibi kullanıcıya görünen tarihlerin Türkçe formatta render edildiğini jsdom testiyle doğrula
