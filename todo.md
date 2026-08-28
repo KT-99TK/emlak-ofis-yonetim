@@ -677,3 +677,4 @@
 - [x] Yeni Windows ZIP/checkpoint üretmeden mevcut offline kabul başlıklarını teknik kanıt, test kapsamı ve kullanıcı Windows ekran kontrolü gereksinimine göre sadeleştir; yalnız canlı kullanımı engelleyen açıkları önceliklendir
 - [x] Merkezi ana ekranda bağlantı hatası veya başlangıç ayarı yokken örnek/sahte KPI toplamları gösterme; bunun yerine açık durum ve boş değer görünümü kullan
 - [x] Kullanıcının açık onayıyla güncel Windows kabul sınırını içeren kaynak ZIP paketini oluştur: test/build sonrası yalnız gerekli kaynakları dahil et, `node_modules`, `dist`, `release`, kullanıcı verisi, IndexedDB, yedek ve geçici artıkları dışarıda bırak; bütünlüğünü doğrula ve kısa Windows kontrol sırasıyla teslim et
+- [x] Kullanıcı menü düzenini inceleyebilsin diye mevcut menü yapısını test/build sonrası yeni sürüm checkpoint’i olarak hazırla
