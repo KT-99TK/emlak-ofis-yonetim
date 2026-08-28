@@ -8,6 +8,8 @@ const value = (text: string) => text.trim() || "................................
 const money = (amount: number) => amount ? `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(amount)} ₺` : "................................";
 const consultantInitials = (name: string) => name.trim().split(/\s+/).filter(Boolean).map((part) => part.slice(0, 1).toLocaleUpperCase("tr-TR")).join("") || "—";
 const appendixLabel = { evacuation: "Tahliye Taahhütnamesi", handover: "Teslim Etme Formu", return: "Teslim Alma Formu", fixtures: "Demirbaş Listesi" } as const;
+const statusLabel = (value: boolean | "present" | "absent" | "yes" | "no" | "unknown") => value === true || value === "present" || value === "yes" ? "Evet / Var" : value === false || value === "absent" || value === "no" ? "Hayır / Yok" : "Belirtilmedi";
+const joined = (...values: string[]) => values.map(value).filter(Boolean).join(" · ");
 
 function Row({ firstLabel, firstValue, secondLabel, secondValue }: { firstLabel: string; firstValue: string; secondLabel?: string; secondValue?: string }) {
   return <tr><th scope="row">{firstLabel}</th><td>{value(firstValue)}</td>{secondLabel && <><th scope="row">{secondLabel}</th><td>{value(secondValue ?? "")}</td></>}</tr>;
@@ -31,17 +33,26 @@ export default function RentalContractDocument({ details, contractNo, fontSize }
 
     <section className="authority-document-section"><h3>KİRAYA VEREN VE KİRACI BİLGİLERİ</h3><table><tbody>
       <Row firstLabel="Kiraya Veren" firstValue={details.ownerName} secondLabel="T.C. Kimlik No / VKN" secondValue={details.ownerIdentity} />
-      <Row firstLabel="Kiraya Veren Adresi" firstValue={details.ownerAddress} secondLabel="Telefon" secondValue={details.ownerPhone} />
+      <Row firstLabel="Kiraya Veren Adresi" firstValue={details.ownerAddress} secondLabel="Telefon / E-posta" secondValue={joined(details.ownerPhone, details.ownerEmail)} />
       <Row firstLabel="Kiracı" firstValue={details.tenantName} secondLabel="T.C. Kimlik No / VKN" secondValue={details.tenantIdentity} />
-      <Row firstLabel="Kiracı Adresi" firstValue={details.tenantAddress} secondLabel="Telefon" secondValue={details.tenantPhone} />
+      <Row firstLabel="Kiracı Adresi" firstValue={details.tenantAddress} secondLabel="Telefon / E-posta" secondValue={joined(details.tenantPhone, details.tenantEmail)} />
+      {details.useType === "commercial" && <>
+        <Row firstLabel="Kiraya Veren KDV Mükellefi" firstValue={statusLabel(details.ownerVatRegistered)} secondLabel="Kiracı Vergi Dairesi" secondValue={details.tenantTaxOffice} />
+        <Row firstLabel="Kiracı Stopaj Mükellefi" firstValue={statusLabel(details.tenantWithholdingRegistered)} secondLabel="KDV Durumu" secondValue={details.kdvIncluded ? "KDV dâhil" : "KDV hariç"} />
+      </>}
     </tbody></table></section>
 
     <section className="authority-document-section"><h3>TAŞINMAZ, BEDEL VE SÜRE BİLGİLERİ</h3><table><tbody>
       <Row firstLabel="Mahalle / Yerleşim" firstValue={details.propertyNeighborhood} secondLabel="Niteliği / Cinsi" secondValue={details.propertyType} />
       <Row firstLabel="Taşınmaz Açık Adresi" firstValue={details.propertyAddress} secondLabel="DASK Poliçe No" secondValue={details.daskPolicyNo} />
-      <Row firstLabel="Ada / Parsel / B.B." firstValue={details.parcelInfo} secondLabel="Kullanım Amacı" secondValue={details.usagePurpose} />
-      <Row firstLabel={details.useType === "commercial" ? "KDV Durumu" : "İkamet Edecek Kişi"} firstValue={details.useType === "commercial" ? (details.kdvIncluded ? "KDV dâhil" : "KDV hariç") : details.residentsCount} secondLabel="Aylık Kira Bedeli" secondValue={money(summary.monthlyRent)} />
+      <Row firstLabel="Ada / Parsel" firstValue={details.parcelInfo} secondLabel={details.useType === "commercial" ? "Bağımsız Bölüm No" : "Kullanım Amacı"} secondValue={details.useType === "commercial" ? details.independentSectionNo : details.usagePurpose} />
+      {details.useType === "commercial" && <>
+        <Row firstLabel="Tapu Kaydındaki Niteliği" firstValue={details.propertyType} secondLabel="Faaliyet Konusu" secondValue={details.usagePurpose} />
+        <Row firstLabel="Yapı Kullanma İzni (İskân)" firstValue={statusLabel(details.occupancyPermit)} secondLabel="Kat Mülkiyetine Tabi mi?" secondValue={statusLabel(details.condominiumStatus)} />
+      </>}
+      <Row firstLabel={details.useType === "commercial" ? "KDV Durumu" : "İkamet Edecek Kişi"} firstValue={details.useType === "commercial" ? (details.kdvIncluded ? "KDV dâhil" : "KDV hariç") : details.residentsCount} secondLabel={details.useType === "commercial" ? "Aylık Net Kira Bedeli" : "Aylık Kira Bedeli"} secondValue={money(summary.monthlyRent)} />
       <Row firstLabel="Depozito" firstValue={money(Number(details.deposit.replace(/\./g, "").replace(",", ".")))} secondLabel="İlk Kira Son Ödeme Tarihi" secondValue={`${formatTurkishDate(summary.firstDueDate)} (en geç 5 gün)`} />
+      {details.useType === "commercial" && (details.proratedStartDate || details.proratedEndDate || details.proratedDays || details.proratedAmount) && <FullWidthRow label="Kıst Dönem" text={joined(details.proratedStartDate && formatTurkishDate(details.proratedStartDate), details.proratedEndDate && formatTurkishDate(details.proratedEndDate), details.proratedDays && `${details.proratedDays} gün`, details.proratedAmount && `${details.proratedAmount} ₺`)} />}
       <Row firstLabel="Sözleşme Süresi" firstValue={`${summary.durationMonths} ay`} secondLabel="Sonraki Ödeme Günü / IBAN" secondValue={`Her ayın ${summary.paymentDay}. günü · ${value(details.iban)}`} />
       <Row firstLabel="Başlangıç Tarihi" firstValue={formatTurkishDate(details.startDate)} secondLabel="Bitiş / Tahliye Uyarısı" secondValue={`${formatTurkishDate(summary.endDate)} / ${formatTurkishDate(summary.noticeDate)}`} />
     </tbody></table></section>

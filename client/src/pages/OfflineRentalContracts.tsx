@@ -72,6 +72,9 @@ const appendixOptions: Array<{ kind: RentalAppendixKind; label: string }> = [
 
 type PrintMode = "package" | "contract" | RentalAppendixKind;
 
+export const rentalMonthlyRentLabel = (useType: OfflineRentalDetails["useType"]) =>
+  useType === "commercial" ? "Aylık net kira bedeli (₺)" : "Aylık kira (₺)";
+
 export function PropertyAddressDaskFields({
   propertyAddress,
   daskPolicyNo,
@@ -168,7 +171,7 @@ export default function OfflineRentalContracts() {
       current => ({ ...current, [key]: value }) as OfflineRentalDetails
     );
   const updateMoney = (
-    key: "monthlyRent" | "deposit" | "guarantorLimit",
+    key: "monthlyRent" | "deposit" | "guarantorLimit" | "proratedAmount",
     value: string
   ) => update(key, formatWholeRentalAmount(value));
   const updateAppendix = (kind: RentalAppendixKind, checked: boolean) =>
@@ -586,6 +589,68 @@ export default function OfflineRentalContracts() {
                         />
                       </div>
                     ))}
+                    {details.useType === "commercial" && (
+                      <>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            Kiraya veren e-posta
+                          </label>
+                          <Input
+                            value={details.ownerEmail}
+                            onChange={event => update("ownerEmail", event.target.value)}
+                            placeholder="E-posta adresi"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            KDV mükellefi mi?
+                          </label>
+                          <Select
+                            value={details.ownerVatRegistered ? "yes" : "no"}
+                            onValueChange={value => update("ownerVatRegistered", value === "yes")}
+                          >
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="yes">Evet</SelectItem>
+                              <SelectItem value="no">Hayır</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            Kiracı e-posta
+                          </label>
+                          <Input
+                            value={details.tenantEmail}
+                            onChange={event => update("tenantEmail", event.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            Vergi dairesi
+                          </label>
+                          <Input
+                            value={details.tenantTaxOffice}
+                            onChange={event => update("tenantTaxOffice", event.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            Stopaj mükellefi mi?
+                          </label>
+                          <Select
+                            value={details.tenantWithholdingRegistered ? "yes" : "no"}
+                            onValueChange={value => update("tenantWithholdingRegistered", value === "yes")}
+                          >
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="yes">Evet</SelectItem>
+                              <SelectItem value="no">Hayır</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </section>
                 <section>
@@ -606,7 +671,7 @@ export default function OfflineRentalContracts() {
                     />
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
-                        Nitelik / cins
+                        {details.useType === "commercial" ? "Tapu kaydındaki niteliği" : "Nitelik / cins"}
                       </label>
                       <Input
                         value={details.propertyType}
@@ -617,7 +682,7 @@ export default function OfflineRentalContracts() {
                     </div>
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
-                        Ada / parsel / bağımsız bölüm
+                        {details.useType === "commercial" ? "Ada / parsel" : "Ada / parsel / bağımsız bölüm"}
                       </label>
                       <Input
                         value={details.parcelInfo}
@@ -626,6 +691,51 @@ export default function OfflineRentalContracts() {
                         }
                       />
                     </div>
+                    {details.useType === "commercial" && (
+                      <>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            Bağımsız bölüm no
+                          </label>
+                          <Input
+                            value={details.independentSectionNo}
+                            onChange={event => update("independentSectionNo", event.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            Yapı kullanma izni (iskân)
+                          </label>
+                          <Select
+                            value={details.occupancyPermit}
+                            onValueChange={value => update("occupancyPermit", value)}
+                          >
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="present">Var</SelectItem>
+                              <SelectItem value="absent">Yok</SelectItem>
+                              <SelectItem value="unknown">Belirtilmedi</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
+                            Kat mülkiyetine tabi mi?
+                          </label>
+                          <Select
+                            value={details.condominiumStatus}
+                            onValueChange={value => update("condominiumStatus", value)}
+                          >
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="yes">Evet</SelectItem>
+                              <SelectItem value="no">Hayır</SelectItem>
+                              <SelectItem value="unknown">Belirtilmedi</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
                         Elektrik sayaç numarası
@@ -687,7 +797,7 @@ export default function OfflineRentalContracts() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
-                        Aylık kira (₺)
+                        {rentalMonthlyRentLabel(details.useType)}
                       </label>
                       <Input
                         inputMode="numeric"
@@ -709,6 +819,35 @@ export default function OfflineRentalContracts() {
                         }
                       />
                     </div>
+                    {details.useType === "commercial" && (
+                      <div className="sm:col-span-2 rounded-xl border border-[#dbe5dd] bg-[#f8fbf8] p-3">
+                        <h3 className="mb-3 text-xs font-semibold text-[#56635f]">Kıst dönem (varsa)</h3>
+                        <div className="grid gap-3 sm:grid-cols-4">
+                          <div>
+                            <label className="mb-1.5 block text-[11px] font-semibold text-[#56635f]">Başlangıç</label>
+                            <TurkishDateInput
+                              value={details.proratedStartDate}
+                              onValueChange={value => update("proratedStartDate", value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-[11px] font-semibold text-[#56635f]">Bitiş</label>
+                            <TurkishDateInput
+                              value={details.proratedEndDate}
+                              onValueChange={value => update("proratedEndDate", value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-[11px] font-semibold text-[#56635f]">Gün sayısı</label>
+                            <Input inputMode="numeric" value={details.proratedDays} onChange={event => update("proratedDays", event.target.value)} />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-[11px] font-semibold text-[#56635f]">Kıst dönem bedeli (₺)</label>
+                            <Input inputMode="numeric" value={details.proratedAmount} onChange={event => updateMoney("proratedAmount", event.target.value)} />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
                         Ödeme günü (sonraki aylar)

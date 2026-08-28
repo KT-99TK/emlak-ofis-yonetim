@@ -56,12 +56,19 @@ describe("offline rental contract calculations", () => {
     expect(renderRentalContract(details)).toContain("Vestel klima | 2 | Çalışır, temiz");
   });
 
-  it("uses a distinct commercial conditions set and adds guarantor condition only when selected", () => {
+  it("uses the new commercial conditions set without adding the removed guarantor clause", () => {
     const commercial = { ...emptyRentalDetails(), useType: "commercial" as const, hasGuarantor: true, guarantorName: "Kefil Kişi", monthlyRent: "90000" };
     const conditions = rentalContractConditions(commercial, "2027-08-23");
-    expect(conditions[0]).toContain("KİRA SÜRESİ");
-    expect(conditions.some((condition) => condition.includes("KEFALET"))).toBe(true);
-    expect(rentalContractConditions({ ...commercial, hasGuarantor: false }, "2027-08-23").some((condition) => condition.includes("KEFALET"))).toBe(false);
+    expect(conditions[0]).toContain("1. KİRA SÜRESİ VE YENİLEME");
+    expect(conditions).toHaveLength(21);
+    expect(conditions.some((condition) => condition.includes("KEFALET"))).toBe(false);
+    expect(conditions.some((condition) => condition.includes("Aylık net kira bedeli"))).toBe(true);
+
+    const residential = { ...emptyRentalDetails(), useType: "residential" as const, hasGuarantor: true, guarantorName: "Konut Kefil", monthlyRent: "40000" };
+    const residentialConditions = rentalContractConditions(residential, "2027-08-23");
+    expect(residentialConditions).toHaveLength(22);
+    expect(residentialConditions.some((condition) => condition.includes("Aylık kira bedeli net"))).toBe(true);
+    expect(residentialConditions).not.toEqual(conditions);
   });
 
   it("uses the supplied 22-item hususi şart set only for residential contracts", () => {

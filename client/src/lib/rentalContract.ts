@@ -24,10 +24,15 @@ export type OfflineRentalDetails = {
   ownerName: string;
   ownerIdentity: string;
   ownerPhone: string;
+  ownerEmail: string;
   ownerAddress: string;
+  ownerVatRegistered: boolean;
   tenantName: string;
   tenantIdentity: string;
   tenantPhone: string;
+  tenantEmail: string;
+  tenantTaxOffice: string;
+  tenantWithholdingRegistered: boolean;
   tenantAddress: string;
   guarantorName: string;
   guarantorIdentity: string;
@@ -40,6 +45,9 @@ export type OfflineRentalDetails = {
   propertyAddress: string;
   propertyType: string;
   parcelInfo: string;
+  independentSectionNo: string;
+  occupancyPermit: "present" | "absent" | "unknown";
+  condominiumStatus: "yes" | "no" | "unknown";
   fixtures: string;
   /** v3 snapshot’larında demirbaşlar satır bazlı tutulur; v1/v2 `fixtures` metni okunmaya devam eder. */
   fixtureItems?: RentalFixtureItem[];
@@ -50,6 +58,10 @@ export type OfflineRentalDetails = {
   meterNotes: string;
   monthlyRent: string;
   deposit: string;
+  proratedStartDate: string;
+  proratedEndDate: string;
+  proratedDays: string;
+  proratedAmount: string;
   currency: "TRY";
   vatCollection: "separate" | "included";
   paymentDay: string;
@@ -78,9 +90,9 @@ export type OfflineRentalDetails = {
 export const RENTAL_APPENDIX_TEMPLATE_VERSION = "global1881-rental-appendices-2026-08-v4";
 
 export const emptyRentalDetails = (): OfflineRentalDetails => ({
-  useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerAddress: "",
-  tenantName: "", tenantIdentity: "", tenantPhone: "", tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false, signedByParties: false, signedAt: "",
-  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], electricityMeterNo: "", waterMeterNo: "", naturalGasMeterNo: "", daskPolicyNo: "", meterNotes: "", monthlyRent: "", deposit: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", firstPaymentDueDate: addDays(new Date().toISOString().slice(0, 10), 5), appendixSelection: { evacuation: false, handover: true, return: false, fixtures: true }, iban: "",
+  useType: "residential", ownerName: "", ownerIdentity: "", ownerPhone: "", ownerEmail: "", ownerAddress: "", ownerVatRegistered: false,
+  tenantName: "", tenantIdentity: "", tenantPhone: "", tenantEmail: "", tenantTaxOffice: "", tenantWithholdingRegistered: false, tenantAddress: "", guarantorName: "", guarantorIdentity: "", guarantorLimit: "", hasGuarantor: false, signedByParties: false, signedAt: "",
+  propertyNeighborhood: "", propertyAddress: "", propertyType: "", parcelInfo: "", independentSectionNo: "", occupancyPermit: "unknown", condominiumStatus: "unknown", fixtures: "", fixtureItems: [createRentalFixtureItem(), createRentalFixtureItem(), createRentalFixtureItem()], electricityMeterNo: "", waterMeterNo: "", naturalGasMeterNo: "", daskPolicyNo: "", meterNotes: "", monthlyRent: "", deposit: "", proratedStartDate: "", proratedEndDate: "", proratedDays: "", proratedAmount: "", currency: "TRY", vatCollection: "separate", paymentDay: "1", firstPaymentDueDate: addDays(new Date().toISOString().slice(0, 10), 5), appendixSelection: { evacuation: false, handover: true, return: false, fixtures: true }, iban: "",
   startDate: new Date().toISOString().slice(0, 10), durationMonths: "12", noticeDays: "60", kdvIncluded: false,
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
 });

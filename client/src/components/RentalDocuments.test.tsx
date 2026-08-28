@@ -29,6 +29,17 @@ describe("rental documents", () => {
     expect(html).toContain("22 hususi şarttan ibaret olup, 2026-08-23 tarihinde Ankara&#x27;da");
   });
 
+  it("renders the commercial form fields and only the net rent label", () => {
+    const html = renderToStaticMarkup(<RentalContractDocument details={{ ...details, useType: "commercial", ownerEmail: "malik@example.com", ownerVatRegistered: true, tenantEmail: "kiraci@example.com", tenantTaxOffice: "Urla", tenantWithholdingRegistered: true, propertyType: "İşyeri", parcelInfo: "12 / 4", independentSectionNo: "7", occupancyPermit: "present", condominiumStatus: "yes", usagePurpose: "Ofis", monthlyRent: "25000", proratedStartDate: "2026-08-28", proratedEndDate: "2026-08-31", proratedDays: "4", proratedAmount: "3333" }} contractNo="KIR-2026-002" fontSize="10" />);
+    expect(html).toContain("Kiraya Veren KDV Mükellefi");
+    expect(html).toContain("Kiracı Vergi Dairesi");
+    expect(html).toContain("Yapı Kullanma İzni (İskân)");
+    expect(html).toContain("Kat Mülkiyetine Tabi mi?");
+    expect(html).toContain("Aylık Net Kira Bedeli");
+    expect(html).toContain("Kıst Dönem");
+    expect(html).not.toContain("Aylık Brüt Kira Bedeli");
+  });
+
   it("keeps the same non-signature trace on rental appendices", () => {
     const html = renderToStaticMarkup(<RentalAppendixDocument kind="fixtures" details={details} contractNo="KIR-2026-001" fontSize="10" />);
     expect(html).not.toContain("DÜZENLEYEN DANIŞMAN");
