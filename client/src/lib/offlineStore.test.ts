@@ -1,7 +1,7 @@
 import { webcrypto } from "node:crypto";
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
-import { applyWithRollback, decryptBackupPayload, encryptBackupPayload, exportOfflineBackup, importOfflineBackup, listOfflineAuditEvents, mergeOfflineBackups, recordOfflineAudit, validateBackupPassword } from "./offlineStore";
+import { applyWithRollback, decryptBackupPayload, encryptBackupPayload, exportOfflineBackup, importOfflineBackup, listOfflineAuditEvents, mergeOfflineBackups, recordOfflineAudit, saveOfflineRecord, updateOfflineRecord, validateBackupPassword } from "./offlineStore";
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, "crypto", { configurable: true, value: webcrypto });
 
@@ -38,6 +38,25 @@ describe("offline encrypted backup crypto", () => {
     expect(merged.invalid).toEqual([]);
     expect(merged.manifests).toMatchObject([{ file: "merged-backup.json", recordCount: 0, checksumVerified: true, signatureVerified: true, verified: true }]);
     expect(listOfflineAuditEvents().map((event) => event.action)).toEqual(["backup-exported", "backup-verified"]);
+  });
+
+  it("reports different versions of the same record as conflicts without auto-overwriting", async () => {
+    const values = new Map<string, string>([["global1881-user-id", "manager-test"], ["global1881-offline-audit", "[]"]]);
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: { localStorage: { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); } } },
+    });
+    const original = await saveOfflineRecord({ entity: "contract", title: "Yerel test kaydı", details: "ilk sürüm", status: "draft" });
+    const olderBackup = await exportOfflineBackup("Global1881!backup");
+    await updateOfflineRecord(original, { details: "ikinci sürüm" });
+    const newerBackup = await exportOfflineBackup("Global1881!backup");
+    const merged = await mergeOfflineBackups([
+      { name: "older.json", text: () => olderBackup.text() } as File,
+      { name: "newer.json", text: () => newerBackup.text() } as File,
+    ], "Global1881!backup");
+    expect(merged.pendingRecords).toHaveLength(0);
+    expect(merged.conflicts.length).toBeGreaterThanOrEqual(1);
+    expect(merged.conflicts.some(({ local, incoming }) => local.id === original.id && local.recordVersion > incoming.recordVersion)).toBe(true);
   });
 
   it("rejects an unsupported manifest version and an invalid backup envelope", async () => {
