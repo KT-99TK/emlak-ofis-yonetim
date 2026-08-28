@@ -71,3 +71,4 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] OfflineWorkspace ekranında filtre seçicisinin dar görünümde görünür DOM davranışını gerçek render/istemci testiyle doğrula
 - [x] OfflineWorkspace ekranında kayıt türü seçicisinin dar görünüm yerleşimini ve erişilebilirliğini gerçek UI testiyle doğrula
 - [x] Source-inspection yerine viewport/dar genişlik koşulunda kullanıcıya görünen DOM ve sınıf davranışını assert eden test ekle; ardından bu maddeyi kapat
+- [x] OnlineStart geçiş tarihi sunumunu `formatTurkishDate` ile GG.AA.YYYY biçimine taşı ve hedefli testle doğrula; işlem saklama biçimi ISO olarak korundu

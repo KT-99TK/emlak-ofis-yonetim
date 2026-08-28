@@ -12,6 +12,8 @@ describe("Temiz Online Başlangıç ekranı", () => {
     expect(source).toContain("TEMİZ ONLINE BAŞLANGICI AKTİFLEŞTİR");
     expect(source).toContain("trpc.onlineStart.configure.useMutation");
     expect(source).toContain('timeZone: "Europe/Istanbul"');
+    expect(source).toContain('import { formatTurkishDate } from "@/lib/turkishDate"');
+    expect(source).toContain("formatTurkishDate(new Date(current.effectiveAt).toISOString())");
     expect(source).toContain("Devam eden aktif dosya gerekirse");
     expect(source).toContain("başlangıç özeti");
     expect(source).toContain("Eski PDF ve offline yedekler yerel geçmiş arşivinde kalır");
