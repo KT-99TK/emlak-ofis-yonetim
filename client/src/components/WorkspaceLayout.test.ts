@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import OfflineAuthorityContracts from "@/pages/OfflineAuthorityContracts";
 import OfflineRentalContracts, { PropertyAddressDaskFields } from "@/pages/OfflineRentalContracts";
+import OfflineWorkspace from "@/pages/OfflineWorkspace";
 
 const projectFile = (relativePath: string) => readFileSync(resolve(process.cwd(), relativePath), "utf8");
 
@@ -37,6 +38,22 @@ describe("workspace content layout", () => {
     expect(authorityHtml).toContain("offline-operation-aside");
     expect(rentalHtml).toContain("offline-operation-grid");
     expect(rentalHtml).toContain("offline-operation-aside");
+
+    vi.stubGlobal("window", { location: { protocol: "file:" }, localStorage: { getItem: () => "TEST-MANAGER" } });
+    const desktopWorkspaceHtml = renderToStaticMarkup(createElement(OfflineWorkspace));
+    const workspaceSource = projectFile("client/src/pages/OfflineWorkspace.tsx");
+    expect(desktopWorkspaceHtml).toContain("Bu cihazdaki kayıtlar");
+    expect(workspaceSource).toContain('value="all">Tüm offline kayıtlar');
+    expect(workspaceSource).toContain('value="evacuation">Tahliye bildirimleri');
+    expect(workspaceSource).toContain('value="ownerApproval">Mülk sahibi onayları');
+    expect(workspaceSource).toContain('value="client">Müşteri');
+    expect(workspaceSource).toContain('value="evacuation">Tahliye');
+    expect(workspaceSource).toContain("mb-4 flex flex-wrap gap-2");
+    expect(workspaceSource).toContain("w-full max-w-full sm:w-44");
+
+    vi.stubGlobal("window", { location: { protocol: "https:" }, localStorage: { getItem: () => "TEST-MANAGER" } });
+    const narrowWorkspaceHtml = renderToStaticMarkup(createElement(OfflineWorkspace));
+    expect(narrowWorkspaceHtml).toContain("Bu merkezi HTTPS kısayolu yerel veri yazmaz.");
   });
 
   it("keeps the workspace flow panel at page level rather than in the shared dashboard shell", () => {

@@ -5,7 +5,7 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 ## 1. Otomatik tamamlanabilecek teknik işler
 
 - [ ] Türkiye tarih standardının işlem kapanışı, rapor, vade ve yedek/manifest akışlarındaki eksik render/UI testlerini tamamla.
-- [ ] Yerel Çalışma Alanı filtre ve kayıt türü seçicilerinin dar görünüm davranışını istemci UI testleriyle doğrula.
+- [x] Yerel Çalışma Alanı filtre ve kayıt türü seçicilerinin dar görünüm davranışını istemci UI testleriyle doğrula.
 - [ ] Yetki/Kira çalışma ekranlarında sağ Ofis Akışı panelinin geniş/dar yerleşimini ve ortak Windows operasyon standardını toplu UI testleriyle doğrula.
 - [ ] Yeni abonelik ve DASK alanlarının mevcut birim/A4 testlerine ek olarak paket içi kabul kontrolünü tamamla.
 - [x] Şifreli yedek alma, geri yükleme öncesi doğrulama, sürümleme ve audit akışındaki gerçek teknik boşlukları incele; mevcut yedekleri değiştirmeden eksikleri tamamla.
@@ -68,3 +68,6 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] OfflineAuthorityContracts ekranında sağ Ofis Akışı panelinin DOM renderını ve dar/geniş responsive CSS yerleşimini testle doğrula
 - [x] OfflineRentalContracts ekranında sağ Ofis Akışı panelinin DOM renderını ve dar/geniş responsive CSS yerleşimini testle doğrula
 - [x] Ekran bazlı kanıtı source-inspection yerine kullanıcıya görünen DOM/yerleşim davranışını assert eden testlerle güçlendir; bağlantılı iki ekran teknik maddesini DOM + responsive CSS kapsamıyla kapat
+- [x] OfflineWorkspace ekranında filtre seçicisinin dar görünümde görünür DOM davranışını gerçek render/istemci testiyle doğrula
+- [x] OfflineWorkspace ekranında kayıt türü seçicisinin dar görünüm yerleşimini ve erişilebilirliğini gerçek UI testiyle doğrula
+- [x] Source-inspection yerine viewport/dar genişlik koşulunda kullanıcıya görünen DOM ve sınıf davranışını assert eden test ekle; ardından bu maddeyi kapat
