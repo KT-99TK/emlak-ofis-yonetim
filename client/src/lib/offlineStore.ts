@@ -43,6 +43,25 @@ export function getUserId() { return window.localStorage.getItem(USER_KEY) ?? ""
 export function setUserId(userId: string) { window.localStorage.setItem(USER_KEY, userId.trim()); }
 export function requireUserId() { const userId = getUserId().trim(); if (!userId) throw new Error("Önce manager offline kullanıcı kimliğini ayarlayın"); return userId; }
 
+export async function applyWithRollback(steps: { createSnapshot: () => Promise<void>; applyRecords: () => Promise<void>; createBackup: () => Promise<void>; restoreSnapshot: () => Promise<void> }) {
+  let snapshotCreated = false;
+  try {
+    await steps.createSnapshot();
+    snapshotCreated = true;
+    await steps.applyRecords();
+    await steps.createBackup();
+    return { success: true as const, rollbackApplied: false as const };
+  } catch (error) {
+    if (!snapshotCreated) return { success: false as const, rollbackApplied: false as const, error };
+    try {
+      await steps.restoreSnapshot();
+      return { success: false as const, rollbackApplied: true as const, error };
+    } catch (rollbackError) {
+      return { success: false as const, rollbackApplied: false as const, error, rollbackError };
+    }
+  }
+}
+
 export function recordOfflineAudit(action: OfflineAuditEvent["action"], metadata?: OfflineAuditEvent["metadata"]) {
   const event: OfflineAuditEvent = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, action, userId: getUserId(), deviceId: getDeviceId(), at: new Date().toISOString(), metadata };
   const existing = JSON.parse(window.localStorage.getItem(AUDIT_KEY) ?? "[]") as OfflineAuditEvent[];

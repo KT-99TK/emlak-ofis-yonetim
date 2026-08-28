@@ -6,8 +6,10 @@ import { Download, HardDrive, Import, Plus, RefreshCw, WifiOff } from "lucide-re
 import { useEffect, useState } from "react";
 import {
   applyOfflineRecords,
+  applyWithRollback,
   createRollbackSnapshot,
   downloadCurrentBackup,
+  restoreRollbackSnapshot,
   exportOfflineBackup,
   getDeviceId,
   getUserId,
@@ -185,15 +187,22 @@ export default function OfflineWorkspace() {
 
   const applyRestore = async () => {
     if (!restoreResult || restoreResult.invalid.length || restoreResult.conflicts.length || !userId.trim()) return;
-    try {
-      await createRollbackSnapshot();
-      await applyOfflineRecords(restoreResult.pendingRecords);
-      await downloadCurrentBackup(`global1881-geri-yukleme-${new Date().toISOString().slice(0, 10)}.json`, backupPassword);
+    const outcome = await applyWithRollback({
+      createSnapshot: createRollbackSnapshot,
+      applyRecords: () => applyOfflineRecords(restoreResult.pendingRecords),
+      createBackup: () => downloadCurrentBackup(`global1881-geri-yukleme-${new Date().toISOString().slice(0, 10)}.json`, backupPassword),
+      restoreSnapshot: restoreRollbackSnapshot,
+    });
+    if (outcome.success) {
       setMessage("Onaylanan yedek kayıtları yazıldı; rollback noktası ve yeni şifreli ana yedek oluşturuldu.");
       setRestoreResult(null);
       await refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Geri yükleme başarısız oldu.");
+    } else if (outcome.rollbackApplied) {
+      setMessage("Geri yükleme tamamlanamadı; kayıtlar önceki güvenli rollback noktasına döndürüldü.");
+    } else if ("rollbackError" in outcome && outcome.rollbackError instanceof Error) {
+      setMessage(`Geri yükleme başarısız oldu ve rollback uygulanamadı: ${outcome.rollbackError.message}`);
+    } else {
+      setMessage(outcome.error instanceof Error ? outcome.error.message : "Geri yükleme başarısız oldu.");
     }
   };
 

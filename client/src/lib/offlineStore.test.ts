@@ -1,6 +1,6 @@
 import { webcrypto } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { decryptBackupPayload, encryptBackupPayload, validateBackupPassword } from "./offlineStore";
+import { applyWithRollback, decryptBackupPayload, encryptBackupPayload, validateBackupPassword } from "./offlineStore";
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, "crypto", { configurable: true, value: webcrypto });
 
@@ -23,5 +23,17 @@ describe("offline encrypted backup crypto", () => {
     const encrypted = await encryptBackupPayload("sensitive records", "Global1881!backup");
     const tampered = { ...encrypted, ciphertext: `${encrypted.ciphertext.slice(0, -2)}aa` };
     await expect(decryptBackupPayload(tampered, "Global1881!backup")).rejects.toThrow();
+  });
+
+  it("rolls back when backup creation fails after records were applied", async () => {
+    const calls: string[] = [];
+    const outcome = await applyWithRollback({
+      createSnapshot: async () => { calls.push("snapshot"); },
+      applyRecords: async () => { calls.push("apply"); },
+      createBackup: async () => { calls.push("backup"); throw new Error("disk full"); },
+      restoreSnapshot: async () => { calls.push("restore"); },
+    });
+    expect(outcome).toMatchObject({ success: false, rollbackApplied: true });
+    expect(calls).toEqual(["snapshot", "apply", "backup", "restore"]);
   });
 });
