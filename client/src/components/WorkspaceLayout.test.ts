@@ -33,6 +33,10 @@ describe("workspace content layout", () => {
     expect(rentalHtml).toContain("rental-contract-document");
     expect(authorityHtml).toContain("authority-print-shell");
     expect(authorityHtml).toContain("authority-contract-document");
+    expect(authorityHtml).toContain("offline-operation-grid");
+    expect(authorityHtml).toContain("offline-operation-aside");
+    expect(rentalHtml).toContain("offline-operation-grid");
+    expect(rentalHtml).toContain("offline-operation-aside");
   });
 
   it("keeps the workspace flow panel at page level rather than in the shared dashboard shell", () => {
@@ -52,6 +56,19 @@ describe("workspace content layout", () => {
     expect(css).toContain('.offline-root-with-flow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 1180px; margin: 0 auto; }');
     expect(css).toContain('grid-template-columns: minmax(0, 1fr) minmax(248px, 280px);');
     expect(css).toContain('.offline-operation-aside { position: sticky; top: 1.25rem; }');
+  });
+
+  it("keeps the authority and rental workspaces on the same responsive flow surface", () => {
+    const authorityPage = projectFile("client/src/pages/OfflineAuthorityContracts.tsx");
+    const rentalPage = projectFile("client/src/pages/OfflineRentalContracts.tsx");
+    const css = projectFile("client/src/index.css");
+
+    expect(authorityPage).toContain('className="offline-operation-grid print:block"');
+    expect(rentalPage).toContain('className="offline-operation-grid print:block"');
+    expect(authorityPage).toContain('offline-operation-aside print:hidden');
+    expect(rentalPage).toContain('offline-operation-aside print:hidden');
+    expect(css).toContain("@media (min-width: 1280px)");
+    expect(css).toContain("grid-template-columns: minmax(0, 1fr) minmax(248px, 280px);");
   });
 
   it("places the authority document type decision before the optional previous-draft lookup", () => {

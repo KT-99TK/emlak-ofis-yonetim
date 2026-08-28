@@ -60,3 +60,11 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Offline rol kapsamı için mevcut render ve erişim testlerini tek kabul maddesi altında özetle; merkezi kapsam maddesinden ayrı tut
 - [x] Merkezi rol kapsamı için en az bir gerçek server/router testinde danışman, ofis asistanı ve broker manager kullanıcılarıyla procedure erişim sonuçlarını çalıştırarak doğrula
 - [x] Rol kapsamıyla ilişkili bir merkezi işlemde audit kaydının gerçekten oluştuğunu ve listelenebildiğini/korunduğunu doğrulayan akış testi ekle
+- [ ] Kira sözleşmesi ilk kira son ödeme tarihi yardımcı satırının Türkçe GG.AA.YYYY renderını gerçek Windows/Electron kabul ekranında doğrula ve kanıtı kaydet
+- [x] İlk vade tarihindeki kod/tarım dönüşümünü tamamlanmış, Windows kabul doğrulamasını kullanıcı ekran kanıtı sonrası kapatılacak ayrı aşama olarak tut
+- [x] Yetki ve Kira çalışma ekranlarının her ikisinde sağ Ofis Akışı panelinin geniş/dar yerleşimini doğrudan render/istemci testleriyle ayrı ayrı doğrula
+- [ ] Sağ panel için ortak Windows operasyon standardını gerçek Windows/Electron kabul maddesine taşı veya somut kabul kanıtı ekle
+- [x] Genel dashboard/yardımcı panel testlerini bu görevden ayır; görev metniyle birebir eşleşen ekran bazlı kanıt üret
+- [x] OfflineAuthorityContracts ekranında sağ Ofis Akışı panelinin DOM renderını ve dar/geniş responsive CSS yerleşimini testle doğrula
+- [x] OfflineRentalContracts ekranında sağ Ofis Akışı panelinin DOM renderını ve dar/geniş responsive CSS yerleşimini testle doğrula
+- [x] Ekran bazlı kanıtı source-inspection yerine kullanıcıya görünen DOM/yerleşim davranışını assert eden testlerle güçlendir; bağlantılı iki ekran teknik maddesini DOM + responsive CSS kapsamıyla kapat
