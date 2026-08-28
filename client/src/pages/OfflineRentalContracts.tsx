@@ -44,6 +44,7 @@ import {
   searchOfflineContractLookups,
 } from "@/lib/offlineContractLookup";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
+import { formatTurkishDate } from "@/lib/turkishDate";
 import {
   getUserId,
   listOfflineRecords,
@@ -758,7 +759,7 @@ export default function OfflineRentalContracts() {
                         }
                       />
                       <p className="mt-1 text-[11px] text-[#718079]">
-                        En geç: {summary.maxFirstPaymentDate}
+                        En geç: {formatTurkishDate(summary.maxFirstPaymentDate)}
                       </p>
                     </div>
                     <div>
@@ -1005,8 +1006,8 @@ export default function OfflineRentalContracts() {
                   </div>
                   <p className="mt-1">
                     Yıllık kira: {annualRent} ₺ · İlk vade:{" "}
-                    {summary.firstDueDate} (en geç 5 gün) · Bitiş:{" "}
-                    {summary.endDate} · Tahliye uyarısı: {summary.noticeDate}
+                    {formatTurkishDate(summary.firstDueDate)} (en geç 5 gün) · Bitiş:{" "}
+                    {formatTurkishDate(summary.endDate)} · Tahliye uyarısı: {formatTurkishDate(summary.noticeDate)}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">

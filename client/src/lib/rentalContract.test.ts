@@ -39,7 +39,7 @@ describe("offline rental contract calculations", () => {
     const details = { ...emptyRentalDetails(), startDate: "2026-08-23", firstPaymentDueDate: "2026-09-10" };
     expect(firstPaymentDeadline("2026-08-23")).toBe("2026-08-28");
     expect(calculateRentalSummary(details).firstDueDate).toBe("2026-08-28");
-    expect(renderRentalContract(details)).toContain("İlk kira son ödeme tarihi: 2026-08-28 (sözleşmeden en geç 5 gün sonra)");
+    expect(renderRentalContract(details)).toContain("İlk kira son ödeme tarihi: 28.08.2026 (sözleşmeden en geç 5 gün sonra)");
   });
 
   it("keeps Claude-compatible fixture rows in the snapshot while parsing legacy fixture text", () => {

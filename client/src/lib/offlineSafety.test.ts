@@ -17,4 +17,9 @@ describe("offline güvenli işlem ön koşulları", () => {
     values.set("global1881-user-id", "manager-01");
     expect(requireUserId()).toBe("manager-01");
   });
+  it("yalnızca boşluklardan oluşan kullanıcı kimliğini güvenli işlem için reddeder", () => {
+    const values = installStorage();
+    values.set("global1881-user-id", "   ");
+    expect(() => requireUserId()).toThrow("kullanıcı kimliğini");
+  });
 });

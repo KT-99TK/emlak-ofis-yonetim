@@ -1,5 +1,7 @@
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
+import { formatTurkishDate } from "./turkishDate";
+
 export type RentalFixtureItem = { id: string; item: string; quantity: string; condition: string };
 export type RentalAppendixSelection = { evacuation: boolean; handover: boolean; return: boolean; fixtures: boolean };
 
@@ -155,10 +157,10 @@ export function renderRentalContract(details: OfflineRentalDetails) {
     `Ada/Parsel/Bağımsız Bölüm: ${value(details.parcelInfo)}`,
     `Kullanım amacı: ${value(details.usagePurpose)}`,
     `Aylık kira: ${value(details.monthlyRent)} ${details.currency} | Yıllık kira: ${summary.annualRent || "................................"} ${details.currency}`,
-    `Depozito: ${value(details.deposit)} ${details.currency} | İlk kira son ödeme tarihi: ${summary.firstDueDate} (sözleşmeden en geç 5 gün sonra)`,
+    `Depozito: ${value(details.deposit)} ${details.currency} | İlk kira son ödeme tarihi: ${formatTurkishDate(summary.firstDueDate)} (sözleşmeden en geç 5 gün sonra)`,
     `Sonraki aylarda ödeme günü: her ayın ${summary.paymentDay}. günü | IBAN: ${value(details.iban)}`,
-    `Süre: ${summary.durationMonths} ay | Başlangıç: ${value(details.startDate)} | Bitiş: ${summary.endDate}`,
-    `Tahliye ihbarı: ${summary.noticeDays} gün | Uyarı tarihi: ${summary.noticeDate}`,
+    `Süre: ${summary.durationMonths} ay | Başlangıç: ${formatTurkishDate(details.startDate)} | Bitiş: ${formatTurkishDate(summary.endDate)}`,
+    `Tahliye ihbarı: ${summary.noticeDays} gün | Uyarı tarihi: ${formatTurkishDate(summary.noticeDate)}`,
     `Elektrik sayaç no: ${value(details.electricityMeterNo)} | Su sayaç no: ${value(details.waterMeterNo)} | Doğalgaz sayaç no: ${value(details.naturalGasMeterNo)}`,
     `DASK poliçe no: ${value(details.daskPolicyNo)} | Demirbaş/teslim notu: ${value(rentalFixtureSummary(details))} | Sayaç notu: ${value(details.meterNotes)}`,
     details.hasGuarantor ? `Kefil: ${value(details.guarantorName)} | TCKN: ${value(details.guarantorIdentity)} | Azami tutar: ${value(details.guarantorLimit)} ${details.currency}` : "",

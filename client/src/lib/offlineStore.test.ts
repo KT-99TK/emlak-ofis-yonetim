@@ -18,4 +18,10 @@ describe("offline encrypted backup crypto", () => {
     await expect(decryptBackupPayload(encrypted, "wrong-password")).rejects.toThrow();
     expect(() => validateBackupPassword("short")).toThrow("en az 8 karakter");
   });
+
+  it("rejects a tampered ciphertext instead of returning altered backup data", async () => {
+    const encrypted = await encryptBackupPayload("sensitive records", "Global1881!backup");
+    const tampered = { ...encrypted, ciphertext: `${encrypted.ciphertext.slice(0, -2)}aa` };
+    await expect(decryptBackupPayload(tampered, "Global1881!backup")).rejects.toThrow();
+  });
 });

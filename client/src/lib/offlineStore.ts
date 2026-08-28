@@ -41,7 +41,7 @@ export function validateBackupPassword(password: string) {
 
 export function getUserId() { return window.localStorage.getItem(USER_KEY) ?? ""; }
 export function setUserId(userId: string) { window.localStorage.setItem(USER_KEY, userId.trim()); }
-export function requireUserId() { const userId = getUserId(); if (!userId) throw new Error("Önce manager offline kullanıcı kimliğini ayarlayın"); return userId; }
+export function requireUserId() { const userId = getUserId().trim(); if (!userId) throw new Error("Önce manager offline kullanıcı kimliğini ayarlayın"); return userId; }
 
 export function recordOfflineAudit(action: OfflineAuditEvent["action"], metadata?: OfflineAuditEvent["metadata"]) {
   const event: OfflineAuditEvent = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, action, userId: getUserId(), deviceId: getDeviceId(), at: new Date().toISOString(), metadata };

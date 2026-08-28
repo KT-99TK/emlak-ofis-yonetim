@@ -34,3 +34,8 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Menü, açık mühür marka alanı ve Türkiye tarih render doğrulamalarını güncelle.
 - [x] 82 test dosyası / 219 test, TypeScript ve production build doğrulamasını tamamla.
 - [x] Kullanıcı talebiyle güncel menü düzenini içeren temiz kaynak ZIP’i oluştur ve bütünlüğünü doğrula.
+- [x] Kalan güvenlik, yedekleme/merge ve son Windows/Electron kabul kontrollerini tek güncel kontrol planında sınıflandır ve süre tahminiyle raporla
+- [x] Windows/Electron kabul testi öncesi paket, temiz başlangıç, sürüm eşleşmesi, startup.log ve tek oturum kontrol sırasını hazırla
+- [ ] Kira sözleşmesi ilk kira son ödeme tarihi yardımcı satırındaki ISO gösterimini Türkçe GG.AA.YYYY biçimine çevir ve Windows kabul ekranında doğrula
+- [x] Kira sözleşmesi otomatik özetindeki ilk vade, bitiş ve tahliye uyarısı tarihlerini Türkçe GG.AA.YYYY biçiminde göster; mevcut ISO tarih değerlerini yalnız sunum katmanında dönüştür
+- [x] Offline işlem ön koşulunda yalnızca boşluklardan oluşan kullanıcı kimliğini reddet; kimlik doğrulama testini düzelt
