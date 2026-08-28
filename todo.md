@@ -4,7 +4,7 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 
 ## 1. Otomatik tamamlanabilecek teknik işler
 
-- [ ] Türkiye tarih standardının işlem kapanışı, rapor, vade ve yedek/manifest akışlarındaki eksik render/UI testlerini tamamla.
+- [x] Türkiye tarih standardının işlem kapanışı, rapor, vade ve yedek/manifest akışlarındaki eksik render/UI testlerini tamamla.
 - [x] Yerel Çalışma Alanı filtre ve kayıt türü seçicilerinin dar görünüm davranışını istemci UI testleriyle doğrula.
 - [ ] Yetki/Kira çalışma ekranlarında sağ Ofis Akışı panelinin geniş/dar yerleşimini ve ortak Windows operasyon standardını toplu UI testleriyle doğrula.
 - [ ] Yeni abonelik ve DASK alanlarının mevcut birim/A4 testlerine ek olarak paket içi kabul kontrolünü tamamla.
@@ -72,3 +72,8 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] OfflineWorkspace ekranında kayıt türü seçicisinin dar görünüm yerleşimini ve erişilebilirliğini gerçek UI testiyle doğrula
 - [x] Source-inspection yerine viewport/dar genişlik koşulunda kullanıcıya görünen DOM ve sınıf davranışını assert eden test ekle; ardından bu maddeyi kapat
 - [x] OnlineStart geçiş tarihi sunumunu `formatTurkishDate` ile GG.AA.YYYY biçimine taşı ve hedefli testle doğrula; işlem saklama biçimi ISO olarak korundu
+- [ ] İşlem kapanışı ekranında kullanıcıya görünen tarihlerin GG.AA.YYYY renderını gerçek render/UI testiyle doğrula
+- [ ] Rapor/vade ekranlarında kullanıcıya görünen tarih özetlerini GG.AA.YYYY olarak assert eden gerçek render testleri ekle
+- [x] Manifest/yedek önizleme akışında görünen tarihlerin GG.AA.YYYY SS:DD formatında render edildiğini doğrudan test et
+- [ ] Source-inspection testlerini destekleyici kanıt olarak bırak; üst tarih standardı maddesini ekran/akış render testleri tamamlanınca yeniden değerlendir
+- [x] Obligations vade raporu ve kartında `30.11.2026` gibi kullanıcıya görünen tarihlerin Türkçe formatta render edildiğini jsdom testiyle doğrula
