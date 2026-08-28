@@ -17,8 +17,11 @@ export default function GlobalBrandLockup({ className, variant = "default" }: Gl
       className,
     )} aria-label="Global 1881 Gayrimenkul">
       <div className={cn(
-        "flex shrink-0 flex-col items-center justify-center rounded-full border-2 border-double border-[#a6946e]/75 bg-[#fffdf6] text-[#806d46] shadow-[inset_0_0_0_3px_rgba(245,240,221,.9)]",
-        isOfflineSidebar ? "h-[62px] w-[62px]" : "h-14 w-14",
+        "flex shrink-0 flex-col items-center justify-center rounded-full border-2 border-double text-[#806d46] shadow-[inset_0_0_0_3px_rgba(245,240,221,.9)]",
+        isOfflineSidebar
+          ? "h-[62px] w-[62px] border-white/90 bg-[#fffdf6] text-[#173e39] ring-1 ring-[#e6c47d]/70"
+          : "h-14 w-14 border-[#a6946e]/75 bg-[#fffdf6]",
+
       )}>
         <span className={cn("font-bold leading-none tracking-[0.13em]", isOfflineSidebar ? "text-[6.5px]" : "text-[6px]")}>GLOBAL</span>
         <strong className={cn("my-0.5 font-serif font-semibold leading-none tracking-[0.04em]", isOfflineSidebar ? "text-[19px]" : "text-[18px]")}>1881</strong>

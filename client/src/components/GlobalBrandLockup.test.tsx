@@ -16,7 +16,9 @@ describe("GlobalBrandLockup", () => {
     const html = renderToStaticMarkup(<GlobalBrandLockup variant="offline-sidebar" />);
     expect(html).toContain("bg-[#123f39]");
     expect(html).toContain("h-[62px] w-[62px]");
-    expect(html).toContain("text-[#fffdf6]");
+    expect(html).toContain("bg-[#fffdf6]");
+    expect(html).toContain("text-[#173e39]");
+    expect(html).toContain("ring-1 ring-[#e6c47d]/70");
     expect(html).toContain("whitespace-nowrap");
   });
 });

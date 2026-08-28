@@ -33,6 +33,27 @@ describe("ManifestPreviewRow", () => {
     expect(html).toContain("ECDSA: doğrulandı");
   });
 
+  it("renders the latest sync date in Turkish format instead of an ISO timestamp", () => {
+    const html = renderToStaticMarkup(
+      <ManifestPreviewRow
+        manifest={{
+          file: "global1881-sync.json",
+          userId: "danisman-ayse",
+          deviceId: "device-a",
+          recordCount: 2,
+          exportedAt: "2026-08-22T10:00:00.000Z",
+          latestSyncAt: "2026-08-28T14:35:00.000Z",
+          checksumVerified: true,
+          signatureVerified: true,
+        }}
+      />,
+    );
+
+    expect(html).toContain("son aktarım:");
+    expect(html).toContain("28.08.2026");
+    expect(html).not.toContain("2026-08-28T14:35:00.000Z");
+  });
+
   it("renders separate failed verification statuses for a multi-backup row", () => {
     const html = renderToStaticMarkup(
       <ManifestPreviewRow
