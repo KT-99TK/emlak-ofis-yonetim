@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardFlowGrid } from "@/components/DashboardFlowGrid";
-import { OfficeFlowPanel } from "@/components/OfficeFlowPanel";
+import {
+  OfficeFlowPanel,
+  type OfficeFlowContract,
+  type OfficeFlowLedgerEntry,
+  type OfficeFlowObligation,
+} from "@/components/OfficeFlowPanel";
 import {
   Dialog,
   DialogContent,
@@ -95,6 +100,20 @@ function formatRole(role?: string) {
   return role === "admin" ? "Broker Manager" : "Consultant";
 }
 
+export function buildOfficeFlowData(input: {
+  obligations: OfficeFlowObligation[];
+  contracts: OfficeFlowContract[];
+  ledgerEntries: OfficeFlowLedgerEntry[];
+}) {
+  return {
+    openObligations: input.obligations.filter(
+      item => item.status !== "paid" && item.status !== "cancelled"
+    ),
+    contracts: input.contracts,
+    ledgerEntries: input.ledgerEntries,
+  };
+}
+
 export default function Home() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
@@ -139,14 +158,15 @@ export default function Home() {
       },
       onError: error => setBrokerGuidanceNotice(error.message),
     });
-  const openObligations =
-    obligationsQuery.data?.filter(
-      item => item.status !== "paid" && item.status !== "cancelled"
-    ) ?? [];
-  const dueObligations = openObligations.slice(0, 3);
+  const officeFlowData = buildOfficeFlowData({
+    obligations: obligationsQuery.data ?? [],
+    contracts: contractsQuery.data ?? [],
+    ledgerEntries: ledgerQuery.data ?? [],
+  });
+  const dueObligations = officeFlowData.openObligations.slice(0, 3);
   const criticalFlowObligations = useMemo(
-    () => selectCriticalDashboardFlowObligations(openObligations),
-    [openObligations]
+    () => selectCriticalDashboardFlowObligations(officeFlowData.openObligations),
+    [officeFlowData.openObligations]
   );
   const rentalServiceTaskSummary = useMemo(
     () => getRentalServiceTaskSummary(rentalServiceTasksQuery.data ?? []),
@@ -463,9 +483,9 @@ export default function Home() {
           aside={
             <OfficeFlowPanel
               role={user?.role}
-              obligations={openObligations}
-              contracts={contractsQuery.data ?? []}
-              ledgerEntries={ledgerQuery.data ?? []}
+              obligations={officeFlowData.openObligations}
+              contracts={officeFlowData.contracts}
+              ledgerEntries={officeFlowData.ledgerEntries}
               rentalServiceSummary={
                 user?.role === "admin" ? rentalServiceTaskSummary : undefined
               }

@@ -12,7 +12,7 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 
 ## 2. Mahremiyet ve iş akışı
 
-- [ ] Ofis Akışı için talep-eşleşme ve eksik işlem özetlerinin merkezi veri kaynağını belirle; kişi, telefon ve taşınmaz ayrıntısı sızdırmadan yalnız gerekli anonim kartları uygula.
+- [x] Ofis Akışı için talep-eşleşme ve eksik işlem özetlerinin merkezi veri kaynağını belirle; kişi, telefon ve taşınmaz ayrıntısı sızdırmadan yalnız gerekli anonim kartları uygula.
 - [x] Danışman, ofis asistanı ve broker manager rollerinin merkezi/offline kapsamını mevcut audit ve render testleriyle toplu doğrula.
 
 ## 3. Tek toplu Windows/Electron kabulü
@@ -77,3 +77,15 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Manifest/yedek önizleme akışında görünen tarihlerin GG.AA.YYYY SS:DD formatında render edildiğini doğrudan test et
 - [x] Source-inspection testlerini destekleyici kanıt olarak bırak; rapor/vade, işlem kapanışı ve manifest/yedek önizleme render testleri tamamlandıktan sonra üst tarih standardını yeniden değerlendir
 - [x] Obligations vade raporu ve kartında `30.11.2026` gibi kullanıcıya görünen tarihlerin Türkçe formatta render edildiğini jsdom testiyle doğrula
+- [x] Ofis Akışı panelinde talep-eşleşme özeti ve eksik işlem özeti için kullanılan merkezi veri kaynağını kod/test düzeyinde açıkça doğrula
+- [x] Talep-eşleşme ve eksik işlem anonim kartlarının müşteri/telefon/taşınmaz ayrıntısı sızdırmadan render edildiğini gerçek UI veya router testleriyle kanıtla
+- [x] Mevcut anonim yönlendirme notu kanıtını geniş Ofis Akışı özetlerinden ayrı tamamlanan alt iş olarak tut
+- [x] Ofis Akışı özet kartlarının Home/Dashboard/route seviyesinde hangi merkezi query/procedure’dan beslendiğini doğrudan test veya kod kanıtıyla doğrula
+- [x] Talep-eşleşme ve eksik işlem kartları için gerçek render testinde müşteri adı, telefon ve taşınmaz/adres bilgisinin görünmediğini açıkça assert et
+- [x] Gerekirse bu iki özet türünü ayrı veri yapıları ve ayrı test senaryolarıyla isim bazlı doğrula; yalnız genel sayı kartı testiyle kapatma
+- [x] Ofis Akışı kartlarında talep-eşleşme ve eksik işlem özetlerinin hangi merkezi tRPC query/procedure’dan beslendiğini route seviyesinde açık bir testle doğrula
+- [x] OfficeFlowPanel render testine müşteri adı, telefon ve taşınmaz/adres bilgisinin görünmediğini açık assertion olarak ekle
+- [x] Talep-eşleşme ve eksik işlem özetleri için ayrı test senaryoları kur; her birinin başlık/sayı ve mahremiyet davranışını ayrı doğrula
+- [x] Home/Dashboard route seviyesinde OfficeFlowPanel’i gerçek query mock’larıyla render eden test ekle; talep-eşleşme ve eksik işlem kartlarının hangi tRPC query/procedure verisiyle beslendiğini davranışsal olarak doğrula
+- [x] OfficeFlowPanel testlerinde talep-eşleşme ve eksik işlem kartları için sayı değerlerini de açık assertion ile doğrula
+- [x] Kart adları ile veri kaynağı eşlemesini testte daha açık hale getir; Sözleşme işlemi ve Açık tahsilat özetlerini iş türüyle netleştir

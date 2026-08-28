@@ -36,6 +36,24 @@ describe("OfficeFlowPanel", () => {
     expect(html).toContain("Manager incelemesi: 1");
   });
 
+  it("renders the request-match summary as a count without customer, phone, or property details", () => {
+    const html = renderToStaticMarkup(<OfficeFlowPanel role="admin" obligations={[]} contracts={[{ id: 11, status: "draft" }, { id: 12, status: "review" }]} ledgerEntries={[]} onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
+    expect(html).toContain("Sözleşme işlemi");
+    expect(html).toContain(">2</span>");
+    expect(html).not.toContain("Mustafa Ekin");
+    expect(html).not.toContain("0532 000 00 00");
+    expect(html).not.toContain("Urla İskele Daire 1");
+  });
+
+  it("renders the missing-operation summary as a count without customer, phone, or property details", () => {
+    const html = renderToStaticMarkup(<OfficeFlowPanel role="admin" obligations={[]} contracts={[]} ledgerEntries={[{ id: 21, entryType: "receivable", status: "pending" }]} onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
+    expect(html).toContain("Açık tahsilat");
+    expect(html).toContain(">1</span>");
+    expect(html).not.toContain("Mustafa Ekin");
+    expect(html).not.toContain("0532 000 00 00");
+    expect(html).not.toContain("Urla İskele Daire 1");
+  });
+
   it("shows a safe retry state instead of a zero service-task summary when the broker query fails", () => {
     const html = renderToStaticMarkup(<OfficeFlowPanel role="admin" obligations={obligations} rentalServiceState="error" rentalServiceSummary={{ open: 0, overdue: 0, planned: 0, prepared: 0, reviewed: 0, shared: 0 }} onRefreshRentalServiceTasks={() => undefined} onOpenObligations={() => undefined} now={new Date("2026-08-23T09:00:00")} />);
     expect(html).toContain("Müşteri hizmeti görevleri yüklenemedi. Sıfır görev bilgisi gösterilmez.");
