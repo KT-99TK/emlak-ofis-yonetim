@@ -22,6 +22,7 @@ describe("offline contract access", () => {
     expect(canEditOfflineContractEids(contract, { userId: "danisman-b", role: "consultant", managerSessionActive: false })).toBe(false);
     expect(canEditOfflineContractEids(contract, { userId: "asistan", role: "officeAssistant", managerSessionActive: false })).toBe(false);
     expect(canEditOfflineContractEids(contract, { userId: "broker", role: "consultant", managerSessionActive: true })).toBe(true);
+    expect(canEditOfflineContractEids(contract, { userId: "broker", role: "officeAssistant", managerSessionActive: true })).toBe(true);
   });
 
   it("applies the same owner, manager and office assistant policy to read-only archive PDFs", () => {

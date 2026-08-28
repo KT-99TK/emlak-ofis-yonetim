@@ -13,7 +13,7 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 ## 2. Mahremiyet ve iş akışı
 
 - [ ] Ofis Akışı için talep-eşleşme ve eksik işlem özetlerinin merkezi veri kaynağını belirle; kişi, telefon ve taşınmaz ayrıntısı sızdırmadan yalnız gerekli anonim kartları uygula.
-- [ ] Danışman, ofis asistanı ve broker manager rollerinin merkezi/offline kapsamını mevcut audit ve render testleriyle toplu doğrula.
+- [x] Danışman, ofis asistanı ve broker manager rollerinin merkezi/offline kapsamını mevcut audit ve render testleriyle toplu doğrula.
 
 ## 3. Tek toplu Windows/Electron kabulü
 
@@ -55,3 +55,8 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Geçerli şifreli yedek `mergeOfflineBackups()` veya `importOfflineBackup()` üzerinden işlendiğinde `backup-verified` ve `records-applied` audit kayıtlarını doğrula
 - [x] Export/import sonrası audit kayıtlarının localStorage’da korunduğunu ve recordCount/checksum/imza metadata’sını akış testiyle kanıtla
 - [x] Merge sırasında aynı kayıt kimliğinin farklı sürümlerdeki iki içeriğini otomatik ezmeden çakışma olarak raporla; pending kayıtların güvenli kaldığını test et
+- [x] Merkezi rol kapsamı için server/db/router düzeyinde danışman, ofis asistanı ve broker manager yetki sınırlarını testlerle açıkça doğrula
+- [x] Rol kapsamı doğrulamasında ilgili audit kayıtlarının üretildiğini ve korunduğunu kanıtlayan test veya kod kanıtı ekle
+- [x] Offline rol kapsamı için mevcut render ve erişim testlerini tek kabul maddesi altında özetle; merkezi kapsam maddesinden ayrı tut
+- [x] Merkezi rol kapsamı için en az bir gerçek server/router testinde danışman, ofis asistanı ve broker manager kullanıcılarıyla procedure erişim sonuçlarını çalıştırarak doğrula
+- [x] Rol kapsamıyla ilişkili bir merkezi işlemde audit kaydının gerçekten oluştuğunu ve listelenebildiğini/korunduğunu doğrulayan akış testi ekle

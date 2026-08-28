@@ -101,6 +101,33 @@ export type CentralAccessScope = {
   officeRole: "broker_manager" | "consultant" | "office_assistant";
 };
 
+export function resolveCentralAccessScope(input: {
+  userId: number;
+  isSystemManager: boolean;
+  officeRole?: CentralAccessScope["officeRole"];
+  assignedConsultantUserIds?: number[];
+}): CentralAccessScope {
+  if (input.isSystemManager)
+    return {
+      isManager: true,
+      permittedUserIds: [],
+      officeRole: "broker_manager",
+    };
+  if (input.officeRole === "office_assistant")
+    return {
+      isManager: false,
+      permittedUserIds: Array.from(
+        new Set(input.assignedConsultantUserIds ?? [])
+      ),
+      officeRole: "office_assistant",
+    };
+  return {
+    isManager: false,
+    permittedUserIds: [input.userId],
+    officeRole: input.officeRole ?? "consultant",
+  };
+}
+
 /**
  * Merkezi kayıtlarda kullanıcı arayüzünün rol etiketine güvenilmez. Danışman
  * yalnız kendi kaydını; ofis asistanı yalnız managerın aktif atadığı danışmanları
@@ -111,18 +138,8 @@ export async function getCentralAccessScope(
   isSystemManager: boolean
 ): Promise<CentralAccessScope> {
   const db = await getDb();
-  if (isSystemManager)
-    return {
-      isManager: true,
-      permittedUserIds: [],
-      officeRole: "broker_manager",
-    };
-  if (!db)
-    return {
-      isManager: false,
-      permittedUserIds: [userId],
-      officeRole: "consultant",
-    };
+  if (isSystemManager) return resolveCentralAccessScope({ userId, isSystemManager });
+  if (!db) return resolveCentralAccessScope({ userId, isSystemManager });
   const profile = await db
     .select({ officeRole: userProfiles.officeRole })
     .from(userProfiles)
@@ -130,7 +147,7 @@ export async function getCentralAccessScope(
     .limit(1);
   const officeRole = profile[0]?.officeRole ?? "consultant";
   if (officeRole !== "office_assistant")
-    return { isManager: false, permittedUserIds: [userId], officeRole };
+    return resolveCentralAccessScope({ userId, isSystemManager, officeRole });
   const assignments = await db
     .select({ consultantUserId: officeAssistantAssignments.consultantUserId })
     .from(officeAssistantAssignments)
@@ -140,13 +157,14 @@ export async function getCentralAccessScope(
         eq(officeAssistantAssignments.active, 1)
       )
     );
-  return {
-    isManager: false,
-    permittedUserIds: Array.from(
-      new Set(assignments.map(assignment => assignment.consultantUserId))
-    ),
+  return resolveCentralAccessScope({
+    userId,
+    isSystemManager,
     officeRole,
-  };
+    assignedConsultantUserIds: assignments.map(
+      assignment => assignment.consultantUserId
+    ),
+  });
 }
 
 export type OnlineStartSetting = {
