@@ -1,7 +1,7 @@
 import { webcrypto } from "node:crypto";
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
-import { applyWithRollback, decryptBackupPayload, encryptBackupPayload, exportOfflineBackup, importOfflineBackup, listOfflineAuditEvents, recordOfflineAudit, validateBackupPassword } from "./offlineStore";
+import { applyWithRollback, decryptBackupPayload, encryptBackupPayload, exportOfflineBackup, importOfflineBackup, listOfflineAuditEvents, mergeOfflineBackups, recordOfflineAudit, validateBackupPassword } from "./offlineStore";
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, "crypto", { configurable: true, value: webcrypto });
 
@@ -25,6 +25,43 @@ describe("offline encrypted backup crypto", () => {
     expect(events[0]).toMatchObject({ userId: "manager-test", metadata: { recordCount: 0, encrypted: true } });
     expect(events[1]).toMatchObject({ metadata: { recordCount: 0, checksumVerified: true, signatureVerified: true } });
     expect(events[2]).toMatchObject({ metadata: { recordCount: 0 } });
+  });
+
+  it("verifies a real backup through the merge flow and exposes manifest metadata", async () => {
+    const values = new Map<string, string>([["global1881-user-id", "manager-test"], ["global1881-offline-audit", "[]"]]);
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: { localStorage: { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); } } },
+    });
+    const backup = await exportOfflineBackup("Global1881!backup");
+    const merged = await mergeOfflineBackups([{ name: "merged-backup.json", text: () => backup.text() } as File], "Global1881!backup");
+    expect(merged.invalid).toEqual([]);
+    expect(merged.manifests).toMatchObject([{ file: "merged-backup.json", recordCount: 0, checksumVerified: true, signatureVerified: true, verified: true }]);
+    expect(listOfflineAuditEvents().map((event) => event.action)).toEqual(["backup-exported", "backup-verified"]);
+  });
+
+  it("rejects an unsupported manifest version and an invalid backup envelope", async () => {
+    const values = new Map<string, string>([["global1881-user-id", "manager-test"]]);
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: {
+        localStorage: {
+          getItem: (key: string) => values.get(key) ?? null,
+          setItem: (key: string, value: string) => { values.set(key, value); },
+        },
+      },
+    });
+    const backup = await exportOfflineBackup("Global1881!backup");
+    const manifest = JSON.parse(await backup.text()) as Record<string, unknown>;
+    manifest.appVersion = "offline-transition-v0";
+    const incompatible = { name: "old-backup.json", text: async () => JSON.stringify(manifest) } as File;
+    await expect(importOfflineBackup(incompatible, "Global1881!backup")).rejects.toThrow("farklı bir uygulama sürümüne");
+    const invalid = { name: "invalid.json", text: async () => JSON.stringify({ format: "wrong-format" }) } as File;
+    await expect(importOfflineBackup(invalid, "Global1881!backup")).rejects.toThrow("manifesti eksik");
+    const checksumTampered = { ...JSON.parse(await backup.text()) as Record<string, unknown>, checksum: "0".repeat(64) };
+    await expect(importOfflineBackup({ name: "checksum.json", text: async () => JSON.stringify(checksumTampered) } as File, "Global1881!backup")).rejects.toThrow("checksum/imza");
+    const signatureTampered = { ...JSON.parse(await backup.text()) as Record<string, unknown>, signature: "0".repeat(128) };
+    await expect(importOfflineBackup({ name: "signature.json", text: async () => JSON.stringify(signatureTampered) } as File, "Global1881!backup")).rejects.toThrow("checksum/imza");
   });
 
   it("encrypts and decrypts the canonical backup payload", async () => {

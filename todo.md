@@ -32,7 +32,7 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Konut kira sözleşmesinin kullanıcı tarafından verilen 22 hususi şartını A4 belgeye uygula; işyeri şablonuna dokunma.
 - [x] DASK alanını taşınmaz açık adresiyle aynı kompakt bilgi grubuna al ve A4/snapshot akışını koru.
 - [x] Menü, açık mühür marka alanı ve Türkiye tarih render doğrulamalarını güncelle.
-- [x] 82 test dosyası / 225 test, TypeScript ve production build doğrulamasını tamamla.
+- [x] 82 test dosyası / 229 test, TypeScript ve production build doğrulamasını tamamla.
 - [x] Kullanıcı talebiyle güncel menü düzenini içeren temiz kaynak ZIP’i oluştur ve bütünlüğünü doğrula.
 - [x] Kalan güvenlik, yedekleme/merge ve son Windows/Electron kabul kontrollerini tek güncel kontrol planında sınıflandır ve süre tahminiyle raporla
 - [x] Windows/Electron kabul testi öncesi paket, temiz başlangıç, sürüm eşleşmesi, startup.log ve tek oturum kontrol sırasını hazırla
@@ -41,7 +41,7 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Offline işlem ön koşulunda yalnızca boşluklardan oluşan kullanıcı kimliğini reddet; kimlik doğrulama testini düzelt
 - [x] Offline çalışma alanı geri yüklemesinde kayıtlar uygulandıktan sonra birleşik yedek oluşturma başarısız olursa rollback çalıştır; başarısızlık senaryosunu test et
 - [x] Şifreli yedek export/import akışında `backup-exported`, `backup-verified` ve `records-applied` audit kayıtlarının üretildiğini ve korunduğunu test et
-- [ ] Yedek geri yükleme öncesi manifest, sürüm, checksum, ECDSA imza, yanlış parola ve geçersiz dosya senaryolarını açık testlerle tamamla
+- [x] Yedek geri yükleme öncesi manifest, sürüm, checksum, ECDSA imza, yanlış parola ve geçersiz dosya senaryolarını açık testlerle tamamla
 - [ ] Yedekleme güvenliği geniş görevini yalnız doğrulanmış alt maddeler tamamlandıktan sonra kapat
 - [x] Kullanıcının paylaştığı güncel işyeri kira sözleşmesi hususi şartlarını yalnız işyeri şablonuna uygula; konut sözleşmesini ve tüm form alanlarını koru
 - [x] Kullanıcının verdiği işyeri kira sözleşmesi form düzenini uygulama: taraf vergi/iletişim alanları, KDV-stopaj, taşınmaz tapu/iskân/kat mülkiyeti, faaliyet konusu, yalnız net kira ve kıst dönem alanlarını işyeri akışına bağla

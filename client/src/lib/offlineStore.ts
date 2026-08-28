@@ -209,10 +209,12 @@ async function readVerifiedBackup(file: File, password: string) {
   validateBackupPassword(password);
   const envelope = JSON.parse(await file.text()) as EncryptedBackupEnvelope;
   if (envelope.format !== ENCRYPTED_BACKUP_FORMAT || !envelope.encryption || !envelope.checksum || !envelope.signature || !envelope.publicKey) throw new Error("Bu dosya şifreli Global 1881 yedeği değil veya manifesti eksik");
+  if (envelope.appVersion && envelope.appVersion !== APP_VERSION) throw new Error("Bu yedek farklı bir uygulama sürümüne ait");
   if (envelope.encryption.algorithm !== "AES-GCM" || envelope.encryption.kdf !== "PBKDF2-SHA-256" || envelope.encryption.iterations !== ENCRYPTION_ITERATIONS) throw new Error("Desteklenmeyen yedek şifreleme parametresi");
   const canonical = await decryptBackupPayload(envelope.encryption, password);
   const data = JSON.parse(canonical) as BackupData;
   if (data.format !== ENCRYPTED_BACKUP_FORMAT || !Array.isArray(data.records)) throw new Error("Şifreli yedek içeriği geçersiz");
+  if (typeof data.recordCount === "number" && data.recordCount !== data.records.length) throw new Error("Yedek kayıt sayısı manifestle uyuşmuyor");
   const checksumVerified = await checksum(canonical) === envelope.checksum;
   const signatureVerified = await verify(canonical, envelope.signature, envelope.publicKey);
   if (!checksumVerified || !signatureVerified) throw new Error("Yedek checksum/imza doğrulaması başarısız");
