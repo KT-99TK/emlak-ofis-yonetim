@@ -40,7 +40,7 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Kira sözleşmesi otomatik özetindeki ilk vade, bitiş ve tahliye uyarısı tarihlerini Türkçe GG.AA.YYYY biçiminde göster; mevcut ISO tarih değerlerini yalnız sunum katmanında dönüştür
 - [x] Offline işlem ön koşulunda yalnızca boşluklardan oluşan kullanıcı kimliğini reddet; kimlik doğrulama testini düzelt
 - [x] Offline çalışma alanı geri yüklemesinde kayıtlar uygulandıktan sonra birleşik yedek oluşturma başarısız olursa rollback çalıştır; başarısızlık senaryosunu test et
-- [ ] Şifreli yedek export/import akışında `backup-exported`, `backup-verified` ve `records-applied` audit kayıtlarının üretildiğini ve korunduğunu test et
+- [x] Şifreli yedek export/import akışında `backup-exported`, `backup-verified` ve `records-applied` audit kayıtlarının üretildiğini ve korunduğunu test et
 - [ ] Yedek geri yükleme öncesi manifest, sürüm, checksum, ECDSA imza, yanlış parola ve geçersiz dosya senaryolarını açık testlerle tamamla
 - [ ] Yedekleme güvenliği geniş görevini yalnız doğrulanmış alt maddeler tamamlandıktan sonra kapat
 - [x] Kullanıcının paylaştığı güncel işyeri kira sözleşmesi hususi şartlarını yalnız işyeri şablonuna uygula; konut sözleşmesini ve tüm form alanlarını koru
@@ -51,3 +51,6 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] İşyeri yeni hususi şartlarında bulunmayan eski koşullu kefalet beklentisini testlerden kaldır; konut kefil akışını koru
 - [x] Konutta mevcut kefil alanı/akışı varsa doğrudan render veya birim testiyle doğrula; işyeri kefalet maddesi kaldırılırken konut davranışının değişmediğini kanıtla
 - [x] İşyeri şart güncellemesi sonrası konut ve işyeri hususi şart setlerini tek karşılaştırmalı senaryoda doğrula
+- [x] `exportOfflineBackup()` çağrısının gerçek `backup-exported` audit kaydı ürettiğini akış testiyle doğrula
+- [x] Geçerli şifreli yedek `mergeOfflineBackups()` veya `importOfflineBackup()` üzerinden işlendiğinde `backup-verified` ve `records-applied` audit kayıtlarını doğrula
+- [x] Export/import sonrası audit kayıtlarının localStorage’da korunduğunu ve recordCount/checksum/imza metadata’sını akış testiyle kanıtla

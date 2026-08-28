@@ -276,5 +276,13 @@ export async function importOfflineBackup(file: File, password: string) {
   const tx = db.transaction(STORE_NAME, "readwrite");
   const syncedAt = new Date().toISOString();
   for (const record of data.records) tx.objectStore(STORE_NAME).put({ ...record, lastSyncAt: syncedAt });
-  return new Promise<void>((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); });
+    return new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => {
+      recordOfflineAudit("records-applied", { recordCount: data.records.length });
+      resolve();
+    };
+    tx.onerror = () => reject(tx.error);
+  });
 }
+
+
