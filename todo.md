@@ -130,7 +130,11 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [ ] Kullanıcı cihazında normal ve gizli pencerede bakım modu devam ediyor; alan adı erişimini farklı ağ/yayın noktalarıyla karşılaştırıp kalıcı canlı erişimi doğrula
 - [ ] Mobil internet üzerinde de ERR_SSL_PROTOCOL_ERROR doğrulandı; bu platform/alan adı erişim engelini uygulama kodundan ayır ve güvenlik uyarısını aşmadan çözüm kanalını belirle
 - [ ] Kullanıcıyı tekrar Windows paket, ZIP/BAT veya web URL denemelerine yönlendirme; Ubuntu üzerinde güvenlik ve paketleme sorunu netleşmeden tekil doğrulanmış çözüm hazırlama ilkesini uygula
-- [ ] Kalan 19 yüksek üretim bağımlılık bulgusunu risk ve kullanılabilirlik etkisine göre ayrı incele; büyük sürüm güncellemelerini toplu test olmadan uygulama
+- [x] Kalan 19 yüksek üretim bağımlılık bulgusunu risk ve kullanılabilirlik etkisine göre ayrı incele; büyük sürüm güncellemelerini toplu test olmadan uygulama
+- [x] Doğrudan kullanılan tRPC, Drizzle ORM ve Axios paketlerini audit önerilen güvenli sürümlere yükselt; router, veri erişimi ve HTTP bağımlılık testlerini tam doğrula
+- [x] Express 5 yükseltmesinde bozulan `/manus-storage/*` rota sözdizimini güvenli Express 5 biçimine taşı; storage proxy ve geliştirme sunucusu hatasını testle doğrula
+- [x] Kalan yüksek bulgular olan path-to-regexp ve lodash-es için bağımlılık zinciri/uyumluluk incelemesi yap; güvenli override veya üst paket güncellemesini test/audit doğrulamasıyla uygula
+- [ ] Kalan orta bulgular olan mdast-util-to-hast ve uuid için uyumlu güvenli sürüm/override uygula; markdown ve Windows paketleme bağımlılıklarını test/audit ile doğrula
 - [x] Aktif kira Excel aktarımında yüksek riskli `xlsx` bağımlılığını güvenli, bakım gören bir ayrıştırıcıyla değiştir; aktarım şablonu, Türkçe tarih ve mevcut test davranışını koru
 - [x] Doğrudan kullanılan nanoid bağımlılığını CVE-2026-67214 için 5.1.16 veya üzeri güvenli sürüme yükselt; kimlik üretim ve tam test/audit regresyonunu doğrula
 - [x] Windows’ta daha önce çalışan `WINDOWS-KURULUM.bat` akışı için güncel 1.0.23 kaynak ZIP’i hazırla; node_modules/release hariç tut, kullanıcı Windows’ta gerçek installer boyutunu doğrulasın
