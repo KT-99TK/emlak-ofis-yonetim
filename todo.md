@@ -104,3 +104,12 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Teslim ZIP’ini oluşturup arşiv içeriği, EXE PE/NSIS türü ve script sürüm eşleşmesini statik olarak doğrula
 - [x] FINAL teslim ZIP’inde EXE başlatma BAT’ı ile kaynak projeden installer üreten BAT’ı adlandırarak ayır; kullanıcı yanlış betiği çalıştırmasın
 - [x] Teslim kartında ZIP’i tek birincil dosya olarak sun; ayrı EXE/BAT eklerini göndermeden arşiv içeriği ve dosya adlarını kullanıcıya açıkça göster
+- [x] OnlineStart status sorgusunda merkezi ayar yokken `undefined` yerine güvenli `null` döndür; Genel Bakış’ın kalıcı yükleme/undefined hatasını testle doğrula
+- [x] Home/Genel Bakış için gerçek render/jsdom testi ekle: `trpc.onlineStart.status` null döndüğünde React Query undefined hatası oluşmadığını ve ekranın kalıcı loading yerine beklenen başlangıç durumunu gösterdiğini doğrula
+- [x] OnlineStart veya MobileCompanion ekranlarında `onlineStart.status = null` akışını davranışsal testle kapsa; yalnız kaynak-metin testiyle yetinme — Home/Genel Bakış davranış testiyle kapsandı
+- [x] Home/Genel Bakış için Testing Library ile gerçek jsdom DOM render testi ekle; `trpc.onlineStart.status` null döndüğünde loading bandının kalmadığını ve `Başlangıç bekliyor` durumunun göründüğünü doğrula
+- [x] OnlineStart veya MobileCompanion için ayrı davranışsal test ekle; `onlineStart.status = null` akışında ekranın çökmediğini ve beklenen boş/başlangıç durumunu gösterdiğini doğrula
+- [x] Mümkünse tRPC/React Query katmanını düz mock yerine gerçek QueryClient sarmalayıcısıyla test ederek `data is undefined` regresyonunu yeniden üretilemez hale getir — Home ve OnlineStart jsdom testleri gerçek QueryClientProvider ile çalışıyor
+- [x] Home veya OnlineStart için gerçek QueryClient + tRPC provider/caller ile onlineStart.status boş durumda null davranışını doğrulayan entegrasyon testi ekle — gerçek appRouter caller ve gerçek QueryClient DOM testi eklendi
+- [x] Gerçek query yürütmesinde `data is undefined` console/query hatasının oluşmadığını assertion ile kanıtla — procedure testinde console.error metni ayrıca assert edildi
+- [x] Router procedure sonucunu gerçek çağrıyla `undefined` yerine `null` olarak doğrula ve ekranın loading yerine boş duruma geçtiğini tek akışta test et — gerçek appRouter sonucu Home QueryClient DOM akışında render edildi; null boş dalı gerçek DOM testinde ayrıca doğrulandı

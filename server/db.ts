@@ -190,16 +190,16 @@ function toOnlineStartSetting(
 }
 
 export async function getOnlineStartSetting(): Promise<
-  OnlineStartSetting | undefined
+  OnlineStartSetting | null
 > {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const rows = await db
     .select()
     .from(onlineStartSettings)
     .orderBy(desc(onlineStartSettings.configuredAt))
     .limit(1);
-  return rows[0] ? toOnlineStartSetting(rows[0]) : undefined;
+  return rows[0] ? toOnlineStartSetting(rows[0]) : null;
 }
 
 export async function configureFreshOnlineStart(input: {
