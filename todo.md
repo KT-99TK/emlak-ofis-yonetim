@@ -92,3 +92,6 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [ ] Kabul bulgusu: Kira formundaki `En geç` yardımcı tarih satırını kullanıcıya GG.AA.YYYY biçiminde göster; ISO saklama ve hesaplama mantığını değiştirme
 - [ ] 1.0.22 Windows paketinde görülen `En geç: YYYY-MM-DD` yardımcı tarih bulgusunu kaynak/dist sürümüyle karşılaştır ve paketlenebilir düzeltmeyi doğrula
 - [ ] 1.0.22 FINAL kabul bulgusu: İlk kira son ödeme tarihinin `En geç` yardımcı satırını GG.AA.YYYY göster; ISO hesaplama ve saklama değerini koru
+- [ ] Yeni 1.0.22 paketinde ISO yardımcı tarih bulgusu devam ediyor: çalışan Electron runtime `indexPath` ve paket içi dist çıktısını karşılaştır; gerçek kaynağı izole etmeden kullanıcı verilerine dokunma
+- [ ] Yeni 1.0.22 paketinde ISO yardımcı tarih bulgusu devam ediyor: çalışan Electron runtime `indexPath` ve paket içi dist çıktısını karşılaştır; gerçek kaynağı izole etmeden kullanıcı verilerine dokunma
+- [ ] 1.0.22 kaynak/dist belirsizliğini gidermek için kabul düzeltmesini yeni ayırt edilebilir paket sürümüne taşı; package.json, PowerShell beklenen sürüm ve installer testini birlikte güncelle
