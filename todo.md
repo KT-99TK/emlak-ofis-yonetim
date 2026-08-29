@@ -103,3 +103,4 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] 1.0.23 teslim paketine EXE, BAT, PowerShell betiği, kurulum yönergesi ve SHA-256 bütünlük bilgisini birlikte koy
 - [x] Teslim ZIP’ini oluşturup arşiv içeriği, EXE PE/NSIS türü ve script sürüm eşleşmesini statik olarak doğrula
 - [x] FINAL teslim ZIP’inde EXE başlatma BAT’ı ile kaynak projeden installer üreten BAT’ı adlandırarak ayır; kullanıcı yanlış betiği çalıştırmasın
+- [x] Teslim kartında ZIP’i tek birincil dosya olarak sun; ayrı EXE/BAT eklerini göndermeden arşiv içeriği ve dosya adlarını kullanıcıya açıkça göster
