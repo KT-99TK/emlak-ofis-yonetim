@@ -34,11 +34,15 @@ Kullanıcı, bu bulgular ile Windows 10 uygulama kilitlenmesi ardından yapılan
 
 Destek ekibinin yeni görüşme yanıtını bildiren e-postasındaki “Yanıtı görüntüle” bağlantısı kullanıcı tarafında içerik açmadı. Bu da mevcut HTTPS/oturum erişim farkının destek görüşmesini etkileyebileceğine işaret eder. Kullanıcıya bağlantıyı yeniden denemek, Windows ağ ayarı değiştirmek veya güvenlik korumasını aşmak yerine destek yanıtının e-posta gövdesinde istenmesi önerildi.
 
+Daha sonraki doğrulamada kullanıcı, destek sohbetindeki yazışmaları doğrudan görebildiğini ve görüşmenin o kanalda sürdüğünü bildirdi. Bu nedenle e-posta bağlantısının genel yardım merkezine düşmesi, destek ekibiyle iletişim için engel değildir; teknik ekip yanıtı destek sohbetinden izlenecektir.
+
 Kullanıcı bu e-posta yanıt talebini 29.08.2026 tarihinde gönderdi. Destek yanıtı e-posta gövdesinde alınana kadar hiçbir yedek geri yükleme, alan adı/DNS değişikliği, Windows kurulumu veya güvenlik yapılandırması işlemi başlatılmayacaktır.
 
 Kullanıcı, destek ekibinin ek bilgi talebine yanıt olarak Manus hesabına giriş yapabildiğini, hesabına özel bir hizmet değişikliği bildirimi almadığını ve normal pencere, gizli pencere ile mobil veri denemelerindeki hata kanıtlarının zaten iletildiğini bildirdi. Son normal tarayıcı ekranındaki `ERR_SSL_PROTOCOL_ERROR` ile birlikte alan adı/TLS inceleme talebi destek ekibine gönderildi. Bu bilgi, hizmet değişikliği veya geri yükleme gereğinin şu aşamada varsayılmaması gerektiğini destekler; sonraki işlem destek ekibinin resmî teşhisine bağlıdır.
 
 Destek ekibi, kullanıcı hesabının hizmet değişikliğinden etkilenme durumunu ve `emlakdash-kcw9r85v.manus.space` alan adının TLS/HTTPS davranışını yeniden doğruladığını; sonucu doğrudan aynı e-posta görüşmesinde paylaşacağını bildirdi. Bu yanıt gelene kadar değişiklik veya geri yükleme yapılmayacaktır.
+
+Destek ekibi sonrasında hesabın hizmet değişikliğinin kapsamı dışında olduğunu, hesabın Type A/B/C olmadığını ve alan adı için bu nedenle veri geri yüklemesi gerekmediğini doğruladı. Kullanıcının son normal Chrome denemesinde `ERR_SSL_PROTOCOL_ERROR` yeniden görüldüğünü gösteren ekran görüntüsünü aldıktan sonra, bu TLS/HTTPS erişim farkını ayrıntılı inceleme için teknik ekibe aktardığını ve sonucun e-posta üzerinden paylaşılacağını bildirdi. Bu aşamada erişim olayı doğrulanmış olup uygulama kodu, Windows ayarları ve Defender üzerinde değişiklik yapılmayacaktır.
 
 ## Resmî kaynaklar
 
