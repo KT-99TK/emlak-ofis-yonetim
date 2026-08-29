@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import ExcelJS from "exceljs";
+import type { CellValue } from "exceljs";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -83,7 +83,7 @@ function parseDate(value: unknown) {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-function spreadsheetCellValue(value: ExcelJS.CellValue): unknown {
+function spreadsheetCellValue(value: CellValue): unknown {
   if (
     value === null ||
     typeof value === "string" ||
@@ -94,7 +94,7 @@ function spreadsheetCellValue(value: ExcelJS.CellValue): unknown {
     return value;
   }
   if (typeof value === "object" && "result" in value) {
-    return spreadsheetCellValue(value.result as ExcelJS.CellValue);
+    return spreadsheetCellValue(value.result as CellValue);
   }
   if (typeof value === "object" && "richText" in value) {
     return value.richText.map(part => part.text).join("");
@@ -119,6 +119,7 @@ export async function parseActiveRentalWorkbook(
   consultants: Array<{ userId: number; consultantCode: string | null }>,
   codeAliases: Record<string, string> = {}
 ): Promise<ParsedWorkbook> {
+  const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(await file.arrayBuffer());
   const sheet = workbook.getWorksheet("Aktif Kiralamalar") ?? workbook.worksheets[0];
@@ -131,7 +132,7 @@ export async function parseActiveRentalWorkbook(
   const grid: unknown[][] = [];
   sheet.eachRow({ includeEmpty: true }, row => {
     const values = Array.isArray(row.values) ? row.values.slice(1) : [];
-    grid.push(values.map(value => spreadsheetCellValue(value as ExcelJS.CellValue)));
+    grid.push(values.map(value => spreadsheetCellValue(value as CellValue)));
   });
   const headers = (grid[0] ?? []).map(header);
   const at = (...names: string[]) =>

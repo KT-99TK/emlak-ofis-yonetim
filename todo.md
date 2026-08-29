@@ -19,7 +19,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] `mdast-util-to-hast` paketini 13.2.1 sürümüne yükselt; tam test, TypeScript ve production build ile doğrula.
 - [ ] ExcelJS üzerinden gelen `uuid@8.3.2` için kalan tek orta seviye audit bulgusunu, yalnız uyumlu upstream sürüm veya desteklenen ve kilit dosyasında uygulanabildiği kanıtlanan bir düzeltme ile ele al. Uygulanamayan yerel patch’i dağıtıma alma.
 - [x] Express 5 rota geçişinden sonra ana sayfanın HTTP 200 ve korunan `/manus-storage/office-documents/example.pdf` isteğinin HTTP 403 davranışını doğrula.
-- [ ] Büyük üretim JavaScript paketi uyarısını (`ActiveRentalSummaries` çıktı parçası) performans ölçümü yapmadan bölme; olası performans çalışmasını ayrı, veri davranışını değiştirmeyen bir iş olarak ele al.
+- [x] Aktif Kiralamalar ekranındaki ExcelJS yüklemesini dosya seçimi anına taşı; aktarım testleri, TypeScript ve production build ile doğrula. Sayfa parçası 999,12 kB’dan 59,48 kB’a indi; Excel kodu yalnız aktarım gerektiğinde ayrı 939,79 kB parçası olarak yüklenir.
 
 ## 4. Fonksiyonel kabulde bekleyen tekil noktalar
 
