@@ -44,6 +44,8 @@ Destek ekibi, kullanıcı hesabının hizmet değişikliğinden etkilenme durumu
 
 Destek ekibi sonrasında hesabın hizmet değişikliğinin kapsamı dışında olduğunu, hesabın Type A/B/C olmadığını ve alan adı için bu nedenle veri geri yüklemesi gerekmediğini doğruladı. Kullanıcının son normal Chrome denemesinde `ERR_SSL_PROTOCOL_ERROR` yeniden görüldüğünü gösteren ekran görüntüsünü aldıktan sonra, bu TLS/HTTPS erişim farkını ayrıntılı inceleme için teknik ekibe aktardığını ve sonucun e-posta üzerinden paylaşılacağını bildirdi. Bu aşamada erişim olayı doğrulanmış olup uygulama kodu, Windows ayarları ve Defender üzerinde değişiklik yapılmayacaktır.
 
+Kullanıcı, hata ekranı zamanının 29.08.2026 tarihinde 18:11 Türkiye saati olduğunu teknik destek sohbetine iletti; ekran görüntüsünde sonraki sohbet bildirimi 18:21 olarak görülmektedir. Böylece destek ekibinin talep ettiği yeniden üretim zamanı sağlanmıştır. Bu yazının ardından yeni test veya yeni mesaj istenmeyecek, teknik ekip sonucu beklenecektir.
+
 ## Resmî kaynaklar
 
 - [Microsoft Security Intelligence — Trojan:Script/Wacatac.H!ml](https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?name=Trojan%3AScript%2FWacatac.H!ml&threatid=2147814524)
