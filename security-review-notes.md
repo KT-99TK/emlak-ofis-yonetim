@@ -36,6 +36,10 @@ Destek ekibinin yeni görüşme yanıtını bildiren e-postasındaki “Yanıtı
 
 Kullanıcı bu e-posta yanıt talebini 29.08.2026 tarihinde gönderdi. Destek yanıtı e-posta gövdesinde alınana kadar hiçbir yedek geri yükleme, alan adı/DNS değişikliği, Windows kurulumu veya güvenlik yapılandırması işlemi başlatılmayacaktır.
 
+Kullanıcı, destek ekibinin ek bilgi talebine yanıt olarak Manus hesabına giriş yapabildiğini, hesabına özel bir hizmet değişikliği bildirimi almadığını ve normal pencere, gizli pencere ile mobil veri denemelerindeki hata kanıtlarının zaten iletildiğini bildirdi. Son normal tarayıcı ekranındaki `ERR_SSL_PROTOCOL_ERROR` ile birlikte alan adı/TLS inceleme talebi destek ekibine gönderildi. Bu bilgi, hizmet değişikliği veya geri yükleme gereğinin şu aşamada varsayılmaması gerektiğini destekler; sonraki işlem destek ekibinin resmî teşhisine bağlıdır.
+
+Destek ekibi, kullanıcı hesabının hizmet değişikliğinden etkilenme durumunu ve `emlakdash-kcw9r85v.manus.space` alan adının TLS/HTTPS davranışını yeniden doğruladığını; sonucu doğrudan aynı e-posta görüşmesinde paylaşacağını bildirdi. Bu yanıt gelene kadar değişiklik veya geri yükleme yapılmayacaktır.
+
 ## Resmî kaynaklar
 
 - [Microsoft Security Intelligence — Trojan:Script/Wacatac.H!ml](https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?name=Trojan%3AScript%2FWacatac.H!ml&threatid=2147814524)
