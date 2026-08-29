@@ -24,6 +24,14 @@ ExcelJS’in geçişli `uuid@8.3.2` bağımlılığını Web Crypto ile değişt
 
 Tam test paketi, TypeScript denetimi ve production build başarıyla tamamlandı. Uygulama sunucusu yeniden başlatıldıktan sonra ana sayfa HTTP 200, yetkisiz ofis belgesi isteği (`/manus-storage/office-documents/example.pdf`) HTTP 403 döndürdü; Express 5 wildcard rota geçişinde yeni hata görülmedi. Yayın alan adı da bağımsız tarayıcı kontrolünde giriş ekranını açtı; doğrudan TLS kontrolü `*.manus.space` kapsamlı sertifika, geçerli sertifika zinciri, TLS bağlantısı ve HTTP 200 verdi. Buna rağmen bu tek merkezî kontrol, kullanıcının farklı ağlarda gördüğü SSL/bakım sorununun kalıcı olarak çözüldüğünü kanıtlamaz.
 
+29.08.2026 tarihinde yapılan bir sonraki bağımsız tarayıcı kontrolünde de aynı yayın alanı HTTPS üzerinden güvenlik uyarısı veya bakım ekranı olmadan “Sign in to continue” giriş sayfasını döndürdü. Bu tekrar, alan adının kontrol anında erişilebilir olduğunu doğrular; kullanıcının ayrı ağlarında karşılaştığı önceki ara kesintiler için kalıcı erişim kabulü yerine geçmez.
+
+## 29.08.2026 — Kullanıcı ağında tekrar eden TLS kanıtı
+
+Kullanıcının normal tarayıcıdan paylaştığı ekran görüntüsü, `emlakdash-kcw9r85v.manus.space` adresinde “Bu site güvenli bağlantı sağlayamıyor”, “geçersiz bir yanıt gönderdi” ve `ERR_SSL_PROTOCOL_ERROR` iletisini tekrar gösterdi. Aynı anda sandbox tarayıcısı giriş sayfasını, doğrudan TLS/HTTP kontrolleri ise geçerli sertifika zinciri ve HTTP 200 sonucunu verdi. Bu fark uygulama kodu ve kullanıcı cihazındaki Windows programından bağımsız bir alan adı/HTTPS erişim katmanı olayı olarak ele alınacaktır. Kullanıcıdan Windows ağ teşhisleri çalıştırması, tarayıcı güvenlik uyarısını aşması veya Defender ayarlarını değiştirmesi istenmeyecektir.
+
+Kullanıcı, bu bulgular ile Windows 10 uygulama kilitlenmesi ardından yapılan Windows 11 kurulumu bağlamını destek başvurusuna ekleyerek 29.08.2026 tarihinde Manus Destek’e iletti. Bir sonraki teknik işlem, destek yanıtındaki alan adı/TLS bulgusuna göre belirlenecektir; bu sürede Windows dağıtımı durdurulmuştur.
+
 ## Resmî kaynaklar
 
 - [Microsoft Security Intelligence — Trojan:Script/Wacatac.H!ml](https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?name=Trojan%3AScript%2FWacatac.H!ml&threatid=2147814524)
