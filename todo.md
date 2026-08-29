@@ -113,3 +113,18 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Home veya OnlineStart için gerçek QueryClient + tRPC provider/caller ile onlineStart.status boş durumda null davranışını doğrulayan entegrasyon testi ekle — gerçek appRouter caller ve gerçek QueryClient DOM testi eklendi
 - [x] Gerçek query yürütmesinde `data is undefined` console/query hatasının oluşmadığını assertion ile kanıtla — procedure testinde console.error metni ayrıca assert edildi
 - [x] Router procedure sonucunu gerçek çağrıyla `undefined` yerine `null` olarak doğrula ve ekranın loading yerine boş duruma geçtiğini tek akışta test et — gerçek appRouter sonucu Home QueryClient DOM akışında render edildi; null boş dalı gerçek DOM testinde ayrıca doğrulandı
+- [x] ZIP eki kullanıcıya ulaşmadı; tek arşivin dosya adı, mevcutluğu ve yeniden teslim yöntemini doğrula — doğrudan CDN bağlantısıyla yeniden teslim edildi
+- [x] Önceki 1.0.23 teslimindeki 186 KB yarım EXE ve çalışmayan başlatma BAT’ını geçersiz teslim olarak işaretle; yeni paket gerçek çalışabilirlik ve boyut doğrulaması olmadan gönderme — geçersiz teslim olarak ayrıldı
+- [x] Windows dağıtımında uygun gerçek installer/portable alternatifini seç; sandbox Wine ile doğrulanamayan dosyayı kullanıcıya FINAL diye teslim etme — tam 617 MB portable çıktı seçildi ve statik olarak doğrulandı
+- [x] Portable 1.0.23 paketinde Global1881-BASLAT.bat yanlış installer adını arıyor; gerçek `1881 Ofis Yönetim.exe` adını kullanacak şekilde BAT ve yönergeyi düzelt, ZIP içi eşleşmeyi doğrula
+- [ ] Defender tarafından silinen imzasız portable paketi geçersiz kabul et; kullanıcıdan güvenlik korumalarını kapatmasını istemeden imzalı/kurumsal onaylı dağıtım yolunu belirle
+- [ ] Kod imzalama sertifikası olmadığı için Windows offline portable/installer kabulünü ertele; imzasız EXE çalıştırma istemeden web uygulamasında ekran kabulünü sürdür
+- [ ] 1.0.22 ile 1.0.23 paketleme farkını önceki başarılı Windows akışıyla karşılaştır; sertifika gerektirmeyen güvenli yerel paketleme yöntemini belirle ve kullanıcıya açıkla
+- [ ] Defender kaynak 1.0.23 ZIP’i de tehdit olarak algıladı; tüm imzasız Windows dosya teslimini durdur, Koruma Geçmişi tehdit adı/dosya yolu ayrıntısını incelemeden paketi yeniden önerme
+- [x] Defender `Trojan:Script/Wacatac.H!ml` algılaması doğrulandı; önceki portable ve kaynak ZIP’lerini geçersiz kabul et, hiçbir dosyayı geri yükletme/izin verdirtme, Windows betiklerini bağımsız güvenlik incelemesine ayır
+- [x] Wacatac algılamasına öncelik ver: `WINDOWS-KURULUM.bat/.ps1`, paket oluşturma bağımlılıkları ve dış kaynak çağrılarını statik olarak incele; bulguyu belgeleyene kadar yeni Windows dosyası üretme
+- [x] Kritik fast-xml-parser 5.2.5 bağımlılığını güvenli sürüme yükselt; AWS S3 zinciriyle uyumluluk, test/build ve yeniden audit doğrulamasını tamamla
+- [ ] Windows dosya dağıtımı güvenlik incelemesi tamamlanana kadar ekran kabulünü yalnız yayınlanmış web uygulamasında sürdür
+- [ ] Kalan 19 yüksek üretim bağımlılık bulgusunu risk ve kullanılabilirlik etkisine göre ayrı incele; büyük sürüm güncellemelerini toplu test olmadan uygulama
+- [x] Windows’ta daha önce çalışan `WINDOWS-KURULUM.bat` akışı için güncel 1.0.23 kaynak ZIP’i hazırla; node_modules/release hariç tut, kullanıcı Windows’ta gerçek installer boyutunu doğrulasın
+- [x] Linux ortamında oluşan 1.0.23 yarım installer/portable teslimlerini kullanma; Windows’ta daha önce çalışan yerel `WINDOWS-KURULUM.bat` paketleme akışına dön
