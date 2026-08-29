@@ -11,6 +11,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Contracts = lazy(() => import("./pages/Contracts"));
 const AuthorityContracts = lazy(() => import("./pages/AuthorityContracts"));
 const OfflineWorkspace = lazy(() => import("./pages/OfflineWorkspace"));
+const OfflineOverview = lazy(() => import("./pages/OfflineOverview"));
 const OfflineAuthorityContracts = lazy(
   () => import("./pages/OfflineAuthorityContracts")
 );
@@ -47,8 +48,8 @@ function RouteLoader() {
 }
 
 function DesktopRouter() {
-  const routeFromHash = () => window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : window.location.hash === "#/offline-rental" ? "rental" : window.location.hash === "#/offline-active-documents" ? "active-documents" : window.location.hash === "#/offline-archive" ? "archive" : window.location.hash === "#/offline-performance" ? "performance" : window.location.hash === "#/offline-my-contracts" ? "my-contracts" : window.location.hash === "#/offline-my-contributions" ? "my-contributions" : window.location.hash === "#/offline-targets" ? "targets" : window.location.hash === "#/offline-requests" ? "requests" : window.location.hash === "#/offline-request-matches" ? "request-matches" : window.location.hash === "#/offline-transactions" ? "transactions" : window.location.hash === "#/offline-cash-bank" ? "cash-bank" : window.location.hash === "#/offline-internal-control" ? "internal-control" : window.location.hash === "#/offline-office-contributions" ? "office-contributions" : "offline";
-  const [route, setRoute] = useState<"offline" | "authority" | "rental" | "active-documents" | "archive" | "performance" | "my-contracts" | "my-contributions" | "targets" | "requests" | "request-matches" | "transactions" | "cash-bank" | "internal-control" | "office-contributions" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
+  const routeFromHash = () => window.location.hash === "#/offline-overview" ? "overview" : window.location.hash === "#/offline-merge" ? "merge" : window.location.hash === "#/offline-authority" ? "authority" : window.location.hash === "#/offline-rental" ? "rental" : window.location.hash === "#/offline-active-documents" ? "active-documents" : window.location.hash === "#/offline-archive" ? "archive" : window.location.hash === "#/offline-performance" ? "performance" : window.location.hash === "#/offline-my-contracts" ? "my-contracts" : window.location.hash === "#/offline-my-contributions" ? "my-contributions" : window.location.hash === "#/offline-targets" ? "targets" : window.location.hash === "#/offline-requests" ? "requests" : window.location.hash === "#/offline-request-matches" ? "request-matches" : window.location.hash === "#/offline-transactions" ? "transactions" : window.location.hash === "#/offline-cash-bank" ? "cash-bank" : window.location.hash === "#/offline-internal-control" ? "internal-control" : window.location.hash === "#/offline-office-contributions" ? "office-contributions" : "offline";
+  const [route, setRoute] = useState<"overview" | "offline" | "authority" | "rental" | "active-documents" | "archive" | "performance" | "my-contracts" | "my-contributions" | "targets" | "requests" | "request-matches" | "transactions" | "cash-bank" | "internal-control" | "office-contributions" | "merge">(() => typeof window !== "undefined" ? routeFromHash() : "offline");
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromHash());
@@ -58,7 +59,7 @@ function DesktopRouter() {
 
   return (
     <DashboardLayout>
-      <Suspense fallback={<RouteLoader />}>{route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "active-documents" ? <OfflineActiveContractDocuments /> : route === "archive" ? <OfflineContractArchive /> : route === "performance" ? <OfflineConsultantPerformance /> : route === "my-contracts" ? <MyOfflineContracts /> : route === "my-contributions" ? <MyOfficeContributionSummary /> : route === "targets" ? <BrokerAnnualTargets /> : route === "requests" ? <CustomerRequests /> : route === "request-matches" ? <BrokerRequestMatches /> : route === "transactions" ? <OfflineTransactionClosings /> : route === "cash-bank" ? <OfflineCashBankControl /> : route === "internal-control" ? <OfflineInternalControl /> : route === "office-contributions" ? <OfflineOfficeContributionControl /> : <OfflineWorkspace />}</Suspense>
+      <Suspense fallback={<RouteLoader />}>{route === "overview" ? <OfflineOverview /> : route === "merge" ? <BackupMerge /> : route === "authority" ? <OfflineAuthorityContracts /> : route === "rental" ? <OfflineRentalContracts /> : route === "active-documents" ? <OfflineActiveContractDocuments /> : route === "archive" ? <OfflineContractArchive /> : route === "performance" ? <OfflineConsultantPerformance /> : route === "my-contracts" ? <MyOfflineContracts /> : route === "my-contributions" ? <MyOfficeContributionSummary /> : route === "targets" ? <BrokerAnnualTargets /> : route === "requests" ? <CustomerRequests /> : route === "request-matches" ? <BrokerRequestMatches /> : route === "transactions" ? <OfflineTransactionClosings /> : route === "cash-bank" ? <OfflineCashBankControl /> : route === "internal-control" ? <OfflineInternalControl /> : route === "office-contributions" ? <OfflineOfficeContributionControl /> : <OfflineWorkspace />}</Suspense>
     </DashboardLayout>
   );
 }

@@ -206,7 +206,7 @@ function createWindow() {
     if (!url.startsWith("file:")) {
       event.preventDefault();
       writeStartupLog(`Uzak navigasyon engellendi; url=${url}; fallback=file-offline`);
-      void window.loadFile(indexPath, { hash: "/offline" });
+      void window.loadFile(indexPath, { hash: "/offline-overview" });
     }
   });
   window.webContents.setWindowOpenHandler(({ url }) => {
@@ -216,7 +216,7 @@ function createWindow() {
     }
     return { action: "allow" };
   });
-  writeStartupLog(`Electron başlatıldı; packaged=${app.isPackaged}; appVersion=${app.getVersion()}; indexPath=${indexPath}; exists=${fs.existsSync(indexPath)}; initialRoute=#/offline`);
+  writeStartupLog(`Electron başlatıldı; packaged=${app.isPackaged}; appVersion=${app.getVersion()}; indexPath=${indexPath}; exists=${fs.existsSync(indexPath)}; initialRoute=#/offline-overview`);
   window.webContents.on("did-finish-load", () => {
     writeStartupLog(`Arayüz yüklendi; url=${window.webContents.getURL()}`);
   });
@@ -225,7 +225,7 @@ function createWindow() {
     const diagnostic = `<h2>Global 1881 arayüzü yüklenemedi</h2><p>Kurulum paketi eksik veya bozuk olabilir.</p><p>Hata: ${errorDescription} (${errorCode})</p><p>Startup log: ${path.join(app.getPath("userData"), "startup.log")}</p>`;
     void window.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(diagnostic)}`);
   });
-  void window.loadFile(indexPath, { hash: "/offline" });
+  void window.loadFile(indexPath, { hash: "/offline-overview" });
 }
 
 app.whenReady().then(() => {

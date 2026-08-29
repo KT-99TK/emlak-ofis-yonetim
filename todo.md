@@ -95,3 +95,5 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [ ] Yeni 1.0.22 paketinde ISO yardımcı tarih bulgusu devam ediyor: çalışan Electron runtime `indexPath` ve paket içi dist çıktısını karşılaştır; gerçek kaynağı izole etmeden kullanıcı verilerine dokunma
 - [ ] Yeni 1.0.22 paketinde ISO yardımcı tarih bulgusu devam ediyor: çalışan Electron runtime `indexPath` ve paket içi dist çıktısını karşılaştır; gerçek kaynağı izole etmeden kullanıcı verilerine dokunma
 - [ ] 1.0.22 kaynak/dist belirsizliğini gidermek için kabul düzeltmesini yeni ayırt edilebilir paket sürümüne taşı; package.json, PowerShell beklenen sürüm ve installer testini birlikte güncelle
+- [ ] Windows 1.0.23 kabul bulgusu: Kira Sözleşmeleri menü ekranı açılmıyor; offline rota, Electron paket runtime ve istemci hata akışını teşhis et, mevcut verileri koru
+- [ ] Windows Electron açılışında doğrudan Yerel Çalışma Alanı yerine Genel Bakış/başlangıç ekranını göster; offline menü ve mevcut verileri koru, açılış rotasını testle doğrula
