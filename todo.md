@@ -89,3 +89,6 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Home/Dashboard route seviyesinde OfficeFlowPanel’i gerçek query mock’larıyla render eden test ekle; talep-eşleşme ve eksik işlem kartlarının hangi tRPC query/procedure verisiyle beslendiğini davranışsal olarak doğrula
 - [x] OfficeFlowPanel testlerinde talep-eşleşme ve eksik işlem kartları için sayı değerlerini de açık assertion ile doğrula
 - [x] Kart adları ile veri kaynağı eşlemesini testte daha açık hale getir; Sözleşme işlemi ve Açık tahsilat özetlerini iş türüyle netleştir
+- [ ] Kabul bulgusu: Kira formundaki `En geç` yardımcı tarih satırını kullanıcıya GG.AA.YYYY biçiminde göster; ISO saklama ve hesaplama mantığını değiştirme
+- [ ] 1.0.22 Windows paketinde görülen `En geç: YYYY-MM-DD` yardımcı tarih bulgusunu kaynak/dist sürümüyle karşılaştır ve paketlenebilir düzeltmeyi doğrula
+- [ ] 1.0.22 FINAL kabul bulgusu: İlk kira son ödeme tarihinin `En geç` yardımcı satırını GG.AA.YYYY göster; ISO hesaplama ve saklama değerini koru
