@@ -32,6 +32,10 @@ Kullanıcının normal tarayıcıdan paylaştığı ekran görüntüsü, `emlakd
 
 Kullanıcı, bu bulgular ile Windows 10 uygulama kilitlenmesi ardından yapılan Windows 11 kurulumu bağlamını destek başvurusuna ekleyerek 29.08.2026 tarihinde Manus Destek’e iletti. Bir sonraki teknik işlem, destek yanıtındaki alan adı/TLS bulgusuna göre belirlenecektir; bu sürede Windows dağıtımı durdurulmuştur.
 
+Destek ekibinin yeni görüşme yanıtını bildiren e-postasındaki “Yanıtı görüntüle” bağlantısı kullanıcı tarafında içerik açmadı. Bu da mevcut HTTPS/oturum erişim farkının destek görüşmesini etkileyebileceğine işaret eder. Kullanıcıya bağlantıyı yeniden denemek, Windows ağ ayarı değiştirmek veya güvenlik korumasını aşmak yerine destek yanıtının e-posta gövdesinde istenmesi önerildi.
+
+Kullanıcı bu e-posta yanıt talebini 29.08.2026 tarihinde gönderdi. Destek yanıtı e-posta gövdesinde alınana kadar hiçbir yedek geri yükleme, alan adı/DNS değişikliği, Windows kurulumu veya güvenlik yapılandırması işlemi başlatılmayacaktır.
+
 ## Resmî kaynaklar
 
 - [Microsoft Security Intelligence — Trojan:Script/Wacatac.H!ml](https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?name=Trojan%3AScript%2FWacatac.H!ml&threatid=2147814524)

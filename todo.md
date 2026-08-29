@@ -11,9 +11,11 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 2. Canlı web erişimi — platform / alan adı takibi
 
-- [ ] Yayın alan adı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Ubuntu kontrolünde TLS sertifikası geçerli ve giriş sayfası HTTP 200 dönmüştür; bu, kullanıcı ağındaki önceki `ERR_SSL_PROTOCOL_ERROR` ve bakım ekranını tek başına kapatmaz.
+- [ ] Yayın alanı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Ubuntu kontrolünde TLS sertifikası geçerli ve giriş sayfası HTTP 200 dönmüştür; bu, kullanıcı ağındaki önceki `ERR_SSL_PROTOCOL_ERROR` ve bakım ekranını tek başına kapatmaz.
 - [ ] Güvenli erişim kararlı olduğunda, Windows paketi yerine yayımlanmış web uygulamasında tek ekran kabul oturumunu planla. Kullanıcıdan aynı bağlantı testlerini tekrarlamasını isteme.
 - [x] Alan adı erişimi düzelir düzelmez uygulanacak, tek oturumluk ve veri değiştirmeyen web kabul kontrol listesini hazırla. `web-acceptance-checklist.md` oluşturuldu.
+- [ ] Hesap içi bildirim veya e-posta temelinde Ağustos 2026 hizmet değişikliği kapsamını doğrula; arama sonucu veya bakım ekranından etkilenme/geri yükleme gereğini varsayma.
+- [x] Manus Destek’in e-posta ilettiği “Yanıtı görüntüle” bağlantısı kullanıcı tarafında içerik açmadığı için destek yanıtını e-posta gövdesinde talep et; yanıt alınmadan yedek/geri yükleme işlemi başlatma. Kullanıcı e-posta yanıt talebini gönderdi.
 - [x] Kullanıcının 29.08.2026 tarihli normal tarayıcı ekran görüntüsünde tekrar doğrulanan `ERR_SSL_PROTOCOL_ERROR` bulgusunu alan adı/HTTPS erişim katmanı olayı olarak platform desteğine ilet; uygulama kodu, Windows ağ teşhisi veya güvenlik korumasını aşma ile çözmeye çalışma. Kullanıcı destek başvurusunu gönderdi.
 
 - [x] Windows 10’daki uygulama kilitlenmesi ve takip eden Windows 11 kurulumu bağlamını destek başvurusuna ekle; işletim sistemi geçişini olası yerel etken olarak not et, ancak alan adı sorununa doğrulanmış kök neden diye tanımlama. Kullanıcı destek başvurusuna ekledi.
