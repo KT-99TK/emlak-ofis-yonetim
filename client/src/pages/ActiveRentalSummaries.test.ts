@@ -1,12 +1,12 @@
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { describe, expect, it } from "vitest";
 import { getActiveRentalAdvisorDistribution, parseActiveRentalWorkbook } from "./ActiveRentalSummaries";
 
-function workbookFile(rows: unknown[][]) {
-  const sheet = XLSX.utils.aoa_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, sheet, "Aktif Kiralamalar");
-  const bytes = XLSX.write(workbook, { type: "array", bookType: "xlsx" });
+async function workbookFile(rows: unknown[][]) {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Aktif Kiralamalar");
+  rows.forEach(row => sheet.addRow(row));
+  const bytes = await workbook.xlsx.writeBuffer();
   return new File([bytes], "aktif-kiralamalar.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 }
 
@@ -20,7 +20,7 @@ describe("ActiveRentalSummaries Excel ayrıştırıcısı", () => {
   });
 
   it("aynı malikin farklı konumlarını eski 11 sütunlu dosyada ayrı taşınmaz olarak korur", async () => {
-    const file = workbookFile([
+    const file = await workbookFile([
       ["Müşteri / malik adı", "", "Malik telefonu", "Kiracı adı", "Kiracı telefonu", "Sözleşme tarihi", "Kira artış tarihi", "Güncel aylık kira (TL)", "Mahalle", "Danışman kodu", ""],
       ["Mustafa Ekin-emlak ofisi", "İskele işyeri 1", "5326420557", "Hasan Öncü", "05010324435", "10.05.2025", "10.05.2026", 50000, "İskele", "KT1", ""],
       ["Mustafa Ekin-kuaför", "İskele işyeri 2", "5326420557", "Bedriye", "5071262786", "01.08.2023", "01.08.2026", 69500, "İskele", "KT1", ""],
@@ -34,7 +34,7 @@ describe("ActiveRentalSummaries Excel ayrıştırıcısı", () => {
   });
 
   it("aynı malik, danışman ve taşınmaz kimliğinin tekrarını aktarım öncesinde durdurur", async () => {
-    const file = workbookFile([
+    const file = await workbookFile([
       ["Müşteri / malik adı", "Taşınmaz konumu", "Malik telefonu", "Kiracı adı", "Kiracı telefonu", "Sözleşme tarihi", "Kira artış tarihi", "Güncel aylık kira (TL)", "Mahalle", "Daire bilgisi", "Danışman kodu"],
       ["Mustafa Ekin", "İskele", "5326420557", "Hasan", "05010324435", "10.05.2025", "10.05.2026", 50000, "İskele", "Daire 1", "KT1"],
       ["Mustafa Ekin", "İskele", "5326420557", "Bedriye", "5071262786", "01.08.2023", "01.08.2026", 69500, "İskele", "Daire 1", "KT1"],
@@ -46,7 +46,7 @@ describe("ActiveRentalSummaries Excel ayrıştırıcısı", () => {
   });
 
   it("tanımsız danışman kodunu kayıt öncesi hataya dönüştürür", async () => {
-    const file = workbookFile([
+    const file = await workbookFile([
       ["Müşteri / malik adı", "Taşınmaz konumu", "Malik telefonu", "Kiracı adı", "Kiracı telefonu", "Sözleşme tarihi", "Kira artış tarihi", "Güncel aylık kira (TL)", "Mahalle", "Daire bilgisi", "Danışman kodu"],
       ["Mustafa Ekin", "İskele", "5326420557", "Hasan", "05010324435", "10.05.2025", "10.05.2026", 50000, "İskele", "Daire 1", "CT9"],
     ]);
@@ -56,7 +56,7 @@ describe("ActiveRentalSummaries Excel ayrıştırıcısı", () => {
   });
 
   it("broker managerın onayladığı KT0 düzeltmesini yalnız verilen alias ile KT1’e yönlendirir", async () => {
-    const file = workbookFile([
+    const file = await workbookFile([
       ["Müşteri / malik adı", "Taşınmaz konumu", "Malik telefonu", "Kiracı adı", "Kiracı telefonu", "Sözleşme tarihi", "Kira artış tarihi", "Güncel aylık kira (TL)", "Mahalle", "Daire bilgisi", "Danışman kodu"],
       ["Mustafa Ekin", "İskele", "5326420557", "Hasan", "05010324435", "10.05.2025", "10.05.2026", 50000, "İskele", "Daire 1", "KT0"],
     ]);

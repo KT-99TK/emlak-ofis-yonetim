@@ -125,6 +125,13 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] Wacatac algılamasına öncelik ver: `WINDOWS-KURULUM.bat/.ps1`, paket oluşturma bağımlılıkları ve dış kaynak çağrılarını statik olarak incele; bulguyu belgeleyene kadar yeni Windows dosyası üretme
 - [x] Kritik fast-xml-parser 5.2.5 bağımlılığını güvenli sürüme yükselt; AWS S3 zinciriyle uyumluluk, test/build ve yeniden audit doğrulamasını tamamla
 - [ ] Windows dosya dağıtımı güvenlik incelemesi tamamlanana kadar ekran kabulünü yalnız yayınlanmış web uygulamasında sürdür
+- [ ] Yayın alan adında ERR_SSL_PROTOCOL_ERROR görüldü; SSL/TLS yapılandırmasını doğrula ve güvenlik uyarısını aşmadan geçerli web erişim yolunu sağla
+- [ ] Yayın alan adında bakım modu sayfası görünüyor; canlı yayın/alan adı bakım durumunu doğrula ve uygulama erişimini geri getir
+- [ ] Kullanıcı cihazında normal ve gizli pencerede bakım modu devam ediyor; alan adı erişimini farklı ağ/yayın noktalarıyla karşılaştırıp kalıcı canlı erişimi doğrula
+- [ ] Mobil internet üzerinde de ERR_SSL_PROTOCOL_ERROR doğrulandı; bu platform/alan adı erişim engelini uygulama kodundan ayır ve güvenlik uyarısını aşmadan çözüm kanalını belirle
+- [ ] Kullanıcıyı tekrar Windows paket, ZIP/BAT veya web URL denemelerine yönlendirme; Ubuntu üzerinde güvenlik ve paketleme sorunu netleşmeden tekil doğrulanmış çözüm hazırlama ilkesini uygula
 - [ ] Kalan 19 yüksek üretim bağımlılık bulgusunu risk ve kullanılabilirlik etkisine göre ayrı incele; büyük sürüm güncellemelerini toplu test olmadan uygulama
+- [x] Aktif kira Excel aktarımında yüksek riskli `xlsx` bağımlılığını güvenli, bakım gören bir ayrıştırıcıyla değiştir; aktarım şablonu, Türkçe tarih ve mevcut test davranışını koru
+- [x] Doğrudan kullanılan nanoid bağımlılığını CVE-2026-67214 için 5.1.16 veya üzeri güvenli sürüme yükselt; kimlik üretim ve tam test/audit regresyonunu doğrula
 - [x] Windows’ta daha önce çalışan `WINDOWS-KURULUM.bat` akışı için güncel 1.0.23 kaynak ZIP’i hazırla; node_modules/release hariç tut, kullanıcı Windows’ta gerçek installer boyutunu doğrulasın
 - [x] Linux ortamında oluşan 1.0.23 yarım installer/portable teslimlerini kullanma; Windows’ta daha önce çalışan yerel `WINDOWS-KURULUM.bat` paketleme akışına dön

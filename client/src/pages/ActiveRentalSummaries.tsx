@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -71,8 +71,9 @@ function emptyRow(row: unknown[]) {
 function parseDate(value: unknown) {
   if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
   if (typeof value === "number") {
-    const date = XLSX.SSF.parse_date_code(value);
-    if (date) return new Date(date.y, date.m - 1, date.d);
+    const epoch = new Date(Date.UTC(1899, 11, 30));
+    epoch.setUTCDate(epoch.getUTCDate() + value);
+    return new Date(epoch.getUTCFullYear(), epoch.getUTCMonth(), epoch.getUTCDate());
   }
   const raw = clean(value);
   const match = raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
@@ -81,6 +82,27 @@ function parseDate(value: unknown) {
   const date = new Date(raw);
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
+
+function spreadsheetCellValue(value: ExcelJS.CellValue): unknown {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    value instanceof Date
+  ) {
+    return value;
+  }
+  if (typeof value === "object" && "result" in value) {
+    return spreadsheetCellValue(value.result as ExcelJS.CellValue);
+  }
+  if (typeof value === "object" && "richText" in value) {
+    return value.richText.map(part => part.text).join("");
+  }
+  if (typeof value === "object" && "text" in value) return value.text;
+  return "";
+}
+
 function parseMoney(value: unknown) {
   if (typeof value === "number")
     return Number.isFinite(value) && value > 0 ? value : undefined;
@@ -97,23 +119,19 @@ export async function parseActiveRentalWorkbook(
   consultants: Array<{ userId: number; consultantCode: string | null }>,
   codeAliases: Record<string, string> = {}
 ): Promise<ParsedWorkbook> {
-  const workbook = XLSX.read(await file.arrayBuffer(), {
-    type: "array",
-    cellDates: true,
-  });
-  const sheet =
-    workbook.Sheets["Aktif Kiralamalar"] ??
-    workbook.Sheets[workbook.SheetNames[0] ?? ""];
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(await file.arrayBuffer());
+  const sheet = workbook.getWorksheet("Aktif Kiralamalar") ?? workbook.worksheets[0];
   if (!sheet)
     return {
       rows: [],
       errors: ["Aktif Kiralamalar sayfası bulunamadı."],
       fileName: file.name,
     };
-  const grid = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
-    header: 1,
-    raw: true,
-    defval: "",
+  const grid: unknown[][] = [];
+  sheet.eachRow({ includeEmpty: true }, row => {
+    const values = Array.isArray(row.values) ? row.values.slice(1) : [];
+    grid.push(values.map(value => spreadsheetCellValue(value as ExcelJS.CellValue)));
   });
   const headers = (grid[0] ?? []).map(header);
   const at = (...names: string[]) =>
