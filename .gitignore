@@ -112,3 +112,9 @@ temp/
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
 .project-config.json
+
+# Generated Electron build output; final delivery artifacts are kept separately
+release/win-unpacked/
+release/*.nsis.7z
+release/builder-*.yml
+release/builder-*.yaml

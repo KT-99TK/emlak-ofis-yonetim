@@ -90,10 +90,16 @@ Bu dosya yalnızca güncel ve tekrar etmeyen işleri içerir. Önceki ayrıntıl
 - [x] OfficeFlowPanel testlerinde talep-eşleşme ve eksik işlem kartları için sayı değerlerini de açık assertion ile doğrula
 - [x] Kart adları ile veri kaynağı eşlemesini testte daha açık hale getir; Sözleşme işlemi ve Açık tahsilat özetlerini iş türüyle netleştir
 - [ ] Kabul bulgusu: Kira formundaki `En geç` yardımcı tarih satırını kullanıcıya GG.AA.YYYY biçiminde göster; ISO saklama ve hesaplama mantığını değiştirme
-- [ ] 1.0.22 Windows paketinde görülen `En geç: YYYY-MM-DD` yardımcı tarih bulgusunu kaynak/dist sürümüyle karşılaştır ve paketlenebilir düzeltmeyi doğrula
+- [x] 1.0.22 Windows paketinde görülen `En geç: YYYY-MM-DD` yardımcı tarih bulgusunu kaynak/dist sürümüyle karşılaştır ve paketlenebilir düzeltmeyi doğrula — 1.0.22 artefaktı çalışma alanında bulunamadı; 1.0.23 ayırt edilebilir paket olarak supersede etti
 - [ ] 1.0.22 FINAL kabul bulgusu: İlk kira son ödeme tarihinin `En geç` yardımcı satırını GG.AA.YYYY göster; ISO hesaplama ve saklama değerini koru
-- [ ] Yeni 1.0.22 paketinde ISO yardımcı tarih bulgusu devam ediyor: çalışan Electron runtime `indexPath` ve paket içi dist çıktısını karşılaştır; gerçek kaynağı izole etmeden kullanıcı verilerine dokunma
-- [ ] Yeni 1.0.22 paketinde ISO yardımcı tarih bulgusu devam ediyor: çalışan Electron runtime `indexPath` ve paket içi dist çıktısını karşılaştır; gerçek kaynağı izole etmeden kullanıcı verilerine dokunma
-- [ ] 1.0.22 kaynak/dist belirsizliğini gidermek için kabul düzeltmesini yeni ayırt edilebilir paket sürümüne taşı; package.json, PowerShell beklenen sürüm ve installer testini birlikte güncelle
-- [ ] Windows 1.0.23 kabul bulgusu: Kira Sözleşmeleri menü ekranı açılmıyor; offline rota, Electron paket runtime ve istemci hata akışını teşhis et, mevcut verileri koru
+- [x] Yeni 1.0.22 paketinde ISO yardımcı tarih bulgusu devam ediyor: çalışan Electron runtime `indexPath` ve paket içi dist çıktısını karşılaştır; gerçek kaynağı izole etmeden kullanıcı verilerine dokunma — ana runtime kanıtı olarak 1.0.23 paket incelemesine taşındı
+- [x] Mükerrer 1.0.22 runtime/dist takip maddesi — superseded/geçmiş kayıt; 1.0.23 paketinde tekil kanıt maddesiyle takip ediliyor
+- [x] 1.0.22 kaynak/dist belirsizliğini gidermek için kabul düzeltmesini yeni ayırt edilebilir paket sürümüne taşı; package.json, PowerShell beklenen sürüm ve installer testini birlikte güncelle
+- [x] Windows 1.0.23 kabul bulgusu: Kira Sözleşmeleri menü ekranı açılmıyor; offline rota, Electron paket runtime ve istemci hata akışını teşhis et, mevcut verileri koru
 - [ ] Windows Electron açılışında doğrudan Yerel Çalışma Alanı yerine Genel Bakış/başlangıç ekranını göster; offline menü ve mevcut verileri koru, açılış rotasını testle doğrula
+- [x] 1.0.22 installer/app.asar artefaktı mevcutsa doğrudan çıkarıp `startup.log` bulgusuyla eşleştir; artefakt yoktu, bu nedenle 1.0.23’e supersede edildiği açıkça kaydedildi
+- [x] Mükerrer 1.0.22 runtime/dist takip maddelerini tek kanıtlanan sürüm maddesi altında birleştir; ikinci kayıt geçmiş kaydı olarak superseded notuyla korundu
+- [ ] Windows 11’de açılmayan 1.0.23 EXE bulgusunu ve SmartScreen/imza durumunu güvenli kurulum akışıyla yeniden doğrula; güvenlik korumalarını devre dışı bırakma
+- [x] 1.0.23 teslim paketine EXE, BAT, PowerShell betiği, kurulum yönergesi ve SHA-256 bütünlük bilgisini birlikte koy
+- [x] Teslim ZIP’ini oluşturup arşiv içeriği, EXE PE/NSIS türü ve script sürüm eşleşmesini statik olarak doğrula
+- [x] FINAL teslim ZIP’inde EXE başlatma BAT’ı ile kaynak projeden installer üreten BAT’ı adlandırarak ayır; kullanıcı yanlış betiği çalıştırmasın
