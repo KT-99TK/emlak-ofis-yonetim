@@ -36,3 +36,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [ ] Kod ve test düzeyinde tamamlanan kira yardımcı tarihi, A4 belgeler/ekler, yedek/merge, rol mahremiyeti, boş online başlangıç ve responsive Ofis Akışı davranışlarını güvenli erişim sağlandığında kullanıcıya görünen gerçek çalışma ortamında toplu kabul et.
 - [ ] WordPress, DNS delegasyonu ve alan adı sahipliği modelini, web tasarımcısının erişim sınırlarıyla kullanıcı kararı olarak değerlendir.
 - [ ] Otomatik dış mesaj veya zamanlanmış iletişim ekleme; yalnız kullanıcı tarafından manuel yenilenen hizmet takvimi yaklaşımını koru.
+
+## 5. Hesaplar arası devam için yedek/devir hazırlığı
+
+- [x] Mevcut projenin kaynak kodu, mimari ve güvenlik notları, veritabanı şeması/migrasyonları, bağımlılık kilit dosyası, test kanıtları ve çalışma durumu için salt-okunur bir devir envanteri oluştur. `DEVRALMA-VE-YEDEK-PLANI.md` ile 392 izlenen dosya, 294 kaynak/şema dosyası ve 94 test dosyası envanterlendi.
+- [x] Uygulama verileri, kullanıcı yüklemeleri, gizli değişkenler ve alan adı bağlarının kaynak kod paketinden ayrı tutulduğunu açıkça belirle; başka hesapta devam seçeneğinin hangi verileri otomatik taşımadığını belgele. `DEVRALMA-VE-YEDEK-PLANI.md` kapsam ayrımını ve karar seçeneklerini içerir.
+- [x] Mevcut kullanıcı verilerini, IndexedDB yedeklerini, imzalı PDF’leri, `%APPDATA%\Global 1881 Gayrimenkul` içeriğini veya yayın alanı bağını değiştirmeden, başka hesapta kaynak üzerinden devam için geri dönüş yönergesi hazırla. `DEVRALMA-VE-YEDEK-PLANI.md` güvenli sıra ve koruma sınırlarını içerir.
