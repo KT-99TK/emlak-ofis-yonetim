@@ -28,6 +28,38 @@
 | **Yayın alanı** | `emlakdash-kcw9r85v.manus.space` bağlanışı | **Hayır** | Alan adı bağlantısı kaynak dosyası değildir; erişim olayı çözülmeden değişiklik yapılmamalıdır.[^domains] |
 | **Yerel Electron verisi** | `%APPDATA%\Global 1881 Gayrimenkul`, IndexedDB, şifreli yedekler ve imzalı PDF’ler | **Hayır** | Mevcut 1.0.22 kurulumuna dokunmadan, yalnız kullanıcı denetiminde ayrı fiziksel arşiv olarak korunmalıdır. |
 
+### Merkezi veri envanteri — 30.08.2026 salt-okunur kontrolü
+
+Merkezi veritabanında bu kontrol sırasında kayıtlar bulunduğu için, kaynak ZIP’inin tek başına tam iş verisi yedeği sayılmaması gerekir. Aşağıdaki sayılar yalnız tablo sayımıdır; müşteri adı, telefon, adres veya belge içeriği sorgulanmamış ve dışa aktarılmamıştır.
+
+| Veri türü | Kayıt sayısı | Kaynak ZIP’inde mi? |
+|---|---:|---:|
+| Kullanıcı / kullanıcı profili | 3 / 2 | Hayır |
+| Müşteri kartı | 15 | Hayır |
+| Aktif kira özeti | 21 | Hayır |
+| Hizmet görevi | 68 | Hayır |
+| Online başlangıç ayarı | 1 | Hayır |
+| Denetim kaydı | 2 | Hayır |
+| Sözleşme, belge metadatası, taşınmaz, ön muhasebe | 0 | Hayır |
+| Uygulama içi yedek manifesti | 0 | Hayır |
+
+Bu tablo, mevcut merkezi kayıtlara erişimin bugün çalıştığını gösterir; bağımsız veri yedeğinin yerine geçmez.
+
+### Oluşturulan şifreli merkezi veri yedeği — 30.08.2026
+
+Kullanıcı onayıyla merkezi verinin salt-okunur dışa aktarımı alındı ve dosya adları da şifrelenmiş AES-256 7z arşive dönüştürüldü. Arşiv, doğru parola ile bütünlük testinden geçti; yanlış parola ile dosya adları görüntülenemedi ve arşiv doğrulaması başarısız oldu. Düz metin geçici dışa aktarım dosyaları işlem sonrasında silindi.
+
+| Özellik | Değer |
+|---|---|
+| Arşiv adı | `Global1881-merkezi-veri-sifreli-yedek-2026-08-30.7z` |
+| Arşiv SHA-256 | `b67520c79c4b70ee360501f6c66d6af29da90d5f2adf1649af0ce01bc865e0b5` |
+| Şifreleme | AES-256, şifrelenmiş dosya adları |
+| Dışa aktarım türü | Salt-okunur, UTC zamanlı JSON + manifest |
+| Kapsam | Merkezi veritabanı kayıtları; belge metadata kaydı sıfır olduğu için saklı belge dosyası yoktur |
+| Kapsam dışı | Gizli sistem ayarları, alan adı bağı, yerel Windows verileri ve imzalı yerel PDF’ler |
+
+Arşiv parolası proje notlarına ve arşiv içine yazılmaz. Arşivi ve parola bilgisini ayrı, güvenilir ortamlarda saklamak gerekir.
+
 ## 3. Şimdi güvenle yapılabilecekler
 
 Bu planın ilk aşaması **salt-okunurdur**. Mevcut uygulama ve kullanıcı verileri değişmeden aşağıdaki geliştirme paketi hazırlanabilir:
