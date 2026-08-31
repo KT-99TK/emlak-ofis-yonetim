@@ -21,6 +21,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Destek ekibinin çoklu ağ HTTP 200 / TLS 1.3 sonucuna rağmen, kullanıcıda son normal Chrome denemesinde `ERR_SSL_PROTOCOL_ERROR` hatasının tekrar oluştuğunu; kesin tarih-saat ve saat dilimiyle destek e-postasına ilet. Kullanıcı, ekran görüntüsündeki hata zamanının 29.08.2026 tarihinde 18:11 Türkiye saati olduğunu aynı destek sohbetinde iletti.
 - [x] Destek e-postasına gönderilen son yanıtta kullanılan kesin deneme tarihi, saat ve saat dilimini doğrula; eksikse aynı aktif görüşmeye yalnız tam zaman damgası ve hata metnini ilet. 18:11 Türkiye saati bilgisi sohbet ekran görüntüsünde doğrulandı.
 - [ ] Destek ekibinin ekran görüntüsüyle tekrar eden `ERR_SSL_PROTOCOL_ERROR` bulgusunu doğrulayıp TLS/HTTPS erişim farkını teknik ekibe aktardığı süreçte, teknik ekip e-posta sonucunu bekle; bu sırada yeni kullanıcı testi veya yerel ayar değişikliği isteme.
+- [ ] Kullanıcının destek sohbetine gönderdiği `Record2026-08-31203811.mp4` ekran kaydını, 31.08.2026 20:38 Türkiye saati deneme kanıtı olarak teknik ekip teşhis sonucu gelene kadar takip et; ek kullanıcı testi isteme.
 
 - [x] Windows 10’daki uygulama kilitlenmesi ve takip eden Windows 11 kurulumu bağlamını destek başvurusuna ekle; işletim sistemi geçişini olası yerel etken olarak not et, ancak alan adı sorununa doğrulanmış kök neden diye tanımlama. Kullanıcı destek başvurusuna ekledi.
 
@@ -52,3 +53,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 - [x] Uygulamanın React/TypeScript, Node.js/Express/tRPC, MySQL uyumlu veritabanı, S3 uyumlu belge depolama ve OAuth/gizli değişken gereksinimlerini içeren sağlayıcı kontrol listesi hazırla. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` oluşturuldu.
 - [x] Sağlayıcıya sorulacak TLS/alan adı, yedekleme-geri yükleme, erişim güvenliği, izleme, taşınabilirlik, maliyet ve destek maddelerini açık kabul ölçütleriyle yaz. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` kabul ölçütleri ve teklif kalemlerini içerir.
+
+## 7. Yeni hesapta devam seçeneği
+
+- [x] Korunan kaynak ve şifreli merkezi veri yedeklerinden, yeni hesapta sıfırdan yazmadan devam için teknik yeniden kurulum adımlarını, dış bağımlılıkları ve süre aralıklarını değerlendir; kullanıcı onayı olmadan yeni hesap/proje/veri aktarımı başlatma. `YENI-HESAP-KURULUM-REHBERI.md` kurulum sırası, gizli ayar sınırları ve 2–3 iş günü teknik geçiş aralığını içerir.
+- [x] Kaynak yedeğini, şifreli merkezi veri arşivini, SHA-256 kayıtlarını, mimari/güvenlik/bulut görüşme notlarını ve parola içermeyen yeni hesap kurulum yönergelerini tek doğrulanabilir önlem ZIP’inde topla; merkezi sistem veya alan adı ayarını değiştirme. `Global1881-yeni-hesap-onlem-paketi-2026-08-31.zip` 9 dosya ve 1.317.255 bayt içerir; ZIP bütünlüğü, Windows çalıştırılabilir/betik dışlaması ve parola dışlama denetimi başarılıdır. SHA-256: `6f15c25432a35eaee8510796b507678a9ea4a01d97f87824435d15c9bc6830bc`.
