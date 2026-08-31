@@ -47,3 +47,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [ ] Merkezi veri ve yüklenen belgeler için hesabın kullanabildiği resmî görev verisi yedekleme yolunu destek ekibi veya yönetim arayüzü üzerinden doğrula; kaynak ZIP’inin bu verileri içermediğini koru.
 - [ ] `%APPDATA%\Global 1881 Gayrimenkul` için kullanıcı cihazında salt kopya alma, gizli ayarları değerlerini açığa çıkarmadan yeniden oluşturma ve alan adı bağını değiştirmeden koruma yönergelerini hazırla.
 - [x] Merkezi veritabanında mevcut kayıtları değiştirmeden dışa aktar; müşteri ve operasyonel kayıtları parolayla şifrelenmiş ayrı veri yedeğine koy, paket bütünlüğünü doğrula ve parolayı arşivden ayrı tut. `Global1881-merkezi-veri-sifreli-yedek-2026-08-30.7z` AES-256 ve şifreli dosya adlarıyla oluşturuldu; doğru parola bütünlük testi, yanlış parola reddi, arşiv SHA-256 özeti ve düz metin geçici dosya temizliği doğrulandı.
+
+## 6. Bulut altyapısı görüşmesi
+
+- [x] Uygulamanın React/TypeScript, Node.js/Express/tRPC, MySQL uyumlu veritabanı, S3 uyumlu belge depolama ve OAuth/gizli değişken gereksinimlerini içeren sağlayıcı kontrol listesi hazırla. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` oluşturuldu.
+- [x] Sağlayıcıya sorulacak TLS/alan adı, yedekleme-geri yükleme, erişim güvenliği, izleme, taşınabilirlik, maliyet ve destek maddelerini açık kabul ölçütleriyle yaz. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` kabul ölçütleri ve teklif kalemlerini içerir.

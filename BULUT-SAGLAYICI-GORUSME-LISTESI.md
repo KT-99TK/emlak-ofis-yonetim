@@ -1,0 +1,131 @@
+# Global 1881 — Bulut Sağlayıcı Görüşme Listesi
+
+**Hazırlayan:** Manus AI  
+**Tarih:** 31 Ağustos 2026  
+**Amaç:** Global 1881 Gayrimenkul ofisinin merkezi web uygulaması için, platform bağımlılığını azaltan; kullanıcı verisini, sözleşme belgelerini ve geliştirme kaynaklarını koruyan yönetilebilir bulut altyapısı seçmek.
+
+> Bu belge bir satın alma taahhüdü değildir. Sağlayıcıdan yazılı teknik teklif, sorumluluk matrisi, fiyat dökümü ve geri dönüş testi istenmesi için hazırlanmıştır.
+
+## 1. Görüşmeye bu kısa tanımla başlayın
+
+“20 danışman ve broker manager için kullanılan, Türkçe arayüzlü bir gayrimenkul ofis uygulamamız var. Uygulama React/TypeScript arayüzü, Node.js/Express/tRPC sunucusu ve MySQL uyumlu merkezi veritabanı kullanıyor. Müşteri, sözleşme, aktif kira takibi, yetkilendirme, ön muhasebe, rol bazlı erişim ve belge arşivleme içeriyor. Önceliğimiz, verinin kaybolmaması, TLS/alan adı erişiminin izlenmesi, hızlı insan desteği ve başka sağlayıcıya taşınabilirliktir.”
+
+## 2. İstenmesi gereken hedef mimari
+
+| Katman | İstenecek asgari özellik | Neden gerekli? |
+|---|---|---|
+| Uygulama sunucusu | Linux tabanlı, Docker veya yönetilen Node.js 22 çalışma ortamı; başlangıçta **2 vCPU, 4 GB RAM, 40 GB SSD**; dikey büyütme seçeneği | React istemcisi ile Express/tRPC API’nin güvenilir çalışması için yeterli başlangıç sınırı sağlar. |
+| Web yayını | Ters vekil/CDN, HTTP/2 veya HTTP/3, sıkıştırma, sağlık kontrolü ve kesintisiz yeniden başlatma | Sayfa erişimini, oturumları ve statik dosya dağıtımını uygulama sürecinden ayırır. |
+| Veritabanı | Yönetilen **MySQL 8 uyumlu** hizmet; uygulama sunucusundan ayrı ağda; en az **2 vCPU, 4 GB RAM, 50 GB SSD**; otomatik büyütme | İş kayıtlarının uygulama sürecinden bağımsız korunmasını sağlar. |
+| Belge depolama | S3 uyumlu obje depolama; özel erişim, sürümleme, yaşam döngüsü ve şifreleme | EİDS kayıtları, ekler, imzalı PDF ve gelecekteki belge yükleri veritabanından ayrı saklanmalıdır. |
+| Gizli bilgiler | Sağlayıcının secret manager hizmeti; uygulamaya çalışma anında enjekte etme, sürümleme ve erişim kaydı | Parolaların/API anahtarlarının kod, ZIP veya düz metin ayar dosyalarında tutulmasını önler.[1] |
+| Kimlik ve roller | MFA destekli yönetici hesapları; uygulama içi manager/danışman/ofis asistanı yetkileri korunacak | Uygulamadaki mevcut rol mahremiyeti, altyapı yönetim hesaplarından ayrı kalmalıdır. |
+| İzleme | Uptime/TLS kontrolü, hata günlükleri, CPU/RAM/disk alarmı ve İstanbul’dan sentetik erişim testi | Mevcut aralıklı TLS olayı gibi sorunların yalnız kullanıcı bildirimiyle fark edilmesini önler. |
+
+### Mimari sınır
+
+Mevcut **Manus OAuth** akışı başka buluta doğrudan taşınmaz; yeni ortamda kimlik doğrulama yeniden yapılandırılmalıdır. Sağlayıcı, özel kullanıcılar için e-posta/şifre + MFA veya kurumsal kimlik sağlayıcısı (OIDC) seçeneği sunmalıdır. Mevcut kod, şema ve testler kaynak devir ZIP’inde mevcuttur; **gizli ortam değerleri bu ZIP içinde değildir** ve yeni ortamda güvenli biçimde yeniden tanımlanmalıdır.
+
+## 3. Sağlayıcıya sorulacak zorunlu sorular
+
+### A. Veri merkezi, erişim ve TLS
+
+1. Uygulama, veritabanı ve obje depolama hangi ülkede/bölgede çalışacak? Türkiye veya AB veri merkezi seçeneği var mı?
+2. KVKK kapsamında veri işleme sözleşmesi, alt yüklenici listesi ve veri ihlali bildirim prosedürü veriyor musunuz?
+3. Özel alan adımızı kendi kontrolümüzde tutabilir miyiz? DNS, sertifika yenileme ve yönlendirme kayıtlarına ofis sahibi erişebilir mi?
+4. TLS sertifikası otomatik yenileniyor mu? Sertifika hatası, yönlendirme hatası veya bakım sayfası görülürse bunu hangi izleme sistemi ve hangi alarm fark eder?
+5. İstanbul/Türkiye’den bağımsız sentetik HTTP ve TLS testini sürekli çalıştırabiliyor musunuz? Başarısızlıkta kime, hangi kanaldan bildirim gider?
+6. DDoS/WAF, hız sınırlama ve uygulama güvenlik duvarı seçenekleri var mı? Bunlar gerçek ofis kullanıcılarını engellemeden nasıl ayarlanacak?
+
+### B. Veritabanı ve belge yedekleri
+
+1. MySQL için günlük tam yedek, **noktasal geri dönüş (PITR)** ve en az 30 günlük saklama süresi sunuyor musunuz?
+2. Yedekler uygulama sunucusundan ve ana veritabanından farklı fiziksel/lojik konumda mı tutuluyor?
+3. Veritabanı şifrelemesi hem aktarımda hem depoda sağlanıyor mu? Anahtar yönetimi kimin sorumluluğunda?
+4. S3 uyumlu belge depolamada sürümleme, silinmeye karşı geri alma ve yetkisiz indirmeyi engelleyecek özel erişim var mı?
+5. Veritabanı ve belge depolama için birlikte geri dönüş testi yapacak mısınız? Sonuçta; kullanıcı, sözleşme, belge bağlantısı ve rol yetkisi doğrulanacak mı?
+6. Yedek dosyasını ofise şifreli biçimde indirme veya ofisin ayrı depolama hesabına otomatik kopyalama olanağı var mı?
+
+> Yedek yalnız oluşturulmuş bir dosya değildir; geri yükleme testinin yapılması, tam ve kısmi geri dönüşün belirlenen sürelerde çalıştığının kanıtlanması gerekir.[2]
+
+### C. Güvenlik ve yönetim erişimi
+
+1. Sunucu, veritabanı ve depolama yönetim hesaplarında MFA zorunlu kılınabiliyor mu?
+2. Her yönetici için ayrı hesap, en az yetki ve işlem/audit kaydı sağlanıyor mu?
+3. Uygulama gizli değişkenleri (veritabanı bağlantısı, JWT, OAuth, S3 erişimi) secret manager üzerinden mi tutulacak? Koda, Git deposuna veya destek biletlerine yazılmayacağı yazılı olarak teyit edilebilir mi?
+4. Güvenlik güncellemeleri, işletim sistemi yamaları, Node.js sürüm güncellemeleri ve bağımlılık taraması kimin sorumluluğunda? Sıklığı nedir?
+5. Loglar ne kadar süre tutuluyor? TLS, 5xx hata, yetkisiz erişim denemesi ve uygulama hatası için uyarı var mı?
+6. Destek personeli veritabanına veya belgelere erişmek zorunda kalırsa, onay, kayıt ve süreli erişim nasıl uygulanacak?
+
+### D. Süreklilik ve insan desteği
+
+1. Taahhüt edilen erişilebilirlik (SLA) nedir? Planlı bakım önceden nasıl duyurulur?
+2. P1 (uygulama açılamıyor), P2 (tek modül çalışmıyor) ve P3 (iyileştirme) için ilk yanıt ve çözüm hedefleri nedir?
+3. Türkiye saatiyle telefonla erişilebilen veya adlandırılmış **insan teknik sorumlu** var mı? Vaka değiştiğinde geçmiş kayıtları devralma süreci nedir?
+4. Bir alan adı/TLS olayı için olay kaydı, kök neden analizi (RCA) ve yazılı kapanış raporu sağlıyor musunuz?
+5. Bakım penceresi, geri alma (rollback) ve acil değişiklik prosedürü nedir?
+
+### E. Taşınabilirlik ve çıkış planı
+
+1. İstenildiğinde tüm MySQL verisini standart SQL dump olarak; tüm belgeleri orijinal dosya adları/metadatası ile dışa aktarabiliyor musunuz?
+2. Bu dışa aktarım için ek ücret, bekleme süresi veya satıcı kilidi var mı?
+3. Alan adının DNS kontrolü, TLS sertifikası ve uygulama yapılandırması ofis sahibi tarafından devralınabilir mi?
+4. Docker imajı, altyapı tanımı ve çalışma dokümantasyonu teslim edilecek mi?
+5. Sözleşme sona erdiğinde yedeklere erişim, veri silme sertifikası ve dışa aktarım süresi nasıl işleyecek?
+
+> Taşınabilirlik; yalnız kaynak kodunu almak değil, veritabanı, belge deposu, yapılandırma prosedürü ve doğrulanabilir geri yükleme yolunu birlikte elde etmektir.
+
+## 4. Bu proje için kabul ölçütleri
+
+Sağlayıcının teklifi aşağıdaki hedefleri **yazılı** kabul etmelidir.
+
+| Başlık | Hedef kabul ölçütü |
+|---|---|
+| Erişim | Türkiye’den 30 gün boyunca izlenen HTTPS erişiminde kritiklik seviyesi hata oluştuğunda otomatik alarm ve insan destek kaydı açılması |
+| TLS | Otomatik sertifika yenileme; sertifika zinciri, alan adı eşleşmesi ve TLS başarısızlığının dış gözlemle kaydı |
+| RPO | Merkezi müşteri/sözleşme/finans verisi için azami veri kaybı hedefi: **4 saat veya daha iyi** |
+| RTO | Kritik web uygulamasını ve merkezi veriyi geri döndürme hedefi: **4 saat veya daha iyi** |
+| Yedek | En az günlük tam yedek + PITR + ayrı konum + aylık geri yükleme testi raporu |
+| Belge koruması | Obje depolamada şifreleme, özel erişim, sürümleme ve silinme/bozulmaya karşı geri alma |
+| Yetki | MFA, ayrı yönetici hesapları, en az yetki, işlem kayıtları ve destek için süreli erişim |
+| Taşınabilirlik | İstenildiğinde MySQL dump, belge dışa aktarımı, açıklamalı yapılandırma envanteri ve alan adı/DNS devri |
+| Destek | Tek vaka sorumlusu veya açık eskalasyon süreci; P1 için yazılı ilk yanıt hedefi |
+
+RPO ve RTO, ofisin kabul ettiği azami veri kaybı ve kesinti süresidir. Sağlayıcı bunları karşılayamıyorsa, daha düşük ücretli teklif teknik olarak yeterli sayılmamalıdır.
+
+## 5. Teklifte ayrı ayrı gösterilmesini isteyin
+
+Sağlayıcıdan tek toplam fiyat yerine aşağıdaki kalemleri ayrı yazmasını isteyin:
+
+| Kalem | Teklifte ayrı görünsün |
+|---|---|
+| Uygulama çalışma ortamı | vCPU, RAM, disk, trafik, otomatik ölçekleme ve yedek instance |
+| Yönetilen veritabanı | CPU/RAM/disk, PITR, yedek saklama, bağlantı limiti ve izleme |
+| Belge depolama | GB başı depolama, istek, dışa aktarım/indirme ve sürümleme |
+| Güvenlik | WAF, DDoS, secret manager, MFA/IAM ve log saklama |
+| Alan adı ve TLS | DNS yönetimi, sertifika yenileme, CDN ve durum izleme |
+| Destek | İnsan danışman, P1/P2 SLA, mesai dışı destek ve olay raporu |
+| Taşıma | İlk kurulum, veri aktarımı, test, geri alma planı ve dokümantasyon |
+| Çıkış | Veri dışa aktarım bedeli, saklama süresi ve sonlandırma prosedürü |
+
+## 6. Sağlayıcıya verilebilecek, fakat paylaşılmaması gerekenler
+
+Görüşmede aşağıdaki güvenli dosyalar paylaşılabilir:
+
+- `Global1881-kaynak-devir-guvenli-2026-08-30.zip`: Kaynak kod, şema, test ve mimari notları.
+- `DEVRALMA-VE-YEDEK-PLANI.md`: Varlık envanteri ve geçiş sınırları.
+- Şifreli merkezi veri yedeği: **yalnız sözleşmeli sağlayıcı ve kontrollü aktarım aşamasında**; parola ayrı kanaldan verilmeli.
+
+Şunlar e-posta, WhatsApp veya açık destek biletiyle paylaşılmamalıdır: mevcut yedek parolası, veritabanı bağlantı bilgileri, JWT/OAuth anahtarları, S3 anahtarları, müşteri verisinin şifresiz kopyası ve yerel Windows uygulama klasörü. Gizli bilgiler merkezi gizli yönetim sistemiyle, en az yetki ilkesi altında yönetilmelidir.[1] [3]
+
+## 7. Bu görüşme için nihai öneri
+
+Başlangıçta **yönetilen uygulama + yönetilen MySQL + S3 uyumlu özel belge depolama + secret manager + izleme** bileşimi istenmelidir. Kendi başına tek bir sanal sunucuya hem uygulamayı hem veritabanını koymak, yedekleme, yama ve kesinti sorumluluğunu ofisin üzerine bırakır. Ayrı katmanlar; yedek, geri yükleme ve taşınabilirlik bakımından daha güvenli başlangıç sağlar.
+
+Cloud sağlayıcısı, uygulamanın mevcut TLS sorununu tek başına çözmez. Ancak alan adı/DNS/TLS yönetiminin ofis kontrolünde, izlenebilir ve tek destek sorumlusu olan bir yapıya alınmasını sağlar. Mevcut `manus.space` alanında hiçbir bağlantı kesilmeden önce kaynak, şifreli veri yedeği ve geri dönüş planı hazır olmalıdır.
+
+## References
+
+[1]: [OWASP, *Secrets Management Cheat Sheet*](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+[2]: [CISA, *Back Up Business Data*](https://www.cisa.gov/audiences/small-and-medium-businesses/secure-your-business/back-up-business-data)
+[3]: [NIST Cybersecurity Framework, *Protect*](https://www.nist.gov/cyberframework/protect)
