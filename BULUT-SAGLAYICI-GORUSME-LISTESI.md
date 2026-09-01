@@ -118,7 +118,39 @@ Görüşmede aşağıdaki güvenli dosyalar paylaşılabilir:
 
 Şunlar e-posta, WhatsApp veya açık destek biletiyle paylaşılmamalıdır: mevcut yedek parolası, veritabanı bağlantı bilgileri, JWT/OAuth anahtarları, S3 anahtarları, müşteri verisinin şifresiz kopyası ve yerel Windows uygulama klasörü. Gizli bilgiler merkezi gizli yönetim sistemiyle, en az yetki ilkesi altında yönetilmelidir.[1] [3]
 
-## 7. Bu görüşme için nihai öneri
+## 7. Kartvizit, portföy ve müstakil ilanlar için QR kodlu yönlendirme
+
+QR kodun kendisi yalnız bir internet adresi taşır; bu nedenle basılı kartvizit veya ilan panosundaki QR kod için tek başına ayrıca sunucu gerekmez. Asıl karar, QR kodun doğrudan bir dış ilan adresine mi yoksa Global 1881’in kontrol ettiği kalıcı bir bağlantıya mı yönleneceğidir.
+
+| Seçenek | QR kodun hedefi | Ek sunucu/barındırma ihtiyacı | Avantaj ve sınır |
+|---|---|---|---|
+| A. Doğrudan ilan bağlantısı | Sahibinden.com veya başka portalın mevcut ilan URL’si | Hayır | En hızlı başlangıçtır; ancak ilan yenilenirse, kapanırsa veya portal URL’si değişirse basılmış QR kod işlevsiz kalır. |
+| B. Ofise ait kalıcı yönlendirme | `https://ofis.global1881.com/i/<rastgele-kod>` | Evet; mevcut web barındırmanın küçük bir public yönlendirme bölümü yeterlidir | Aynı QR baskıda kalır; ilan portalı değiştiğinde veya ilan yenilendiğinde hedef adres panelden güncellenir. Bu proje için önerilen seçenektir. |
+| C. Ofise ait mobil ilan sayfası | `https://ofis.global1881.com/ilan/<rastgele-kod>` | Evet; public mobil sayfa, fotoğraf depolama ve yönetim ekranı gerekir | İlanın fotoğrafı, temel özellikleri, iletişim ve portal bağlantısı ofis kontrolünde kalır. Daha güçlü marka deneyimi sağlar; ikinci aşama olarak ele alınmalıdır. |
+
+> QR kod mümkün olduğunca **ofise ait HTTPS alan adına** gitmelidir. Dış ilana yönlendirme gerekiyorsa hedef URL kullanıcının girdiği bir parametre olmamalı; ilanın kayıtlı ve izinli hedefi sunucu tarafında eşlenmelidir. Bu yaklaşım açık yönlendirme ve sahte bağlantı riskini azaltır.[4]
+
+### Önerilen minimum QR yapısı
+
+İlk aşamada B seçeneği yeterlidir. Basılı QR kod, `ofis.global1881.com/i/7Kp4mN8qR2xL` gibi tahmin edilmesi zor, sıralı olmayan bir kodu taşır. Sunucu bu kodu yalnız aktif/yayınlanmış ilan kaydına eşler ve ziyaretçiyi önceden onaylanmış Sahibinden.com veya ofis ilan sayfasına yönlendirir. İlan kapandığında ziyaretçiye eski ilan yerine Global 1881 iletişim sayfası veya “ilan güncellenmiştir” bilgisi gösterilir. Böylece QR kod baskısı yenilenmeden hedef değiştirilebilir.
+
+Bu public yönlendirme katmanı, merkezi ofis yönetim ekranından ayrı tutulmalıdır. Yalnız broker manager veya yetkili danışman ilan hedefini değiştirebilmeli; her değişiklik audit kaydına yazılmalıdır. QR kodu içinde müşteri adı, telefon, T.C. kimlik numarası, iç sözleşme numarası veya yönetim ekranı adresi bulunmamalıdır. QR ziyaret analitiği gerekiyorsa yalnız toplam tarama sayısı, tarih/saat ve kampanya/ilan kodu tutulmalı; ziyaretçi kişisel verisi ve konum kaydı varsayılan olarak toplanmamalıdır.
+
+### Sağlayıcıya ve web tasarımcısına sorulacak QR soruları
+
+1. `ofis.global1881.com` alt alan adı ofis sahibinin DNS hesabında tutulacak ve bulut sağlayıcı yalnız gerekli kayıtları mı isteyecek?
+2. Bu alt alan adı için TLS sertifikası otomatik yenilenecek, sertifika/alan adı uyuşmazlığı izlenecek ve Türkiye’den erişim testi yapılacak mı?
+3. Public QR yönlendirme servisi, iç ofis uygulamasından ayrı yetki ve hata sınırlarıyla çalışabilecek mi?
+4. QR kod hedefi yalnız sunucu tarafında kayıtlı izinli alan adlarına (örneğin `sahibinden.com` ve ofis alan adları) yönlenebilecek şekilde allow-list ile sınırlandırılabilecek mi?[4]
+5. İlan kapandığında veya hedef değiştiğinde, aynı QR kodun güvenli bir bilgi sayfasına yönlenmesi ve eski portal bağlantısının kapatılması sağlanabilecek mi?
+6. Ziyaret sayısı ölçümü gerekiyorsa çerezsiz/özet düzeyde analiz, saklama süresi ve erişim yetkisi nasıl yönetilecek?
+7. QR kodun yüksek çözünürlüklü PNG/SVG çıktısı, logo/renk şablonu ve altında yazılı kısa bağlantı üretilebilecek mi? Fiziksel QR kodlarda ziyaretçinin hedef URL’yi görüp doğrulayabilmesi için açık, markalı HTTPS bağlantısı kullanılmalıdır.[5]
+
+### Karar özeti
+
+QR kodlu ilan için bugün yeni bir Ubuntu sunucusu veya ayrı Docker ortamı kiralamak zorunlu değildir. Yeni bulut altyapısı seçilirse, aynı sağlayıcıdaki yönetilen web barındırma veya hafif bir yönlendirme hizmeti bunu karşılayabilir. Asıl zorunlu unsurlar; **ofise ait alan adı, otomatik TLS, kalıcı yönlendirme kaydı, hedef alan adı allow-list’i, rol/audit kontrolü ve güvenli yedektir**. Şu an public ilan modülü açılmadan yalnız mimari ve alan adı kararının teklife eklenmesi yeterlidir.
+
+## 8. Bu görüşme için nihai öneri
 
 Başlangıçta **yönetilen uygulama + yönetilen MySQL + S3 uyumlu özel belge depolama + secret manager + izleme** bileşimi istenmelidir. Kendi başına tek bir sanal sunucuya hem uygulamayı hem veritabanını koymak, yedekleme, yama ve kesinti sorumluluğunu ofisin üzerine bırakır. Ayrı katmanlar; yedek, geri yükleme ve taşınabilirlik bakımından daha güvenli başlangıç sağlar.
 
@@ -129,3 +161,5 @@ Cloud sağlayıcısı, uygulamanın mevcut TLS sorununu tek başına çözmez. A
 [1]: [OWASP, *Secrets Management Cheat Sheet*](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
 [2]: [CISA, *Back Up Business Data*](https://www.cisa.gov/audiences/small-and-medium-businesses/secure-your-business/back-up-business-data)
 [3]: [NIST Cybersecurity Framework, *Protect*](https://www.nist.gov/cyberframework/protect)
+[4]: [OWASP, *Unvalidated Redirects and Forwards Cheat Sheet*](https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html)
+[5]: [Duke University Information Security, *QR Code Security Guide*](https://security.duke.edu/security-guides/qr-code-security-guide/)
