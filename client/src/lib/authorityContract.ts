@@ -1,4 +1,6 @@
 import { formatTurkishDate } from "./turkishDate";
+import { maskIdentityOrTaxNo, maskPhone } from "./privacy";
+
 export type AuthorityContractDetails = {
   mode: "sale" | "rent";
   ownerName: string;
@@ -254,14 +256,19 @@ export function renderAuthorityContract(details: AuthorityContractDetails, contr
 
 export function createOfflineAuthoritySnapshot(details: AuthorityContractDetails, contractNo: string, sourceClientRecordId?: string, sourcePropertyRecordId?: string, sourceAuthorityContractRecordId?: string) {
   const normalized = normalizeAuthorityDetails(details);
+  const maskedDetails: AuthorityContractDetails = {
+    ...normalized,
+    ownerIdentity: maskIdentityOrTaxNo(normalized.ownerIdentity),
+    ownerPhone: maskPhone(normalized.ownerPhone),
+  };
   return {
     schema: "global1881-offline-authority-v2" as const,
     contractNo: contractNo.trim(),
     sourceClientRecordId,
     sourcePropertyRecordId,
     sourceAuthorityContractRecordId,
-    ...normalized,
-    summary: calculateAuthoritySummary(normalized),
+    ...maskedDetails,
+    summary: calculateAuthoritySummary(maskedDetails),
     conditionTemplateVersion: AUTHORITY_CONDITIONS_TEMPLATE_VERSION,
     conditions: authorityContractConditions(normalized),
   };

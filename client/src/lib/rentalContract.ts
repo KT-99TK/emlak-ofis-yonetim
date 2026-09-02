@@ -1,6 +1,7 @@
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./rentalConditions";
 
 import { formatTurkishDate } from "./turkishDate";
+import { maskIdentityOrTaxNo, maskPhone } from "./privacy";
 
 export type RentalFixtureItem = { id: string; item: string; quantity: string; condition: string };
 export type RentalAppendixSelection = { evacuation: boolean; handover: boolean; return: boolean; fixtures: boolean };
@@ -192,13 +193,21 @@ export function renderRentalContract(details: OfflineRentalDetails) {
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
   const summary = calculateRentalSummary(details);
   const evacuationCommitmentDate = details.evacuationCommitmentDate ?? "";
+  const maskedDetails: OfflineRentalDetails = {
+    ...details,
+    ownerIdentity: maskIdentityOrTaxNo(details.ownerIdentity),
+    ownerPhone: maskPhone(details.ownerPhone),
+    tenantIdentity: maskIdentityOrTaxNo(details.tenantIdentity),
+    tenantPhone: maskPhone(details.tenantPhone),
+    guarantorIdentity: maskIdentityOrTaxNo(details.guarantorIdentity),
+  };
   return {
     schema: "global1881-offline-rental-v6" as const,
     contractNo: contractNo.trim(),
     sourceOwnerRecordId,
     sourceTenantRecordId,
     sourcePropertyRecordId,
-    ...details,
+    ...maskedDetails,
     vatCollection: "separate" as const,
     summary,
     conditionTemplateVersion: RENTAL_CONDITIONS_TEMPLATE_VERSION,

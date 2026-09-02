@@ -23,6 +23,7 @@ import {
   activeRentalSummaries,
   rentalIncomeTaxProfiles,
   rentalServiceTasks,
+  sensitiveFieldVault,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import {
@@ -39,6 +40,15 @@ import {
   isContractNumberForCode,
   normalizeConsultantCode,
 } from "../shared/consultantCode";
+import {
+  assertSafeRevealReason,
+  decryptSensitiveValue,
+  encryptSensitiveValue,
+  maskIdentityOrTaxNo,
+  maskPhone,
+  protectContractDetails,
+  type SensitiveField,
+} from "./privacy";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
@@ -443,6 +453,7 @@ export async function createContract(input: {
     .limit(1);
   if (duplicate.length)
     throw new Error("Bu sözleşme numarası daha önce kullanılmış.");
+  const protectedDetails = protectContractDetails(input.details);
   const result = await db
     .insert(contracts)
     .values({
@@ -460,11 +471,12 @@ export async function createContract(input: {
         (input.type === "rental" ? "pending" : "notRequired"),
       ownerApprovalDate: input.ownerApprovalDate,
       ownerApprovalNote: input.ownerApprovalNote,
-      details: input.details,
+      details: protectedDetails.maskedDetails,
       assignedUserId: input.assignedUserId,
       status: "draft",
     });
   const id = Number(result[0].insertId);
+  await saveSensitiveFields(db, "contract", id, protectedDetails.sensitiveFields);
   await db
     .insert(auditLogs)
     .values({
@@ -583,7 +595,7 @@ export async function listContracts(
   const db = await getDb();
   if (!db) return [];
   const scopedIds = permittedUserIds ?? [userId];
-  return db
+  const rows = await db
     .select()
     .from(contracts)
     .where(
@@ -594,6 +606,10 @@ export async function listContracts(
           : sql`1 = 0`
     )
     .orderBy(desc(contracts.updatedAt));
+  return rows.map(row => ({
+    ...row,
+    details: protectContractDetails(row.details ?? undefined).maskedDetails ?? null,
+  }));
 }
 export async function getNextContractNumber(userId: number) {
   const db = await getDb();
@@ -894,7 +910,7 @@ export async function listClients(
   const db = await getDb();
   if (!db) return [];
   const scopedIds = permittedUserIds ?? [userId];
-  return db
+  const rows = await db
     .select()
     .from(clients)
     .where(
@@ -905,6 +921,145 @@ export async function listClients(
           : sql`1 = 0`
     )
     .orderBy(desc(clients.updatedAt));
+  return rows.map(row => ({
+    ...row,
+    identityOrTaxNo: maskIdentityOrTaxNo(row.identityOrTaxNo),
+    phone: maskPhone(row.phone),
+  }));
+}
+
+async function saveSensitiveFields(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
+  entityType: string,
+  entityId: number,
+  fields: SensitiveField[]
+) {
+  for (const field of fields) {
+    const encrypted = encryptSensitiveValue(field.value);
+    await db
+      .insert(sensitiveFieldVault)
+      .values({
+        entityType,
+        entityId,
+        fieldPath: field.fieldPath,
+        ciphertext: encrypted.ciphertext,
+        iv: encrypted.iv,
+        authTag: encrypted.authTag,
+        keyVersion: encrypted.keyVersion,
+      })
+      .onDuplicateKeyUpdate({
+        set: {
+          ciphertext: encrypted.ciphertext,
+          iv: encrypted.iv,
+          authTag: encrypted.authTag,
+          keyVersion: encrypted.keyVersion,
+        },
+      });
+  }
+}
+
+async function getSensitiveField(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
+  entityType: string,
+  entityId: number,
+  fieldPath: string
+) {
+  const rows = await db
+    .select()
+    .from(sensitiveFieldVault)
+    .where(
+      and(
+        eq(sensitiveFieldVault.entityType, entityType),
+        eq(sensitiveFieldVault.entityId, entityId),
+        eq(sensitiveFieldVault.fieldPath, fieldPath)
+      )
+    )
+    .limit(1);
+  const row = rows[0];
+  return row
+    ? decryptSensitiveValue({
+        ciphertext: row.ciphertext,
+        iv: row.iv,
+        authTag: row.authTag,
+        keyVersion: row.keyVersion as "jwt-derived-v1",
+      })
+    : null;
+}
+
+export async function revealClientSensitiveForManager(
+  clientId: number,
+  reason: string,
+  actorUserId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const safeReason = assertSafeRevealReason(reason);
+  const client = (
+    await db.select().from(clients).where(eq(clients.id, clientId)).limit(1)
+  )[0];
+  if (!client) throw new Error("Müşteri kaydı bulunamadı.");
+  const [vaultIdentity, vaultPhone] = await Promise.all([
+    getSensitiveField(db, "client", clientId, "identityOrTaxNo"),
+    getSensitiveField(db, "client", clientId, "phone"),
+  ]);
+  await db.insert(auditLogs).values({
+    actorUserId,
+    action: "sensitive_data_revealed",
+    entityType: "client",
+    entityId: clientId,
+    summary: `Gerekçeli hassas veri görünümü: ${safeReason}`,
+  });
+  return {
+    identityOrTaxNo: vaultIdentity ?? client.identityOrTaxNo ?? null,
+    phone: vaultPhone ?? client.phone ?? null,
+    expiresAt: new Date(Date.now() + 30_000),
+  };
+}
+
+export async function revealContractSensitiveForManager(
+  contractId: number,
+  reason: string,
+  actorUserId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const safeReason = assertSafeRevealReason(reason);
+  const contract = (
+    await db
+      .select({ id: contracts.id })
+      .from(contracts)
+      .where(eq(contracts.id, contractId))
+      .limit(1)
+  )[0];
+  if (!contract) throw new Error("Sözleşme kaydı bulunamadı.");
+  const vaultRows = await db
+    .select()
+    .from(sensitiveFieldVault)
+    .where(
+      and(
+        eq(sensitiveFieldVault.entityType, "contract"),
+        eq(sensitiveFieldVault.entityId, contractId)
+      )
+    );
+  const fields = Object.fromEntries(
+    vaultRows.map(row => [
+      row.fieldPath,
+      decryptSensitiveValue({
+        ciphertext: row.ciphertext,
+        iv: row.iv,
+        authTag: row.authTag,
+        keyVersion: row.keyVersion as "jwt-derived-v1",
+      }),
+    ])
+  );
+  await db.insert(auditLogs).values({
+    actorUserId,
+    action: "sensitive_data_revealed",
+    entityType: "contract",
+    entityId: contractId,
+    summary: `Gerekçeli hassas veri görünümü: ${safeReason}`,
+  });
+  return { fields, expiresAt: new Date(Date.now() + 30_000) };
 }
 
 async function assertAnonymousBrokerGuidanceSummary(
@@ -1599,9 +1754,44 @@ export async function listActiveRentalSummaries(
   return rows.map(row => ({
     ...row.summary,
     clientName: row.clientName,
-    clientPhone: row.clientPhone,
+    clientPhone: maskPhone(row.clientPhone),
+    tenantPhone: maskPhone(row.summary.tenantPhone) ?? "",
     consultantCode: row.consultantCode,
   }));
+}
+
+export async function revealActiveRentalSensitiveForManager(
+  summaryId: number,
+  reason: string,
+  actorUserId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const safeReason = assertSafeRevealReason(reason);
+  const result = await db
+    .select({ summary: activeRentalSummaries, clientPhone: clients.phone })
+    .from(activeRentalSummaries)
+    .innerJoin(clients, eq(activeRentalSummaries.clientId, clients.id))
+    .where(eq(activeRentalSummaries.id, summaryId))
+    .limit(1);
+  const row = result[0];
+  if (!row) throw new Error("Aktif kira kaydı bulunamadı.");
+  const [tenantPhone, clientPhone] = await Promise.all([
+    getSensitiveField(db, "activeRentalSummary", summaryId, "tenantPhone"),
+    getSensitiveField(db, "client", row.summary.clientId, "phone"),
+  ]);
+  await db.insert(auditLogs).values({
+    actorUserId,
+    action: "sensitive_data_revealed",
+    entityType: "activeRentalSummary",
+    entityId: summaryId,
+    summary: `Gerekçeli hassas veri görünümü: ${safeReason}`,
+  });
+  return {
+    tenantPhone: tenantPhone ?? row.summary.tenantPhone,
+    clientPhone: clientPhone ?? row.clientPhone,
+    expiresAt: new Date(Date.now() + 30_000),
+  };
 }
 
 export type RentalIncomeTaxProfileInput = {
@@ -1784,6 +1974,7 @@ export async function importActiveRentalSummaries(
       .limit(1);
     if (
       existingClient[0]?.phone &&
+      !existingClient[0].phone.includes("•") &&
       normalizeImportValue(existingClient[0].phone) !==
         normalizeImportValue(row.clientPhone)
     )
@@ -1811,21 +2002,27 @@ export async function importActiveRentalSummaries(
         .insert(clients)
         .values({
           name: row.clientName,
-          phone: row.clientPhone,
+          phone: maskPhone(row.clientPhone),
           assignedUserId: row.assignedUserId,
         });
-      client = { id: Number(result[0].insertId), phone: row.clientPhone };
+      client = { id: Number(result[0].insertId), phone: maskPhone(row.clientPhone) };
+      await saveSensitiveFields(db, "client", client.id, [
+        { fieldPath: "phone", value: row.clientPhone },
+      ]);
       createdClients += 1;
     } else if (!client.phone) {
       await db
         .update(clients)
-        .set({ phone: row.clientPhone })
+        .set({ phone: maskPhone(row.clientPhone) })
         .where(eq(clients.id, client.id));
+      await saveSensitiveFields(db, "client", client.id, [
+        { fieldPath: "phone", value: row.clientPhone },
+      ]);
     }
-    await db.insert(activeRentalSummaries).values({
+    const activeRentalInsert = await db.insert(activeRentalSummaries).values({
       clientId: client.id,
       tenantName: row.tenantName,
-      tenantPhone: row.tenantPhone,
+      tenantPhone: maskPhone(row.tenantPhone) ?? "",
       contractDate: row.contractDate,
       rentIncreaseDate: row.rentIncreaseDate,
       evictionDate: row.evictionDate,
@@ -1837,6 +2034,12 @@ export async function importActiveRentalSummaries(
       importFingerprint: importFingerprint(row),
       importedByUserId,
     });
+    await saveSensitiveFields(
+      db,
+      "activeRentalSummary",
+      Number(activeRentalInsert[0].insertId),
+      [{ fieldPath: "tenantPhone", value: row.tenantPhone }]
+    );
     imported += 1;
   }
   await db

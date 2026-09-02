@@ -16,6 +16,7 @@ vi.mock("@/lib/trpc", () => ({
     team: { list: { useQuery: () => query([]) } },
     activeRentals: {
       list: { useQuery: () => query([{ id: 1, clientId: 1, clientName: "Mustafa Ekin", clientPhone: "", tenantName: "Hasan Öncü", tenantPhone: "", contractDate: "2025-05-10", rentIncreaseDate: "2026-05-10", evictionDate: null, monthlyRent: "50000", neighborhood: "İskele", propertyLocation: "İskele işyeri 1", unitInfo: "Daire 1", consultantCode: "KT1", assignedUserId: 21 }]) },
+      revealSensitive: { useMutation: mutation },
       importSummaries: { useMutation: mutation },
       serviceTasks: { list: { useQuery: () => query([]) }, refresh: { useMutation: mutation }, prepare: { useMutation: mutation }, review: { useMutation: mutation }, markShared: { useMutation: mutation }, startReletting: { useMutation: mutation } },
       rentalIncomeTaxProfiles: { list: { useQuery: () => query([]) }, save: { useMutation: mutation } },

@@ -46,6 +46,20 @@ Destek ekibi sonrasında hesabın hizmet değişikliğinin kapsamı dışında o
 
 Kullanıcı, hata ekranı zamanının 29.08.2026 tarihinde 18:11 Türkiye saati olduğunu teknik destek sohbetine iletti; ekran görüntüsünde sonraki sohbet bildirimi 18:21 olarak görülmektedir. Böylece destek ekibinin talep ettiği yeniden üretim zamanı sağlanmıştır. Bu yazının ardından yeni test veya yeni mesaj istenmeyecek, teknik ekip sonucu beklenecektir.
 
+## 02.09.2026 — Maskeli hassas veri erişimi
+
+Yeni merkezi sözleşme ve aktif kira içe aktarım yollarında telefon ile T.C./vergi no, ana iş tablolarına düz metin olarak yazılmak yerine maskeli görünümle saklanır. Ham yeni değerler AES-256-GCM ile şifrelenmiş ayrı `sensitiveFieldVault` tablosuna alınır; bu eklemeli şema geçişi mevcut satırları, imzalı PDF’leri ve geçmiş yedekleri değiştirmemiştir. Mevcut eski değerler taşınmamış veya toplu güncellenmemiş; normal API yanıtlarında maskelenmiştir.
+
+Tam değer döndüren üç tRPC işlemi (müşteri, sözleşme ve aktif kira) yalnız broker manager rolüne bağlıdır. Her işlem 8–280 karakterlik, telefon/kimlik/e-posta içermeyen bir gerekçe ister; `auditLogs` kaydında yalnız `sensitive_data_revealed`, varlık türü/kimliği ve gerekçe tutulur. Ham veya kısmi hassas değer audit kaydına yazılmaz. Müşteri ve aktif kira ekranlarındaki tam değer istemci durumunda 30 saniye sonra otomatik gizlenir; danışman ve ofis asistanı bu erişim düğmesini ve sunucu rotasını kullanamaz.
+
+Bu sürümde varsayılan API listeleri, aktif kira ekrandaki iletişim sütunu, merkezi sözleşme detay yanıtı, offline kira snapshot’ı ve offline yetki snapshot’ı maskeli sonuç verir. Fizikî imza öncesi A4 baskı, formda o an girilen değerleri kullanmaya devam eder; imzalı fizikî nüshanın dijital taraması varsayılan olarak etkinleştirilmemiştir. Tam dışa aktarım için ayrı ve daha yüksek onaylı bir akış eklenmemiştir; mevcut varsayılan dışa aktarımlar bu nedenle tam değer taşımaz.
+
+## 02.09.2026 — Bağımlılık denetimi güncellemesi
+
+Maskeli erişim değişikliği sonrasında tekrarlanan üretim denetimi, `mysql2@3.15.1` için yüksek seviye `mysql_clear_password` kimlik bilgisi sızıntısı advisory’sini gösterdi. `mysql2`, Drizzle uyumluluğu korunarak `3.22.0` sürümüne güncellendi ve geliştirme sunucusu yeniden başlatıldı. Son doğrulama; **98 test dosyasında 268 test**, TypeScript denetimi, production build, kök yol HTTP 200 ve yetkisiz belge isteği HTTP 403 sonucunu verdi.
+
+Son production audit sonucunda kritik, yüksek ve düşük seviye bulgu kalmadı. Kalan tek bulgu ExcelJS `4.4.0` içinden gelen geçişli `uuid@8.3.2` için orta seviyelidir; önceki upstream izleme ve doğrulanmamış override’ı dağıtıma almama kararı geçerlidir.
+
 ## Resmî kaynaklar
 
 - [Microsoft Security Intelligence — Trojan:Script/Wacatac.H!ml](https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?name=Trojan%3AScript%2FWacatac.H!ml&threatid=2147814524)

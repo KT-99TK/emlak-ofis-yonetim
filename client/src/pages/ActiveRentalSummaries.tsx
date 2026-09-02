@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CellValue } from "exceljs";
 import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
   Download,
+  Eye,
   FileSpreadsheet,
   LoaderCircle,
   RefreshCw,
@@ -14,6 +15,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   estimateRentalIncomeTax2026,
   type RentalExpenseMethod,
@@ -380,6 +383,13 @@ export default function ActiveRentalSummaries() {
   const [ownerExitConfirmed, setOwnerExitConfirmed] = useState<
     Record<number, boolean>
   >({});
+  const [revealSummaryId, setRevealSummaryId] = useState<number | null>(null);
+  const [revealReason, setRevealReason] = useState("");
+  const [revealedPhones, setRevealedPhones] = useState<{
+    summaryId: number;
+    clientPhone: string | null;
+    tenantPhone: string | null;
+  } | null>(null);
   const invalidateTasks = () =>
     void utils.activeRentals.serviceTasks.list.invalidate();
   const importMutation = trpc.activeRentals.importSummaries.useMutation({
@@ -392,6 +402,22 @@ export default function ActiveRentalSummaries() {
     },
     onError: error => setMessage(error.message),
   });
+  const revealSensitiveMutation = trpc.activeRentals.revealSensitive.useMutation({
+    onSuccess: (result, input) => {
+      setRevealedPhones({
+        summaryId: input.summaryId,
+        clientPhone: result.clientPhone,
+        tenantPhone: result.tenantPhone,
+      });
+      setRevealSummaryId(null);
+      setRevealReason("");
+    },
+  });
+  useEffect(() => {
+    if (!revealedPhones) return;
+    const timer = window.setTimeout(() => setRevealedPhones(null), 30_000);
+    return () => window.clearTimeout(timer);
+  }, [revealedPhones]);
   const refreshMutation = trpc.activeRentals.serviceTasks.refresh.useMutation({
     onSuccess: result => {
       setMessage(
@@ -1133,11 +1159,13 @@ export default function ActiveRentalSummaries() {
                 <th className="px-3 py-3">Kira</th>
                 <th className="px-3 py-3">Sözleşme</th>
                 <th className="px-3 py-3">Danışman</th>
+                <th className="px-3 py-3">İletişim</th>
               </tr>
             </thead>
             <tbody>
-              {summaries.data?.map(item => (
-                <tr key={item.id} className="border-b border-[#edf1ed]">
+              {summaries.data?.map(item => {
+                const isRevealed = revealedPhones?.summaryId === item.id;
+                return <tr key={item.id} className="border-b border-[#edf1ed]">
                   <td className="px-3 py-3">
                     <div className="font-medium text-[#173e39]">
                       {item.clientName}
@@ -1158,8 +1186,13 @@ export default function ActiveRentalSummaries() {
                   <td className="px-3 py-3">{money(item.monthlyRent)}</td>
                   <td className="px-3 py-3">{dateText(item.contractDate)}</td>
                   <td className="px-3 py-3">{item.consultantCode ?? "—"}</td>
-                </tr>
-              ))}
+                  <td className="px-3 py-3 text-xs text-[#718079]">
+                    <div>Malik: {isRevealed ? revealedPhones?.clientPhone || "—" : item.clientPhone || "—"}</div>
+                    <div>Kiracı: {isRevealed ? revealedPhones?.tenantPhone || "—" : item.tenantPhone || "—"}</div>
+                    {isManager && <Button variant="outline" size="sm" className="mt-2 h-7 border-[#d7b270] px-2 text-[10px] text-[#74561f]" onClick={() => { setRevealSummaryId(item.id); setRevealReason(""); }}><Eye className="mr-1 h-3 w-3" /> Gerekçeyle aç</Button>}
+                  </td>
+                </tr>;
+              })}
             </tbody>
           </table>
           {!summaries.data?.length && (
@@ -1169,6 +1202,20 @@ export default function ActiveRentalSummaries() {
           )}
         </div>
       </details>
+      <Dialog open={revealSummaryId !== null} onOpenChange={(open) => { if (!open && !revealSensitiveMutation.isPending) setRevealSummaryId(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl text-[#223230]">Hassas iletişim erişimi</DialogTitle>
+            <DialogDescription>Malik ve kiracı telefonu yalnız bu ekranda 30 saniye süreyle gösterilir. Gerekçe audit kaydına eklenir; telefon değerleri audit kaydına yazılmaz.</DialogDescription>
+          </DialogHeader>
+          <Textarea value={revealReason} onChange={event => setRevealReason(event.target.value)} placeholder="Örn. kira artışı hizmet görevi için fiziki dosya doğrulaması" aria-label="Görüntüleme gerekçesi" />
+          {revealSensitiveMutation.error && <p role="alert" className="text-sm text-[#a85745]">{revealSensitiveMutation.error.message}</p>}
+          <DialogFooter>
+            <Button variant="outline" disabled={revealSensitiveMutation.isPending} onClick={() => setRevealSummaryId(null)}>Vazgeç</Button>
+            <Button className="bg-[#173e39] hover:bg-[#20554e]" disabled={revealReason.trim().length < 8 || revealSensitiveMutation.isPending} onClick={() => revealSummaryId && revealSensitiveMutation.mutate({ summaryId: revealSummaryId, reason: revealReason.trim() })}><Eye className="mr-2 h-4 w-4" /> Tam değeri aç</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

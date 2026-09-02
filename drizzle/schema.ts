@@ -63,6 +63,30 @@ export const clients = mysqlTable("clients", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/** Yeni kayıtlardaki ham telefon ve kimlik değerleri uygulama
+ * tablolarından ayrı, AES-GCM ile şifreli kasada tutulur. */
+export const sensitiveFieldVault = mysqlTable(
+  "sensitiveFieldVault",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    entityType: varchar("entityType", { length: 60 }).notNull(),
+    entityId: int("entityId").notNull(),
+    fieldPath: varchar("fieldPath", { length: 180 }).notNull(),
+    ciphertext: text("ciphertext").notNull(),
+    iv: varchar("iv", { length: 32 }).notNull(),
+    authTag: varchar("authTag", { length: 32 }).notNull(),
+    keyVersion: varchar("keyVersion", { length: 32 }).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => ({
+    entityFieldUnique: uniqueIndex("sensitive_vault_entity_field_unique").on(
+      table.entityType,
+      table.entityId,
+      table.fieldPath
+    ),
+  })
+);
+
 export const properties = mysqlTable("properties", {
   id: int("id").autoincrement().primaryKey(),
   referenceNo: varchar("referenceNo", { length: 40 }).notNull().unique(),

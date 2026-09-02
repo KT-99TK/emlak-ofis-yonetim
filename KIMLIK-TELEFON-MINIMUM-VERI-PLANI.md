@@ -2,7 +2,7 @@
 
 **Hazırlayan:** Manus AI  
 **Tarih:** 2 Eylül 2026  
-**Durum:** Karar taslağı — kullanıcı onayı olmadan hiçbir alan, kayıt veya yedek değiştirilmeyecektir.
+**Durum:** Uygulandı — yalnız yeni kayıt akışlarında. Geçmiş merkezi kayıtlar, imzalı PDF’ler ve önceki şifreli yedekler değiştirilmemiştir.
 
 > **Hukuki not:** Bu belge teknik ve operasyonel tasarımdır; resmî hukuk görüşü değildir. Sözleşme saklama süresi, aydınlatma metni ve fizikî arşiv prosedürü yürürlüğe alınmadan önce KVKK alanında yetkin bir hukukçu tarafından gözden geçirilmelidir.
 
@@ -28,7 +28,7 @@ Ofis tercihi, müşteriyle kurulan hizmet ilişkisini sürdürebilmek için T.C.
 
 | Veri | Varsayılan görünüm | Tam değere erişim | Dışa aktarım / audit kuralı |
 |---|---|---|---|
-| Telefon | `05•• ••• •• 24` | Atanmış danışman ve broker manager, yalnız kendi görev/sözleşme kapsamı içinde görünüm talep ederek | Excel/PDF/QR/kart görünümünde maskeli; audit kaydında değer değil yalnız görüntüleme olayı yer alır. |
+| Telefon | `05•• ••• •• 24` | **Yalnız broker manager**, açık gerekçe ile 30 saniyelik geçici görünüm talep ederek | Excel/PDF/QR/kart görünümünde maskeli; audit kaydında değer değil yalnız görüntüleme olayı yer alır. |
 | T.C. kimlik no / vergi no | `••••••••1234` | Yalnız broker manager; açık gerekçe ile geçici tam görünüm | Varsayılan dışa aktarımlarda hiç gösterilmez; audit kaydında değer yazılmaz. |
 | İmzalı fizikî sözleşme | Tam bilgi, müşteri el yazısı ve ıslak imza | Kilitli arşivde atanmış danışman ve broker manager | Varsayılan olarak sisteme taranıp yüklenmez. |
 
@@ -41,16 +41,16 @@ Bu kural, yeni sözleşmeler için uygulanacak hedef durumdur. Mevcut müşteri 
 | 1. Taslak | Kimlik/vergi no ve telefon, yalnız sözleşme oluşturmak için görünür. | Atanmış danışman; broker manager kapsamı. |
 | 2. Belge üretimi | A4/PDF çıktı bu bilgileri içerir; belge sürüm/hashi kaydedilir. İmzalı nüsha varsayılan olarak sisteme yüklenmez. | Atanmış danışman. |
 | 3. Fizikî imza teyidi | “Fizikî çıktı alındı ve ıslak imzalar tamamlandı” beyanı yapılır. Bu beyan, yazdırma işlemiyle otomatik oluşmaz. | Broker manager veya belirlenmiş kontrol yetkisi. |
-| 4. Maskeli saklamaya geçiş | Fizikî imza teyidi sonrası veri silinmez; varsayılan görünüm maskelenir. Tam görüntüleme yalnız seçilen rol sınırında ve gerekçe ile yapılır. | Sistem + ilgili yetkili. |
+| 4. Maskeli saklamaya geçiş | Fizikî imza teyidi sonrası veri silinmez; varsayılan görünüm maskelenir. Tam görüntüleme yalnız broker manager için açık gerekçe, audit kaydı ve 30 saniyelik görünüm ile yapılır. | Sistem + broker manager. |
 | 5. Audit | Yalnız alan adları, zaman, işlem yapan kişi, sözleşme referansı ve erişim gerekçesi yazılır; T.C./vergi no veya telefon audit kaydına yazılmaz. | Sistem. |
-| 6. Sonraki takip | Hizmet görevi çalışmaya devam eder. Telefon varsayılan olarak maskelidir; atanmış danışman görev kapsamında gerekçeli tam görünüm isteyebilir. | Atanmış danışman. |
+| 6. Sonraki takip | Hizmet görevi çalışmaya devam eder. Telefon varsayılan olarak maskelidir; danışman ve ofis asistanı tam değeri istemez/görmez. | Atanmış danışman, fizikî dosya için; broker manager, gerekçeli dijital görünüm için. |
 
 ## 5. Maskeli saklama için zorunlu korumalar
 
 Sistem, ıslak imzayı doğrulayamayacağı için “yazdırıldı” olayı tek başına bir erişim politikası değişikliği tetiklememelidir. Maskeli saklamanın yalnız görünüm değişikliği olarak kalmaması için aşağıdaki korumalar zorunludur.
 
 1. Politika yalnız yeni sözleşmeler için etkinleştirilmelidir; geçmiş müşteri kartları, aktif kira özetleri, mevcut imzalı PDF’ler ve önceki yedekler kullanıcı onayı olmadan değişmez.
-2. Tam değer görünümü; net rol kontrolü, görünüm gerekçesi ve kısa süreli/açık kullanıcı eylemi ile sağlanmalıdır. Varsayılan tablolar, kartlar, bildirimler ve arama sonuçları her zaman maskeli kalır.
+2. Tam değer görünümü; broker manager rol kontrolü, görünüm gerekçesi ve 30 saniyelik/açık kullanıcı eylemi ile sağlanır. Varsayılan tablolar, kartlar, bildirimler ve arama sonuçları her zaman maskeli kalır.
 3. Audit; değerleri, kısmi numaraları, PDF önizlemelerini veya hata bildirimi detaylarını yazmamalıdır.
 4. Yetkili dışa aktarımlar dahi varsayılan olarak maskelenmelidir. Tam veri dışa aktarımı yalnız broker manager için ayrı doğrulama ve amaç kaydıyla tasarlanmalıdır.
 5. Şifreli veri yedekleri erişim politikasından bağımsız geçmiş kopyalar içerebilir; yedek erişimi ayrı parola, saklama ve imha politikasıyla sınırlandırılmalıdır.
@@ -72,8 +72,8 @@ Fizikî imzalı nüsha; üzerinde sözleşme referansı bulunacak şekilde kilit
 ## 8. Uygulama kararından önce gerekli onaylar
 
 1. Bu politika yalnız **yeni** kira ve yetki sözleşmelerinde mi geçerli olacak?
-2. Atanmış danışmanın telefonun tam değerini görev kapsamında açabilmesi onaylanıyor mu? (Taslak hedef politika: evet.)
-3. T.C./vergi no tam görüntüleme yalnız broker manager ile mi sınırlı kalacak? (Taslak hedef politika: evet.)
+2. Telefonun tam görüntülemesi yalnız broker manager ile mi sınırlı kalacak? **Evet; 2 Eylül 2026 uygulamasında broker manager dışındaki roller için tam görüntüleme rotası ve arayüzü kapalıdır.**
+3. T.C./vergi no tam görüntüleme yalnız broker manager ile mi sınırlı kalacak? **Evet.**
 4. İmzalı sözleşmenin dijital taraması varsayılan olarak kapalı mı kalacak?
 5. Saklama/imha süreleri için hukuk/KVKK incelemesi yapılacak mı?
 

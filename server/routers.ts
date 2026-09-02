@@ -16,6 +16,7 @@ import {
   createBrokerGuidanceNote,
   createClient,
   createContract,
+  revealContractSensitiveForManager,
   createContractDocument,
   createTreasuryCashMovement,
   decideOwnerApproval,
@@ -51,6 +52,7 @@ import {
   setConsultantCode,
   getActiveRentalAccess,
   listActiveRentalSummaries,
+  revealActiveRentalSensitiveForManager,
   listRentalIncomeTaxProfiles,
   importActiveRentalSummaries,
   saveActiveRentalIncreaseReference,
@@ -63,6 +65,7 @@ import {
   markRentalServiceTaskShared,
   startRelettingPreparation,
   saveRentalIncomeTaxProfile,
+  revealClientSensitiveForManager,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -136,6 +139,20 @@ export const appRouter = router({
         scope.permittedUserIds
       );
     }),
+    revealSensitive: adminProcedure
+      .input(
+        z.object({
+          summaryId: z.number().int().positive(),
+          reason: z.string().min(8).max(280),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        revealActiveRentalSensitiveForManager(
+          input.summaryId,
+          input.reason,
+          ctx.user.id
+        )
+      ),
     importSummaries: adminProcedure
       .input(
         z.object({
@@ -336,6 +353,20 @@ export const appRouter = router({
     nextNumber: protectedProcedure.query(({ ctx }) =>
       getNextContractNumber(ctx.user.id)
     ),
+    revealSensitive: adminProcedure
+      .input(
+        z.object({
+          contractId: z.number().int().positive(),
+          reason: z.string().min(8).max(280),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        revealContractSensitiveForManager(
+          input.contractId,
+          input.reason,
+          ctx.user.id
+        )
+      ),
     create: protectedProcedure
       .input(
         z.object({
@@ -593,6 +624,16 @@ export const appRouter = router({
           throw new Error("Ofis asistanı yeni müşteri kaydı oluşturamaz.");
         return createClient({ ...input, assignedUserId: ctx.user.id });
       }),
+    revealSensitive: adminProcedure
+      .input(
+        z.object({
+          clientId: z.number().int().positive(),
+          reason: z.string().min(8).max(280),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        revealClientSensitiveForManager(input.clientId, input.reason, ctx.user.id)
+      ),
   }),
   brokerGuidanceNotes: router({
     list: adminProcedure.query(() => listBrokerGuidanceNotes()),
