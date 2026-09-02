@@ -28,7 +28,9 @@ export default function Records() {
   const [revealClientId, setRevealClientId] = useState<number | null>(null);
   const [revealReason, setRevealReason] = useState("");
   const [revealed, setRevealed] = useState<{ clientId: number; identityOrTaxNo: string | null; phone: string | null } | null>(null);
-  const canRevealSensitive = user?.role === "admin";
+  const canRevealSensitive = Boolean(
+    clients.data?.some(item => item.canRevealSensitive)
+  );
   const revealSensitive = trpc.clients.revealSensitive.useMutation({
     onSuccess: (result, input) => {
       setRevealed({ clientId: input.clientId, identityOrTaxNo: result.identityOrTaxNo, phone: result.phone });

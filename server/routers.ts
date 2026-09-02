@@ -16,7 +16,7 @@ import {
   createBrokerGuidanceNote,
   createClient,
   createContract,
-  revealContractSensitiveForManager,
+  revealContractSensitive,
   createContractDocument,
   createTreasuryCashMovement,
   decideOwnerApproval,
@@ -52,7 +52,7 @@ import {
   setConsultantCode,
   getActiveRentalAccess,
   listActiveRentalSummaries,
-  revealActiveRentalSensitiveForManager,
+  revealActiveRentalSensitive,
   listRentalIncomeTaxProfiles,
   importActiveRentalSummaries,
   saveActiveRentalIncreaseReference,
@@ -65,7 +65,7 @@ import {
   markRentalServiceTaskShared,
   startRelettingPreparation,
   saveRentalIncomeTaxProfile,
-  revealClientSensitiveForManager,
+  revealClientSensitive,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -136,23 +136,30 @@ export const appRouter = router({
       return listActiveRentalSummaries(
         ctx.user.id,
         scope.isManager,
-        scope.permittedUserIds
+        scope.permittedUserIds,
+        scope.officeRole
       );
     }),
-    revealSensitive: adminProcedure
+    revealSensitive: protectedProcedure
       .input(
         z.object({
           summaryId: z.number().int().positive(),
           reason: z.string().min(8).max(280),
         })
       )
-      .mutation(({ ctx, input }) =>
-        revealActiveRentalSensitiveForManager(
+      .mutation(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return revealActiveRentalSensitive(
           input.summaryId,
           input.reason,
-          ctx.user.id
-        )
-      ),
+          ctx.user.id,
+          scope.isManager,
+          scope.officeRole
+        );
+      }),
     importSummaries: adminProcedure
       .input(
         z.object({
@@ -347,26 +354,33 @@ export const appRouter = router({
       return listContracts(
         ctx.user.id,
         scope.isManager,
-        scope.permittedUserIds
+        scope.permittedUserIds,
+        scope.officeRole
       );
     }),
     nextNumber: protectedProcedure.query(({ ctx }) =>
       getNextContractNumber(ctx.user.id)
     ),
-    revealSensitive: adminProcedure
+    revealSensitive: protectedProcedure
       .input(
         z.object({
           contractId: z.number().int().positive(),
           reason: z.string().min(8).max(280),
         })
       )
-      .mutation(({ ctx, input }) =>
-        revealContractSensitiveForManager(
+      .mutation(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return revealContractSensitive(
           input.contractId,
           input.reason,
-          ctx.user.id
-        )
-      ),
+          ctx.user.id,
+          scope.isManager,
+          scope.officeRole
+        );
+      }),
     create: protectedProcedure
       .input(
         z.object({
@@ -611,7 +625,12 @@ export const appRouter = router({
         ctx.user.id,
         isManager(ctx.user)
       );
-      return listClients(ctx.user.id, scope.isManager, scope.permittedUserIds);
+      return listClients(
+        ctx.user.id,
+        scope.isManager,
+        scope.permittedUserIds,
+        scope.officeRole
+      );
     }),
     create: protectedProcedure
       .input(z.object({ name: z.string().min(2) }))
@@ -624,16 +643,26 @@ export const appRouter = router({
           throw new Error("Ofis asistanı yeni müşteri kaydı oluşturamaz.");
         return createClient({ ...input, assignedUserId: ctx.user.id });
       }),
-    revealSensitive: adminProcedure
+    revealSensitive: protectedProcedure
       .input(
         z.object({
           clientId: z.number().int().positive(),
           reason: z.string().min(8).max(280),
         })
       )
-      .mutation(({ ctx, input }) =>
-        revealClientSensitiveForManager(input.clientId, input.reason, ctx.user.id)
-      ),
+      .mutation(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return revealClientSensitive(
+          input.clientId,
+          input.reason,
+          ctx.user.id,
+          scope.isManager,
+          scope.officeRole
+        );
+      }),
   }),
   brokerGuidanceNotes: router({
     list: adminProcedure.query(() => listBrokerGuidanceNotes()),

@@ -7,6 +7,7 @@ import {
   maskPhone,
   protectContractDetails,
 } from "./privacy";
+import { canRevealSensitiveForScope } from "./db";
 
 describe("hassas veri mahremiyeti", () => {
   it("telefon ve kimlik değerlerini varsayılan yanıtta maskeler", () => {
@@ -38,5 +39,12 @@ describe("hassas veri mahremiyeti", () => {
   it("gerekçeye yanlışlıkla hassas değer yazılmasını reddeder", () => {
     expect(assertSafeRevealReason("Fizikî dosya eşleştirmesi")).toBe("Fizikî dosya eşleştirmesi");
     expect(() => assertSafeRevealReason("0532 123 45 67 için arama")).toThrow();
+  });
+
+  it("broker manager ve yalnız atanmış danışmanın hassas değeri açabildiğini doğrular", () => {
+    expect(canRevealSensitiveForScope({ actorUserId: 1, isManager: true, officeRole: "broker_manager", assignedUserId: 21 })).toBe(true);
+    expect(canRevealSensitiveForScope({ actorUserId: 21, isManager: false, officeRole: "consultant", assignedUserId: 21 })).toBe(true);
+    expect(canRevealSensitiveForScope({ actorUserId: 22, isManager: false, officeRole: "consultant", assignedUserId: 21 })).toBe(false);
+    expect(canRevealSensitiveForScope({ actorUserId: 7, isManager: false, officeRole: "office_assistant", assignedUserId: 21 })).toBe(false);
   });
 });

@@ -4,9 +4,9 @@ import type { TrpcContext } from "./_core/context";
 const getCentralAccessScope = vi.fn();
 const getActiveRentalAccess = vi.fn();
 const listAudit = vi.fn();
-const revealClientSensitiveForManager = vi.fn();
-const revealContractSensitiveForManager = vi.fn();
-const revealActiveRentalSensitiveForManager = vi.fn();
+const revealClientSensitive = vi.fn();
+const revealContractSensitive = vi.fn();
+const revealActiveRentalSensitive = vi.fn();
 
 vi.mock("./db", async importOriginal => {
   const actual = await importOriginal<typeof import("./db")>();
@@ -15,9 +15,9 @@ vi.mock("./db", async importOriginal => {
     getCentralAccessScope,
     getActiveRentalAccess,
     listAudit,
-    revealClientSensitiveForManager,
-    revealContractSensitiveForManager,
-    revealActiveRentalSensitiveForManager,
+    revealClientSensitive,
+    revealContractSensitive,
+    revealActiveRentalSensitive,
   };
 });
 
@@ -102,20 +102,24 @@ describe("central role router access", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
-  it("yalnız broker managerın gerekçeli hassas müşteri görüntüleme rotasına erişmesine izin verir", async () => {
-    revealClientSensitiveForManager.mockResolvedValueOnce({ phone: "05321234567", identityOrTaxNo: "12345678901" });
+  it("broker manager ve atanmış danışmanın gerekçeli hassas müşteri görüntüleme rotasına erişim kapsamını iletir", async () => {
+    revealClientSensitive.mockResolvedValueOnce({ phone: "05321234567", identityOrTaxNo: "12345678901" });
+    getCentralAccessScope.mockResolvedValueOnce({ isManager: true, permittedUserIds: [], officeRole: "broker_manager" });
     const result = await appRouter.createCaller(context(user(1, "admin"))).clients.revealSensitive({ clientId: 44, reason: "Fizikî dosya ile kimlik eşleştirmesi" });
     expect(result.phone).toBe("05321234567");
-    expect(revealClientSensitiveForManager).toHaveBeenCalledWith(44, "Fizikî dosya ile kimlik eşleştirmesi", 1);
-    await expect(appRouter.createCaller(context(user(21, "user"))).clients.revealSensitive({ clientId: 44, reason: "Fizikî dosya ile kimlik eşleştirmesi" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(revealClientSensitive).toHaveBeenCalledWith(44, "Fizikî dosya ile kimlik eşleştirmesi", 1, true, "broker_manager");
+    revealClientSensitive.mockResolvedValueOnce({ phone: "05321234567", identityOrTaxNo: "12345678901" });
+    getCentralAccessScope.mockResolvedValueOnce({ isManager: false, permittedUserIds: [21], officeRole: "consultant" });
+    await expect(appRouter.createCaller(context(user(21, "user"))).clients.revealSensitive({ clientId: 44, reason: "Fizikî dosya ile kimlik eşleştirmesi" })).resolves.toMatchObject({ phone: "05321234567" });
+    expect(revealClientSensitive).toHaveBeenLastCalledWith(44, "Fizikî dosya ile kimlik eşleştirmesi", 21, false, "consultant");
   });
 
-  it("sözleşme ve aktif kira hassas veri rotalarını da yalnız broker managera sınırlar", async () => {
-    revealContractSensitiveForManager.mockResolvedValueOnce({ fields: { ownerIdentity: "12345678901" } });
-    revealActiveRentalSensitiveForManager.mockResolvedValueOnce({ tenantPhone: "05321234567" });
-    await expect(appRouter.createCaller(context(user(21, "user"))).contracts.revealSensitive({ contractId: 9, reason: "Fizikî sözleşme kontrolü" })).rejects.toMatchObject({ code: "FORBIDDEN" });
-    await expect(appRouter.createCaller(context(user(7, "user"))).activeRentals.revealSensitive({ summaryId: 9, reason: "Fizikî sözleşme kontrolü" })).rejects.toMatchObject({ code: "FORBIDDEN" });
-    await expect(appRouter.createCaller(context(user(1, "admin"))).contracts.revealSensitive({ contractId: 9, reason: "Fizikî sözleşme kontrolü" })).resolves.toMatchObject({ fields: { ownerIdentity: "12345678901" } });
-    await expect(appRouter.createCaller(context(user(1, "admin"))).activeRentals.revealSensitive({ summaryId: 9, reason: "Fizikî sözleşme kontrolü" })).resolves.toMatchObject({ tenantPhone: "05321234567" });
+  it("sözleşme ve aktif kira erişiminde danışman kapsamını veri katmanına iletir", async () => {
+    revealContractSensitive.mockResolvedValueOnce({ fields: { ownerIdentity: "12345678901" } });
+    revealActiveRentalSensitive.mockResolvedValueOnce({ tenantPhone: "05321234567" });
+    getCentralAccessScope.mockResolvedValueOnce({ isManager: false, permittedUserIds: [21], officeRole: "consultant" });
+    await expect(appRouter.createCaller(context(user(21, "user"))).contracts.revealSensitive({ contractId: 9, reason: "Fizikî sözleşme kontrolü" })).resolves.toMatchObject({ fields: { ownerIdentity: "12345678901" } });
+    getCentralAccessScope.mockResolvedValueOnce({ isManager: false, permittedUserIds: [21], officeRole: "consultant" });
+    await expect(appRouter.createCaller(context(user(21, "user"))).activeRentals.revealSensitive({ summaryId: 9, reason: "Fizikî sözleşme kontrolü" })).resolves.toMatchObject({ tenantPhone: "05321234567" });
   });
 });

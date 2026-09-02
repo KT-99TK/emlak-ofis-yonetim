@@ -1189,7 +1189,7 @@ export default function ActiveRentalSummaries() {
                   <td className="px-3 py-3 text-xs text-[#718079]">
                     <div>Malik: {isRevealed ? revealedPhones?.clientPhone || "—" : item.clientPhone || "—"}</div>
                     <div>Kiracı: {isRevealed ? revealedPhones?.tenantPhone || "—" : item.tenantPhone || "—"}</div>
-                    {isManager && <Button variant="outline" size="sm" className="mt-2 h-7 border-[#d7b270] px-2 text-[10px] text-[#74561f]" onClick={() => { setRevealSummaryId(item.id); setRevealReason(""); }}><Eye className="mr-1 h-3 w-3" /> Gerekçeyle aç</Button>}
+                    {item.canRevealSensitive && <Button variant="outline" size="sm" className="mt-2 h-7 border-[#d7b270] px-2 text-[10px] text-[#74561f]" onClick={() => { setRevealSummaryId(item.id); setRevealReason(""); }}><Eye className="mr-1 h-3 w-3" /> Gerekçeyle aç</Button>}
                   </td>
                 </tr>;
               })}

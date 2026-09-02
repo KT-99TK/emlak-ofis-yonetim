@@ -131,7 +131,8 @@ export default function OfflineRentalContracts() {
     managerSessionActive: isLocalManagerSessionActive(),
     assistantAssignedUserIds: getOfflineAssistantAssignedUserIds(),
   } as const;
-  const canEnterSensitive = contractAccess.managerSessionActive;
+  const canEnterSensitive =
+    contractAccess.managerSessionActive || contractAccess.role === "consultant";
   const summary = useMemo(() => calculateRentalSummary(details), [details]);
   const people = records.filter(
     record =>
@@ -590,7 +591,7 @@ export default function OfflineRentalContracts() {
                         />
                       </div>
                     ))}
-                    {!canEnterSensitive && <p className="sm:col-span-2 rounded-lg bg-[#fffaf0] px-3 py-2 text-xs text-[#8d6f3f]">T.C./vergi no ve telefon dijital forma girilmez. Taraflar bu alanları fizikî sözleşme nüshasında el yazısıyla tamamlar; tam değer yalnız broker managerın kontrolündedir.</p>}
+                    {!canEnterSensitive && <p className="sm:col-span-2 rounded-lg bg-[#fffaf0] px-3 py-2 text-xs text-[#8d6f3f]">T.C./vergi no ve telefon dijital forma girilmez. Taraflar bu alanları fizikî sözleşme nüshasında el yazısıyla tamamlar; tam değer yalnız broker manager veya atanmış danışmanın kontrolündedir.</p>}
                     {details.useType === "commercial" && (
                       <>
                         <div>

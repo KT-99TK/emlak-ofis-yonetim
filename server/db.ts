@@ -590,7 +590,8 @@ export async function transitionContract(
 export async function listContracts(
   userId: number,
   isManager: boolean,
-  permittedUserIds?: number[]
+  permittedUserIds?: number[],
+  officeRole?: CentralAccessScope["officeRole"]
 ) {
   const db = await getDb();
   if (!db) return [];
@@ -609,6 +610,9 @@ export async function listContracts(
   return rows.map(row => ({
     ...row,
     details: protectContractDetails(row.details ?? undefined).maskedDetails ?? null,
+    canRevealSensitive:
+      isManager ||
+      (officeRole === "consultant" && row.assignedUserId === userId),
   }));
 }
 export async function getNextContractNumber(userId: number) {
@@ -905,7 +909,8 @@ export async function recordContractDocumentShareIntent(input: {
 export async function listClients(
   userId: number,
   isManager: boolean,
-  permittedUserIds?: number[]
+  permittedUserIds?: number[],
+  officeRole?: CentralAccessScope["officeRole"]
 ) {
   const db = await getDb();
   if (!db) return [];
@@ -925,6 +930,9 @@ export async function listClients(
     ...row,
     identityOrTaxNo: maskIdentityOrTaxNo(row.identityOrTaxNo),
     phone: maskPhone(row.phone),
+    canRevealSensitive:
+      isManager ||
+      (officeRole === "consultant" && row.assignedUserId === userId),
   }));
 }
 
@@ -986,10 +994,35 @@ async function getSensitiveField(
     : null;
 }
 
-export async function revealClientSensitiveForManager(
+export function canRevealSensitiveForScope(input: {
+  actorUserId: number;
+  isManager: boolean;
+  officeRole: CentralAccessScope["officeRole"];
+  assignedUserId: number | null;
+}) {
+  return (
+    input.isManager ||
+    (input.officeRole === "consultant" &&
+      input.assignedUserId === input.actorUserId)
+  );
+}
+
+function assertSensitiveRevealAccess(input: {
+  actorUserId: number;
+  isManager: boolean;
+  officeRole: CentralAccessScope["officeRole"];
+  assignedUserId: number | null;
+}) {
+  if (canRevealSensitiveForScope(input)) return;
+  throw new Error("Bu hassas veriyi görüntüleme yetkiniz yok.");
+}
+
+export async function revealClientSensitive(
   clientId: number,
   reason: string,
-  actorUserId: number
+  actorUserId: number,
+  isManager: boolean,
+  officeRole: CentralAccessScope["officeRole"]
 ) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
@@ -998,6 +1031,12 @@ export async function revealClientSensitiveForManager(
     await db.select().from(clients).where(eq(clients.id, clientId)).limit(1)
   )[0];
   if (!client) throw new Error("Müşteri kaydı bulunamadı.");
+  assertSensitiveRevealAccess({
+    actorUserId,
+    isManager,
+    officeRole,
+    assignedUserId: client.assignedUserId,
+  });
   const [vaultIdentity, vaultPhone] = await Promise.all([
     getSensitiveField(db, "client", clientId, "identityOrTaxNo"),
     getSensitiveField(db, "client", clientId, "phone"),
@@ -1016,22 +1055,30 @@ export async function revealClientSensitiveForManager(
   };
 }
 
-export async function revealContractSensitiveForManager(
+export async function revealContractSensitive(
   contractId: number,
   reason: string,
-  actorUserId: number
+  actorUserId: number,
+  isManager: boolean,
+  officeRole: CentralAccessScope["officeRole"]
 ) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
   const safeReason = assertSafeRevealReason(reason);
   const contract = (
     await db
-      .select({ id: contracts.id })
+      .select({ id: contracts.id, assignedUserId: contracts.assignedUserId })
       .from(contracts)
       .where(eq(contracts.id, contractId))
       .limit(1)
   )[0];
   if (!contract) throw new Error("Sözleşme kaydı bulunamadı.");
+  assertSensitiveRevealAccess({
+    actorUserId,
+    isManager,
+    officeRole,
+    assignedUserId: contract.assignedUserId,
+  });
   const vaultRows = await db
     .select()
     .from(sensitiveFieldVault)
@@ -1728,7 +1775,8 @@ export async function getActiveRentalAccess(
 export async function listActiveRentalSummaries(
   userId: number,
   isManager: boolean,
-  permittedUserIds: number[]
+  permittedUserIds: number[],
+  officeRole?: CentralAccessScope["officeRole"]
 ) {
   const db = await getDb();
   if (!db) return [];
@@ -1757,13 +1805,18 @@ export async function listActiveRentalSummaries(
     clientPhone: maskPhone(row.clientPhone),
     tenantPhone: maskPhone(row.summary.tenantPhone) ?? "",
     consultantCode: row.consultantCode,
+    canRevealSensitive:
+      isManager ||
+      (officeRole === "consultant" && row.summary.assignedUserId === userId),
   }));
 }
 
-export async function revealActiveRentalSensitiveForManager(
+export async function revealActiveRentalSensitive(
   summaryId: number,
   reason: string,
-  actorUserId: number
+  actorUserId: number,
+  isManager: boolean,
+  officeRole: CentralAccessScope["officeRole"]
 ) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
@@ -1776,6 +1829,12 @@ export async function revealActiveRentalSensitiveForManager(
     .limit(1);
   const row = result[0];
   if (!row) throw new Error("Aktif kira kaydı bulunamadı.");
+  assertSensitiveRevealAccess({
+    actorUserId,
+    isManager,
+    officeRole,
+    assignedUserId: row.summary.assignedUserId,
+  });
   const [tenantPhone, clientPhone] = await Promise.all([
     getSensitiveField(db, "activeRentalSummary", summaryId, "tenantPhone"),
     getSensitiveField(db, "client", row.summary.clientId, "phone"),
