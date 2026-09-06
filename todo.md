@@ -12,7 +12,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 ## 2. Canlı web erişimi — platform / alan adı takibi
 
 - [ ] Yayın alanı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Ubuntu kontrolünde TLS sertifikası geçerli ve giriş sayfası HTTP 200 dönmüştür; bu, kullanıcı ağındaki önceki `ERR_SSL_PROTOCOL_ERROR` ve bakım ekranını tek başına kapatmaz.
-- [ ] `ofis.global1881.com` özel alt alan adı için DNS yönetim yetkisini, mevcut `ofis` kaydının boşluğunu ve kayıt ekleyecek web tasarımcısı/sağlayıcıyı doğrula; bağlantı penceresi başlatılmadan önce DNS kaydı eklemeye hazır olsun.
+- [ ] `ofis.global1881.com` özel alt alan adı için DNS yönetim yetkisini, mevcut `ofis` kaydının boşluğunu ve kayıt ekleyecek web tasarımcısı/sağlayıcıyı doğrula; bağlantı penceresi başlatılmadan önce DNS kaydı eklemeye hazır olsun. 04.09.2026 mobil Chrome ekranında `DNS_PROBE_FINISHED_NXDOMAIN` doğrulandı; bu, alt alan adı için DNS kaydının henüz oluşturulmadığını gösterir. DNS değişikliği yapılmadı.
 - [ ] Kullanıcının açık onayıyla, mevcut `emlakdash-kcw9r85v.manus.space` yayını kesmeden `ofis.global1881.com` bağlantısını başlat ve yalnız panelde verilen DNS kaydını alan adı sağlayıcısına uygulat; doğrulama ve HTTPS kabulü tamamlanmadan eski adresi kaldırma.
 - [ ] Güvenli erişim kararlı olduğunda, Windows paketi yerine yayımlanmış web uygulamasında tek ekran kabul oturumunu planla. Kullanıcıdan aynı bağlantı testlerini tekrarlamasını isteme.
 - [x] Alan adı erişimi düzelir düzelmez uygulanacak, tek oturumluk ve veri değiştirmeyen web kabul kontrol listesini hazırla. `web-acceptance-checklist.md` oluşturuldu.
@@ -62,6 +62,14 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Sağlayıcıya sorulacak TLS/alan adı, yedekleme-geri yükleme, erişim güvenliği, izleme, taşınabilirlik, maliyet ve destek maddelerini açık kabul ölçütleriyle yaz. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` kabul ölçütleri ve teklif kalemlerini içerir.
 - [ ] Ubuntu/Docker önerilerini mevcut MySQL/TiDB, Express/tRPC, S3 ve rol/mahremiyet mimarisiyle karşılaştır; uygulanmış güvenlik katmanlarını, eksik altyapı katmanlarını ve doğru bulut geçiş sırasını belgeleyerek öner.
 - [x] Kartvizit, portföy ve müstakil ilanlarda kullanılacak QR kodların sabit `ofis.global1881.com` bağlantısından ilan detayına yönlenmesi için özel alan adı, TLS, kısa yönlendirme, ilan durum yönetimi ve ölçüm gereksinimlerini bulut sağlayıcı görüşme listesine ekle. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` içindeki QR bölümü; doğrudan portal, kalıcı ofis yönlendirmesi ve public ilan sayfası seçeneklerini içerir.
+
+## 8. Offline istemci teknik güvenlik değerlendirmesi
+
+- [x] Offline Electron uygulamasının merkezi veriyle senkronizasyonu, ağ/port gereksinimi, cihaz-başına imza anahtarı taşınabilirliği ve AES-256-GCM yedek parolasının saklanma davranışını kaynak koduna göre kesinleştir; gerektiğinde güvenli iyileştirme önerisini ayrı karar olarak sun. Sonuç: mevcut EXE veri adasıdır; otomatik merkezi senkron/ağ portu yoktur. Yedek zarfındaki açık anahtar eski cihaz yedeğinin doğrulamasını yeni cihazda mümkün kılar; yerel PDF arşivleri ayrıca AppData ile taşınmalıdır. Parola kalıcı olarak saklanmaz; yalnız açık form belleğinde kullanılır.
+
+## 9. Geçici çok cihazlı test erişimi
+
+- [x] Danışmanların kendi laptoplarından ofiste veya ofis dışındayken kullanıcının laptopundaki geçici ana sisteme bağlanması önerisini; mevcut web/desktop ayrımı, HTTPS/TLS, ağ maruziyeti, rol yetkileri, eşzamanlı veri girişi, yedekleme ve canlıya alma sınırları açısından değerlendir. Kullanıcı açık onayı olmadan port açma, uzak erişim veya mevcut yapıyı değiştirme. Sonuç: mevcut offline EXE veri adası olduğundan uygun değildir; merkezi HTTPS web uygulaması kullanıcı laptopundan servis edilmemeli, test yayımlanmış HTTPS uygulamasında ayrı rol hesaplarıyla yapılmalıdır. Değerlendirme yalnızca tasarım düzeyinde tamamlandı; ağ/port/yapı değişikliği yapılmadı.
 
 ## 7. Yeni hesapta devam seçeneği
 
