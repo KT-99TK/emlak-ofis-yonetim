@@ -100,7 +100,7 @@
     "drizzle-kit": "^0.31.4",
     "electron": "^43.4.1",
     "electron-builder": "^26.15.3",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.1",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^30.0.1",
     "postcss": "^8.5.23",
@@ -111,7 +111,7 @@
     "typescript": "5.9.3",
     "vite": "^7.3.5",
     "vite-plugin-manus-runtime": "0.0.59",
-    "vitest": "^3.2.6",
+    "vitest": "^4.1.11",
     "write-excel-file": "4.1.1"
   },
   "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af"

@@ -23,3 +23,11 @@ Tam test, TypeScript, `pnpm audit` ve production build son doğrulamadan sonra b
 [1]: https://github.com/advisories/GHSA-w5hq-g745-h8pq — uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided.
 
 [2]: https://github.com/uuidjs/uuid/releases/tag/v11.1.1 — uuid v11.1.1 release.
+
+## Son audit durumu
+
+ExcelJS/uuid bulgusu kapatıldı. Ayrıca `mysql2@3.24.4`, `vite@7.3.5`, `@tailwindcss/vite@4.3.3`, `tailwindcss@4.3.3`, `postcss@8.5.23`, `vitest@4.1.11`, `esbuild@0.28.1` ve `browserslist@4.28.9` için uyumlu yükseltmeler uygulandı. `qs@6.16.0`, `js-yaml@4.3.2`, `picomatch@4.0.7`, `fast-uri@3.1.6`, `lodash@4.18.1` ve browserslist transitive zincirleri patched sürümlere çekildi.
+
+Son audit’te kritik/yüksek bulgu kalmadı; kalan bulgular `drizzle-kit` içindeki dev-only `@esbuild-kit/core-utils → esbuild@0.18.20` zinciri ile düşük önem seviyeli Babel/esbuild kayıtlarıdır. Esbuild için global override denemesi nested drizzle-kit sürümünü değiştirmediği ve migration araç uyumluluğunu kanıtlamadığı için kaldırıldı. Bu zincir üretim runtime’ına dahil edilmez; drizzle-kit güncellemesi yayımlandığında yeniden değerlendirilecektir.
+
+Son doğrulama: 110 test dosyası/309 test, TypeScript ve production build başarılı; uuid ağacı boştur. Audit sayımı 0 critical, 0 high, 1 moderate, 2 low olarak kaydedilmiştir.
