@@ -188,3 +188,17 @@ KDV hariç toplam hizmet bedeli paylaşım tabanıdır. KDV ayrı tutulur ve dan
 | KDV | Ayrı referans olarak izlenir; paylaşım hesabına girmez. |
 
 Bu ekran ve fonksiyonlar mevcut offline iç denetim çalışma alanında çalışır. Merkezi online işlem kapanışlarına otomatik bağlanmış bir komisyon router’ı bu değişiklik kapsamında oluşturulmamıştır; online merkezi modül için ayrıca server şeması, tRPC prosedürü ve merkezi tahsilat mutabakatı gerekir.
+
+
+## 10. Kesinleşen çok paydaşlı komisyon ve danışman anlaşma politikası
+
+Komisyon ekranı kullanıcıdan yalnız **KDV hariç toplam net hizmet bedelini** ve işlem senaryosunu alır. Portföy sahibi ve dış ofis yönü seçildikten sonra sistem ara havuzu ve son payları otomatik hesaplar; kullanıcı oran hesabı yapmak zorunda değildir.
+
+| Senaryo | 100.000 TL toplam işlemde dağılım | Sonuç |
+|---|---|---|
+| Portföy danışmana ait; biri satıcı, biri alıcı danışmanı | 50.000 TL satıcı tarafı + 50.000 TL alıcı tarafı; her tarafın %60’ı ilgili danışman, %40’ı Global 1881 | Danışmanlar 30.000 + 30.000 TL; Global 40.000 TL |
+| Portföy Global/ofise ait; iki danışman işlemde | 50.000 TL portföy sahibi ofis; kalan 50.000 TL iki danışmana 25.000 + 25.000 TL; her danışman tabanının %60’ı danışman, %40’ı Global | Portföy ofisi 50.000 TL; danışmanlar 15.000 + 15.000 TL; Global kasa danışman paylarından 20.000 TL |
+| Portföy karşı ofise ait; Global 1881 dış ofis | 50.000 TL karşı ofis; 50.000 TL Global havuzu; tek danışmanda %60/%40 | Karşı ofis 50.000 TL; danışman 30.000 TL; Global 20.000 TL |
+| Portföy karşı ofise ait; Global dış ofis ve iki danışman | 50.000 TL karşı ofis; 50.000 TL Global havuzu; iki danışmana 25.000 + 25.000 TL; her tabanda %60/%40 | Karşı ofis 50.000 TL; danışmanlar 15.000 + 15.000 TL; Global 20.000 TL |
+
+Danışman anlaşma profili işe girişte veya sözleşme yenilemede broker manager tarafından tanımlanır. Profilde geçerlilik tarihi, danışman payı, Global 1881 payı, aylık masa/ofis bedeli ve manager onayı bulunur. Varsayılan profil %60/%40’tır; %70/%30 veya %80/%20 gibi profiller de kullanılabilir. Komisyon oluşturulurken profil kimliği ile oran ve bedel snapshot’ı kaydedilir; sonradan profil değişse bile geçmiş komisyon kaydı değişmez. Oranların toplamı %100 olmalı, varsayılan dışındaki oranlar manager gerekçesi ve audit kaydıyla kullanılmalıdır.
