@@ -2593,12 +2593,14 @@ export async function createCentralCommissionTransaction(input: {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
   const explicitProfile = input.agreementProfileId ? (await db.select().from(consultantAgreementProfiles).where(eq(consultantAgreementProfiles.id, input.agreementProfileId)).limit(1))[0] ?? null : null;
+  if (input.agreementProfileId && !isManager) throw new Error("Anlaşma profilini yalnız broker manager seçebilir.");
   if (input.agreementProfileId && (!explicitProfile || explicitProfile.status !== "active")) throw new Error("Seçilen danışman anlaşma profili aktif değil.");
+  const actorProfile = !isManager ? await getActiveConsultantAgreementProfile(actorUserId) : null;
   const consultantProfiles = new Map<number, typeof explicitProfile>();
   for (const participant of input.participants) {
     if (participant.participantType === "consultant" && participant.consultantUserId) consultantProfiles.set(participant.consultantUserId, explicitProfile ?? await getActiveConsultantAgreementProfile(participant.consultantUserId));
   }
-  const snapshotProfile = explicitProfile ?? Array.from(consultantProfiles.values()).find(Boolean) ?? null;
+  const snapshotProfile = explicitProfile ?? actorProfile ?? Array.from(consultantProfiles.values()).find(Boolean) ?? null;
   const snapshotConsultantRate = Number(snapshotProfile?.consultantSharePercent ?? "60");
   const snapshotOfficeRate = Number(snapshotProfile?.officeSharePercent ?? "40");
   const grossNetServiceFee = Number(input.netServiceFee);
