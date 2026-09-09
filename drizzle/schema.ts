@@ -280,6 +280,40 @@ export const ledgerEntries = mysqlTable("ledgerEntries", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const commissionTransactions = mysqlTable("commissionTransactions", {
+  id: int("id").autoincrement().primaryKey(),
+  transactionNo: varchar("transactionNo", { length: 80 }).notNull().unique(),
+  contractId: int("contractId"),
+  netServiceFee: decimal("netServiceFee", { precision: 14, scale: 2 }).notNull(),
+  vatAmount: decimal("vatAmount", { precision: 14, scale: 2 }).default("0").notNull(),
+  consultantShare: decimal("consultantShare", { precision: 14, scale: 2 }).notNull(),
+  global1881Share: decimal("global1881Share", { precision: 14, scale: 2 }).notNull(),
+  externalOfficeShare: decimal("externalOfficeShare", { precision: 14, scale: 2 }).default("0").notNull(),
+  status: mysqlEnum("status", ["declared", "managerVerified", "partiallySettled", "settled", "cancelled"]).default("declared").notNull(),
+  collectionReference: varchar("collectionReference", { length: 180 }).notNull(),
+  declaredByUserId: int("declaredByUserId").notNull(),
+  verifiedByUserId: int("verifiedByUserId"),
+  verifiedAt: timestamp("verifiedAt"),
+  verificationNote: text("verificationNote"),
+  overrideReason: text("overrideReason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const commissionParticipants = mysqlTable("commissionParticipants", {
+  id: int("id").autoincrement().primaryKey(),
+  commissionTransactionId: int("commissionTransactionId").notNull(),
+  participantType: mysqlEnum("participantType", ["consultant", "externalOffice"]).notNull(),
+  side: mysqlEnum("side", ["buyer", "seller", "shared"]).notNull(),
+  consultantUserId: int("consultantUserId"),
+  participantCode: varchar("participantCode", { length: 60 }).notNull(),
+  participantName: varchar("participantName", { length: 180 }).notNull(),
+  externalOfficeName: varchar("externalOfficeName", { length: 180 }),
+  rate: decimal("rate", { precision: 7, scale: 4 }).notNull(),
+  share: decimal("share", { precision: 14, scale: 2 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const rentalObligations = mysqlTable("rentalObligations", {
   id: int("id").autoincrement().primaryKey(),
   contractId: int("contractId"),
@@ -515,4 +549,6 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Contract = typeof contracts.$inferSelect;
 export type LedgerEntry = typeof ledgerEntries.$inferSelect;
+export type CommissionTransaction = typeof commissionTransactions.$inferSelect;
+export type CommissionParticipant = typeof commissionParticipants.$inferSelect;
 export type RentalObligation = typeof rentalObligations.$inferSelect;

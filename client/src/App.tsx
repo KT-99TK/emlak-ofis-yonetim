@@ -40,6 +40,7 @@ const MyOfficeContributionSummary = lazy(() => import("./pages/MyOfficeContribut
 const OfflineContractArchive = lazy(() => import("./pages/OfflineContractArchive"));
 const OfflineActiveContractDocuments = lazy(() => import("./pages/OfflineActiveContractDocuments"));
 const ActiveRentalSummaries = lazy(() => import("./pages/ActiveRentalSummaries"));
+const OnlineCommissions = lazy(() => import("./pages/OnlineCommissions"));
 
 const isElectronDesktop = () => typeof window !== "undefined" && (window.location.protocol === "file:" || Boolean((window as Window & { global1881Desktop?: { platform: string } }).global1881Desktop));
 
@@ -79,6 +80,7 @@ function Router() {
         <Route path="/accounting" component={Records} />
         <Route path="/obligations" component={Obligations} />
         <Route path="/active-rentals" component={ActiveRentalSummaries} />
+        <Route path="/commissions" component={OnlineCommissions} />
         <Route path="/team" component={Team} />
         <Route path="/online-start" component={OnlineStart} />
         <Route path="/audit" component={Audit} />

@@ -66,6 +66,9 @@ import {
   startRelettingPreparation,
   saveRentalIncomeTaxProfile,
   revealClientSensitive,
+  createCentralCommissionTransaction,
+  listCentralCommissionTransactions,
+  verifyCentralCommissionTransaction,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -782,6 +785,33 @@ export const appRouter = router({
         await saveReminderSchedule(ctx.user.id, job.taskUid);
         return { ...job, reused: false };
       }),
+  }),
+  commissions: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+      return listCentralCommissionTransactions(ctx.user.id, scope.isManager, scope.permittedUserIds);
+    }),
+    create: protectedProcedure.input(z.object({
+      transactionNo: z.string().min(2).max(80),
+      contractId: z.number().int().positive().optional(),
+      netServiceFee: z.string().regex(/^\d+(\.\d{1,2})?$/),
+      vatAmount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
+      collectionReference: z.string().min(2).max(180),
+      overrideReason: z.string().max(1000).optional(),
+      participants: z.array(z.object({
+        participantType: z.enum(["consultant", "externalOffice"]),
+        side: z.enum(["buyer", "seller", "shared"]),
+        consultantUserId: z.number().int().positive().optional(),
+        participantCode: z.string().min(2).max(60),
+        participantName: z.string().min(2).max(180),
+        externalOfficeName: z.string().max(180).optional(),
+        rate: z.number().min(0).max(100),
+      })).min(1).max(20),
+    })).mutation(async ({ ctx, input }) => {
+      const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+      return createCentralCommissionTransaction(input, ctx.user.id, scope.isManager);
+    }),
+    verify: adminProcedure.input(z.object({ transactionId: z.number().int().positive(), note: z.string().max(1000).optional() })).mutation(({ ctx, input }) => verifyCentralCommissionTransaction(input.transactionId, ctx.user.id, input.note ?? "")),
   }),
   ledger: router({
     list: protectedProcedure.query(async ({ ctx }) => {

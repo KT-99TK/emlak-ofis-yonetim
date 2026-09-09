@@ -1,0 +1,44 @@
+import { useMemo, useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { formatAuthorityCurrency, formatWholeCurrencyInput } from "@/lib/authorityContract";
+
+const amount = (value: string) => Number(value.replace(/\D/g, "")) || 0;
+const money = (value: string | number) => formatAuthorityCurrency(Number(value), "TRY");
+
+type Person = { code: string; name: string; rate: string };
+const blank = (): Person => ({ code: "", name: "", rate: "" });
+
+export default function OnlineCommissions() {
+  const { user } = useAuth();
+  const utils = trpc.useUtils();
+  const list = trpc.commissions.list.useQuery(undefined, { retry: false });
+  const [transactionNo, setTransactionNo] = useState("");
+  const [contractId, setContractId] = useState("");
+  const [fee, setFee] = useState("");
+  const [vat, setVat] = useState("");
+  const [reference, setReference] = useState("");
+  const [reason, setReason] = useState("");
+  const [buyer, setBuyer] = useState<Person>(blank);
+  const [seller, setSeller] = useState<Person>(blank);
+  const [external, setExternal] = useState<Person>(blank);
+  const [message, setMessage] = useState("");
+  const participants = useMemo(() => [
+    buyer.code.trim() && buyer.name.trim() && amount(buyer.rate) > 0 ? { participantType: "consultant" as const, side: "buyer" as const, participantCode: buyer.code, participantName: buyer.name, rate: amount(buyer.rate) } : null,
+    seller.code.trim() && seller.name.trim() && amount(seller.rate) > 0 ? { participantType: "consultant" as const, side: "seller" as const, participantCode: seller.code, participantName: seller.name, rate: amount(seller.rate) } : null,
+    external.code.trim() && external.name.trim() && amount(external.rate) > 0 ? { participantType: "externalOffice" as const, side: "shared" as const, participantCode: external.code, participantName: external.name, externalOfficeName: external.name, rate: amount(external.rate) } : null,
+  ].filter((item): item is NonNullable<typeof item> => Boolean(item)), [buyer, seller, external]);
+  const totalRate = participants.reduce((sum, participant) => sum + participant.rate, 0);
+  const create = trpc.commissions.create.useMutation({
+    onSuccess: () => { setMessage("Merkezi komisyon kaydı oluşturuldu; broker manager doğrulaması bekleniyor."); setTransactionNo(""); setContractId(""); setFee(""); setVat(""); setReference(""); setReason(""); setBuyer(blank()); setSeller(blank()); setExternal(blank()); void utils.commissions.list.invalidate(); },
+    onError: error => setMessage(error.message),
+  });
+  const verify = trpc.commissions.verify.useMutation({ onSuccess: () => { setMessage("Komisyon manager tarafından doğrulandı."); void utils.commissions.list.invalidate(); }, onError: error => setMessage(error.message) });
+  const submit = () => create.mutate({ transactionNo, contractId: contractId ? Number(contractId) : undefined, netServiceFee: String(amount(fee)), vatAmount: String(amount(vat)), collectionReference: reference, overrideReason: reason || undefined, participants });
+  if (!user) return <div className="p-8">Giriş gerekli.</div>;
+  return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9"><header className="mb-7"><p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]">Merkezi online muhasebe</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Komisyon Paylaşımı</h1><p className="mt-2 max-w-3xl text-sm text-[#70807c]">Alıcı danışmanı, satıcı danışmanı ve varsa farklı emlak ofisini aynı işlemde ayrı paydaşlar olarak kaydedin. KDV hariç hizmet bedeli paylaşım tabanıdır.</p></header>{message && <p role="status" className="mb-4 rounded-xl bg-[#f1f6f2] px-4 py-3 text-sm text-[#287052]">{message}</p>}<Card className="rounded-2xl border-[#dbe5dd] bg-white"><CardHeader><CardTitle className="font-serif text-xl">Yeni çok paydaşlı işlem</CardTitle><p className="text-xs text-[#718079]">%60 danışman / %40 Global 1881 varsayılanı korunur. Farklı oran veya dış ofis paylaşımı broker manager gerekçesi gerektirir.</p></CardHeader><CardContent className="space-y-4"><div className="grid gap-3 md:grid-cols-2"><Input value={transactionNo} onChange={event => setTransactionNo(event.target.value)} placeholder="İşlem numarası *" /><Input value={contractId} onChange={event => setContractId(event.target.value.replace(/\D/g, ""))} placeholder="Merkezi sözleşme ID (opsiyonel)" /><Input inputMode="numeric" value={fee} onChange={event => setFee(formatWholeCurrencyInput(event.target.value))} placeholder="KDV hariç hizmet bedeli *" /><Input inputMode="numeric" value={vat} onChange={event => setVat(formatWholeCurrencyInput(event.target.value))} placeholder="KDV (paylaşıma katılmaz)" /><Input value={reference} onChange={event => setReference(event.target.value)} placeholder="Tahsilat referansı *" /></div><div className="grid gap-3 md:grid-cols-3">{([["Alıcı danışmanı", buyer, setBuyer], ["Satıcı danışmanı", seller, setSeller], ["Dış emlak ofisi", external, setExternal]] as const).map(([label, person, setPerson]) => <div key={label} className="rounded-xl border border-[#e5e8e3] p-3"><p className="mb-2 text-sm font-semibold text-[#34433f]">{label}</p><Input value={person.code} onChange={event => setPerson({ ...person, code: event.target.value })} placeholder="Kod" /><Input className="mt-2" value={person.name} onChange={event => setPerson({ ...person, name: event.target.value })} placeholder={label === "Dış emlak ofisi" ? "Ofis adı" : "Ad soyad"} /><Input className="mt-2" inputMode="numeric" value={person.rate} onChange={event => setPerson({ ...person, rate: event.target.value.replace(/\D/g, "").slice(0, 3) })} placeholder="Pay oranı %" /></div>)}</div><div className="rounded-xl bg-[#f1f6f2] px-4 py-3 text-sm">Toplam pay oranı: <strong>%{totalRate}</strong> {totalRate !== 100 && <span className="text-[#a14f3f]">— kayıt için %100 olmalı.</span>}</div><Textarea value={reason} onChange={event => setReason(event.target.value)} placeholder="Dış ofis veya varsayılan dışı oran gerekçesi" /><Button disabled={create.isPending || totalRate !== 100 || !transactionNo || !reference || !amount(fee)} onClick={submit}>{create.isPending ? "Kaydediliyor…" : "Komisyonu merkezi sisteme kaydet"}</Button></CardContent></Card><Card className="mt-6 rounded-2xl border-[#e5e8e3] bg-white"><CardHeader><CardTitle className="font-serif text-xl">Kayıtlar ve manager doğrulaması</CardTitle></CardHeader><CardContent>{list.isLoading ? <p>Yükleniyor…</p> : list.isError ? <p className="text-[#a14f3f]">Merkezi komisyon kayıtları alınamadı.</p> : !list.data?.length ? <p className="text-sm text-[#718079]">Henüz komisyon kaydı yok.</p> : <div className="space-y-3">{list.data.map(entry => <div key={entry.id} className="rounded-xl border border-[#edf0ec] p-4"><div className="flex flex-wrap justify-between gap-2"><strong>{entry.transactionNo}</strong><span>{money(entry.netServiceFee)} · {entry.status}</span></div><div className="mt-2 grid gap-1 text-xs md:grid-cols-3">{entry.participants.map(participant => <span key={participant.id}>{participant.participantName} ({participant.side}): {money(participant.share)} · %{participant.rate}</span>)}</div><p className="mt-2 text-xs text-[#718079]">Global 1881: {money(entry.global1881Share)} · dış ofis: {money(entry.externalOfficeShare)} · KDV: {money(entry.vatAmount)}</p>{entry.status === "declared" && user.role === "admin" && <Button className="mt-3" size="sm" onClick={() => verify.mutate({ transactionId: entry.id, note: "Belge ve tahsilat kontrolü tamamlandı." })}>Manager olarak doğrula</Button>}</div>)}</div>}</CardContent></Card></div>;
+}
