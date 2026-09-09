@@ -21,6 +21,30 @@ export const users = mysqlTable("users", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
+export const localLoginCredentials = mysqlTable("localLoginCredentials", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  loginName: varchar("loginName", { length: 120 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  temporaryPasswordExpiresAt: timestamp("temporaryPasswordExpiresAt"),
+  temporaryPasswordUsedAt: timestamp("temporaryPasswordUsedAt"),
+  mustChangePassword: int("mustChangePassword").default(1).notNull(),
+  failedAttempts: int("failedAttempts").default(0).notNull(),
+  lockedUntil: timestamp("lockedUntil"),
+  lastLoginAt: timestamp("lastLoginAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const localLoginSessions = mysqlTable("localLoginSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  tokenHash: varchar("tokenHash", { length: 64 }).notNull().unique(),
+  userId: int("userId").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  revokedAt: timestamp("revokedAt"),
+});
+
 export const teams = mysqlTable("teams", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 120 }).notNull(),
@@ -43,6 +67,7 @@ export const userProfiles = mysqlTable("userProfiles", {
   consultantCode: varchar("consultantCode", { length: 40 }).unique(),
   phone: varchar("phone", { length: 40 }),
   title: varchar("title", { length: 120 }),
+  companyName: varchar("companyName", { length: 180 }),
   status: mysqlEnum("status", ["active", "inactive"])
     .default("active")
     .notNull(),

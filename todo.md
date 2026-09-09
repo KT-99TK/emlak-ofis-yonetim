@@ -1,5 +1,31 @@
 # Global 1881 — Aktif Proje Görevleri
 
+- [ ] Ana PC’nin LAN IP adresini ve uygulamanın gerçek dinleme portunu kesinleştir; Windows ağ profilini Özel yap, yalnızca ofis ağına port izni ver ve iki istemci bağlantısını doğrula.
+
+- [ ] Canlıya alma ertelensin; aynı ofis Wi‑Fi ağındaki üç aktif kullanıcıyla bir günlük kontrollü kabul testi yapılsın.
+- [ ] Üç kullanıcı için login/rol, müşteri-kira veri girişi, sözleşme kodu, komisyon, hassas veri maskesi ve ana PC bağlantısını kontrol et.
+- [ ] Ana PC’de test öncesi ve sonrası şifreli yedek al; test verisinin gerçek müşteri kayıtlarıyla karışmadığını ve tekrar kayıt oluşmadığını doğrula.
+- [ ] Windows 1.0.22/AppData ve Defender sınırlarını bozmadan mevcut kurulumla kabul testi yap; bu aşamada yeni imzasız EXE/ZIP üretme.
+
+- [ ] Sözleşme numaralarında danışman kodunu görünür ve değişmez kullan: `CT1-001`, `KT1-001`, `IP1-001`; numara üretimi, sözleşme/PDF görünümü, arama ve audit kayıtlarında düzenleyen danışmanla eşleşsin.
+
+- [ ] Yeni danışman onboarding akışı: broker manager danışman hesabı açabilsin, geçici tek kullanımlık parola üretilsin, ilk girişte parola değişimi zorunlu olsun; mevcut Manus OAuth kullanıcıları korunarak yerel login katmanı güvenli biçimde tasarlansın.
+  - [x] Yerel kimlik bilgileri için parola hash’i, geçici parola son kullanma zamanı, tek kullanımlık durum, ilk giriş zorunluluğu ve başarısız deneme/oturum audit alanlarını ekle. `localLoginCredentials` ve `localLoginSessions` tabloları 0029/0031 migration ile uygulandı; scrypt hash, 24 saatlik geçici parola süresi, `temporaryPasswordUsedAt`, 5 denemede 15 dakika kilit ve auth audit olayları kullanılıyor.
+  - [x] Broker manager’ın yeni danışman hesabı oluşturma prosedürünü uzun login adı ve otomatik kısa kod üretimiyle bağla. `team.createLocalConsultant` manager-only prosedürü `consultantIdentity` yardımcısını kullanıyor.
+  - [x] Yerel login, logout, geçici parola reddi ve ilk giriş parola değiştirme akışlarını uygula; Manus OAuth kullanıcılarını değiştirme. Yerel session cookie’si OAuth cookie’sinden ayrıdır; tRPC context ve contract document download fallback’i ile korunur.
+  - [x] Onboarding ekranı, güvenli geçici parola gösterimi ve parola değişikliği ekranını ekle. Team ekranı manager-only onboarding kartını, dashboard login ekranı ilk giriş parola değişimini içeriyor.
+  - [x] Güvenlik, rol, CT1/CT2 kodlama, tek kullanımlık parola ve ilk giriş testlerini yazıp çalıştır. `localAuthPolicy.test.ts`, logout, belge indirme ve identity testleri 9/9 odaklı başarılı; gerçek Cahit hesabı/merkezi veri login kabulü ayrıca açık.
+  - [x] Uzun login adını `K-TASLIARMUT`, `I-PARIN`, `C-TERCAN` biçiminde normalize et; login/kısa kod kimliklerinde İngilizce uyumlu noktasız `I` kullan; kısa kodu baş harfleri + kullanılmayan en küçük sıra numarası olarak üret (`KT1`, `IP1`, `CT1`, `CT2`, `CT3`). `consultantIdentity` yardımcı ve regresyon testleri hazır.
+  - [x] Aynı kısa kod veya uzun login adının tekrar atanmasını engelle; eski kodları yeniden kullanma, noktalı `İ` ile noktasız `I` çakışmalarını tek kimlik standardında çöz ve audit kaydı oluştur. Hesap oluşturma audit’i ve unique login/kod kontrolleri uygulanıyor.
+
+- [ ] CT1’den alınan 19 aktif kira kaydını, kullanıcı tarafından belirtilen boş alanları boş bırakarak Aktif Kiralamalar aktarım formatına dönüştür, hassas telefonları güvenli aktarım kuralıyla işle ve veri doğrulaması yap.
+  - [ ] Cahit Tercan / CT1 / Terpa Gayrimenkul danışman profilini tam yetkili ve login yapabilen danışman hesabı olarak oluştur; IP1/İbrahim Parin Broker kaydına dokunma.
+  - [ ] CT1 hesabının login, danışman rolü, müşteri/aktif kira atamaları ve kendi kayıtlarına erişimini doğrula.
+  - [ ] CT1 anlaşma snapshot’ını %70 danışman / %30 ofis olarak oluştur; yetki kodunu 3500211/003 olarak kaydet.
+  - [ ] Önizleme, CT1 danışman eşleşmesi ve zorunlu alan doğrulamasını tamamla.
+  - [ ] Onaylı 19 kaydı merkezi Aktif Kiralamalar tablosuna aktar ve tekrar kayıt kontrolü yap.
+  - [ ] Telefon maskesi/şifreli kasa ve boş tahliye alanlarını aktarım sonrası doğrula.
+
 Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Önceki ayrıntılı görev geçmişi `todo-archive.md` ve `todo-history-2026-08-29.md` içinde korunmaktadır; hiçbir geçmiş kayıt silinmemiştir.
 
 ## 1. Güvenli Windows / Electron kabulü — dağıtım durduruldu

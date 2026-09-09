@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { getCentralAccessScope, getContractDocumentForUser } from "./db";
 import { storageGetSignedUrl } from "./storage";
 import { sdk } from "./_core/sdk";
+import { getLocalUserFromRequest } from "./localAuth";
 
 const isManager = (user: { role: string }) => user.role === "admin";
 
@@ -13,10 +14,13 @@ export function registerContractDocumentDownload(app: Express) {
       return;
     }
 
-    let user;
+    let user = null;
     try {
       user = await sdk.authenticateRequest(req);
     } catch {
+      user = await getLocalUserFromRequest(req);
+    }
+    if (!user) {
       res.status(401).send("Belge indirmek için oturum açmalısınız");
       return;
     }

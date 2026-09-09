@@ -78,6 +78,7 @@ import {
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
+import { changeLocalPassword, createLocalConsultantAccount, loginLocalUser, logoutLocalUser } from "./localAuth";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
 const MAX_MOBILE_PDF_BYTES = 12 * 1024 * 1024;
@@ -91,11 +92,17 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
+    logout: publicProcedure.mutation(async ({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return { success: true } as const;
+      return logoutLocalUser(ctx.req, ctx.res);
     }),
+    localLogin: publicProcedure
+      .input(z.object({ loginName: z.string().min(3).max(120), password: z.string().min(1).max(200) }))
+      .mutation(({ ctx, input }) => loginLocalUser({ ...input, res: ctx.res })),
+    changeLocalPassword: protectedProcedure
+      .input(z.object({ newPassword: z.string().min(12).max(200) }))
+      .mutation(({ ctx, input }) => changeLocalPassword({ userId: ctx.user.id, newPassword: input.newPassword, res: ctx.res })),
   }),
   dashboard: router({
     summary: protectedProcedure.query(async ({ ctx }) => {
@@ -906,6 +913,9 @@ export const appRouter = router({
   }),
   team: router({
     list: adminProcedure.query(() => listTeamMembers()),
+    createLocalConsultant: adminProcedure
+      .input(z.object({ firstName: z.string().min(2).max(80), lastName: z.string().min(2).max(120), title: z.string().max(120).optional(), companyName: z.string().max(180).optional() }))
+      .mutation(({ ctx, input }) => createLocalConsultantAccount({ ...input, managerUserId: ctx.user.id })),
     setConsultantCode: adminProcedure
       .input(
         z.object({

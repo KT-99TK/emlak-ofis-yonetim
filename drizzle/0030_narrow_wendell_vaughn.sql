@@ -1,0 +1,1 @@
+ALTER TABLE `userProfiles` ADD `companyName` varchar(180);

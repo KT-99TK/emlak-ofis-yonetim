@@ -1,0 +1,1 @@
+ALTER TABLE `localLoginCredentials` ADD `temporaryPasswordUsedAt` timestamp;
