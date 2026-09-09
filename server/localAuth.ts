@@ -100,6 +100,18 @@ export async function createLocalConsultantAccount(input: {
   return { userId, loginName, consultantCode, temporaryPassword, temporaryPasswordExpiresAt, companyName: input.companyName?.trim() || null };
 }
 
+export async function resetLocalConsultantPassword(input: { userId: number; managerUserId: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const profile = await db.select({ officeRole: userProfiles.officeRole, consultantCode: userProfiles.consultantCode }).from(userProfiles).where(eq(userProfiles.userId, input.userId)).limit(1);
+  if (!profile[0] || profile[0].officeRole !== "consultant") throw new Error("Yalnız aktif danışman hesabı için parola sıfırlanabilir.");
+  const temporaryPassword = generateTemporaryPassword();
+  await db.update(localLoginCredentials).set({ passwordHash: await hashPassword(temporaryPassword), temporaryPasswordExpiresAt: new Date(Date.now() + TEMPORARY_PASSWORD_HOURS * 60 * 60 * 1000), temporaryPasswordUsedAt: null, mustChangePassword: 1, failedAttempts: 0, lockedUntil: null }).where(eq(localLoginCredentials.userId, input.userId));
+  await db.update(localLoginSessions).set({ revokedAt: new Date() }).where(and(eq(localLoginSessions.userId, input.userId), isNull(localLoginSessions.revokedAt)));
+  await writeLocalAudit(db, input.managerUserId, "local_password_reset", input.userId, `Danışman geçici parolası yenilendi; kod=${profile[0].consultantCode ?? ""}.`);
+  return { temporaryPassword, temporaryPasswordExpiresAt: new Date(Date.now() + TEMPORARY_PASSWORD_HOURS * 60 * 60 * 1000) };
+}
+
 export async function loginLocalUser(input: { loginName: string; password: string; res: Response }) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");

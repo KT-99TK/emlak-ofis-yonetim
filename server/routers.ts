@@ -78,7 +78,7 @@ import {
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
-import { changeLocalPassword, createLocalConsultantAccount, loginLocalUser, logoutLocalUser } from "./localAuth";
+import { changeLocalPassword, createLocalConsultantAccount, loginLocalUser, logoutLocalUser, resetLocalConsultantPassword } from "./localAuth";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
 const MAX_MOBILE_PDF_BYTES = 12 * 1024 * 1024;
@@ -916,6 +916,9 @@ export const appRouter = router({
     createLocalConsultant: adminProcedure
       .input(z.object({ firstName: z.string().min(2).max(80), lastName: z.string().min(2).max(120), title: z.string().max(120).optional(), companyName: z.string().max(180).optional() }))
       .mutation(({ ctx, input }) => createLocalConsultantAccount({ ...input, managerUserId: ctx.user.id })),
+    resetLocalPassword: adminProcedure
+      .input(z.object({ userId: z.number().int().positive() }))
+      .mutation(({ ctx, input }) => resetLocalConsultantPassword({ ...input, managerUserId: ctx.user.id })),
     setConsultantCode: adminProcedure
       .input(
         z.object({
