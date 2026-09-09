@@ -33,9 +33,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 1. Güvenli Windows / Electron kabulü — dağıtım durduruldu
 
-- [ ] Defender’ın `Trojan:Script/Wacatac.H!ml` algıladığı 1.0.23 EXE, ZIP ve BAT dosyalarını geçersiz kabul etmeyi sürdür; bu dosyaları yeniden üretme, gönderme, geri yükletme, izin verme veya güvenlik korumasını aşma yönlendirmesi yapma.
-- [ ] Kullanıcının mevcut 1.0.22 kurulumu ve `%APPDATA%\Global 1881 Gayrimenkul` verilerini değiştirmeden koru.
-- [ ] Gelecekte offline Windows dağıtımı yeniden ele alınırsa yalnız gerçek Windows ortamında oluşturulan, bağımsız güvenlik incelemesinden geçmiş ve kullanıcı kabulü için tek toplu paket yaklaşımını değerlendir; bu karar oluşmadan paket üretme.
+- [x] Defender’ın `Trojan:Script/Wacatac.H!ml` algıladığı 1.0.23 EXE, ZIP ve BAT dosyalarını geçersiz kabul etmeyi sürdür; bu dosyaları yeniden üretme, gönderme, geri yükletme, izin verme veya güvenlik korumasını aşma yönlendirmesi yapma. Bu süreçte yeni EXE/ZIP/BAT üretilmedi veya dağıtılmadı.
+- [x] Kullanıcının mevcut 1.0.22 kurulumu ve `%APPDATA%\Global 1881 Gayrimenkul` verilerini değiştirmeden koru. Web geliştirme ve migration işlemleri bu Windows kurulumuna/AppData’ya dokunmadı.
+- [x] Gelecekte offline Windows dağıtımı yeniden ele alınırsa yalnız gerçek Windows ortamında oluşturulan, bağımsız güvenlik incelemesinden geçmiş ve kullanıcı kabulü için tek toplu paket yaklaşımını değerlendir; bu karar oluşmadan paket üretme. Karar: yeni offline paket üretilmeyecek; mevcut 1.0.22 korunacak ve merkezi web/LAN kabulü tercih edilecek.
 - [ ] Güvenli bir Windows kabul yolu oluştuğunda tek oturumda Offline Genel Bakış açılışı, `startup.log`, `En geç` tarihinin `GG.AA.YYYY` görünümü, A4 kira/yetki belgeleri, DASK/EİDS/ekler, menü ve Ofis Akışı yerleşimini doğrula.
 
 ## 2. Canlı web erişimi — platform / alan adı takibi
@@ -62,7 +62,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] ExcelJS üzerinden gelen `uuid@8.3.2` advisory’sini gerçek uyumlu bir düzeltmeyle kapat; ExcelJS üretim/test bağımlılıklarından kaldırıldı ve `pnpm why uuid` artık boş. `read-excel-file@9.3.10` üretim parserı ve `write-excel-file@4.1.1` test fixture üretimi kullanılıyor.
 - [x] ExcelJS yerine bakımı süren ve advisory zincirini taşımayan bir Excel kütüphanesine geçişi veya upstream uyumlu ExcelJS/uuid düzeltmesini teknik olarak değerlendir; Aktif Kiralamalar parserı, 19 satırlık CT1 aktarımı ve Excel export regresyonları 7/7 odaklı testle korundu.
 - [x] Güvenli bağımlılık düzeltmesi uygulanırsa `pnpm why uuid`, `pnpm audit`, tam test, TypeScript ve production build ile uuid advisory’sinin kalktığını kanıtla; uuid ağacı boş, 110 dosya/309 test, TypeScript ve production build başarılı. Audit’te uuid/ExcelJS bulgusu artık yok.
-- [ ] Kalan bağımlılık audit bulgularını ayrı planla: production `qs` artık patched `6.16.0`; paketleme `fast-uri`/`js-yaml`, tar/Vite/PostCSS, browserslist ve Vitest zincirleri patched sürümlere çekildi. Son audit 0 critical/0 high/1 moderate/2 low: yalnız dev-only `drizzle-kit > @esbuild-kit/core-utils > esbuild@0.18.20` ve düşük Babel/esbuild kayıtları açık. Drizzle upstream sürümü yayımlandığında yeniden değerlendir; production runtime’a dev-only zincirin girmediğini koru.
+- [ ] Kalan bağımlılık audit bulgularını ayrı planla: production `qs` artık patched `6.16.0`; paketleme `fast-uri`/`js-yaml`, tar/Vite/PostCSS, browserslist ve Vitest zincirleri patched sürümlere çekildi. `pnpm audit --prod --audit-level=moderate` sonucu 0 critical/high/moderate/low; genel auditte yalnız dev-only `drizzle-kit > @esbuild-kit/core-utils > esbuild@0.18.20` ve düşük Babel/esbuild kayıtları açık. Drizzle upstream sürümü yayımlandığında yeniden değerlendir; production runtime’a dev-only zincirin girmediğini koru.
+  - [x] Production dependency güvenlik taramasını temiz sonuçla doğrula: `AUDIT_PROD_EXIT=0`, tüm seviyeler 0.
+  - [ ] Dev-only drizzle-kit/esbuild ve düşük Babel/esbuild advisory’lerini upstream uyumlu sürüm geldiğinde kapat; `drizzle-kit` 0.31.10’a yükseltildi, ancak `@esbuild-kit/esm-loader@2.6.5 → core-utils@3.3.2 → esbuild@0.18.20` zinciri sürdüğü için advisory açık. Etkisiz nested override kullanılmıyor.
 - [x] Express 5 rota geçişinden sonra ana sayfanın HTTP 200 ve korunan `/manus-storage/office-documents/example.pdf` isteğinin HTTP 403 davranışını doğrula.
 - [x] Aktif Kiralamalar ekranındaki ExcelJS yüklemesini dosya seçimi anına taşı; aktarım testleri, TypeScript ve production build ile doğrula. Sayfa parçası 999,12 kB’dan 59,48 kB’a indi; Excel kodu yalnız aktarım gerektiğinde ayrı 939,79 kB parçası olarak yüklenir.
 
