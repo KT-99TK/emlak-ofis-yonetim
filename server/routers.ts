@@ -802,6 +802,10 @@ export const appRouter = router({
       agreementProfileId: z.number().int().positive().optional(),
       collectionReference: z.string().min(2).max(180),
       overrideReason: z.string().max(1000).optional(),
+      externalOfficeAgreementReference: z.string().max(180).optional(),
+      externalOfficeAgreementSignedAt: z.coerce.date().optional(),
+      externalOfficeAgreementValidFrom: z.coerce.date().optional(),
+      externalOfficeAgreementValidTo: z.coerce.date().optional(),
       participants: z.array(z.object({
         participantType: z.enum(["consultant", "externalOffice"]),
         side: z.enum(["buyer", "seller", "shared"]),

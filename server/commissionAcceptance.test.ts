@@ -48,6 +48,11 @@ describe("100.000 TL komisyon kabul matrisi", () => {
     expect(db).toContain("fulfillingConsultantPayout");
     expect(db).toContain("rightsOfficePayout");
     expect(db).toContain("corporateOfficeNoPayout");
+    expect(db).toContain("externalOfficeAgreementReference");
+    expect(db).toContain("externalOfficeAgreementSignedAt");
+    expect(db).toContain("externalOfficeAgreementValidFrom");
+    expect(db).toContain("externalOfficeAgreementValidTo");
+    expect(db).toContain("Anlaşma geçerlilik bitişi başlangıçtan önce olamaz.");
     expect(page).toContain("Manager özel oranı açarsa paydaş oranları işlem bazında snapshot");
     expect(page).toContain("Toplam oran tam olarak %100 olmalı");
   });
