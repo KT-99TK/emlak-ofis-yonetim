@@ -1,13 +1,10 @@
-import ExcelJS from "exceljs";
+import writeXlsxFile from "write-excel-file/browser";
 import { describe, expect, it } from "vitest";
 import { getActiveRentalAdvisorDistribution, parseActiveRentalWorkbook } from "./ActiveRentalSummaries";
 
 async function workbookFile(rows: unknown[][]) {
-  const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet("Aktif Kiralamalar");
-  rows.forEach(row => sheet.addRow(row));
-  const bytes = await workbook.xlsx.writeBuffer();
-  return new File([bytes], "aktif-kiralamalar.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const blob = await writeXlsxFile(rows.map(row => row.map(value => ({ value }))), { sheet: "Aktif Kiralamalar" }).toBlob();
+  return new File([blob], "aktif-kiralamalar.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 }
 
 describe("ActiveRentalSummaries Excel ayrıştırıcısı", () => {

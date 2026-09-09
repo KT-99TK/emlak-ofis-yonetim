@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import type { CellValue } from "exceljs";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -87,26 +86,6 @@ function parseDate(value: unknown) {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-function spreadsheetCellValue(value: CellValue): unknown {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean" ||
-    value instanceof Date
-  ) {
-    return value;
-  }
-  if (typeof value === "object" && "result" in value) {
-    return spreadsheetCellValue(value.result as CellValue);
-  }
-  if (typeof value === "object" && "richText" in value) {
-    return value.richText.map(part => part.text).join("");
-  }
-  if (typeof value === "object" && "text" in value) return value.text;
-  return "";
-}
-
 function parseMoney(value: unknown) {
   if (typeof value === "number")
     return Number.isFinite(value) && value > 0 ? value : undefined;
@@ -123,21 +102,16 @@ export async function parseActiveRentalWorkbook(
   consultants: Array<{ userId: number; consultantCode: string | null }>,
   codeAliases: Record<string, string> = {}
 ): Promise<ParsedWorkbook> {
-  const { default: ExcelJS } = await import("exceljs");
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(await file.arrayBuffer());
-  const sheet = workbook.getWorksheet("Aktif Kiralamalar") ?? workbook.worksheets[0];
-  if (!sheet)
+  const { default: readXlsxFile } = await import("read-excel-file/browser");
+  const sheets = await readXlsxFile(file);
+  const selectedSheet = sheets.find(sheet => sheet.sheet === "Aktif Kiralamalar") ?? sheets[0];
+  const grid = (selectedSheet?.data ?? []) as unknown[][];
+  if (!selectedSheet || !grid.length)
     return {
       rows: [],
-      errors: ["Aktif Kiralamalar sayfası bulunamadı."],
+      errors: ["Aktif Kiralamalar sayfası bulunamadı veya boş."],
       fileName: file.name,
     };
-  const grid: unknown[][] = [];
-  sheet.eachRow({ includeEmpty: true }, row => {
-    const values = Array.isArray(row.values) ? row.values.slice(1) : [];
-    grid.push(values.map(value => spreadsheetCellValue(value as CellValue)));
-  });
   const headers = (grid[0] ?? []).map(header);
   const at = (...names: string[]) =>
     headers.findIndex(value => names.includes(value));
