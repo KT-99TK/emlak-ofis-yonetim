@@ -1,0 +1,1 @@
+ALTER TABLE `activeRentalSummaries` ADD `authorityCode` varchar(60);

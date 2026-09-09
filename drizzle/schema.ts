@@ -430,6 +430,7 @@ export const activeRentalSummaries = mysqlTable("activeRentalSummaries", {
     .notNull()
     .default(""),
   unitInfo: varchar("unitInfo", { length: 100 }).notNull().default(""),
+  authorityCode: varchar("authorityCode", { length: 60 }),
   assignedUserId: int("assignedUserId").notNull(),
   importFingerprint: varchar("importFingerprint", { length: 64 })
     .notNull()

@@ -1968,6 +1968,7 @@ export type ActiveRentalImportRow = {
   neighborhood: string;
   propertyLocation: string;
   unitInfo: string;
+  authorityCode?: string;
   assignedUserId: number;
   consultantCode: string;
 };
@@ -1988,6 +1989,7 @@ function importFingerprint(row: ActiveRentalImportRow) {
         normalizeImportValue(row.neighborhood),
         normalizeImportValue(row.propertyLocation),
         normalizeImportValue(row.unitInfo),
+        normalizeImportValue(row.authorityCode ?? ""),
         row.assignedUserId,
       ].join("|")
     )
@@ -2092,6 +2094,7 @@ export async function importActiveRentalSummaries(
       neighborhood: row.neighborhood,
       propertyLocation: row.propertyLocation,
       unitInfo: row.unitInfo,
+      authorityCode: row.authorityCode?.trim() || null,
       assignedUserId: row.assignedUserId,
       importFingerprint: importFingerprint(row),
       importedByUserId,

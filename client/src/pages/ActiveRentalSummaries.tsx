@@ -37,6 +37,7 @@ type ParsedRentalRow = {
   neighborhood: string;
   propertyLocation: string;
   unitInfo: string;
+  authorityCode?: string;
   consultantCode: string;
   assignedUserId: number;
 };
@@ -165,6 +166,7 @@ export async function parseActiveRentalWorkbook(
       "daire",
       "bağımsız bölüm"
     ),
+    authorityCode: at("yetki kodu", "yetki sözleşmesi kodu"),
     consultantCode: at("danışman kodu"),
   };
   const compact =
@@ -287,6 +289,7 @@ export async function parseActiveRentalWorkbook(
       neighborhood,
       propertyLocation,
       unitInfo,
+      authorityCode: value("authorityCode") || undefined,
       consultantCode: consultantCode.toUpperCase(),
       assignedUserId: assignedUserId!,
     });

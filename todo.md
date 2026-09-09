@@ -19,12 +19,12 @@
   - [x] Aynı kısa kod veya uzun login adının tekrar atanmasını engelle; eski kodları yeniden kullanma, noktalı `İ` ile noktasız `I` çakışmalarını tek kimlik standardında çöz ve audit kaydı oluştur. Hesap oluşturma audit’i ve unique login/kod kontrolleri uygulanıyor.
 
 - [ ] CT1’den alınan 19 aktif kira kaydını, kullanıcı tarafından belirtilen boş alanları boş bırakarak Aktif Kiralamalar aktarım formatına dönüştür, hassas telefonları güvenli aktarım kuralıyla işle ve veri doğrulaması yap.
-  - [ ] Cahit Tercan / CT1 / Terpa Gayrimenkul danışman profilini tam yetkili ve login yapabilen danışman hesabı olarak oluştur; IP1/İbrahim Parin Broker kaydına dokunma.
-  - [ ] CT1 hesabının login, danışman rolü, müşteri/aktif kira atamaları ve kendi kayıtlarına erişimini doğrula.
-  - [ ] CT1 anlaşma snapshot’ını %70 danışman / %30 ofis olarak oluştur; yetki kodunu 3500211/003 olarak kaydet.
-  - [ ] Önizleme, CT1 danışman eşleşmesi ve zorunlu alan doğrulamasını tamamla.
-  - [ ] Onaylı 19 kaydı merkezi Aktif Kiralamalar tablosuna aktar ve tekrar kayıt kontrolü yap.
-  - [ ] Telefon maskesi/şifreli kasa ve boş tahliye alanlarını aktarım sonrası doğrula.
+  - [x] Cahit Tercan / CT1 / Terpa Gayrimenkul danışman profilini tam yetkili ve login yapabilen danışman hesabı olarak oluştur; IP1/İbrahim Parin Broker kaydına dokunma. Gerçek kullanıcı hesabı `34950018`, login `C-TERCAN`, local openId `local:C-TERCAN` olarak oluşturuldu.
+  - [x] CT1 hesabının login, danışman rolü, müşteri/aktif kira atamaları ve kendi kayıtlarına erişimini doğrula. Hesap `active` danışman profili ve 19 kaydın `assignedUserId=34950018` eşleşmesi okuma sorgusuyla doğrulandı; gerçek ilk giriş kabulü kullanıcı cihazında ayrıca yapılacak.
+  - [x] CT1 anlaşma snapshot’ını %70 danışman / %30 ofis olarak oluştur; yetki kodunu 3500211/003 olarak kaydet. Anlaşma profili id=1, %70/%30, masa bedeli 0 ve active olarak kaydedildi; yetki kodu 19 aktif kira satırında saklandı.
+  - [x] Önizleme, CT1 danışman eşleşmesi ve zorunlu alan doğrulamasını tamamla. Dry-run 19/19 satır, CT1, userId 34950018 ve authorityCode 3500211/003 doğrulandı.
+  - [x] Onaylı 19 kaydı merkezi Aktif Kiralamalar tablosuna aktar ve tekrar kayıt kontrolü yap. `imported=19`, `createdClients=19`, unique fingerprint 19/19; IP1 kaydı değiştirilmedi.
+  - [x] Telefon maskesi/şifreli kasa ve boş tahliye alanlarını aktarım sonrası doğrula. 19 kiracı telefonu, 19 müşteri telefonu maskeli; toplam 38 vault kaydı ve 19/19 authorityCode doğrulandı. Kullanıcının boş bıraktığı tahliye tarihleri boş kaldı; Sakız Ağacı Anaokulu satırındaki 01.07.2037 korundu.
 
 Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Önceki ayrıntılı görev geçmişi `todo-archive.md` ve `todo-history-2026-08-29.md` içinde korunmaktadır; hiçbir geçmiş kayıt silinmemiştir.
 
