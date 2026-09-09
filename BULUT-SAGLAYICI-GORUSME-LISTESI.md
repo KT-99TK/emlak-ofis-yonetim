@@ -163,3 +163,21 @@ Cloud sağlayıcısı, uygulamanın mevcut TLS sorununu tek başına çözmez. A
 [3]: [NIST Cybersecurity Framework, *Protect*](https://www.nist.gov/cyberframework/protect)
 [4]: [OWASP, *Unvalidated Redirects and Forwards Cheat Sheet*](https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html)
 [5]: [Duke University Information Security, *QR Code Security Guide*](https://security.duke.edu/security-guides/qr-code-security-guide/)
+
+
+## 9. Ubuntu/Docker önerisinin bu projeye göre değerlendirmesi
+
+Ubuntu ve Docker teknik olarak kullanılabilir; ancak mevcut projede danışman laptoplarını doğrudan MySQL’e bağlamak veya ofis laptopunu üretim sunucusu yapmak doğru değildir. Merkezi erişim yalnız uygulama sunucusunun HTTPS API katmanı üzerinden yürümeli, MySQL/TiDB ve S3 erişimi özel ağda veya sunucu tarafında kalmalıdır.
+
+| Seçenek | Global 1881 için değerlendirme | Zorunlu güvenlik koşulları |
+|---|---|---|
+| Yönetilen WebDev/Node ortamı | Mevcut React/Node/tRPC/MySQL uyumlu yapı için en az operasyonlu seçenektir. TLS, yayın, secret ve rollback yönetimi platform tarafından sağlanır. | Yönetilen DB, S3 özel erişim, MFA, audit, yedek/PITR ve kullanıcı kabul testi yazılı teyit edilmelidir. |
+| Ubuntu + Docker + yönetilen MySQL/S3 | Taşınabilirlik ve işletim sistemi kontrolü artar; sağlayıcı teknik ekibi varsa makul üretim seçeneğidir. | UFW ile yalnız 80/443, SSH için MFA/allow-list veya VPN, DB portunun internete kapalı olması, reverse proxy TLS, secret manager, otomatik yama, imaj taraması, izleme ve geri yükleme testi. |
+| Tek VPS üzerinde uygulama + MySQL + dosyalar | Başlangıçta ucuz görünür; ancak tek hata noktası ve yedek/geri yükleme sorumluluğu yüksektir. | Yalnız sağlayıcı yazılı RPO/RTO, ayrı fiziksel yedek, PITR, S3 sürümleme, restore testi ve insan destek taahhüdü verirse değerlendirilebilir; varsayılan öneri değildir. |
+| Ofis laptopunu sunucu yapmak | Üretim için uygun değildir. Uyku, modem/NAT, elektrik, IP değişimi ve kişisel cihaz güvenliği erişimi kesebilir. | Kullanılmamalıdır; yalnız yayımlanmış HTTPS ortamında test yapılmalıdır. |
+
+### Önerilen geçiş sırası
+
+Önce kaynak kodu ve bağımlılık kilidiyle izole bir staging ortamı kurulmalı; MySQL şeması ve S3 belge depolaması ayrı hazırlanmalı; secret değerleri güvenli yönetim sistemine eklenmeli; TLS ve alan adı doğrulanmalıdır. Ardından şifreli merkezi veri yedeği kontrollü biçimde geri yüklenmeli, kayıt sayıları, roller, maskeli hassas alanlar, komisyon payları ve belge bağlantıları doğrulanmalıdır. Son olarak broker manager, atanmış danışman ve ofis asistanı hesaplarıyla veri kapsamı; indirim, tahsilat, iptal ve çok paydaşlı komisyon akışları test edilmeden DNS trafiği yeni ortama çevrilmemelidir.
+
+> Docker, “iki dakikada otomatik kurtarma” garantisi değildir. Konteyner imajı uygulamayı yeniden başlatmayı kolaylaştırır; veritabanı, S3 belgeleri, secret değerleri, DNS/TLS ve doğrulanmış yedek geri dönüşü ayrıca yönetilmelidir.

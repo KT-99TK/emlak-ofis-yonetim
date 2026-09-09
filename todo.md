@@ -60,7 +60,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 - [x] Uygulamanın React/TypeScript, Node.js/Express/tRPC, MySQL uyumlu veritabanı, S3 uyumlu belge depolama ve OAuth/gizli değişken gereksinimlerini içeren sağlayıcı kontrol listesi hazırla. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` oluşturuldu.
 - [x] Sağlayıcıya sorulacak TLS/alan adı, yedekleme-geri yükleme, erişim güvenliği, izleme, taşınabilirlik, maliyet ve destek maddelerini açık kabul ölçütleriyle yaz. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` kabul ölçütleri ve teklif kalemlerini içerir.
-- [ ] Ubuntu/Docker önerilerini mevcut MySQL/TiDB, Express/tRPC, S3 ve rol/mahremiyet mimarisiyle karşılaştır; uygulanmış güvenlik katmanlarını, eksik altyapı katmanlarını ve doğru bulut geçiş sırasını belgeleyerek öner.
+- [x] Ubuntu/Docker önerilerini mevcut MySQL/TiDB, Express/tRPC, S3 ve rol/mahremiyet mimarisiyle karşılaştır; uygulanmış güvenlik katmanlarını, eksik altyapı katmanlarını ve doğru bulut geçiş sırasını belgeleyerek öner. Karşılaştırma ve staging→veri geri yükleme→rol/mahremiyet kabulü→DNS geçiş sırası `BULUT-SAGLAYICI-GORUSME-LISTESI.md` bölüm 9’a eklendi.
 - [x] Kartvizit, portföy ve müstakil ilanlarda kullanılacak QR kodların sabit `ofis.global1881.com` bağlantısından ilan detayına yönlenmesi için özel alan adı, TLS, kısa yönlendirme, ilan durum yönetimi ve ölçüm gereksinimlerini bulut sağlayıcı görüşme listesine ekle. `BULUT-SAGLAYICI-GORUSME-LISTESI.md` içindeki QR bölümü; doğrudan portal, kalıcı ofis yönlendirmesi ve public ilan sayfası seçeneklerini içerir.
 
 ## 8. Offline istemci teknik güvenlik değerlendirmesi
