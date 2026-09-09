@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { createHash } from "node:crypto";
 import {
@@ -2630,6 +2630,13 @@ export async function createCentralCommissionTransaction(input: {
   if (externalOfficeRate > 0 && (!isManager || !input.overrideReason?.trim())) throw new Error("Dış ofis paylaşımı için broker manager ve gerekçe zorunludur.");
   if (externalOfficeRate > 0 && (!input.externalOfficeAgreementReference?.trim() || !input.externalOfficeAgreementSignedAt || !input.externalOfficeAgreementValidFrom || !input.externalOfficeAgreementValidTo)) throw new Error("Dış ofis paylaşımında anlaşma referansı, imza tarihi ve geçerlilik tarihleri zorunludur.");
   if (input.externalOfficeAgreementValidFrom && input.externalOfficeAgreementValidTo && input.externalOfficeAgreementValidTo < input.externalOfficeAgreementValidFrom) throw new Error("Anlaşma geçerlilik bitişi başlangıçtan önce olamaz.");
+  if (externalOfficeRate > 0 && input.externalOfficeAgreementValidFrom && input.externalOfficeAgreementValidTo) {
+    const externalOfficeNames = input.participants.filter(participant => participant.participantType === "externalOffice" && participant.externalOfficeName?.trim()).map(participant => participant.externalOfficeName!.trim());
+    if (externalOfficeNames.length) {
+      const overlapping = await db.select({ id: commissionTransactions.id }).from(commissionTransactions).innerJoin(commissionParticipants, eq(commissionParticipants.commissionTransactionId, commissionTransactions.id)).where(and(inArray(commissionParticipants.externalOfficeName, externalOfficeNames), lte(commissionTransactions.externalOfficeAgreementValidFrom, input.externalOfficeAgreementValidTo), or(isNull(commissionTransactions.externalOfficeAgreementValidTo), gte(commissionTransactions.externalOfficeAgreementValidTo, input.externalOfficeAgreementValidFrom)))).limit(1);
+      if (overlapping.length) throw new Error("Aynı dış ofis için geçerlilik dönemleri çakışıyor.");
+    }
+  }
   if (externalOfficeRate === 0 && consultantRate !== 100 && (!isManager || !input.overrideReason?.trim())) throw new Error("Global havuz dağılımı %100 değilse broker manager ve gerekçe zorunludur.");
   const rightsSplit = Number(input.consultantRightsSplitPercent ?? 50);
   if (!Number.isFinite(rightsSplit) || rightsSplit < 0 || rightsSplit > 100) throw new Error("Eski danışman hak paylaşım oranı 0 ile 100 arasında olmalıdır.");
