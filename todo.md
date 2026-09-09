@@ -104,7 +104,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Merkezi komisyon kaydına dış ofis yönünü ekle: `counterpartyPortfolio` (karşı ofis portföyü) ve `global1881External` (Global dış ofis) ayrımı; her ikisinde sabit 50/50 toplam havuz ve Global havuzunda tek danışman %60/%40 hesabı. Migration, router, UI ve yön bazlı Global kasa hesabı eklendi.
 
 - [x] Portföy sahipliği kuralını uygula: danışman portföyünde toplam komisyon %50/%50 alıcı-satıcı taraflarına, her tarafın %60’ı ilgili danışmana ve %40’ı Global 1881’e; ofis portföyünde %50 portföy sahibi ofise, kalan %50 iki danışmana %25/%25, her danışman tabanında %60/%40. `commissionScenario` ve online ekran bu iki sabit senaryoyu otomatik hesaplıyor.
-- [ ] Portföy sahibi danışman/ofis senaryoları için merkezi ve offline hesap, ekran, audit ve 100.000 TL örnek regresyon testlerini ekle.
+- [x] Portföy sahibi danışman/ofis senaryoları için merkezi ve offline hesap, ekran, audit ve 100.000 TL örnek regresyon testlerini ekle. `server/commissionAcceptance.test.ts` 4/4, ilgili komisyon/anlaşma testleri toplam 15/15 geçti; canlı veritabanına test kaydı eklenmedi.
 
 - [x] Komisyon ekranını tek ekrana sadeleştir: tutar girişi + senaryo seçimi + danışman/portföy/ofis seçimi; sistem ara havuzları, danışman payını ve Global kasa payını otomatik önizlesin; karmaşık oran hesabı kullanıcıya bırakılmasın. `/commissions` ekranında sabit senaryo seçimi, otomatik önizleme ve manuel oran alanı yerine sistem oranı gösterimi uygulandı.
 
