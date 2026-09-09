@@ -90,14 +90,14 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 - [x] Komisyon varyasyon matrisi ve eksik süreç kontrolünü tamamla; kodlanmış, kısmen kodlanmış ve eksik hesapları tablo halinde raporla. Sonuç: 8 ana iş varyasyonu ve 4 tahsilat/işlem durumu ayrıştırıldı; iade/mahsup muhasebesi ile resmî platform yedek yolu açık kaldı.
 
-- [ ] Komisyon merkezi hesaplamasında `global1881Share` alanını düzelt: varsayılan işlemde Global 1881 payı net komisyonun %40’ı olmalı; dış ofisli işlemde dış ofis payı ve Global 1881 ofis payı ile danışman payları ayrı hesaplanmalı. Dış ofis oranı sonrası kalan tutarın danışman/ofis arasında nasıl bölüneceğini kullanıcı politikasıyla kesinleştir ve test et.
+- [x] Komisyon merkezi hesaplamasında `global1881Share` alanını düzelt: varsayılan işlemde Global 1881 payı net komisyonun %40’ı olmalı; dış ofisli işlemde dış ofis payı ve Global 1881 ofis payı ile danışman payları ayrı hesaplanmalı. Dış ofis oranı sonrası kalan tutarın danışman/ofis arasında nasıl bölüneceğini kullanıcı politikasıyla kesinleştir ve test et. `globalPortfolioOfficeShare` ve `externalOfficeRole` ile yön bazlı hesap uygulandı; 100.000 TL örnekleri test edildi.
 
-- [ ] Dış ofisli paylaşım politikasını düzelt: toplam komisyonun %50’si dış ofis, %50’si Global 1881 havuzu; Global havuz iki danışmana eşit 25.000 TL tabanlarıyla dağıtılacak ve her danışman tabanında %60 danışman/%40 Global 1881 uygulanacak.
-- [ ] Dış ofisli 100.000 TL örneği için merkezi/offline hesap, arayüz, audit ve regresyon testlerini yeni politikaya göre güncelle; eski `global1881Share` kalan tutar hesabını kaldır.
+- [x] Dış ofisli paylaşım politikasını düzelt: toplam komisyonun %50’si dış ofis, %50’si Global 1881 havuzu; Global havuz iki danışmana eşit 25.000 TL tabanlarıyla dağıtılacak ve her danışman tabanında %60 danışman/%40 Global 1881 uygulanacak. Hesap çekirdeği, online ekran ve yön bazlı merkezi hesap buna göre güncellendi.
+- [x] Dış ofisli 100.000 TL örneği için merkezi/offline hesap, arayüz, audit ve regresyon testlerini yeni politikaya göre güncelle; eski `global1881Share` kalan tutar hesabını kaldır. Merkezi/offline hesap, yön/audit alanları ve 11 odaklı test başarılı; gerçek merkezi DB uçtan uca kabulü 107. maddede ayrıca açık.
 
-- [ ] Dış ofisli iki danışman kesin örneğini uygula ve test et: 100.000 TL toplam → 50.000 TL dış ofis + 50.000 TL Global havuz; Global havuzdan danışman başına 25.000 TL taban → 15.000 TL danışman + 10.000 TL Global kasa; toplam 30.000 TL danışman, 20.000 TL Global kasa, 50.000 TL dış ofis.
+- [x] Dış ofisli iki danışman kesin örneğini uygula ve test et: 100.000 TL toplam → 50.000 TL dış ofis + 50.000 TL Global havuz; Global havuzdan danışman başına 25.000 TL taban → 15.000 TL danışman + 10.000 TL Global kasa; toplam 30.000 TL danışman, 20.000 TL Global kasa, 50.000 TL dış ofis. `commissionScenario` testi ve online önizleme ile doğrulandı.
 
-- [ ] Dış ofis sonrası tek danışman senaryosunu uygula ve test et: 100.000 TL toplam → 50.000 TL dış ofis; 50.000 TL Global havuz → tek danışman %60 = 30.000 TL, Global ofis %40 = 20.000 TL.
+- [x] Dış ofis sonrası tek danışman senaryosunu uygula ve test et: 100.000 TL toplam → 50.000 TL dış ofis; 50.000 TL Global havuz → tek danışman %60 = 30.000 TL, Global ofis %40 = 20.000 TL. `commissionScenario` testi ve online önizleme ile doğrulandı.
 
 - [x] Karşı ofis portföyü senaryosunu ekle: portföy sahibi diğer ofis dış paydaş olarak 50.000 TL, Global 1881 dış ofis havuzu 50.000 TL; Global havuzunda bizim tek danışman %60 = 30.000 TL, Global kasa %40 = 20.000 TL. Karşı ofis/Global rolleri, sabit paylaşım ve audit ayrı görünmeli. Tek ekran senaryo çekirdeği, dış ofis yönü ve merkezi audit alanları uygulandı; 100.000 TL örneği test edildi.
 
