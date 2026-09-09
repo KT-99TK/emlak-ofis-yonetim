@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateCommissionScenario } from "./commissionScenario";
+import { calculateCommissionScenario, calculateDepartingConsultantSplit } from "./commissionScenario";
 
 describe("commission scenarios", () => {
   it("splits consultant-owned portfolio between buyer and seller consultants", () => {
@@ -45,5 +45,36 @@ describe("commission scenarios", () => {
 
   it("rejects agreement rates that do not total 100", () => {
     expect(() => calculateCommissionScenario({ netCommission: 100000, scenario: "singleConsultant", consultantRate: 70, officeRate: 25 })).toThrow("%100");
+  });
+});
+
+
+describe("departing consultant rights", () => {
+  it("preserves Global office share and splits only the consultant pool", () => {
+    expect(calculateDepartingConsultantSplit({ netCommission: 100000 })).toMatchObject({
+      globalOfficeShare: 40000,
+      consultantPool: 60000,
+      originatingConsultantPayout: 30000,
+      fulfillingConsultantPayout: 30000,
+    });
+  });
+
+  it("supports a profile-specific 70/30 split", () => {
+    expect(calculateDepartingConsultantSplit({ netCommission: 100000, consultantRate: 70, officeRate: 30 })).toMatchObject({
+      globalOfficeShare: 30000,
+      consultantPool: 70000,
+      originatingConsultantPayout: 35000,
+      fulfillingConsultantPayout: 35000,
+    });
+  });
+
+  it("keeps the corporate office total when it does not pay a consultant", () => {
+    expect(calculateDepartingConsultantSplit({ netCommission: 100000, corporateOffice: true, corporateOfficePaysConsultant: false })).toMatchObject({
+      globalOfficeShare: 100000,
+      consultantPool: 0,
+      originatingConsultantPayout: 0,
+      fulfillingConsultantPayout: 0,
+      corporateOfficePaysConsultant: false,
+    });
   });
 });

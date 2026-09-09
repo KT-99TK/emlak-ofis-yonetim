@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { calculateCommissionScenario } from "../client/src/lib/commissionScenario";
+import { calculateCommissionScenario, calculateDepartingConsultantSplit } from "../client/src/lib/commissionScenario";
 
 describe("100.000 TL komisyon kabul matrisi", () => {
   it("consultant-owned portfolio splits 50/50 and then 60/40", () => {
@@ -24,12 +24,30 @@ describe("100.000 TL komisyon kabul matrisi", () => {
     expect(result.globalOfficeTotal).toBe(20000);
   });
 
+  it("preserves 40.000 TL Global office share and splits 60.000 TL as 30.000/30.000 after consultant departure", () => {
+    const result = calculateDepartingConsultantSplit({ netCommission: 100000 });
+    expect(result.globalOfficeShare).toBe(40000);
+    expect(result.originatingConsultantPayout).toBe(30000);
+    expect(result.fulfillingConsultantPayout).toBe(30000);
+  });
+
+  it("keeps the corporate office total when consultant payment is disabled", () => {
+    const result = calculateDepartingConsultantSplit({ netCommission: 100000, corporateOffice: true, corporateOfficePaysConsultant: false });
+    expect(result.globalOfficeShare).toBe(100000);
+    expect(result.originatingConsultantPayout).toBe(0);
+    expect(result.fulfillingConsultantPayout).toBe(0);
+  });
+
   it("keeps central audit and direction fields in the online implementation", () => {
     const db = fs.readFileSync(path.join(process.cwd(), "server", "db.ts"), "utf8");
     const page = fs.readFileSync(path.join(process.cwd(), "client", "src", "pages", "OnlineCommissions.tsx"), "utf8");
     expect(db).toContain('action: "commission-declared"');
     expect(db).toContain("globalPortfolioOfficeShare");
     expect(db).toContain("snapshotConsultantSharePercent");
+    expect(db).toContain("originatingConsultantPayout");
+    expect(db).toContain("fulfillingConsultantPayout");
+    expect(db).toContain("rightsOfficePayout");
+    expect(db).toContain("corporateOfficeNoPayout");
     expect(page).toContain("dış ofis senaryosunda dış ofis %50");
     expect(page).toContain("Global havuzdaki her danışman payı");
   });

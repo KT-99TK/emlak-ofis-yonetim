@@ -72,6 +72,47 @@ export function calculateCommissionScenario(input: {
   return { netCommission: total, portfolioOfficeShare, externalOfficeShare, globalPool, consultantTotal, globalOfficeTotal, participants };
 }
 
+export type DepartingConsultantSplitResult = {
+  netCommission: number;
+  globalOfficeShare: number;
+  consultantPool: number;
+  originatingConsultantPayout: number;
+  fulfillingConsultantPayout: number;
+  corporateOfficePaysConsultant: boolean;
+};
+
+/**
+ * Bireysel danışman portföyü danışman ayrıldıktan sonra kapanırsa,
+ * Global 1881 ofis payı korunur ve yalnız danışman havuzu bölünür.
+ * Kurumsal ofis seçeneğinde ofis, anlaşmaya göre danışmana ödeme yapmayabilir.
+ */
+export function calculateDepartingConsultantSplit(input: {
+  netCommission: number;
+  consultantRate?: number;
+  officeRate?: number;
+  consultantRightsSplitPercent?: number;
+  corporateOffice?: boolean;
+  corporateOfficePaysConsultant?: boolean;
+}): DepartingConsultantSplitResult {
+  const consultantRate = input.consultantRate ?? 60;
+  const officeRate = input.officeRate ?? 40;
+  const rightsSplit = input.consultantRightsSplitPercent ?? 50;
+  const corporateOffice = input.corporateOffice ?? false;
+  const corporateOfficePaysConsultant = input.corporateOfficePaysConsultant ?? true;
+  if (!Number.isFinite(input.netCommission) || input.netCommission <= 0) throw new Error("Net komisyon sıfırdan büyük olmalıdır.");
+  if (!Number.isFinite(consultantRate) || !Number.isFinite(officeRate) || round(consultantRate + officeRate) !== 100) throw new Error("Danışman ve Global ofis oranları toplamı %100 olmalıdır.");
+  if (!Number.isFinite(rightsSplit) || rightsSplit < 0 || rightsSplit > 100) throw new Error("Eski danışman hak paylaşımı 0 ile 100 arasında olmalıdır.");
+  const total = round(input.netCommission);
+  if (corporateOffice && !corporateOfficePaysConsultant) {
+    return { netCommission: total, globalOfficeShare: total, consultantPool: 0, originatingConsultantPayout: 0, fulfillingConsultantPayout: 0, corporateOfficePaysConsultant: false };
+  }
+  const globalOfficeShare = round(total * officeRate / 100);
+  const consultantPool = round(total - globalOfficeShare);
+  const originatingConsultantPayout = round(consultantPool * rightsSplit / 100);
+  const fulfillingConsultantPayout = round(consultantPool - originatingConsultantPayout);
+  return { netCommission: total, globalOfficeShare, consultantPool, originatingConsultantPayout, fulfillingConsultantPayout, corporateOfficePaysConsultant: true };
+}
+
 export const COMMISSION_SCENARIO_LABELS: Record<CommissionScenario, string> = {
   consultantPortfolioTwoSided: "Portföy danışmana ait · alıcı ve satıcı iki danışman",
   officePortfolioTwoSided: "Portföy Global/ofise ait · alıcı ve satıcı iki danışman",

@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { parse as parseCookieHeader } from "cookie";
@@ -762,33 +763,13 @@ export const appRouter = router({
       }),
   }),
   reminders: router({
-    schedule: protectedProcedure
-      .input(
-        z.object({
-          cron: z
-            .string()
-            .regex(/^\d+ \d+ \d+ \* \* \*$/, "6 alanlı UTC cron ifadesi girin"),
-        })
-      )
-      .mutation(async ({ ctx, input }) => {
-        const existing = await getReminderPreferenceByUserId(ctx.user.id);
-        if (existing?.scheduleCronTaskUid)
-          return { taskUid: existing.scheduleCronTaskUid, reused: true };
-        const cookie =
-          parseCookieHeader(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
-        const job = await createHeartbeatJob(
-          {
-            name: `global1881-reminders-${ctx.user.id}`,
-            cron: input.cron,
-            path: "/api/scheduled/reminders",
-            description:
-              "Global 1881 kira, vergi ve tahliye vade hatırlatıcıları",
-          },
-          cookie
-        );
-        await saveReminderSchedule(ctx.user.id, job.taskUid);
-        return { ...job, reused: false };
-      }),
+    schedule: protectedProcedure.mutation(async () => {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message:
+          "Otomatik dış bildirimler kapalıdır. Vade ve hizmet takvimi yalnız kullanıcı tarafından manuel yenilenir.",
+      });
+    }),
   }),
   commissions: router({
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -798,10 +779,18 @@ export const appRouter = router({
     create: protectedProcedure.input(z.object({
       transactionNo: z.string().min(2).max(80),
       contractId: z.number().int().positive().optional(),
+      buyerClientId: z.number().int().positive().optional(),
+      sellerClientId: z.number().int().positive().optional(),
+      collectionNote: z.string().max(1000).optional(),
       netServiceFee: z.string().regex(/^\d+(\.\d{1,2})?$/),
       discountAmount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
       vatAmount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
       portfolioOwnerType: z.enum(["consultant", "office"]).default("consultant"),
+      portfolioRightsPolicy: z.enum(["individualConsultant", "corporateOffice"]).default("individualConsultant"),
+      originatingConsultantUserId: z.number().int().positive().optional(),
+      fulfillingConsultantUserId: z.number().int().positive().optional(),
+      consultantRightsSplitPercent: z.number().min(0).max(100).default(50),
+      corporateOfficePaysConsultant: z.boolean().default(true),
       externalOfficeRole: z.enum(["none", "counterpartyPortfolio", "global1881External"]).default("none"),
       agreementProfileId: z.number().int().positive().optional(),
       collectionReference: z.string().min(2).max(180),

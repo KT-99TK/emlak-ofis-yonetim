@@ -202,3 +202,14 @@ Komisyon ekranı kullanıcıdan yalnız **KDV hariç toplam net hizmet bedelini*
 | Portföy karşı ofise ait; Global dış ofis ve iki danışman | 50.000 TL karşı ofis; 50.000 TL Global havuzu; iki danışmana 25.000 + 25.000 TL; her tabanda %60/%40 | Karşı ofis 50.000 TL; danışmanlar 15.000 + 15.000 TL; Global 20.000 TL |
 
 Danışman anlaşma profili işe girişte veya sözleşme yenilemede broker manager tarafından tanımlanır. Profilde geçerlilik tarihi, danışman payı, Global 1881 payı, aylık masa/ofis bedeli ve manager onayı bulunur. Varsayılan profil %60/%40’tır; %70/%30 veya %80/%20 gibi profiller de kullanılabilir. Komisyon oluşturulurken profil kimliği ile oran ve bedel snapshot’ı kaydedilir; sonradan profil değişse bile geçmiş komisyon kaydı değişmez. Oranların toplamı %100 olmalı, varsayılan dışındaki oranlar manager gerekçesi ve audit kaydıyla kullanılmalıdır.
+
+
+## 8. Ayrılan danışman portföyü ve kurumsal ofis hakları
+
+Bireysel danışmana ait portföyde danışman ayrıldıktan sonra işlem kapanırsa, işlem açıldığı tarihteki danışman anlaşması ve komisyon hakkı korunur. Yeni danışman işlemi tamamladığında yalnız danışman havuzu paylaşılır; Global 1881’in ofis payı geriye dönük değişmez. Örnek: 100.000 TL net komisyonun %40’ı Global 1881 ofis payı olarak 40.000 TL’dir. Danışman havuzu olan 60.000 TL, eski danışman ve işlemi tamamlayan yeni danışman arasında %50/%50 bölünerek 30.000’er TL yazılır.
+
+Müşteriyi yeni danışman bulmuşsa veya müşteri ofiste kalmışsa, yeni sorumlu atanabilir; bu atama eski danışmanın işlem açılışındaki snapshot hakkını silemez. Yeni danışmana verilecek hak ayrıca işlem hizmet payı olarak kaydedilir. Portföyün ilan süresi sona erdiğinde müşteri yeni danışmana veya ofis portföyüne aktarılabilir; devir olayı manager onayı ve tarih ile audit edilir.
+
+Kurumsal ofis portföyünde, yetki süresi sonuna kadar portföy ve komisyon hakkı kurumsal ofiste tutulabilir. Kurumsal anlaşma, danışmana ödeme yapılıp yapılmayacağını ayrıca belirler. Ödeme yapılmıyorsa bu durum açık bir anlaşma tercihi olarak kaydedilir; danışman hesabında hak edilmiş ödeme gibi gösterilmez. İşlem kaydı `portfolioRightsPolicy`, `originatingConsultantUserId`, `fulfillingConsultantUserId`, `consultantRightsSplitPercent` ve `corporateOfficePaysConsultant` alanlarıyla snapshot edilir.
+
+Bu alanlar mevcut kayıtları toplu olarak değiştirmez. Yeni komisyon kaydı oluşturulurken manager gerekçesi, portföy politikası ve ödeme tercihi kayda bağlanır; geçmiş işlem snapshot’ı profil değişikliklerinden etkilenmez.

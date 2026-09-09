@@ -2580,10 +2580,18 @@ export type CentralCommissionParticipantInput = {
 export async function createCentralCommissionTransaction(input: {
   transactionNo: string;
   contractId?: number;
+  buyerClientId?: number;
+  sellerClientId?: number;
+  collectionNote?: string;
   netServiceFee: string;
   discountAmount?: string;
   vatAmount?: string;
   portfolioOwnerType?: "consultant" | "office";
+  portfolioRightsPolicy?: "individualConsultant" | "corporateOffice";
+  originatingConsultantUserId?: number;
+  fulfillingConsultantUserId?: number;
+  consultantRightsSplitPercent?: number;
+  corporateOfficePaysConsultant?: boolean;
   externalOfficeRole?: "none" | "counterpartyPortfolio" | "global1881External";
   agreementProfileId?: number;
   collectionReference: string;
@@ -2614,14 +2622,19 @@ export async function createCentralCommissionTransaction(input: {
   if (!Number.isFinite(rateTotal) || Math.round(rateTotal * 100) !== 10000) throw new Error("Komisyon havuzu pay oranları toplamı %100 olmalıdır.");
   if (externalOfficeRate > 0 && (!isManager || !input.overrideReason?.trim())) throw new Error("Dış ofis paylaşımı için broker manager ve gerekçe zorunludur.");
   if (externalOfficeRate === 0 && consultantRate !== 100 && (!isManager || !input.overrideReason?.trim())) throw new Error("Global havuz dağılımı %100 değilse broker manager ve gerekçe zorunludur.");
+  const rightsSplit = Number(input.consultantRightsSplitPercent ?? 50);
+  if (!Number.isFinite(rightsSplit) || rightsSplit < 0 || rightsSplit > 100) throw new Error("Eski danışman hak paylaşım oranı 0 ile 100 arasında olmalıdır.");
+  if (rightsSplit !== 50 && (!isManager || !input.overrideReason?.trim())) throw new Error("Standart dışı eski danışman hak paylaşımı için broker manager ve gerekçe zorunludur.");
+  if (input.portfolioRightsPolicy === "corporateOffice" && input.originatingConsultantUserId && !isManager) throw new Error("Kurumsal ofis portföy haklarını yalnız broker manager tanımlayabilir.");
   if (input.participants.some((participant) => !participant.participantCode.trim() || !participant.participantName.trim() || Number(participant.rate) < 0)) throw new Error("Her paydaşın kodu, adı ve geçerli oranı zorunludur.");
+  const corporateOfficeNoPayout = input.portfolioRightsPolicy === "corporateOffice" && input.corporateOfficePaysConsultant === false;
   const participantRows = input.participants.map((participant) => {
     const share = Math.round(netServiceFee * Number(participant.rate) / 100 * 100) / 100;
     const profile = participant.participantType === "consultant" && participant.consultantUserId ? consultantProfiles.get(participant.consultantUserId) : snapshotProfile;
     const consultantRate = Number(profile?.consultantSharePercent ?? snapshotConsultantRate);
     const officeRate = Number(profile?.officeSharePercent ?? snapshotOfficeRate);
-    const consultantPayout = participant.participantType === "consultant" ? Math.round(share * consultantRate / 100 * 100) / 100 : 0;
-    const globalOfficeShare = participant.participantType === "consultant" ? Math.round(share * officeRate / 100 * 100) / 100 : 0;
+    const consultantPayout = participant.participantType === "consultant" && !corporateOfficeNoPayout ? Math.round(share * consultantRate / 100 * 100) / 100 : 0;
+    const globalOfficeShare = participant.participantType === "consultant" && corporateOfficeNoPayout ? share : participant.participantType === "consultant" ? Math.round(share * officeRate / 100 * 100) / 100 : 0;
     return { ...participant, rate: Number(participant.rate), share, consultantPayout, globalOfficeShare };
   });
   const consultantShare = participantRows.filter((participant) => participant.participantType === "consultant").reduce((sum, participant) => sum + participant.consultantPayout, 0);
@@ -2629,11 +2642,15 @@ export async function createCentralCommissionTransaction(input: {
   const externalOfficeShare = participantRows.filter((participant) => participant.participantType === "externalOffice").reduce((sum, participant) => sum + participant.share, 0);
   const globalPortfolioOfficeShare = input.portfolioOwnerType === "office" && input.externalOfficeRole !== "counterpartyPortfolio" ? externalOfficeShare : 0;
   const global1881Share = Math.round((consultantGlobalOfficeShare + globalPortfolioOfficeShare) * 100) / 100;
-  const transactionResult = await db.insert(commissionTransactions).values({ transactionNo: input.transactionNo.trim(), contractId: input.contractId, netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), externalOfficeRole: input.externalOfficeRole ?? "none", portfolioOwnerType: input.portfolioOwnerType ?? "consultant", agreementProfileId: snapshotProfile?.id ?? null, snapshotConsultantSharePercent: snapshotConsultantRate.toFixed(2), snapshotOfficeSharePercent: snapshotOfficeRate.toFixed(2), snapshotMonthlyDeskFee: Number(snapshotProfile?.monthlyDeskFee ?? "0").toFixed(2), status: "declared", collectionReference: input.collectionReference.trim(), declaredByUserId: actorUserId, overrideReason: input.overrideReason?.trim() || null });
+  const rightsOfficePayout = corporateOfficeNoPayout ? global1881Share : 0;
+  const rightsPool = input.portfolioRightsPolicy === "individualConsultant" && input.originatingConsultantUserId && input.fulfillingConsultantUserId ? consultantShare : 0;
+  const originatingConsultantPayout = rightsPool > 0 ? Math.round(rightsPool * rightsSplit / 100 * 100) / 100 : 0;
+  const fulfillingConsultantPayout = rightsPool > 0 ? Math.round((rightsPool - originatingConsultantPayout) * 100) / 100 : 0;
+  const transactionResult = await db.insert(commissionTransactions).values({ transactionNo: input.transactionNo.trim(), contractId: input.contractId, buyerClientId: input.buyerClientId, sellerClientId: input.sellerClientId, collectionNote: input.collectionNote?.trim() || null, netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), externalOfficeRole: input.externalOfficeRole ?? "none", portfolioOwnerType: input.portfolioOwnerType ?? "consultant", portfolioRightsPolicy: input.portfolioRightsPolicy ?? "individualConsultant", originatingConsultantUserId: input.originatingConsultantUserId ?? null, fulfillingConsultantUserId: input.fulfillingConsultantUserId ?? null, consultantRightsSplitPercent: rightsSplit.toFixed(2), originatingConsultantPayout: originatingConsultantPayout.toFixed(2), fulfillingConsultantPayout: fulfillingConsultantPayout.toFixed(2), rightsOfficePayout: rightsOfficePayout.toFixed(2), corporateOfficePaysConsultant: input.corporateOfficePaysConsultant === false ? 0 : 1, agreementProfileId: snapshotProfile?.id ?? null, snapshotConsultantSharePercent: snapshotConsultantRate.toFixed(2), snapshotOfficeSharePercent: snapshotOfficeRate.toFixed(2), snapshotMonthlyDeskFee: Number(snapshotProfile?.monthlyDeskFee ?? "0").toFixed(2), status: "declared", collectionReference: input.collectionReference.trim(), declaredByUserId: actorUserId, overrideReason: input.overrideReason?.trim() || null });
   const transactionId = Number(transactionResult[0].insertId);
   await db.insert(commissionParticipants).values(participantRows.map((participant) => ({ commissionTransactionId: transactionId, participantType: participant.participantType, side: participant.side, consultantUserId: participant.consultantUserId, participantCode: participant.participantCode.trim(), participantName: participant.participantName.trim(), externalOfficeName: participant.externalOfficeName?.trim() || null, rate: participant.rate.toFixed(4), share: participant.share.toFixed(2), consultantPayout: participant.consultantPayout.toFixed(2), globalOfficeShare: participant.globalOfficeShare.toFixed(2) })));
   await db.insert(auditLogs).values({ actorUserId, action: "commission-declared", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon kaydı oluşturuldu: ${input.transactionNo.trim()} · ${participantRows.length} paydaş · danışman net ${consultantShare.toFixed(2)} · Global ofis ${global1881Share.toFixed(2)} · dış ofis ${externalOfficeShare.toFixed(2)}` });
-  return { id: transactionId, transactionNo: input.transactionNo.trim(), netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), externalOfficeRole: input.externalOfficeRole ?? "none", portfolioOwnerType: input.portfolioOwnerType ?? "consultant", status: "declared" as const, participants: participantRows };
+  return { id: transactionId, transactionNo: input.transactionNo.trim(), buyerClientId: input.buyerClientId ?? null, sellerClientId: input.sellerClientId ?? null, collectionNote: input.collectionNote?.trim() || null, netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), externalOfficeRole: input.externalOfficeRole ?? "none", portfolioOwnerType: input.portfolioOwnerType ?? "consultant", originatingConsultantPayout: originatingConsultantPayout.toFixed(2), fulfillingConsultantPayout: fulfillingConsultantPayout.toFixed(2), rightsOfficePayout: rightsOfficePayout.toFixed(2), corporateOfficePaysConsultant: input.corporateOfficePaysConsultant !== false, status: "declared" as const, participants: participantRows };
 }
 
 export async function listCentralCommissionTransactions(actorUserId: number, isManager: boolean, permittedUserIds: number[]) {
