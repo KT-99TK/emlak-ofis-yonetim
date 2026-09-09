@@ -37,3 +37,8 @@ Son doğrulama: 110 test dosyası/309 test, TypeScript ve production build başa
 `drizzle-kit` 0.31.10’a yükseltildi. Bu yükseltme, eski `@esbuild-kit/esm-loader@2.6.5` zincirini tamamen kaldırmadı; dolayısıyla moderate esbuild bulgusu dev-only araç zincirinde izlenmeye devam ediyor. Nested override denemesi lockfile’da etkili olmadı ve geri kaldırıldı.
 
 `pnpm audit --prod --audit-level=moderate` sonucu temizdir: critical, high, moderate ve low seviyelerinin tamamı `0`. Genel auditte kalan moderate/low kayıtlar yalnız geliştirme ve test araç zincirindedir; production runtime bağımlılıklarına taşınmamaktadır.
+
+
+### Son override denemesi
+
+09.09.2026 tarihli global `esbuild: 0.28.1` ve Babel override denemeleri nested bağımlılıkları tek sürüme hizalamadı; Vite 7, drizzle-kit ve plugin-react zincirlerinde farklı esbuild sürümleri kaldı. Mixed sürüm ve major uyumsuzluğu önlemek için bu override’lar kaldırıldı. Uygulama testleri ve üretim derlemesi override ile de geçti; ancak advisory kapanmadığı için değişiklik kalıcılaştırılmadı.
