@@ -52,6 +52,23 @@ http://192.168.1.25:3000
 
 Bağlantı başarısızsa sırasıyla ana PC IP’si, gerçek port, ağ profilinin Private olması, firewall kuralı, VPN kullanımı ve yönlendiricide `AP isolation`/`Client isolation` ayarları kontrol edilir. Ana PC test sırasında uykuya geçmemelidir.
 
+## Tek komutluk kontrol betiği
+
+`docs/office-lan-check.ps1` firewall kuralını kendiliğinden değiştirmeden ana PC veya istemcide teşhis yapar. Ana PC’de yönetici olmayan PowerShell ile çalıştırılabilir:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\office-lan-check.ps1
+```
+
+İstemci bilgisayarda ana PC’nin IPv4 adresi ve gerçek portla çalıştırılır:
+
+```powershell
+.\office-lan-check.ps1 -ClientTest -MainPcIp 192.168.1.25 -Port 3000
+```
+
+Betik `TcpTestSucceeded : True` gösterirse tarayıcıda aynı IP ve port açılır. Firewall kuralı ekleme komutu yalnızca çıktı olarak gösterilir; kullanıcı onayı olmadan Windows güvenlik ayarı değiştirilmez.
+
 ## Kabul sınırı
 
 Bu ilk testte üç kullanıcı aynı merkezi web server’a bağlanır ve tek merkezi veritabanını kullanır. IP1, KT1 ve CT1 login/rol görünürlüğü; sözleşme numarası; komisyon; hassas veri maskesi; müşteri ve kira kayıtları kontrol edilir. Gerçek kullanıcı verisiyle kabul tamamlanmadan DNS geçişi ve yeni imzasız EXE üretimi yapılmaz.

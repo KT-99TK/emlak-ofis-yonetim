@@ -1,8 +1,8 @@
 # Global 1881 — Aktif Proje Görevleri
 
-- [ ] Ana PC’nin LAN IP adresini ve uygulamanın gerçek dinleme portunu kesinleştir; Windows ağ profilini Özel yap, yalnızca ofis ağına port izni ver ve iki istemci bağlantısını doğrula.
+- [ ] Ana PC’nin LAN IP adresini ve uygulamanın gerçek dinleme portunu kesinleştir; Windows ağ profilini Özel yap, yalnızca ofis ağına port izni ver ve iki istemci bağlantısını doğrula. Kod ve teşhis hazırlığı tamam; fiziksel ana PC/istemci bağlantı kanıtı bekleniyor.
   - [x] Merkezi web server’ın `0.0.0.0`/LAN bind davranışını ve port 3000 fallback aralığını kaynakta doğrula. `HOST` configurable, default `0.0.0.0`; `PORT` default 3000 ve 20 port fallback korunuyor.
-  - [x] Ana PC ve istemciler için yerel IP, port, firewall ve Test-NetConnection adımlarını dokümante et. `docs/OFFICE-LAN-CONNECTION.md` ve `lanBindPolicy.test.ts` hazır; fiziksel Windows testi açık.
+  - [x] Ana PC ve istemciler için yerel IP, port, firewall ve Test-NetConnection adımlarını dokümante et. `docs/OFFICE-LAN-CONNECTION.md`, `docs/office-lan-check.ps1` ve `lanBindPolicy.test.ts`/`lanCheckGuide.test.ts` hazır; fiziksel Windows testi açık.
   - [x] Üç kullanıcı için ortak web bağlantısı kabul ölçütlerini belirle; mevcut offline 1.0.22 EXE’ye dokunma. Ortak merkezi web URL, IP1/KT1/CT1 rol ve veri kontrolleri rehbere işlendi; 1.0.22 değiştirilmedi.
 
 - [ ] Canlıya alma ertelensin; aynı ofis Wi‑Fi ağındaki üç aktif kullanıcıyla bir günlük kontrollü kabul testi yapılsın.
