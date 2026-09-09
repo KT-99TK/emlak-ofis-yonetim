@@ -31,3 +31,9 @@ ExcelJS/uuid bulgusu kapatıldı. Ayrıca `mysql2@3.24.4`, `vite@7.3.5`, `@tailw
 Son audit’te kritik/yüksek bulgu kalmadı; kalan bulgular `drizzle-kit` içindeki dev-only `@esbuild-kit/core-utils → esbuild@0.18.20` zinciri ile düşük önem seviyeli Babel/esbuild kayıtlarıdır. Esbuild için global override denemesi nested drizzle-kit sürümünü değiştirmediği ve migration araç uyumluluğunu kanıtlamadığı için kaldırıldı. Bu zincir üretim runtime’ına dahil edilmez; drizzle-kit güncellemesi yayımlandığında yeniden değerlendirilecektir.
 
 Son doğrulama: 110 test dosyası/309 test, TypeScript ve production build başarılı; uuid ağacı boştur. Audit sayımı 0 critical, 0 high, 1 moderate, 2 low olarak kaydedilmiştir.
+
+## 09.09.2026 ek doğrulama
+
+`drizzle-kit` 0.31.10’a yükseltildi. Bu yükseltme, eski `@esbuild-kit/esm-loader@2.6.5` zincirini tamamen kaldırmadı; dolayısıyla moderate esbuild bulgusu dev-only araç zincirinde izlenmeye devam ediyor. Nested override denemesi lockfile’da etkili olmadı ve geri kaldırıldı.
+
+`pnpm audit --prod --audit-level=moderate` sonucu temizdir: critical, high, moderate ve low seviyelerinin tamamı `0`. Genel auditte kalan moderate/low kayıtlar yalnız geliştirme ve test araç zincirindedir; production runtime bağımlılıklarına taşınmamaktadır.
