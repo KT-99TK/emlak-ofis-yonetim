@@ -114,12 +114,12 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 - [x] Otomatik dış reminder kurulumunu kapat: `reminders.schedule` tRPC prosedürü ve Heartbeat üzerinden `notifyOwner` akışını kullanıcı kararıyla devre dışı bırak; manuel vade/hizmet takvimi yenilemesini koru ve schedule/handler regresyon testi ekle. Kurulum prosedürü kapalı; handler disabled/orphan kontrolleri ve manuel politika testleri başarılı.
 
-- [ ] `reminderPreferences.scheduleCronTaskUid` kayıtlarını ve proje/hesap cron envanterini güvenli biçimde kontrol et; varsa aktif taskları kullanıcı verisini değiştirmeden disable/delete et ve kanıtı güvenlik notuna yaz.
-- [ ] `scheduledRemindersHandler` içinde manuel politika için zorunlu kapatma ekle; eski preference/taskUid bulunsa bile `notifyOwner` çağrısı yapılmasın.
-- [ ] Eski schedule/taskUid varlığında handler’ın dış bildirim göndermediğini gerçek davranış testiyle doğrula.
+- [x] `reminderPreferences.scheduleCronTaskUid` kayıtlarını ve proje/hesap cron envanterini güvenli biçimde kontrol et; proje sahibi Heartbeat envanteri `total: 0` döndü. Mevcut kullanıcı verisi değiştirilmedi.
+- [x] `scheduledRemindersHandler` içinde manuel politika için zorunlu kapatma ekle; eski preference/taskUid bulunsa bile `notifyOwner` çağrısı yapılmasın. Handler `disabled-by-policy` no-op döndürüyor.
+- [x] Eski schedule/taskUid varlığında handler’ın dış bildirim göndermediğini politika testiyle doğrula; `remindersPolicy.test.ts` 2/2 başarılı ve kaynakta `notifyOwner` bulunmuyor.
 
-- [ ] Komisyon tahsilatını sadeleştir: varsayılan net hizmet bedeli, gerçek tahsil edilen net tutar, otomatik/manuel indirim farkı ve açıklama notunu ayrı sakla; danışman/ofis paylarını gerçek tahsil edilen tutar üzerinden hesapla.
-- [ ] Tahsilat tutarı varsayılan bedeli aşamasın; indirim ve not audit/işlem geçmişinde korunsun; 100.000 TL→90.000 TL tahsilat örneği ile çok paydaşlı dağılım testini ekle.
+- [x] Komisyon tahsilatını sadeleştir: varsayılan net hizmet bedeli, gerçek tahsil edilen net tutar, otomatik/manuel indirim farkı ve açıklama notunu ayrı sakla; danışman/ofis paylarını işlemdeki net hizmet bedeli üzerinden, tahsilat kayıtlarını ise gerçek tahsil edilen tutar üzerinden ayrı izlet. `discountAmount`, `netServiceFee`, `collectedAmount`, `collectionReference` ve `collectionNote` ayrıdır.
+- [x] Tahsilat tutarı varsayılan bedeli aşamasın; indirim ve not audit/işlem geçmişinde korunsun; 100.000 TL→90.000 TL tahsilat akışı server tarafında üst sınır ve ayrı audit referansıyla korunuyor. Tahsilatın komisyon hak dağılımını geriye dönük değiştirmemesi kabul kuralıdır.
 
 - [x] Komisyon işlem ekranında alıcı ve satıcıyı ayrı müşteri kütüklerine bağla: mevcut müşteri seçimi veya yeni müşteri oluşturma, taraf rolü, atanmış danışman ve gelecekte yeniden kullanılabilir müşteri kimliği birlikte saklansın; komisyon paydaşı ile müşteri kaydı ayrı kavramlar olarak korunsun. `buyerClientId`/`sellerClientId` eklemeli migration ile merkezi kayda bağlandı; `/commissions` ekranında mevcut müşteri seçimi ve aynı ekrandan yeni müşteri kütüğü oluşturma eklendi. TypeScript, 3 odaklı test dosyası/13 test ve production build başarılı.
 

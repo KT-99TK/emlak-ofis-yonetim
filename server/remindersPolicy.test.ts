@@ -14,7 +14,7 @@ describe("manual reminder policy", () => {
 
   it("keeps the scheduled handler side-effect-free when disabled", () => {
     const source = fs.readFileSync(path.join(process.cwd(), "server", "scheduledReminders.ts"), "utf8");
-    expect(source).toContain('if (!preferences.enabled) return res.json({ ok: true, skipped: "disabled" });');
-    expect(source).toContain("notifyOwner");
+    expect(source).toContain('return res.json({ ok: true, skipped: "disabled-by-policy", taskUid: user.taskUid });');
+    expect(source).not.toContain("notifyOwner");
   });
 });
