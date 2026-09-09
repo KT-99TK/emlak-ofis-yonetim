@@ -99,11 +99,11 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 - [ ] Dış ofis sonrası tek danışman senaryosunu uygula ve test et: 100.000 TL toplam → 50.000 TL dış ofis; 50.000 TL Global havuz → tek danışman %60 = 30.000 TL, Global ofis %40 = 20.000 TL.
 
-- [ ] Karşı ofis portföyü senaryosunu ekle: portföy sahibi diğer ofis dış paydaş olarak 50.000 TL, Global 1881 dış ofis havuzu 50.000 TL; Global havuzunda bizim tek danışman %60 = 30.000 TL, Global kasa %40 = 20.000 TL. Karşı ofis/Global rolleri, sabit paylaşım ve audit ayrı görünmeli.
+- [x] Karşı ofis portföyü senaryosunu ekle: portföy sahibi diğer ofis dış paydaş olarak 50.000 TL, Global 1881 dış ofis havuzu 50.000 TL; Global havuzunda bizim tek danışman %60 = 30.000 TL, Global kasa %40 = 20.000 TL. Karşı ofis/Global rolleri, sabit paylaşım ve audit ayrı görünmeli. Tek ekran senaryo çekirdeği, dış ofis yönü ve merkezi audit alanları uygulandı; 100.000 TL örneği test edildi.
 
-- [ ] Merkezi komisyon kaydına dış ofis yönünü ekle: `counterpartyPortfolio` (karşı ofis portföyü) ve `global1881External` (Global dış ofis) ayrımı; her ikisinde sabit 50/50 toplam havuz ve Global havuzunda tek danışman %60/%40 hesabı.
+- [x] Merkezi komisyon kaydına dış ofis yönünü ekle: `counterpartyPortfolio` (karşı ofis portföyü) ve `global1881External` (Global dış ofis) ayrımı; her ikisinde sabit 50/50 toplam havuz ve Global havuzunda tek danışman %60/%40 hesabı. Migration, router, UI ve yön bazlı Global kasa hesabı eklendi.
 
-- [ ] Portföy sahipliği kuralını uygula: danışman portföyünde toplam komisyon %50/%50 alıcı-satıcı taraflarına, her tarafın %60’ı ilgili danışmana ve %40’ı Global 1881’e; ofis portföyünde %50 portföy sahibi ofise, kalan %50 iki danışmana %25/%25, her danışman tabanında %60/%40.
+- [x] Portföy sahipliği kuralını uygula: danışman portföyünde toplam komisyon %50/%50 alıcı-satıcı taraflarına, her tarafın %60’ı ilgili danışmana ve %40’ı Global 1881’e; ofis portföyünde %50 portföy sahibi ofise, kalan %50 iki danışmana %25/%25, her danışman tabanında %60/%40. `commissionScenario` ve online ekran bu iki sabit senaryoyu otomatik hesaplıyor.
 - [ ] Portföy sahibi danışman/ofis senaryoları için merkezi ve offline hesap, ekran, audit ve 100.000 TL örnek regresyon testlerini ekle.
 
 - [x] Komisyon ekranını tek ekrana sadeleştir: tutar girişi + senaryo seçimi + danışman/portföy/ofis seçimi; sistem ara havuzları, danışman payını ve Global kasa payını otomatik önizlesin; karmaşık oran hesabı kullanıcıya bırakılmasın. `/commissions` ekranında sabit senaryo seçimi, otomatik önizleme ve manuel oran alanı yerine sistem oranı gösterimi uygulandı.
