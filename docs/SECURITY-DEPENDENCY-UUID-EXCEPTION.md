@@ -42,3 +42,11 @@ Son doğrulama: 110 test dosyası/309 test, TypeScript ve production build başa
 ### Son override denemesi
 
 09.09.2026 tarihli global `esbuild: 0.28.1` ve Babel override denemeleri nested bağımlılıkları tek sürüme hizalamadı; Vite 7, drizzle-kit ve plugin-react zincirlerinde farklı esbuild sürümleri kaldı. Mixed sürüm ve major uyumsuzluğu önlemek için bu override’lar kaldırıldı. Uygulama testleri ve üretim derlemesi override ile de geçti; ancak advisory kapanmadığı için değişiklik kalıcılaştırılmadı.
+
+## Dev-only Babel/esbuild kararı — 09.09.2026
+
+`@vitejs/plugin-react@5.0.4` mevcut `vite@7.3.5` ile uyumlu sürümdür ve kendi araç zincirinde `@babel/core@7.28.4` kullanır. Güncel plugin-react 6 hattına geçiş, Vite 8 major geçişiyle birlikte değerlendirilmelidir; mevcut uygulama için yalnız audit uyarısını susturmak amacıyla bu geçiş yapılmadı. `drizzle-kit@0.31.10` güncel uyumlu sürüm olmasına rağmen `@esbuild-kit/esm-loader@2.6.5 → @esbuild-kit/core-utils@3.3.2 → esbuild@0.18.20` nested zincirini kaldırmamaktadır.
+
+Global esbuild veya Babel override denemeleri nested lockfile düğümlerini güvenli biçimde hizalamadı. Bu nedenle mixed sürüm, migration aracı uyumsuzluğu veya Vite/plugin-react davranış değişikliği oluşturabilecek zorlayıcı override kalıcılaştırılmadı. Kalan uyarılar yalnız geliştirme/test araç zincirindedir ve production dependency taramasına girmemektedir. Upstream `drizzle-kit` veya plugin-react/Vite uyumlu yeni major hattı yayımlandığında yeniden değerlendirilecektir.
+
+Bu kararın sonrasında tam test 112 dosya/309 test, TypeScript ve production build başarılıdır; `pnpm audit --prod` tüm seviyelerde temizdir.
