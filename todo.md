@@ -7,7 +7,7 @@
 - [ ] Ana PC’de test öncesi ve sonrası şifreli yedek al; test verisinin gerçek müşteri kayıtlarıyla karışmadığını ve tekrar kayıt oluşmadığını doğrula.
 - [ ] Windows 1.0.22/AppData ve Defender sınırlarını bozmadan mevcut kurulumla kabul testi yap; bu aşamada yeni imzasız EXE/ZIP üretme.
 
-- [ ] Sözleşme numaralarında danışman kodunu görünür ve değişmez kullan: `CT1-001`, `KT1-001`, `IP1-001`; numara üretimi, sözleşme/PDF görünümü, arama ve audit kayıtlarında düzenleyen danışmanla eşleşsin.
+- [x] Sözleşme numaralarında danışman kodunu görünür ve değişmez kullan: `CT1-001`, `KT1-001`, `IP1-001`; numara üretimi, sözleşme/PDF görünümü, arama ve audit kayıtlarında düzenleyen danışmanla eşleşsin. Contracts ekranında `{item.contractNo}` listeleniyor, `window.print()` yazdırılabilir belge görünümünü koruyor; server audit özeti `contractNo`, danışman kodu ve atanan kullanıcıyı birlikte kaydediyor. `contractNumberPolicy.test.ts` 2/2 geçti.
 
 - [ ] Yeni danışman onboarding akışı: broker manager danışman hesabı açabilsin, geçici tek kullanımlık parola üretilsin, ilk girişte parola değişimi zorunlu olsun; mevcut Manus OAuth kullanıcıları korunarak yerel login katmanı güvenli biçimde tasarlansın.
   - [x] Yerel kimlik bilgileri için parola hash’i, geçici parola son kullanma zamanı, tek kullanımlık durum, ilk giriş zorunluluğu ve başarısız deneme/oturum audit alanlarını ekle. `localLoginCredentials` ve `localLoginSessions` tabloları 0029/0031 migration ile uygulandı; scrypt hash, 24 saatlik geçici parola süresi, `temporaryPasswordUsedAt`, 5 denemede 15 dakika kilit ve auth audit olayları kullanılıyor.

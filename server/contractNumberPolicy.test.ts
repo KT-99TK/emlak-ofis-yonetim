@@ -20,5 +20,8 @@ describe("kodlu sözleşme numarası politikası", () => {
     expect(pageSource).toContain("Bu hesap için danışman kodu tanımlanmadan yeni sözleşme kaydı açılamaz.");
     expect(pageSource).toContain("Sözleşme no veya başlıkla ara: IP1-001");
     expect(readFileSync(new URL("../client/src/pages/Team.tsx", import.meta.url), "utf8")).toContain("const validCode = isConsultantCode(code)");
+    expect(pageSource).toContain("window.print()");
+    expect(pageSource).toContain("{item.contractNo} · {labels[item.type]}");
+    expect(dbSource).toContain("danışman=${consultantCode} · atananKullanici=${input.assignedUserId}");
   });
 });

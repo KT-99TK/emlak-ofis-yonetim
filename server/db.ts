@@ -487,7 +487,7 @@ export async function createContract(input: {
       action: "create",
       entityType: "contract",
       entityId: id,
-      summary: `${contractNo} taslak olarak oluşturuldu`,
+      summary: `${contractNo} · danışman=${consultantCode} · atananKullanici=${input.assignedUserId} taslak olarak oluşturuldu`,
     });
   return id;
 }
