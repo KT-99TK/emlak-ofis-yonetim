@@ -368,3 +368,106 @@ export function latestVatReference(records: OfflineRecord[], year: string, month
     return reference && reference.year === year && reference.month === month ? [{ reference, updatedAt: record.updatedAt }] : [];
   }).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0]?.reference ?? null;
 }
+
+
+export const MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA = "global1881-office-contribution-multi-party-v1" as const;
+export type CommissionSide = "buyer" | "seller" | "shared";
+export type MultiPartyParticipantType = "consultant" | "externalOffice";
+
+export type MultiPartyCommissionParticipant = {
+  id: string;
+  type: MultiPartyParticipantType;
+  side: CommissionSide;
+  code: string;
+  name: string;
+  rate: number;
+  share: number;
+};
+
+export type MultiPartyOfficeContribution = {
+  schema: typeof MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA;
+  id: string;
+  sourceTransactionNo: string;
+  sourceContractNo?: string;
+  occurredOn: string;
+  netServiceFee: number;
+  vatAmount: number;
+  collectionChannel: ContributionChannel;
+  collectionReference: string;
+  declaredBy: string;
+  collectionStatus: ContributionStatus;
+  participants: MultiPartyCommissionParticipant[];
+  global1881Share: number;
+  externalOfficeShare: number;
+  consultantShare: number;
+  rateOverride?: { by: string; at: string; reason: string };
+  managerVerification?: { by: string; at: string; note: string };
+  officeShareTransfers: OfficeShareTransfer[];
+};
+
+export type MultiPartyParticipantInput = Omit<MultiPartyCommissionParticipant, "id" | "share"> & { rate: number };
+
+export function createMultiPartyOfficeContribution(input: {
+  sourceTransactionNo: string;
+  sourceContractNo?: string;
+  occurredOn: string;
+  netServiceFee: number;
+  vatAmount: number;
+  collectionChannel: ContributionChannel;
+  collectionReference: string;
+  declaredBy: string;
+  participants: MultiPartyParticipantInput[];
+  externalOfficeRate?: number;
+  managerActor?: string;
+  overrideReason?: string;
+}, settings: InternalControlSettings): MultiPartyOfficeContribution {
+  const netServiceFee = rounded(input.netServiceFee);
+  if (!netServiceFee || !input.sourceTransactionNo.trim() || !input.collectionReference.trim() || !input.declaredBy.trim() || !isDate(input.occurredOn)) throw new Error("Kaynak işlem, tarih, KDV hariç hizmet bedeli, tahsilat referansı ve kaydı giren kullanıcı zorunludur.");
+  if (!input.participants.length) throw new Error("En az bir danışman veya işbirliği ofisi paydaşı gerekir.");
+  const participantExternalOfficeRate = input.participants.filter((item) => item.type === "externalOffice").reduce((sum, item) => sum + rounded(item.rate), 0);
+  const externalOfficeRate = input.externalOfficeRate === undefined ? participantExternalOfficeRate : rounded(input.externalOfficeRate);
+  const consultantRateTotal = input.participants.filter((item) => item.type === "consultant").reduce((sum, item) => sum + rounded(item.rate), 0);
+  const participantRateTotal = consultantRateTotal + externalOfficeRate;
+  if (participantRateTotal !== 100) throw new Error("Danışman ve dış ofis pay oranları toplamı %100 olmalıdır.");
+  const changedRate = consultantRateTotal !== settings.defaultConsultantRate || externalOfficeRate !== 0;
+  if (changedRate && (!input.managerActor?.trim() || !input.overrideReason?.trim())) throw new Error("Varsayılan paylaşım dışındaki çok paydaşlı işlem için broker manager ve gerekçe zorunludur.");
+  const consultantParticipants = input.participants.filter((item) => item.type === "consultant");
+  if (!consultantParticipants.length) throw new Error("İşlemde en az bir danışman bulunmalıdır.");
+  const participants = input.participants.map((item) => ({ ...item, id: nextId(), code: item.code.trim(), name: item.name.trim(), rate: rounded(item.rate), share: Math.round(netServiceFee * rounded(item.rate) / 100) }));
+  if (participants.filter((item) => item.type === "externalOffice").reduce((sum, item) => sum + item.rate, 0) !== externalOfficeRate) throw new Error("Dış ofis oranı katılımcı kayıtlarıyla eşleşmelidir.");
+  const consultantShare = participants.filter((item) => item.type === "consultant").reduce((sum, item) => sum + item.share, 0);
+  const externalOfficeShare = participants.filter((item) => item.type === "externalOffice").reduce((sum, item) => sum + item.share, 0);
+  return {
+    schema: MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA,
+    id: nextId(),
+    sourceTransactionNo: input.sourceTransactionNo.trim(),
+    sourceContractNo: input.sourceContractNo?.trim() || undefined,
+    occurredOn: input.occurredOn,
+    netServiceFee,
+    vatAmount: rounded(input.vatAmount),
+    collectionChannel: input.collectionChannel,
+    collectionReference: input.collectionReference.trim(),
+    declaredBy: input.declaredBy.trim(),
+    collectionStatus: "declared",
+    participants,
+    global1881Share: netServiceFee - externalOfficeShare,
+    externalOfficeShare,
+    consultantShare,
+    officeShareTransfers: [],
+    rateOverride: changedRate ? { by: input.managerActor!.trim(), at: new Date().toISOString(), reason: input.overrideReason!.trim() } : undefined,
+  };
+}
+
+export function parseMultiPartyOfficeContribution(record: OfflineRecord): MultiPartyOfficeContribution | null {
+  const raw = parseJson(record);
+  if (!raw || raw.schema !== MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA || typeof raw.id !== "string" || typeof raw.sourceTransactionNo !== "string" || !isDate(raw.occurredOn) || typeof raw.collectionReference !== "string" || typeof raw.declaredBy !== "string" || !Array.isArray(raw.participants)) return null;
+  const participants = raw.participants.flatMap((item) => {
+    const value = item as Partial<MultiPartyCommissionParticipant>;
+    return (value.type === "consultant" || value.type === "externalOffice") && (value.side === "buyer" || value.side === "seller" || value.side === "shared") && typeof value.id === "string" && typeof value.code === "string" && typeof value.name === "string" && Number.isFinite(Number(value.rate)) && Number.isFinite(Number(value.share)) ? [{ id: value.id, type: value.type, side: value.side, code: value.code, name: value.name, rate: rounded(value.rate), share: rounded(value.share) }] : [];
+  });
+  if (!participants.length || participants.reduce((sum, item) => sum + item.share, 0) !== rounded(raw.netServiceFee)) return null;
+  if (raw.collectionChannel !== "systemCash" && raw.collectionChannel !== "systemBank" && raw.collectionChannel !== "systemCard" && raw.collectionChannel !== "externalCash") return null;
+  if (raw.collectionStatus !== "declared" && raw.collectionStatus !== "verified" && raw.collectionStatus !== "officeShareSettled" && raw.collectionStatus !== "rejected") return null;
+  const externalOfficeShare = participants.filter((item) => item.type === "externalOffice").reduce((sum, item) => sum + item.share, 0);
+  return { schema: MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA, id: raw.id, sourceTransactionNo: raw.sourceTransactionNo, sourceContractNo: typeof raw.sourceContractNo === "string" ? raw.sourceContractNo : undefined, occurredOn: raw.occurredOn, netServiceFee: rounded(raw.netServiceFee), vatAmount: rounded(raw.vatAmount), collectionChannel: raw.collectionChannel, collectionReference: raw.collectionReference, declaredBy: raw.declaredBy, collectionStatus: raw.collectionStatus, participants, global1881Share: rounded(raw.global1881Share) || rounded(raw.netServiceFee) - externalOfficeShare, externalOfficeShare, consultantShare: participants.filter((item) => item.type === "consultant").reduce((sum, item) => sum + item.share, 0), rateOverride: raw.rateOverride && typeof raw.rateOverride === "object" ? raw.rateOverride as MultiPartyOfficeContribution["rateOverride"] : undefined, managerVerification: raw.managerVerification && typeof raw.managerVerification === "object" ? raw.managerVerification as MultiPartyOfficeContribution["managerVerification"] : undefined, officeShareTransfers: [] };
+}

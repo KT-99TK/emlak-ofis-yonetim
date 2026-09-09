@@ -171,3 +171,20 @@ KDV, paylaşım oranının ve faaliyet kârlılığının dışında tutulacakt�
 [1]: https://ismmmo.org.tr/dosya/415/Mevzuat-Dosya/tekduzhesapplani.pdf "İSMMMO — Tekdüzen Hesap Planı"
 [2]: https://www.izdenetim.com.tr/images/yuklenenler/hesap_plani.html "İzdenetim — Tek Düzen Hesap Planı"
 [3]: https://www.muhasebedersleri.com/hesaplar/760-pazarlama-satis-dagitim-giderleri.html "760 Pazarlama, Satış ve Dağıtım Giderleri Hesabı"
+
+
+## 9. Uygulanan çok paydaşlı komisyon paylaşımı
+
+İç denetim ekranına çok paydaşlı komisyon kaydı eklenmiştir. Tek işlemde alıcı tarafını temsil eden danışman, satıcı tarafını temsil eden danışman ve varsa işbirliği yapılan dış emlak ofisi ayrı paydaşlar olarak kaydedilir. Her paydaşın oranı ve tutarı ayrı saklanır; toplam oran %100 olmadıkça kayıt oluşturulmaz.
+
+KDV hariç toplam hizmet bedeli paylaşım tabanıdır. KDV ayrı tutulur ve danışman/ofis/dış ofis payına katılmaz. Global 1881’in temel iç kuralı %60 danışman / %40 ofis olduğundan, dış ofis veya taraflar arası özel dağılım bu varsayılandan ayrılıyorsa broker manager kullanıcı kimliği ve gerekçesiyle işlem override’ı oluşturulur. Bu override işlem kaydına bağlanır.
+
+| Uygulanan varyasyon | Kayıt ve hesap davranışı |
+|---|---|
+| Tek danışman | Mevcut katkı kaydı üzerinden KDV hariç hizmet bedelinin %60’ı danışman, %40’ı Global 1881 olarak hesaplanır. |
+| Alıcı ve satıcı danışmanı | Aynı çok paydaşlı işlemde taraflar `buyer` ve `seller` olarak ayrı kaydedilir; her pay kendi oranıyla hesaplanır. |
+| İki danışman + dış emlak ofisi | Danışmanlar ve dış ofis ayrı paydaşlar olarak yazılır; pay oranları toplamı %100 olmalı ve varsayılan dışı paylaşım manager gerekçesi taşımalıdır. |
+| Kısmi/ofis tahsilatı | Paylaştırma tutarı ile fiilen ofise aktarılan tutar ayrıdır; açık ofis payı ayrıca gösterilir. |
+| KDV | Ayrı referans olarak izlenir; paylaşım hesabına girmez. |
+
+Bu ekran ve fonksiyonlar mevcut offline iç denetim çalışma alanında çalışır. Merkezi online işlem kapanışlarına otomatik bağlanmış bir komisyon router’ı bu değişiklik kapsamında oluşturulmamıştır; online merkezi modül için ayrıca server şeması, tRPC prosedürü ve merkezi tahsilat mutabakatı gerekir.

@@ -7,6 +7,7 @@ import {
   createBudgetExpense,
   createBudgetTransfer,
   createOfficeContribution,
+  createMultiPartyOfficeContribution,
   defaultInternalControlSettings,
   verifyOfficeContribution,
   type InternalBudgetPlan,
@@ -78,3 +79,45 @@ describe("internalControl", () => {
     expect(() => createOfficeContribution({ sourceTransactionNo: "ISK-2026-002", consultantCode: "C-02", consultantName: "Danışman B", occurredOn: "2026-01-18", netServiceFee: 10_000, vatAmount: 2_000, consultantRate: 50, officeRate: 50, collectionChannel: "systemBank", collectionReference: "EFT-18", declaredBy: "consultant-b" }, defaultInternalControlSettings())).toThrow("broker manager ve gerekçe zorunludur");
   });
 });
+
+
+  it("splits buyer and seller consultants plus an external office from the KDV-excluded fee", () => {
+    const entry = createMultiPartyOfficeContribution({
+      sourceTransactionNo: "SAT-2026-001",
+      occurredOn: "2026-02-10",
+      netServiceFee: 100_000,
+      vatAmount: 20_000,
+      collectionChannel: "systemBank",
+      collectionReference: "EFT-SAT-1",
+      declaredBy: "broker-manager",
+      managerActor: "broker-manager",
+      overrideReason: "Dış ofis işbirliği ve iki taraflı temsil paylaşımı",
+      participants: [
+        { type: "consultant", side: "buyer", code: "KT1", name: "Alıcı Danışmanı", rate: 30 },
+        { type: "consultant", side: "seller", code: "IP1", name: "Satıcı Danışmanı", rate: 30 },
+        { type: "externalOffice", side: "shared", code: "DIS-01", name: "Dış Ofis", rate: 40 },
+      ],
+    }, defaultInternalControlSettings());
+
+    expect(entry.participants.map((item) => item.share)).toEqual([30_000, 30_000, 40_000]);
+    expect(entry.consultantShare).toBe(60_000);
+    expect(entry.global1881Share).toBe(60_000);
+    expect(entry.externalOfficeShare).toBe(40_000);
+    expect(entry.vatAmount).toBe(20_000);
+  });
+
+  it("requires manager evidence when a multi-party split differs from the 60/40 office rule", () => {
+    expect(() => createMultiPartyOfficeContribution({
+      sourceTransactionNo: "SAT-2026-002",
+      occurredOn: "2026-02-11",
+      netServiceFee: 100_000,
+      vatAmount: 20_000,
+      collectionChannel: "systemBank",
+      collectionReference: "EFT-SAT-2",
+      declaredBy: "broker-manager",
+      participants: [
+        { type: "consultant", side: "buyer", code: "KT1", name: "Alıcı Danışmanı", rate: 60 },
+        { type: "consultant", side: "seller", code: "IP1", name: "Satıcı Danışmanı", rate: 40 },
+      ],
+    }, defaultInternalControlSettings())).toThrow("broker manager ve gerekçe zorunludur");
+  });
