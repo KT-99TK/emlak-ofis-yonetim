@@ -27,6 +27,7 @@ import {
   commissionTransactions,
   commissionParticipants,
   consultantAgreementProfiles,
+  portfolioRightsTransfers,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import {
@@ -2755,4 +2756,63 @@ export async function createConsultantAgreementProfile(input: ConsultantAgreemen
 export async function getActiveConsultantAgreementProfile(userId: number, at = new Date()) {
   const profiles = await listConsultantAgreementProfiles(userId);
   return profiles.filter((profile) => profile.status === "active" && profile.validFrom <= at && (!profile.validTo || profile.validTo >= at)).sort((a, b) => b.validFrom.getTime() - a.validFrom.getTime())[0] ?? null;
+}
+
+
+export async function createPortfolioRightsTransfer(input: {
+  clientId?: number;
+  propertyId?: number;
+  originatingConsultantUserId: number;
+  fulfillingConsultantUserId?: number;
+  rightsOwnerType?: "consultant" | "office";
+  effectiveFrom: Date;
+  effectiveTo?: Date;
+  reason: string;
+}, actorUserId: number, isManager: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
+  if (!isManager) throw new Error("Portföy hak transferini yalnız broker manager oluşturabilir.");
+  if (!input.clientId && !input.propertyId) throw new Error("Transfer için müşteri veya mülk seçilmelidir.");
+  if (!input.reason.trim()) throw new Error("Transfer gerekçesi zorunludur.");
+  if (input.effectiveTo && input.effectiveTo < input.effectiveFrom) throw new Error("Transfer bitişi başlangıçtan önce olamaz.");
+  if (input.rightsOwnerType === "consultant" && !input.fulfillingConsultantUserId) throw new Error("Danışman hak sahibi transferinde yeni danışman zorunludur.");
+  const result = await db.insert(portfolioRightsTransfers).values({
+    clientId: input.clientId ?? null,
+    propertyId: input.propertyId ?? null,
+    originatingConsultantUserId: input.originatingConsultantUserId,
+    fulfillingConsultantUserId: input.fulfillingConsultantUserId ?? null,
+    rightsOwnerType: input.rightsOwnerType ?? "consultant",
+    effectiveFrom: input.effectiveFrom,
+    effectiveTo: input.effectiveTo ?? null,
+    reason: input.reason.trim(),
+    status: "pending",
+    createdByUserId: actorUserId,
+  });
+  const id = Number(result[0].insertId);
+  await db.insert(auditLogs).values({ actorUserId, action: "portfolio-rights-transfer-declared", entityType: "portfolioRightsTransfer", entityId: id, summary: `Portföy hak transferi oluşturuldu: ${id} · eski danışman ${input.originatingConsultantUserId} · yeni danışman ${input.fulfillingConsultantUserId ?? "ofis"}` });
+  return { id, status: "pending" as const };
+}
+
+export async function listPortfolioRightsTransfers(isManager: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
+  if (!isManager) throw new Error("Portföy hak transferlerini yalnız broker manager görebilir.");
+  return db.select().from(portfolioRightsTransfers).orderBy(desc(portfolioRightsTransfers.createdAt));
+}
+
+export async function approvePortfolioRightsTransfer(id: number, actorUserId: number, isManager: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
+  if (!isManager) throw new Error("Portföy hak transferini yalnız broker manager onaylayabilir.");
+  const rows = await db.select().from(portfolioRightsTransfers).where(eq(portfolioRightsTransfers.id, id)).limit(1);
+  const transfer = rows[0];
+  if (!transfer) throw new Error("Portföy hak transferi bulunamadı.");
+  if (transfer.status !== "pending") throw new Error("Yalnız bekleyen transfer onaylanabilir.");
+  await db.update(portfolioRightsTransfers).set({ status: "approved", approvedByUserId: actorUserId, approvedAt: new Date() }).where(eq(portfolioRightsTransfers.id, id));
+  if (transfer.rightsOwnerType === "consultant" && transfer.fulfillingConsultantUserId) {
+    if (transfer.clientId) await db.update(clients).set({ assignedUserId: transfer.fulfillingConsultantUserId }).where(eq(clients.id, transfer.clientId));
+    if (transfer.propertyId) await db.update(properties).set({ assignedUserId: transfer.fulfillingConsultantUserId }).where(eq(properties.id, transfer.propertyId));
+  }
+  await db.insert(auditLogs).values({ actorUserId, action: "portfolio-rights-transfer-approved", entityType: "portfolioRightsTransfer", entityId: id, summary: `Portföy hak transferi onaylandı: ${id} · hak sahibi ${transfer.rightsOwnerType}` });
+  return { id, status: "approved" as const };
 }

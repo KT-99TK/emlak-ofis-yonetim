@@ -74,6 +74,9 @@ import {
   cancelCentralCommissionTransaction,
   listConsultantAgreementProfiles,
   createConsultantAgreementProfile,
+  createPortfolioRightsTransfer,
+  listPortfolioRightsTransfers,
+  approvePortfolioRightsTransfer,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -937,6 +940,13 @@ export const appRouter = router({
     createAgreementProfile: adminProcedure
       .input(z.object({ userId: z.number().int().positive(), consultantSharePercent: z.number().min(0).max(100), officeSharePercent: z.number().min(0).max(100), monthlyDeskFee: z.string().regex(/^\d+(\.\d{1,2})?$/), validFrom: z.coerce.date(), validTo: z.coerce.date().optional(), note: z.string().max(1000).optional() }))
       .mutation(({ ctx, input }) => createConsultantAgreementProfile(input, ctx.user.id)),
+    createPortfolioRightsTransfer: adminProcedure
+      .input(z.object({ clientId: z.number().int().positive().optional(), propertyId: z.number().int().positive().optional(), originatingConsultantUserId: z.number().int().positive(), fulfillingConsultantUserId: z.number().int().positive().optional(), rightsOwnerType: z.enum(["consultant", "office"]).default("consultant"), effectiveFrom: z.coerce.date(), effectiveTo: z.coerce.date().optional(), reason: z.string().min(8).max(1000) }))
+      .mutation(({ ctx, input }) => createPortfolioRightsTransfer(input, ctx.user.id, true)),
+    portfolioRightsTransfers: adminProcedure.query(() => listPortfolioRightsTransfers(true)),
+    approvePortfolioRightsTransfer: adminProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .mutation(({ ctx, input }) => approvePortfolioRightsTransfer(input.id, ctx.user.id, true)),
     setOfficeAssistantScope: adminProcedure
       .input(
         z.object({

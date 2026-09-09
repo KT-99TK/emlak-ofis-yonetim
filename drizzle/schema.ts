@@ -321,6 +321,23 @@ export const ledgerEntries = mysqlTable("ledgerEntries", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const portfolioRightsTransfers = mysqlTable("portfolioRightsTransfers", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId"),
+  propertyId: int("propertyId"),
+  originatingConsultantUserId: int("originatingConsultantUserId").notNull(),
+  fulfillingConsultantUserId: int("fulfillingConsultantUserId"),
+  rightsOwnerType: mysqlEnum("rightsOwnerType", ["consultant", "office"]).default("consultant").notNull(),
+  effectiveFrom: timestamp("effectiveFrom").notNull(),
+  effectiveTo: timestamp("effectiveTo"),
+  reason: varchar("reason", { length: 1000 }).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "cancelled"]).default("pending").notNull(),
+  approvedByUserId: int("approvedByUserId"),
+  approvedAt: timestamp("approvedAt"),
+  createdByUserId: int("createdByUserId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const commissionTransactions = mysqlTable("commissionTransactions", {
   id: int("id").autoincrement().primaryKey(),
   transactionNo: varchar("transactionNo", { length: 80 }).notNull().unique(),
