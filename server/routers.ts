@@ -71,6 +71,8 @@ import {
   verifyCentralCommissionTransaction,
   recordCentralCommissionCollection,
   cancelCentralCommissionTransaction,
+  listConsultantAgreementProfiles,
+  createConsultantAgreementProfile,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -799,6 +801,9 @@ export const appRouter = router({
       netServiceFee: z.string().regex(/^\d+(\.\d{1,2})?$/),
       discountAmount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
       vatAmount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
+      portfolioOwnerType: z.enum(["consultant", "office"]).default("consultant"),
+      externalOfficeRole: z.enum(["none", "counterpartyPortfolio", "global1881External"]).default("none"),
+      agreementProfileId: z.number().int().positive().optional(),
       collectionReference: z.string().min(2).max(180),
       overrideReason: z.string().max(1000).optional(),
       participants: z.array(z.object({
@@ -922,6 +927,10 @@ export const appRouter = router({
       .mutation(({ ctx, input }) =>
         setConsultantCode(input.userId, input.consultantCode, ctx.user.id)
       ),
+    agreementProfiles: adminProcedure.query(({ ctx }) => listConsultantAgreementProfiles()),
+    createAgreementProfile: adminProcedure
+      .input(z.object({ userId: z.number().int().positive(), consultantSharePercent: z.number().min(0).max(100), officeSharePercent: z.number().min(0).max(100), monthlyDeskFee: z.string().regex(/^\d+(\.\d{1,2})?$/), validFrom: z.coerce.date(), validTo: z.coerce.date().optional(), note: z.string().max(1000).optional() }))
+      .mutation(({ ctx, input }) => createConsultantAgreementProfile(input, ctx.user.id)),
     setOfficeAssistantScope: adminProcedure
       .input(
         z.object({

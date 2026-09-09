@@ -48,6 +48,22 @@ export const userProfiles = mysqlTable("userProfiles", {
     .notNull(),
 });
 
+export const consultantAgreementProfiles = mysqlTable("consultantAgreementProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  consultantSharePercent: decimal("consultantSharePercent", { precision: 5, scale: 2 }).default("60").notNull(),
+  officeSharePercent: decimal("officeSharePercent", { precision: 5, scale: 2 }).default("40").notNull(),
+  monthlyDeskFee: decimal("monthlyDeskFee", { precision: 14, scale: 2 }).default("0").notNull(),
+  validFrom: timestamp("validFrom").notNull(),
+  validTo: timestamp("validTo"),
+  status: mysqlEnum("status", ["draft", "active", "expired", "cancelled"]).default("draft").notNull(),
+  approvedByUserId: int("approvedByUserId"),
+  approvedAt: timestamp("approvedAt"),
+  note: varchar("note", { length: 1000 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const clients = mysqlTable("clients", {
   id: int("id").autoincrement().primaryKey(),
   type: mysqlEnum("type", ["individual", "company"])
@@ -291,6 +307,12 @@ export const commissionTransactions = mysqlTable("commissionTransactions", {
   consultantShare: decimal("consultantShare", { precision: 14, scale: 2 }).notNull(),
   global1881Share: decimal("global1881Share", { precision: 14, scale: 2 }).notNull(),
   externalOfficeShare: decimal("externalOfficeShare", { precision: 14, scale: 2 }).default("0").notNull(),
+  externalOfficeRole: mysqlEnum("externalOfficeRole", ["none", "counterpartyPortfolio", "global1881External"]).default("none").notNull(),
+  portfolioOwnerType: mysqlEnum("portfolioOwnerType", ["consultant", "office"]).default("consultant").notNull(),
+  agreementProfileId: int("agreementProfileId"),
+  snapshotConsultantSharePercent: decimal("snapshotConsultantSharePercent", { precision: 5, scale: 2 }).default("60").notNull(),
+  snapshotOfficeSharePercent: decimal("snapshotOfficeSharePercent", { precision: 5, scale: 2 }).default("40").notNull(),
+  snapshotMonthlyDeskFee: decimal("snapshotMonthlyDeskFee", { precision: 14, scale: 2 }).default("0").notNull(),
   status: mysqlEnum("status", ["declared", "managerVerified", "partiallySettled", "settled", "cancelled"]).default("declared").notNull(),
   collectionReference: varchar("collectionReference", { length: 180 }).notNull(),
   declaredByUserId: int("declaredByUserId").notNull(),
@@ -315,6 +337,8 @@ export const commissionParticipants = mysqlTable("commissionParticipants", {
   externalOfficeName: varchar("externalOfficeName", { length: 180 }),
   rate: decimal("rate", { precision: 7, scale: 4 }).notNull(),
   share: decimal("share", { precision: 14, scale: 2 }).notNull(),
+  consultantPayout: decimal("consultantPayout", { precision: 14, scale: 2 }).default("0").notNull(),
+  globalOfficeShare: decimal("globalOfficeShare", { precision: 14, scale: 2 }).default("0").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

@@ -26,6 +26,7 @@ import {
   sensitiveFieldVault,
   commissionTransactions,
   commissionParticipants,
+  consultantAgreementProfiles,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import {
@@ -2582,12 +2583,24 @@ export async function createCentralCommissionTransaction(input: {
   netServiceFee: string;
   discountAmount?: string;
   vatAmount?: string;
+  portfolioOwnerType?: "consultant" | "office";
+  externalOfficeRole?: "none" | "counterpartyPortfolio" | "global1881External";
+  agreementProfileId?: number;
   collectionReference: string;
   overrideReason?: string;
   participants: CentralCommissionParticipantInput[];
 }, actorUserId: number, isManager: boolean) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
+  const explicitProfile = input.agreementProfileId ? (await db.select().from(consultantAgreementProfiles).where(eq(consultantAgreementProfiles.id, input.agreementProfileId)).limit(1))[0] ?? null : null;
+  if (input.agreementProfileId && (!explicitProfile || explicitProfile.status !== "active")) throw new Error("Seçilen danışman anlaşma profili aktif değil.");
+  const consultantProfiles = new Map<number, typeof explicitProfile>();
+  for (const participant of input.participants) {
+    if (participant.participantType === "consultant" && participant.consultantUserId) consultantProfiles.set(participant.consultantUserId, explicitProfile ?? await getActiveConsultantAgreementProfile(participant.consultantUserId));
+  }
+  const snapshotProfile = explicitProfile ?? Array.from(consultantProfiles.values()).find(Boolean) ?? null;
+  const snapshotConsultantRate = Number(snapshotProfile?.consultantSharePercent ?? "60");
+  const snapshotOfficeRate = Number(snapshotProfile?.officeSharePercent ?? "40");
   const grossNetServiceFee = Number(input.netServiceFee);
   const discountAmount = Number(input.discountAmount ?? "0");
   const netServiceFee = grossNetServiceFee - discountAmount;
@@ -2596,23 +2609,28 @@ export async function createCentralCommissionTransaction(input: {
   const rateTotal = input.participants.reduce((sum, participant) => sum + Number(participant.rate), 0);
   const consultantRate = input.participants.filter((participant) => participant.participantType === "consultant").reduce((sum, participant) => sum + Number(participant.rate), 0);
   const externalOfficeRate = input.participants.filter((participant) => participant.participantType === "externalOffice").reduce((sum, participant) => sum + Number(participant.rate), 0);
-  if (!Number.isFinite(rateTotal) || Math.round(rateTotal * 100) !== 10000) throw new Error("Komisyon pay oranları toplamı %100 olmalıdır.");
+  if (!Number.isFinite(rateTotal) || Math.round(rateTotal * 100) !== 10000) throw new Error("Komisyon havuzu pay oranları toplamı %100 olmalıdır.");
   if (externalOfficeRate > 0 && (!isManager || !input.overrideReason?.trim())) throw new Error("Dış ofis paylaşımı için broker manager ve gerekçe zorunludur.");
-  if (consultantRate !== 60 && (!isManager || !input.overrideReason?.trim())) throw new Error("%60/%40 varsayılanından ayrılan paylaşım için broker manager ve gerekçe zorunludur.");
+  if (externalOfficeRate === 0 && consultantRate !== 100 && (!isManager || !input.overrideReason?.trim())) throw new Error("Global havuz dağılımı %100 değilse broker manager ve gerekçe zorunludur.");
   if (input.participants.some((participant) => !participant.participantCode.trim() || !participant.participantName.trim() || Number(participant.rate) < 0)) throw new Error("Her paydaşın kodu, adı ve geçerli oranı zorunludur.");
-  const participantRows = input.participants.map((participant) => ({
-    ...participant,
-    rate: Number(participant.rate),
-    share: Math.round(netServiceFee * Number(participant.rate) / 100 * 100) / 100,
-  }));
-  const consultantShare = participantRows.filter((participant) => participant.participantType === "consultant").reduce((sum, participant) => sum + participant.share, 0);
+  const participantRows = input.participants.map((participant) => {
+    const share = Math.round(netServiceFee * Number(participant.rate) / 100 * 100) / 100;
+    const profile = participant.participantType === "consultant" && participant.consultantUserId ? consultantProfiles.get(participant.consultantUserId) : snapshotProfile;
+    const consultantRate = Number(profile?.consultantSharePercent ?? snapshotConsultantRate);
+    const officeRate = Number(profile?.officeSharePercent ?? snapshotOfficeRate);
+    const consultantPayout = participant.participantType === "consultant" ? Math.round(share * consultantRate / 100 * 100) / 100 : 0;
+    const globalOfficeShare = participant.participantType === "consultant" ? Math.round(share * officeRate / 100 * 100) / 100 : 0;
+    return { ...participant, rate: Number(participant.rate), share, consultantPayout, globalOfficeShare };
+  });
+  const consultantShare = participantRows.filter((participant) => participant.participantType === "consultant").reduce((sum, participant) => sum + participant.consultantPayout, 0);
+  const consultantGlobalOfficeShare = participantRows.reduce((sum, participant) => sum + participant.globalOfficeShare, 0);
   const externalOfficeShare = participantRows.filter((participant) => participant.participantType === "externalOffice").reduce((sum, participant) => sum + participant.share, 0);
-  const global1881Share = netServiceFee - externalOfficeShare;
-  const transactionResult = await db.insert(commissionTransactions).values({ transactionNo: input.transactionNo.trim(), contractId: input.contractId, netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), status: "declared", collectionReference: input.collectionReference.trim(), declaredByUserId: actorUserId, overrideReason: input.overrideReason?.trim() || null });
+  const global1881Share = Math.round((consultantGlobalOfficeShare + (input.portfolioOwnerType === "office" ? externalOfficeShare : 0)) * 100) / 100;
+  const transactionResult = await db.insert(commissionTransactions).values({ transactionNo: input.transactionNo.trim(), contractId: input.contractId, netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), externalOfficeRole: input.externalOfficeRole ?? "none", portfolioOwnerType: input.portfolioOwnerType ?? "consultant", agreementProfileId: snapshotProfile?.id ?? null, snapshotConsultantSharePercent: snapshotConsultantRate.toFixed(2), snapshotOfficeSharePercent: snapshotOfficeRate.toFixed(2), snapshotMonthlyDeskFee: Number(snapshotProfile?.monthlyDeskFee ?? "0").toFixed(2), status: "declared", collectionReference: input.collectionReference.trim(), declaredByUserId: actorUserId, overrideReason: input.overrideReason?.trim() || null });
   const transactionId = Number(transactionResult[0].insertId);
-  await db.insert(commissionParticipants).values(participantRows.map((participant) => ({ commissionTransactionId: transactionId, participantType: participant.participantType, side: participant.side, consultantUserId: participant.consultantUserId, participantCode: participant.participantCode.trim(), participantName: participant.participantName.trim(), externalOfficeName: participant.externalOfficeName?.trim() || null, rate: participant.rate.toFixed(4), share: participant.share.toFixed(2) })));
-  await db.insert(auditLogs).values({ actorUserId, action: "commission-declared", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon kaydı oluşturuldu: ${input.transactionNo.trim()} · ${participantRows.length} paydaş · danışman ${consultantShare.toFixed(2)} · Global 1881 ${global1881Share.toFixed(2)} · dış ofis ${externalOfficeShare.toFixed(2)}` });
-  return { id: transactionId, transactionNo: input.transactionNo.trim(), netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), status: "declared" as const, participants: participantRows };
+  await db.insert(commissionParticipants).values(participantRows.map((participant) => ({ commissionTransactionId: transactionId, participantType: participant.participantType, side: participant.side, consultantUserId: participant.consultantUserId, participantCode: participant.participantCode.trim(), participantName: participant.participantName.trim(), externalOfficeName: participant.externalOfficeName?.trim() || null, rate: participant.rate.toFixed(4), share: participant.share.toFixed(2), consultantPayout: participant.consultantPayout.toFixed(2), globalOfficeShare: participant.globalOfficeShare.toFixed(2) })));
+  await db.insert(auditLogs).values({ actorUserId, action: "commission-declared", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon kaydı oluşturuldu: ${input.transactionNo.trim()} · ${participantRows.length} paydaş · danışman net ${consultantShare.toFixed(2)} · Global ofis ${global1881Share.toFixed(2)} · dış ofis ${externalOfficeShare.toFixed(2)}` });
+  return { id: transactionId, transactionNo: input.transactionNo.trim(), netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), externalOfficeRole: input.externalOfficeRole ?? "none", portfolioOwnerType: input.portfolioOwnerType ?? "consultant", status: "declared" as const, participants: participantRows };
 }
 
 export async function listCentralCommissionTransactions(actorUserId: number, isManager: boolean, permittedUserIds: number[]) {
@@ -2662,4 +2680,43 @@ export async function cancelCentralCommissionTransaction(transactionId: number, 
   await db.update(commissionTransactions).set({ status: "cancelled", cancelReason: reason.trim() }).where(eq(commissionTransactions.id, transactionId));
   await db.insert(auditLogs).values({ actorUserId, action: "commission-cancelled", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon işlemi iptal edildi: ${reason.trim()}` });
   return { transactionId, status: "cancelled" as const, cancelReason: reason.trim() };
+}
+
+
+export type ConsultantAgreementProfileInput = {
+  userId: number;
+  consultantSharePercent: number;
+  officeSharePercent: number;
+  monthlyDeskFee: string;
+  validFrom: Date;
+  validTo?: Date;
+  note?: string;
+};
+
+export async function listConsultantAgreementProfiles(userId?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const rows = await db.select().from(consultantAgreementProfiles);
+  return userId ? rows.filter((row) => row.userId === userId) : rows;
+}
+
+export async function createConsultantAgreementProfile(input: ConsultantAgreementProfileInput, managerUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const consultantRate = Number(input.consultantSharePercent);
+  const officeRate = Number(input.officeSharePercent);
+  const deskFee = Number(input.monthlyDeskFee);
+  if (!Number.isFinite(consultantRate) || !Number.isFinite(officeRate) || consultantRate < 0 || officeRate < 0 || Math.round((consultantRate + officeRate) * 100) !== 10000) throw new Error("Danışman ve ofis oranları toplamı %100 olmalıdır.");
+  if (!Number.isFinite(deskFee) || deskFee < 0) throw new Error("Masa/ofis bedeli sıfır veya daha büyük olmalıdır.");
+  if (!(input.validFrom instanceof Date) || Number.isNaN(input.validFrom.getTime())) throw new Error("Geçerli başlangıç tarihi zorunludur.");
+  if (input.validTo && input.validTo < input.validFrom) throw new Error("Bitiş tarihi başlangıç tarihinden önce olamaz.");
+  const result = await db.insert(consultantAgreementProfiles).values({ userId: input.userId, consultantSharePercent: consultantRate.toFixed(2), officeSharePercent: officeRate.toFixed(2), monthlyDeskFee: deskFee.toFixed(2), validFrom: input.validFrom, validTo: input.validTo ?? null, status: "active", approvedByUserId: managerUserId, approvedAt: new Date(), note: input.note?.trim() || null });
+  const id = Number(result[0].insertId);
+  await db.insert(auditLogs).values({ actorUserId: managerUserId, action: "consultant-agreement-created", entityType: "consultantAgreementProfile", entityId: id, summary: `Danışman anlaşma profili oluşturuldu: kullanıcı ${input.userId} · danışman %${consultantRate.toFixed(2)} · ofis %${officeRate.toFixed(2)} · masa/ofis bedeli ${deskFee.toFixed(2)}` });
+  return { id, userId: input.userId, consultantSharePercent: consultantRate.toFixed(2), officeSharePercent: officeRate.toFixed(2), monthlyDeskFee: deskFee.toFixed(2), status: "active" as const };
+}
+
+export async function getActiveConsultantAgreementProfile(userId: number, at = new Date()) {
+  const profiles = await listConsultantAgreementProfiles(userId);
+  return profiles.filter((profile) => profile.status === "active" && profile.validFrom <= at && (!profile.validTo || profile.validTo >= at)).sort((a, b) => b.validFrom.getTime() - a.validFrom.getTime())[0] ?? null;
 }

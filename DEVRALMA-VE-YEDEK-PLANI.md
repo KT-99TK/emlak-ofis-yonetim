@@ -111,3 +111,17 @@ Bu adımlar kaynak geliştirme bilgisini korur. Yeni bir hesabın mevcut canlı 
 [^source-not-enough]: [Manus — Websites During the August 2026 Data Separation: What a Task Data Backup contains](https://help.manus.im/en/articles/16147892-service-change-overview-how-to-back-up-your-data)
 [^task-backup]: [Manus — How to Back Up Your Data](https://help.manus.im/en/articles/16147892-service-change-overview-how-to-back-up-your-data)
 [^domains]: [Manus — Website domains and restoration guidance](https://help.manus.im/en/articles/16147895-service-change-overview-how-to-restore-your-data)
+
+
+## 8. Ayrı varlıklar için erişim ve yedekleme matrisi
+
+| Varlık | Erişim sınırı | Yedekleme yöntemi | Mevcut kanıt/sınır |
+|---|---|---|---|
+| Merkezi MySQL/TiDB verisi | Uygulama sunucusu ve yetkili yönetim akışı; danışman cihazlarından doğrudan DB bağlantısı yok | Salt-okunur dışa aktarım veya sağlayıcının resmî görev verisi yedeği; şifreli ve ayrı parola | 30.08.2026 tarihli şifreli merkezi veri arşivi mevcut; resmî platform yedek yolu ayrıca doğrulanmalıdır. |
+| S3 yüklenen belgeler | Uygulama üzerinden yetkili, süreli erişim; genel bucket erişimi yok | S3 sürümleme/retention veya sağlayıcının belge dahil görev verisi yedeği | Merkezi metadata sayımında belge kaydı 0; dosya baytları kaynak ZIP’inde değildir. |
+| Gizli yapılandırma | Secret manager veya yönetim panelindeki güvenli secret alanı; sohbet/ZIP/e-posta ile paylaşılmaz | Değerleri kopyalamadan yeni ortamda manuel/secret manager yeniden oluşturma | Mevcut secret değerleri bu plana yazılmaz ve dışa aktarılmaz. |
+| Alan adı ve DNS bağı | Alan adı sahibinin DNS hesabı; yayın sağlayıcısına yalnız gereken kayıt | DNS kayıt envanteri ve sağlayıcının bağlantı/geri dönüş prosedürü | `ofis.global1881.com` henüz NXDOMAIN; kullanıcı onayı olmadan değişiklik yapılmadı. |
+| Yerel Windows/AppData | Yalnız cihaz sahibi ve fizikî/şifreli yedek erişimi | `%APPDATA%\Global 1881 Gayrimenkul` salt-kopyası; PDF/manifest ve şifreli offline yedek ayrı korunur | `YEREL-WINDOWS-VERI-YEDEK-REHBERI.md`; mevcut 1.0.22 kurulumuna dokunulmaz. |
+| Kaynak geliştirme paketi | Kod deposu/yönetim Code alanı; gizli değer ve veri içermez | Salt-okunur kaynak ZIP’i ve SHA-256 | `Global1881-kaynak-devir-guvenli-2026-08-30.zip` doğrulanmıştır. |
+
+Bu matris, kaynak ZIP’i ile canlı uygulama varlıklarının aynı şey olmadığını açıkça ayırır. Her varlık için ayrı erişim sahibi, ayrı yedekleme yöntemi ve geri yükleme kanıtı gerekir; bir varlığın yedeği diğerinin yerine geçmez.

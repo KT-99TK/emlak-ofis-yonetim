@@ -51,7 +51,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Uygulama verileri, kullanıcı yüklemeleri, gizli değişkenler ve alan adı bağlarının kaynak kod paketinden ayrı tutulduğunu açıkça belirle; başka hesapta devam seçeneğinin hangi verileri otomatik taşımadığını belgele. `DEVRALMA-VE-YEDEK-PLANI.md` kapsam ayrımını ve karar seçeneklerini içerir.
 - [x] Mevcut kullanıcı verilerini, IndexedDB yedeklerini, imzalı PDF’leri, `%APPDATA%\Global 1881 Gayrimenkul` içeriğini veya yayın alanı bağını değiştirmeden, başka hesapta kaynak üzerinden devam için geri dönüş yönergesi hazırla. `DEVRALMA-VE-YEDEK-PLANI.md` güvenli sıra ve koruma sınırlarını içerir.
 - [x] Mevcut proje kaynakları, mimari/güvenlik notları, şema/migrasyonlar, testler ve kilit dosyasını içeren; merkezi veri, yüklenen belge, gizli değişken, çalışma çıktısı ve Windows kurulum dosyalarını dışlayan doğrulanabilir salt-okunur kaynak devir paketi oluştur. Teslim edilecek `Global1881-kaynak-devir-guvenli-2026-08-30.zip`, kayıtlı `8e462d6` sürümünden üretildi; 420 dosya, 1,3 MB, ZIP bütünlük testi başarılıdır. Windows kurulum BAT/PowerShell betikleri, paketleme ayarları, bağımlılık/derleme/log klasörleri ve gizli dosya/anahtar uzantıları denetimle dışlanmıştır. SHA-256 özeti: `44d22d5adafe4e77a2fceaec1c007dcd1f99430b4a7162fd0577cc9bc414b427`.
-- [ ] Kaynak paketi dışındaki merkezi veritabanı, yüklenen belgeler, gizli yapılandırma, alan adı bağı ve yerel Windows verileri için erişim sınırlarını ve ayrı yedekleme yöntemlerini envanterle.
+- [x] Kaynak paketi dışındaki merkezi veritabanı, yüklenen belgeler, gizli yapılandırma, alan adı bağı ve yerel Windows verileri için erişim sınırlarını ve ayrı yedekleme yöntemlerini envanterle. `DEVRALMA-VE-YEDEK-PLANI.md` bölüm 8’de her varlık için erişim sınırı, yedek yöntemi ve mevcut kanıt/sınır matrisi eklendi.
 - [ ] Merkezi veri ve yüklenen belgeler için hesabın kullanabildiği resmî görev verisi yedekleme yolunu destek ekibi veya yönetim arayüzü üzerinden doğrula; kaynak ZIP’inin bu verileri içermediğini koru.
 - [x] `%APPDATA%\Global 1881 Gayrimenkul` için kullanıcı cihazında salt kopya alma, gizli ayarları değerlerini açığa çıkarmadan yeniden oluşturma ve alan adı bağını değiştirmeden koruma yönergelerini hazırla. `YEREL-WINDOWS-VERI-YEDEK-REHBERI.md` oluşturuldu; mevcut 1.0.22 kurulumu, AppData ve Defender güvenliği değiştirilmez.
 - [x] Merkezi veritabanında mevcut kayıtları değiştirmeden dışa aktar; müşteri ve operasyonel kayıtları parolayla şifrelenmiş ayrı veri yedeğine koy, paket bütünlüğünü doğrula ve parolayı arşivden ayrı tut. `Global1881-merkezi-veri-sifreli-yedek-2026-08-30.7z` AES-256 ve şifreli dosya adlarıyla oluşturuldu; doğru parola bütünlük testi, yanlış parola reddi, arşiv SHA-256 özeti ve düz metin geçici dosya temizliği doğrulandı.
@@ -87,3 +87,27 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 - [x] Yerel Windows yedeği rehberine gizli ayar değerlerini ifşa etmeden yeniden oluşturma adımlarını ve manuel girilecek öğeleri ekle. Secret/token/DB/S3 değerleri kopyalanmıyor; yalnız güvenli giriş ve secret manager yeniden tanımlaması kullanılıyor.
 - [x] Yerel Windows geri kurulumunda alan adı bağı, oturum/veri dosyaları ve PDF/manifest ayrıştırma doğrulama listesini ekle. Alan adı/DNS, oturum/şifreli veri ve PDF-SHA256 manifestleri ayrı doğrulanıyor.
+
+- [x] Komisyon varyasyon matrisi ve eksik süreç kontrolünü tamamla; kodlanmış, kısmen kodlanmış ve eksik hesapları tablo halinde raporla. Sonuç: 8 ana iş varyasyonu ve 4 tahsilat/işlem durumu ayrıştırıldı; iade/mahsup muhasebesi ile resmî platform yedek yolu açık kaldı.
+
+- [ ] Komisyon merkezi hesaplamasında `global1881Share` alanını düzelt: varsayılan işlemde Global 1881 payı net komisyonun %40’ı olmalı; dış ofisli işlemde dış ofis payı ve Global 1881 ofis payı ile danışman payları ayrı hesaplanmalı. Dış ofis oranı sonrası kalan tutarın danışman/ofis arasında nasıl bölüneceğini kullanıcı politikasıyla kesinleştir ve test et.
+
+- [ ] Dış ofisli paylaşım politikasını düzelt: toplam komisyonun %50’si dış ofis, %50’si Global 1881 havuzu; Global havuz iki danışmana eşit 25.000 TL tabanlarıyla dağıtılacak ve her danışman tabanında %60 danışman/%40 Global 1881 uygulanacak.
+- [ ] Dış ofisli 100.000 TL örneği için merkezi/offline hesap, arayüz, audit ve regresyon testlerini yeni politikaya göre güncelle; eski `global1881Share` kalan tutar hesabını kaldır.
+
+- [ ] Dış ofisli iki danışman kesin örneğini uygula ve test et: 100.000 TL toplam → 50.000 TL dış ofis + 50.000 TL Global havuz; Global havuzdan danışman başına 25.000 TL taban → 15.000 TL danışman + 10.000 TL Global kasa; toplam 30.000 TL danışman, 20.000 TL Global kasa, 50.000 TL dış ofis.
+
+- [ ] Dış ofis sonrası tek danışman senaryosunu uygula ve test et: 100.000 TL toplam → 50.000 TL dış ofis; 50.000 TL Global havuz → tek danışman %60 = 30.000 TL, Global ofis %40 = 20.000 TL.
+
+- [ ] Karşı ofis portföyü senaryosunu ekle: portföy sahibi diğer ofis dış paydaş olarak 50.000 TL, Global 1881 dış ofis havuzu 50.000 TL; Global havuzunda bizim tek danışman %60 = 30.000 TL, Global kasa %40 = 20.000 TL. Karşı ofis/Global rolleri, sabit paylaşım ve audit ayrı görünmeli.
+
+- [ ] Merkezi komisyon kaydına dış ofis yönünü ekle: `counterpartyPortfolio` (karşı ofis portföyü) ve `global1881External` (Global dış ofis) ayrımı; her ikisinde sabit 50/50 toplam havuz ve Global havuzunda tek danışman %60/%40 hesabı.
+
+- [ ] Portföy sahipliği kuralını uygula: danışman portföyünde toplam komisyon %50/%50 alıcı-satıcı taraflarına, her tarafın %60’ı ilgili danışmana ve %40’ı Global 1881’e; ofis portföyünde %50 portföy sahibi ofise, kalan %50 iki danışmana %25/%25, her danışman tabanında %60/%40.
+- [ ] Portföy sahibi danışman/ofis senaryoları için merkezi ve offline hesap, ekran, audit ve 100.000 TL örnek regresyon testlerini ekle.
+
+- [x] Komisyon ekranını tek ekrana sadeleştir: tutar girişi + senaryo seçimi + danışman/portföy/ofis seçimi; sistem ara havuzları, danışman payını ve Global kasa payını otomatik önizlesin; karmaşık oran hesabı kullanıcıya bırakılmasın. `/commissions` ekranında sabit senaryo seçimi, otomatik önizleme ve manuel oran alanı yerine sistem oranı gösterimi uygulandı.
+
+- [x] Danışman anlaşma profili ekle: geçerli başlangıç/bitiş tarihi, danışman payı %, Global 1881 payı %, aylık masa/ofis bedeli (örn. 5.000/7.000 TL), onaylayan manager ve değişiklik geçmişi. Merkezi şema, manager-only Team ekranı, audit ve tarih alanları eklendi.
+- [x] Komisyon kayıtlarında kullanılan anlaşma profilini oran ve sabit bedel snapshot’ı olarak sakla; profil değişince geçmiş işlemleri değiştirme, yeni işlemlerde yalnız yeni geçerli profili kullan. `agreementProfileId`, `snapshotConsultantSharePercent`, `snapshotOfficeSharePercent` ve `snapshotMonthlyDeskFee` merkezi işlem kaydına eklenerek create akışına bağlandı.
+- [ ] Danışman alımı/anlaşma ekranı ve komisyon motoru için %60/%40, %70/%30, %80/%20 ve serbest oran/bedel testlerini ekle; oran toplamı %100 kontrolü ve manager onayı zorunlu olsun.

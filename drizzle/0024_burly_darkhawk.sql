@@ -1,0 +1,2 @@
+ALTER TABLE `commissionTransactions` ADD `externalOfficeRole` enum('none','counterpartyPortfolio','global1881External') DEFAULT 'none' NOT NULL;--> statement-breakpoint
+ALTER TABLE `commissionTransactions` ADD `portfolioOwnerType` enum('consultant','office') DEFAULT 'consultant' NOT NULL;

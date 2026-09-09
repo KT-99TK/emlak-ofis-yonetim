@@ -93,16 +93,18 @@ describe("internalControl", () => {
       managerActor: "broker-manager",
       overrideReason: "Dış ofis işbirliği ve iki taraflı temsil paylaşımı",
       participants: [
-        { type: "consultant", side: "buyer", code: "KT1", name: "Alıcı Danışmanı", rate: 30 },
-        { type: "consultant", side: "seller", code: "IP1", name: "Satıcı Danışmanı", rate: 30 },
-        { type: "externalOffice", side: "shared", code: "DIS-01", name: "Dış Ofis", rate: 40 },
+        { type: "consultant", side: "buyer", code: "KT1", name: "Alıcı Danışmanı", rate: 25 },
+        { type: "consultant", side: "seller", code: "IP1", name: "Satıcı Danışmanı", rate: 25 },
+        { type: "externalOffice", side: "shared", code: "DIS-01", name: "Dış Ofis", rate: 50 },
       ],
     }, defaultInternalControlSettings());
 
-    expect(entry.participants.map((item) => item.share)).toEqual([30_000, 30_000, 40_000]);
-    expect(entry.consultantShare).toBe(60_000);
-    expect(entry.global1881Share).toBe(60_000);
-    expect(entry.externalOfficeShare).toBe(40_000);
+    expect(entry.participants.map((item) => item.share)).toEqual([25_000, 25_000, 50_000]);
+    expect(entry.participants.map((item) => item.consultantPayout)).toEqual([15_000, 15_000, 0]);
+    expect(entry.participants.map((item) => item.globalOfficeShare)).toEqual([10_000, 10_000, 0]);
+    expect(entry.consultantShare).toBe(30_000);
+    expect(entry.global1881Share).toBe(20_000);
+    expect(entry.externalOfficeShare).toBe(50_000);
     expect(entry.vatAmount).toBe(20_000);
   });
 
@@ -116,8 +118,8 @@ describe("internalControl", () => {
       collectionReference: "EFT-SAT-2",
       declaredBy: "broker-manager",
       participants: [
-        { type: "consultant", side: "buyer", code: "KT1", name: "Alıcı Danışmanı", rate: 60 },
-        { type: "consultant", side: "seller", code: "IP1", name: "Satıcı Danışmanı", rate: 40 },
+        { type: "consultant", side: "buyer", code: "KT1", name: "Alıcı Danışmanı", rate: 70 },
+        { type: "consultant", side: "seller", code: "IP1", name: "Satıcı Danışmanı", rate: 30 },
       ],
     }, defaultInternalControlSettings())).toThrow("broker manager ve gerekçe zorunludur");
   });

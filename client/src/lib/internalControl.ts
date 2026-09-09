@@ -370,7 +370,8 @@ export function latestVatReference(records: OfflineRecord[], year: string, month
 }
 
 
-export const MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA = "global1881-office-contribution-multi-party-v1" as const;
+export const MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA = "global1881-office-contribution-multi-party-v2" as const;
+export const LEGACY_MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA = "global1881-office-contribution-multi-party-v1" as const;
 export type CommissionSide = "buyer" | "seller" | "shared";
 export type MultiPartyParticipantType = "consultant" | "externalOffice";
 
@@ -382,6 +383,8 @@ export type MultiPartyCommissionParticipant = {
   name: string;
   rate: number;
   share: number;
+  consultantPayout: number;
+  globalOfficeShare: number;
 };
 
 export type MultiPartyOfficeContribution = {
@@ -405,7 +408,7 @@ export type MultiPartyOfficeContribution = {
   officeShareTransfers: OfficeShareTransfer[];
 };
 
-export type MultiPartyParticipantInput = Omit<MultiPartyCommissionParticipant, "id" | "share"> & { rate: number };
+export type MultiPartyParticipantInput = Omit<MultiPartyCommissionParticipant, "id" | "share" | "consultantPayout" | "globalOfficeShare"> & { rate: number };
 
 export function createMultiPartyOfficeContribution(input: {
   sourceTransactionNo: string;
@@ -426,17 +429,25 @@ export function createMultiPartyOfficeContribution(input: {
   if (!input.participants.length) throw new Error("En az bir danışman veya işbirliği ofisi paydaşı gerekir.");
   const participantExternalOfficeRate = input.participants.filter((item) => item.type === "externalOffice").reduce((sum, item) => sum + rounded(item.rate), 0);
   const externalOfficeRate = input.externalOfficeRate === undefined ? participantExternalOfficeRate : rounded(input.externalOfficeRate);
-  const consultantRateTotal = input.participants.filter((item) => item.type === "consultant").reduce((sum, item) => sum + rounded(item.rate), 0);
-  const participantRateTotal = consultantRateTotal + externalOfficeRate;
-  if (participantRateTotal !== 100) throw new Error("Danışman ve dış ofis pay oranları toplamı %100 olmalıdır.");
-  const changedRate = consultantRateTotal !== settings.defaultConsultantRate || externalOfficeRate !== 0;
-  if (changedRate && (!input.managerActor?.trim() || !input.overrideReason?.trim())) throw new Error("Varsayılan paylaşım dışındaki çok paydaşlı işlem için broker manager ve gerekçe zorunludur.");
   const consultantParticipants = input.participants.filter((item) => item.type === "consultant");
+  const consultantRateTotal = consultantParticipants.reduce((sum, item) => sum + rounded(item.rate), 0);
+  const participantRateTotal = consultantRateTotal + externalOfficeRate;
+  if (participantRateTotal !== 100) throw new Error("Danışman havuzu ve dış ofis pay oranları toplamı %100 olmalıdır.");
+  const consultantRates = consultantParticipants.map((item) => rounded(item.rate));
+  const unequalConsultantSplit = consultantRates.length > 1 && new Set(consultantRates).size > 1;
+  const changedRate = externalOfficeRate > 0 || (externalOfficeRate === 0 && consultantRateTotal !== 100) || unequalConsultantSplit;
+  if (changedRate && (!input.managerActor?.trim() || !input.overrideReason?.trim())) throw new Error("Dış ofisli veya varsayılan dağılımdan farklı işlem için broker manager ve gerekçe zorunludur.");
   if (!consultantParticipants.length) throw new Error("İşlemde en az bir danışman bulunmalıdır.");
-  const participants = input.participants.map((item) => ({ ...item, id: nextId(), code: item.code.trim(), name: item.name.trim(), rate: rounded(item.rate), share: Math.round(netServiceFee * rounded(item.rate) / 100) }));
+  const participants = input.participants.map((item) => {
+    const share = Math.round(netServiceFee * rounded(item.rate) / 100);
+    const consultantPayout = item.type === "consultant" ? Math.round(share * settings.defaultConsultantRate / 100) : 0;
+    const globalOfficeShare = item.type === "consultant" ? share - consultantPayout : 0;
+    return { ...item, id: nextId(), code: item.code.trim(), name: item.name.trim(), rate: rounded(item.rate), share, consultantPayout, globalOfficeShare };
+  });
   if (participants.filter((item) => item.type === "externalOffice").reduce((sum, item) => sum + item.rate, 0) !== externalOfficeRate) throw new Error("Dış ofis oranı katılımcı kayıtlarıyla eşleşmelidir.");
-  const consultantShare = participants.filter((item) => item.type === "consultant").reduce((sum, item) => sum + item.share, 0);
+  const consultantShare = participants.filter((item) => item.type === "consultant").reduce((sum, item) => sum + item.consultantPayout, 0);
   const externalOfficeShare = participants.filter((item) => item.type === "externalOffice").reduce((sum, item) => sum + item.share, 0);
+  const globalOfficeShare = participants.reduce((sum, item) => sum + item.globalOfficeShare, 0);
   return {
     schema: MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA,
     id: nextId(),
@@ -450,7 +461,7 @@ export function createMultiPartyOfficeContribution(input: {
     declaredBy: input.declaredBy.trim(),
     collectionStatus: "declared",
     participants,
-    global1881Share: netServiceFee - externalOfficeShare,
+    global1881Share: globalOfficeShare,
     externalOfficeShare,
     consultantShare,
     officeShareTransfers: [],
@@ -460,10 +471,10 @@ export function createMultiPartyOfficeContribution(input: {
 
 export function parseMultiPartyOfficeContribution(record: OfflineRecord): MultiPartyOfficeContribution | null {
   const raw = parseJson(record);
-  if (!raw || raw.schema !== MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA || typeof raw.id !== "string" || typeof raw.sourceTransactionNo !== "string" || !isDate(raw.occurredOn) || typeof raw.collectionReference !== "string" || typeof raw.declaredBy !== "string" || !Array.isArray(raw.participants)) return null;
+  if (!raw || (raw.schema !== MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA && raw.schema !== LEGACY_MULTI_PARTY_OFFICE_CONTRIBUTION_SCHEMA) || typeof raw.id !== "string" || typeof raw.sourceTransactionNo !== "string" || !isDate(raw.occurredOn) || typeof raw.collectionReference !== "string" || typeof raw.declaredBy !== "string" || !Array.isArray(raw.participants)) return null;
   const participants = raw.participants.flatMap((item) => {
     const value = item as Partial<MultiPartyCommissionParticipant>;
-    return (value.type === "consultant" || value.type === "externalOffice") && (value.side === "buyer" || value.side === "seller" || value.side === "shared") && typeof value.id === "string" && typeof value.code === "string" && typeof value.name === "string" && Number.isFinite(Number(value.rate)) && Number.isFinite(Number(value.share)) ? [{ id: value.id, type: value.type, side: value.side, code: value.code, name: value.name, rate: rounded(value.rate), share: rounded(value.share) }] : [];
+    return (value.type === "consultant" || value.type === "externalOffice") && (value.side === "buyer" || value.side === "seller" || value.side === "shared") && typeof value.id === "string" && typeof value.code === "string" && typeof value.name === "string" && Number.isFinite(Number(value.rate)) && Number.isFinite(Number(value.share)) ? [{ id: value.id, type: value.type, side: value.side, code: value.code, name: value.name, rate: rounded(value.rate), share: rounded(value.share), consultantPayout: Number.isFinite(Number(value.consultantPayout)) ? rounded(value.consultantPayout) : (value.type === "consultant" ? rounded(value.share) : 0), globalOfficeShare: Number.isFinite(Number(value.globalOfficeShare)) ? rounded(value.globalOfficeShare) : 0 }] : [];
   });
   if (!participants.length || participants.reduce((sum, item) => sum + item.share, 0) !== rounded(raw.netServiceFee)) return null;
   if (raw.collectionChannel !== "systemCash" && raw.collectionChannel !== "systemBank" && raw.collectionChannel !== "systemCard" && raw.collectionChannel !== "externalCash") return null;

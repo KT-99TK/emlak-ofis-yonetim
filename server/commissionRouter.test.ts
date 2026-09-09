@@ -21,9 +21,9 @@ describe("central commission module", () => {
   });
 
   it("keeps the Global 1881 default and requires justification for deviations", () => {
-    expect(db).toContain("consultantRate !== 60");
+    expect(db).toContain("externalOfficeRate > 0");
     expect(db).toContain("Dış ofis paylaşımı için broker manager ve gerekçe zorunludur.");
-    expect(page).toContain("%60 danışman / %40 Global 1881 varsayılanı");
+    expect(page).toContain("Sistem ara havuzları, danışman paylarını ve Global 1881 kasa payını otomatik hesaplar");
     expect(page).toContain("totalRate !== 100");
     expect(page).toContain("İndirim (opsiyonel)");
     expect(page).toContain("Tahsilat ekle");

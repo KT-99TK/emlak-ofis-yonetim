@@ -162,6 +162,27 @@
       "when": 1788945024206,
       "tag": "0022_even_senator_kelly",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1788947626549,
+      "tag": "0023_mushy_electro",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1788948374897,
+      "tag": "0024_burly_darkhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1788948975774,
+      "tag": "0025_tricky_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }
