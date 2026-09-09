@@ -29,4 +29,21 @@ describe("commission scenarios", () => {
     expect(result.consultantTotal).toBe(30000);
     expect(result.globalOfficeTotal).toBe(20000);
   });
+
+  it("applies a 70/30 agreement profile to a single consultant", () => {
+    const result = calculateCommissionScenario({ netCommission: 100000, scenario: "singleConsultant", consultantRate: 70, officeRate: 30 });
+    expect(result.consultantTotal).toBe(70000);
+    expect(result.globalOfficeTotal).toBe(30000);
+  });
+
+  it("applies an 80/20 agreement profile to an external-office Global pool", () => {
+    const result = calculateCommissionScenario({ netCommission: 100000, scenario: "externalOfficeSingleConsultant", consultantRate: 80, officeRate: 20 });
+    expect(result.externalOfficeShare).toBe(50000);
+    expect(result.consultantTotal).toBe(40000);
+    expect(result.globalOfficeTotal).toBe(10000);
+  });
+
+  it("rejects agreement rates that do not total 100", () => {
+    expect(() => calculateCommissionScenario({ netCommission: 100000, scenario: "singleConsultant", consultantRate: 70, officeRate: 25 })).toThrow("%100");
+  });
 });

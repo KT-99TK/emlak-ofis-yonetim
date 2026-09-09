@@ -31,8 +31,9 @@ export default function OnlineCommissions() {
   const [message, setMessage] = useState("");
   const [agreementProfileId, setAgreementProfileId] = useState("");
   const agreementProfiles = trpc.team.agreementProfiles.useQuery(undefined, { enabled: user?.role === "admin", retry: false });
+  const selectedAgreementProfile = agreementProfiles.data?.find(profile => String(profile.id) === agreementProfileId);
   const [scenario, setScenario] = useState<CommissionScenario>("consultantPortfolioTwoSided");
-  const scenarioResult = useMemo(() => amount(fee) > 0 ? calculateCommissionScenario({ netCommission: Math.max(0, amount(fee) - amount(discount)), scenario, buyerName: buyer.name, sellerName: seller.name, consultantName: buyer.name, portfolioOfficeName: "Global 1881", externalOfficeName: external.name }) : null, [fee, discount, scenario, buyer.name, seller.name, external.name]);
+  const scenarioResult = useMemo(() => amount(fee) > 0 ? calculateCommissionScenario({ netCommission: Math.max(0, amount(fee) - amount(discount)), scenario, buyerName: buyer.name, sellerName: seller.name, consultantName: buyer.name, portfolioOfficeName: "Global 1881", externalOfficeName: external.name, consultantRate: Number(selectedAgreementProfile?.consultantSharePercent ?? 60), officeRate: Number(selectedAgreementProfile?.officeSharePercent ?? 40) }) : null, [fee, discount, scenario, buyer.name, seller.name, external.name, selectedAgreementProfile?.consultantSharePercent, selectedAgreementProfile?.officeSharePercent]);
   const scenarioRates = scenario === "consultantPortfolioTwoSided" ? { buyer: 50, seller: 50, external: 0 } : scenario === "officePortfolioTwoSided" ? { buyer: 25, seller: 25, external: 50 } : scenario === "externalOfficeSingleConsultant" ? { buyer: 50, seller: 0, external: 50 } : { buyer: 100, seller: 0, external: 0 };
   const participants = useMemo(() => [
     scenarioRates.buyer > 0 && buyer.code.trim() && buyer.name.trim() ? { participantType: "consultant" as const, side: "buyer" as const, participantCode: buyer.code, participantName: buyer.name, rate: scenarioRates.buyer } : null,
