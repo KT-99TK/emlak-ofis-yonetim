@@ -2580,6 +2580,7 @@ export async function createCentralCommissionTransaction(input: {
   transactionNo: string;
   contractId?: number;
   netServiceFee: string;
+  discountAmount?: string;
   vatAmount?: string;
   collectionReference: string;
   overrideReason?: string;
@@ -2587,9 +2588,11 @@ export async function createCentralCommissionTransaction(input: {
 }, actorUserId: number, isManager: boolean) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
-  const netServiceFee = Number(input.netServiceFee);
+  const grossNetServiceFee = Number(input.netServiceFee);
+  const discountAmount = Number(input.discountAmount ?? "0");
+  const netServiceFee = grossNetServiceFee - discountAmount;
   const vatAmount = Number(input.vatAmount ?? "0");
-  if (!Number.isFinite(netServiceFee) || netServiceFee <= 0 || !input.transactionNo.trim() || !input.collectionReference.trim() || !input.participants.length) throw new Error("İşlem no, KDV hariç hizmet bedeli, tahsilat referansı ve en az bir paydaş zorunludur.");
+  if (!Number.isFinite(grossNetServiceFee) || grossNetServiceFee <= 0 || !Number.isFinite(discountAmount) || discountAmount < 0 || discountAmount >= grossNetServiceFee || !input.transactionNo.trim() || !input.collectionReference.trim() || !input.participants.length) throw new Error("İşlem no, KDV hariç hizmet bedeli, geçerli indirim, tahsilat referansı ve en az bir paydaş zorunludur.");
   const rateTotal = input.participants.reduce((sum, participant) => sum + Number(participant.rate), 0);
   const consultantRate = input.participants.filter((participant) => participant.participantType === "consultant").reduce((sum, participant) => sum + Number(participant.rate), 0);
   const externalOfficeRate = input.participants.filter((participant) => participant.participantType === "externalOffice").reduce((sum, participant) => sum + Number(participant.rate), 0);
@@ -2605,11 +2608,11 @@ export async function createCentralCommissionTransaction(input: {
   const consultantShare = participantRows.filter((participant) => participant.participantType === "consultant").reduce((sum, participant) => sum + participant.share, 0);
   const externalOfficeShare = participantRows.filter((participant) => participant.participantType === "externalOffice").reduce((sum, participant) => sum + participant.share, 0);
   const global1881Share = netServiceFee - externalOfficeShare;
-  const transactionResult = await db.insert(commissionTransactions).values({ transactionNo: input.transactionNo.trim(), contractId: input.contractId, netServiceFee: netServiceFee.toFixed(2), vatAmount: vatAmount.toFixed(2), consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), status: "declared", collectionReference: input.collectionReference.trim(), declaredByUserId: actorUserId, overrideReason: input.overrideReason?.trim() || null });
+  const transactionResult = await db.insert(commissionTransactions).values({ transactionNo: input.transactionNo.trim(), contractId: input.contractId, netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), status: "declared", collectionReference: input.collectionReference.trim(), declaredByUserId: actorUserId, overrideReason: input.overrideReason?.trim() || null });
   const transactionId = Number(transactionResult[0].insertId);
   await db.insert(commissionParticipants).values(participantRows.map((participant) => ({ commissionTransactionId: transactionId, participantType: participant.participantType, side: participant.side, consultantUserId: participant.consultantUserId, participantCode: participant.participantCode.trim(), participantName: participant.participantName.trim(), externalOfficeName: participant.externalOfficeName?.trim() || null, rate: participant.rate.toFixed(4), share: participant.share.toFixed(2) })));
   await db.insert(auditLogs).values({ actorUserId, action: "commission-declared", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon kaydı oluşturuldu: ${input.transactionNo.trim()} · ${participantRows.length} paydaş · danışman ${consultantShare.toFixed(2)} · Global 1881 ${global1881Share.toFixed(2)} · dış ofis ${externalOfficeShare.toFixed(2)}` });
-  return { id: transactionId, transactionNo: input.transactionNo.trim(), netServiceFee: netServiceFee.toFixed(2), vatAmount: vatAmount.toFixed(2), consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), status: "declared" as const, participants: participantRows };
+  return { id: transactionId, transactionNo: input.transactionNo.trim(), netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), status: "declared" as const, participants: participantRows };
 }
 
 export async function listCentralCommissionTransactions(actorUserId: number, isManager: boolean, permittedUserIds: number[]) {
@@ -2629,4 +2632,34 @@ export async function verifyCentralCommissionTransaction(transactionId: number, 
   await db.update(commissionTransactions).set({ status: "managerVerified", verifiedByUserId: actorUserId, verifiedAt: new Date(), verificationNote: note.trim() || null }).where(eq(commissionTransactions.id, transactionId));
   await db.insert(auditLogs).values({ actorUserId, action: "commission-verified", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon kaydı manager tarafından doğrulandı${note.trim() ? `: ${note.trim()}` : ""}` });
   return { ...transaction[0], status: "managerVerified" as const, verifiedByUserId: actorUserId, verificationNote: note.trim() || null };
+}
+
+
+export async function recordCentralCommissionCollection(transactionId: number, amount: string, reference: string, actorUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
+  const value = Number(amount);
+  if (!Number.isFinite(value) || value <= 0 || !reference.trim()) throw new Error("Geçerli tahsilat tutarı ve referans zorunludur.");
+  const rows = await db.select().from(commissionTransactions).where(eq(commissionTransactions.id, transactionId)).limit(1);
+  const transaction = rows[0];
+  if (!transaction) throw new Error("Komisyon işlemi bulunamadı.");
+  if (["cancelled", "settled"].includes(transaction.status)) throw new Error("İptal edilmiş veya kapanmış komisyona yeni tahsilat eklenemez.");
+  const collected = Number(transaction.collectedAmount) + value;
+  if (collected > Number(transaction.netServiceFee) + 0.005) throw new Error("Tahsilat toplamı net hizmet bedelini aşamaz.");
+  const nextStatus = collected + 0.005 >= Number(transaction.netServiceFee) ? "settled" : "partiallySettled";
+  await db.update(commissionTransactions).set({ collectedAmount: collected.toFixed(2), status: nextStatus, collectionReference: `${transaction.collectionReference}; ${reference.trim()}`, settledAt: nextStatus === "settled" ? new Date() : null }).where(eq(commissionTransactions.id, transactionId));
+  await db.insert(auditLogs).values({ actorUserId, action: "commission-collected", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon tahsilatı kaydedildi: ${value.toFixed(2)} · ${reference.trim()}` });
+  return { transactionId, collectedAmount: collected.toFixed(2), remainingAmount: Math.max(0, Number(transaction.netServiceFee) - collected).toFixed(2), status: nextStatus };
+}
+
+export async function cancelCentralCommissionTransaction(transactionId: number, reason: string, actorUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veritabanı bağlantısı kullanılamıyor.");
+  if (!reason.trim()) throw new Error("İptal nedeni zorunludur.");
+  const rows = await db.select().from(commissionTransactions).where(eq(commissionTransactions.id, transactionId)).limit(1);
+  if (!rows[0]) throw new Error("Komisyon işlemi bulunamadı.");
+  if (Number(rows[0].collectedAmount) > 0) throw new Error("Tahsilat alınmış komisyon işleminde iptal için ayrıca iade/mahsup süreci gerekir.");
+  await db.update(commissionTransactions).set({ status: "cancelled", cancelReason: reason.trim() }).where(eq(commissionTransactions.id, transactionId));
+  await db.insert(auditLogs).values({ actorUserId, action: "commission-cancelled", entityType: "commissionTransaction", entityId: transactionId, summary: `Komisyon işlemi iptal edildi: ${reason.trim()}` });
+  return { transactionId, status: "cancelled" as const, cancelReason: reason.trim() };
 }

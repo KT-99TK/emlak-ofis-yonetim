@@ -16,6 +16,8 @@ describe("central commission module", () => {
     expect(router).toContain("verify: adminProcedure");
     expect(db).toContain("createCentralCommissionTransaction");
     expect(db).toContain("verifyCentralCommissionTransaction");
+    expect(db).toContain("recordCentralCommissionCollection");
+    expect(db).toContain("cancelCentralCommissionTransaction");
   });
 
   it("keeps the Global 1881 default and requires justification for deviations", () => {
@@ -23,5 +25,8 @@ describe("central commission module", () => {
     expect(db).toContain("Dış ofis paylaşımı için broker manager ve gerekçe zorunludur.");
     expect(page).toContain("%60 danışman / %40 Global 1881 varsayılanı");
     expect(page).toContain("totalRate !== 100");
+    expect(page).toContain("İndirim (opsiyonel)");
+    expect(page).toContain("Tahsilat ekle");
+    expect(page).toContain("İptal et");
   });
 });

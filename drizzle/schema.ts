@@ -285,7 +285,9 @@ export const commissionTransactions = mysqlTable("commissionTransactions", {
   transactionNo: varchar("transactionNo", { length: 80 }).notNull().unique(),
   contractId: int("contractId"),
   netServiceFee: decimal("netServiceFee", { precision: 14, scale: 2 }).notNull(),
+  discountAmount: decimal("discountAmount", { precision: 14, scale: 2 }).default("0").notNull(),
   vatAmount: decimal("vatAmount", { precision: 14, scale: 2 }).default("0").notNull(),
+  collectedAmount: decimal("collectedAmount", { precision: 14, scale: 2 }).default("0").notNull(),
   consultantShare: decimal("consultantShare", { precision: 14, scale: 2 }).notNull(),
   global1881Share: decimal("global1881Share", { precision: 14, scale: 2 }).notNull(),
   externalOfficeShare: decimal("externalOfficeShare", { precision: 14, scale: 2 }).default("0").notNull(),
@@ -296,6 +298,8 @@ export const commissionTransactions = mysqlTable("commissionTransactions", {
   verifiedAt: timestamp("verifiedAt"),
   verificationNote: text("verificationNote"),
   overrideReason: text("overrideReason"),
+  cancelReason: text("cancelReason"),
+  settledAt: timestamp("settledAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

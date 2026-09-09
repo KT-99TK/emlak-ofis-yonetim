@@ -69,6 +69,8 @@ import {
   createCentralCommissionTransaction,
   listCentralCommissionTransactions,
   verifyCentralCommissionTransaction,
+  recordCentralCommissionCollection,
+  cancelCentralCommissionTransaction,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -795,6 +797,7 @@ export const appRouter = router({
       transactionNo: z.string().min(2).max(80),
       contractId: z.number().int().positive().optional(),
       netServiceFee: z.string().regex(/^\d+(\.\d{1,2})?$/),
+      discountAmount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
       vatAmount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
       collectionReference: z.string().min(2).max(180),
       overrideReason: z.string().max(1000).optional(),
@@ -812,6 +815,8 @@ export const appRouter = router({
       return createCentralCommissionTransaction(input, ctx.user.id, scope.isManager);
     }),
     verify: adminProcedure.input(z.object({ transactionId: z.number().int().positive(), note: z.string().max(1000).optional() })).mutation(({ ctx, input }) => verifyCentralCommissionTransaction(input.transactionId, ctx.user.id, input.note ?? "")),
+    collect: protectedProcedure.input(z.object({ transactionId: z.number().int().positive(), amount: z.string().regex(/^\d+(\.\d{1,2})?$/), reference: z.string().min(2).max(180) })).mutation(({ ctx, input }) => recordCentralCommissionCollection(input.transactionId, input.amount, input.reference, ctx.user.id)),
+    cancel: adminProcedure.input(z.object({ transactionId: z.number().int().positive(), reason: z.string().min(8).max(1000) })).mutation(({ ctx, input }) => cancelCentralCommissionTransaction(input.transactionId, input.reason, ctx.user.id)),
   }),
   ledger: router({
     list: protectedProcedure.query(async ({ ctx }) => {
