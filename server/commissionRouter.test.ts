@@ -29,6 +29,7 @@ describe("central commission module", () => {
     expect(page).toContain("Tahsilat ekle");
     expect(page).toContain("İptal et");
     expect(db).toContain('externalOfficeRole !== "counterpartyPortfolio"');
-    expect(page).toContain("Global havuzdaki her danışman payı %60 danışmana, %40 Global kasaya gider");
+    expect(page).toContain("Manager özel oranı açarsa paydaş oranları işlem bazında snapshot");
+    expect(page).toContain("Toplam oran tam olarak %100 olmalı");
   });
 });

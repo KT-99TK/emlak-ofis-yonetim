@@ -78,3 +78,24 @@ describe("departing consultant rights", () => {
     });
   });
 });
+
+
+describe("değişken ofislerarası oranlar", () => {
+  it("üç paydaşı 33,33/33,33/33,34 olarak hesaplar ve toplamı korur", () => {
+    const result = calculateCommissionScenario({
+      netCommission: 100000,
+      scenario: "officePortfolioTwoSided",
+      participantRates: { buyer: 33.33, seller: 33.33, external: 33.34 },
+    });
+    expect(result.participants.map(participant => participant.baseShare)).toEqual([33340, 33330, 33330]);
+    expect(result.participants.reduce((sum, participant) => sum + participant.baseShare, 0)).toBe(100000);
+  });
+
+  it("toplamı %100 olmayan paydaş oranını reddeder", () => {
+    expect(() => calculateCommissionScenario({
+      netCommission: 100000,
+      scenario: "consultantPortfolioTwoSided",
+      participantRates: { buyer: 33, seller: 33, external: 33 },
+    })).toThrow("%100");
+  });
+});

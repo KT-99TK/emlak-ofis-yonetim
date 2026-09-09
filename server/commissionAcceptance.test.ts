@@ -48,8 +48,8 @@ describe("100.000 TL komisyon kabul matrisi", () => {
     expect(db).toContain("fulfillingConsultantPayout");
     expect(db).toContain("rightsOfficePayout");
     expect(db).toContain("corporateOfficeNoPayout");
-    expect(page).toContain("dış ofis senaryosunda dış ofis %50");
-    expect(page).toContain("Global havuzdaki her danışman payı");
+    expect(page).toContain("Manager özel oranı açarsa paydaş oranları işlem bazında snapshot");
+    expect(page).toContain("Toplam oran tam olarak %100 olmalı");
   });
 });
 
