@@ -2939,7 +2939,38 @@ export async function createContractFormTemplate(input: {
       sortOrder: field.sortOrder,
     });
   }
+  await db.insert(auditLogs).values({
+    actorUserId: input.createdByUserId,
+    action: "contract_form_template_created",
+    entityType: "contractFormTemplates",
+    entityId: created.id,
+    summary: `${input.formType} form şablonu v${version} taslak olarak oluşturuldu.`,
+  });
   return getContractFormBundle(created.id);
+}
+
+export async function setContractFormTemplateStatus(input: {
+  templateId: number;
+  status: "draft" | "review" | "published" | "archived";
+  actorUserId: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const rows = await db
+    .select({ title: contractFormTemplates.title })
+    .from(contractFormTemplates)
+    .where(eq(contractFormTemplates.id, input.templateId))
+    .limit(1);
+  if (!rows[0]) throw new Error("Form şablonu bulunamadı.");
+  await db.update(contractFormTemplates).set({ status: input.status }).where(eq(contractFormTemplates.id, input.templateId));
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "contract_form_template_status_changed",
+    entityType: "contractFormTemplates",
+    entityId: input.templateId,
+    summary: `${rows[0].title} şablonunun durumu ${input.status} olarak değiştirildi.`,
+  });
+  return getContractFormBundle(input.templateId);
 }
 
 export async function addContractFormSection(input: {
@@ -3017,10 +3048,23 @@ export async function setContractFormClauseStatus(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const clauseRows = await db
+    .select({ templateId: contractFormClauses.templateId, title: contractFormClauses.title })
+    .from(contractFormClauses)
+    .where(eq(contractFormClauses.id, input.clauseId))
+    .limit(1);
+  if (!clauseRows[0]) throw new Error("Ek madde bulunamadı.");
   await db
     .update(contractFormClauses)
     .set({ status: input.status })
     .where(eq(contractFormClauses.id, input.clauseId));
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "contract_form_clause_status_changed",
+    entityType: "contractFormClauses",
+    entityId: input.clauseId,
+    summary: `${clauseRows[0].title} ek maddesi ${input.status} olarak işaretlendi.`,
+  });
   return db
     .select()
     .from(contractFormClauses)

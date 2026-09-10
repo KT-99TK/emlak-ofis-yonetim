@@ -80,6 +80,7 @@ import {
   listContractFormTemplates,
   getContractFormBundle,
   createContractFormTemplate,
+  setContractFormTemplateStatus,
   addContractFormSection,
   addContractFormField,
   addContractFormClause,
@@ -486,6 +487,9 @@ export const appRouter = router({
       create: adminProcedure
         .input(z.object({ formType: z.enum(["sale_closing", "land_share"]), title: z.string().min(3).max(200), legalReviewNote: z.string().max(2000).optional() }))
         .mutation(({ ctx, input }) => createContractFormTemplate({ ...input, createdByUserId: ctx.user.id })),
+      setStatus: adminProcedure
+        .input(z.object({ templateId: z.number().int().positive(), status: z.enum(["draft", "review", "published", "archived"]) }))
+        .mutation(({ ctx, input }) => setContractFormTemplateStatus({ ...input, actorUserId: ctx.user.id })),
       addSection: adminProcedure
         .input(z.object({ templateId: z.number().int().positive(), sectionKey: z.string().min(2).max(80), sectionType: z.enum(["general", "technical", "optional_clauses"]), title: z.string().min(2).max(200), contentTemplate: z.string().max(20000).optional(), sortOrder: z.number().int().min(0).optional() }))
         .mutation(({ input }) => addContractFormSection(input)),
