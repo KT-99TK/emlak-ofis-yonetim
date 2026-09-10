@@ -184,3 +184,15 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Merkezi veritabanı ve yüklenmiş dosyaların erişilebilir yedek kapsamını kontrol et; mevcut güvenli yöntemle alınabilenleri ayrı veri arşivine koy, erişilemiyorsa açıkça raporla. Kullanıcı yükleme/kanıt dosyaları arşive alındı; merkezi MySQL dumpı bağlantı/transaction kısıtı nedeniyle üretilemedi ve restore notunda açıkça belirtildi.
 - [x] Arşivleri SHA-256 bütünlük manifesti, dosya listesi ve geri yükleme rehberiyle doğrula; ZIP’i kullanıcıya teslim et ve mevcut checkpoint’i referansla. AES-256 ZIP açma doğrulaması geçti; SHA-256: `4c048e4bf9184e29a84b71bbdddfe2567b6ff7822b08672b28806fac488bf712`.
 - [x] Nihai ZIP’i kullanıcının mevcut gizli anahtarıyla AES-256 şifrele; anahtar sohbetten alınmayacak, arşiv açma testi yapılacak, anahtar dosyaya veya manifest’e yazılmayacak. `global1881-backup-20260909T205948Z-AES256.zip` üretildi ve aynı anahtarla 499 dosya açma testi geçti.
+
+## 6. Satış kapama ve kat karşılığı doldurulabilir formları
+
+- [ ] Satış kapama formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla.
+- [ ] Kat karşılığı formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla.
+- [ ] Satıcı ve alıcı için ayrı ayrı isteğe bağlı ek madde girişleri oluştur; madde sahibi, başlık, metin, sıra ve aktif/pasif durumunu destekle.
+- [ ] Doldurulan isteğe bağlı maddeleri sözleşme önizlemesine ve çıktısına yalnızca aktif olduklarında dahil et; boş maddeleri çıktıda gösterme.
+- [ ] Yönetici onayı, değişiklik geçmişi ve hukuki metinlerin taslak/revizyon durumunu koruyacak doğrulama akışını değerlendir.
+- [ ] Yeni formlar için backend, UI, çıktı ve regresyon testlerini yaz; kullanıcı metinleri geldikten sonra gerçek maddeleri sisteme aktar.
+- [x] Satış Kapama ve Kat Karşılığı form altyapısını hukuki metinlerden bağımsız olarak başlat: form türü, bölüm sırası, doldurulabilir alan grupları, teknik şartname bölümü ve taslak/revizyon durumu. Şablon, bölüm, alan ve revizyon tabloları; tRPC işlemleri ve manager ekranı eklendi.
+- [x] Taraf bazlı isteğe bağlı ek maddeler için satıcı/alıcı/arsa sahibi/yüklenici ayrımını, başlık-metin-sıra-aktiflik-onay alanlarını ve çıktı sıralamasını tasarla. Taslak/aktif/arşiv durumu, taraf kapsamı, sıralama ve yalnız aktif maddeleri çıktı adayına alma kuralı uygulandı.
+- [ ] Örnek sözleşme metinleri geldiğinde gerçek maddeleri bu altyapıya bağla; mevcut metinler gelmeden hukuki madde veya örnek veri uydurma.

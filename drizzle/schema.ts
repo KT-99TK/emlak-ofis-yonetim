@@ -203,6 +203,107 @@ export const contracts = mysqlTable("contracts", {
 });
 
 /** Dosya baytları güvenli obje depolamada kalır; merkezi veri tabanı yalnız erişim, bütünlük ve audit metadata’sını taşır. */
+/** Standart metinlerden bağımsız form şablonları; gerçek hukuki maddeler kullanıcı metni geldikten sonra eklenir. */
+export const contractFormTemplates = mysqlTable("contractFormTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  formType: mysqlEnum("formType", ["sale_closing", "land_share"]).notNull(),
+  version: int("version").default(1).notNull(),
+  status: mysqlEnum("status", ["draft", "review", "published", "archived"])
+    .default("draft")
+    .notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  legalReviewNote: text("legalReviewNote"),
+  createdByUserId: int("createdByUserId").notNull(),
+  approvedByUserId: int("approvedByUserId"),
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => ({
+  formVersionUnique: uniqueIndex("contract_form_templates_type_version_unique").on(
+    table.formType,
+    table.version,
+  ),
+}));
+
+export const contractFormSections = mysqlTable("contractFormSections", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull(),
+  sectionKey: varchar("sectionKey", { length: 80 }).notNull(),
+  sectionType: mysqlEnum("sectionType", ["general", "technical", "optional_clauses"]).notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  contentTemplate: text("contentTemplate"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  active: int("active").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => ({
+  templateSectionKeyUnique: uniqueIndex("contract_form_sections_template_key_unique").on(
+    table.templateId,
+    table.sectionKey,
+  ),
+}));
+
+export const contractFormFields = mysqlTable("contractFormFields", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull(),
+  sectionId: int("sectionId"),
+  fieldKey: varchar("fieldKey", { length: 100 }).notNull(),
+  label: varchar("label", { length: 200 }).notNull(),
+  fieldType: mysqlEnum("fieldType", ["text", "multiline", "date", "currency", "number", "checkbox", "select"]).notNull(),
+  partyScope: mysqlEnum("partyScope", ["shared", "seller", "buyer", "landowner", "contractor"])
+    .default("shared")
+    .notNull(),
+  optionsJson: text("optionsJson"),
+  required: int("required").default(0).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  active: int("active").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => ({
+  templateFieldKeyUnique: uniqueIndex("contract_form_fields_template_key_unique").on(
+    table.templateId,
+    table.fieldKey,
+  ),
+}));
+
+export const contractFormClauses = mysqlTable("contractFormClauses", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull(),
+  partyScope: mysqlEnum("partyScope", ["shared", "seller", "buyer", "landowner", "contractor"]).notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  bodyTemplate: text("bodyTemplate").notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  status: mysqlEnum("status", ["draft", "active", "archived"]).default("draft").notNull(),
+  sourceNote: varchar("sourceNote", { length: 500 }),
+  createdByUserId: int("createdByUserId").notNull(),
+  approvedByUserId: int("approvedByUserId"),
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const contractFormInstances = mysqlTable("contractFormInstances", {
+  id: int("id").autoincrement().primaryKey(),
+  contractId: int("contractId").notNull(),
+  templateId: int("templateId").notNull(),
+  revision: int("revision").default(1).notNull(),
+  fieldValuesJson: text("fieldValuesJson").notNull(),
+  selectedClauseIdsJson: text("selectedClauseIdsJson").notNull(),
+  status: mysqlEnum("status", ["draft", "review", "approved", "signed", "archived"])
+    .default("draft")
+    .notNull(),
+  createdByUserId: int("createdByUserId").notNull(),
+  approvedByUserId: int("approvedByUserId"),
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => ({
+  contractRevisionUnique: uniqueIndex("contract_form_instances_contract_revision_unique").on(
+    table.contractId,
+    table.revision,
+  ),
+}));
+
 export const contractDocuments = mysqlTable("contractDocuments", {
   id: int("id").autoincrement().primaryKey(),
   contractId: int("contractId"),

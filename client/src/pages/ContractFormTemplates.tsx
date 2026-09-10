@@ -1,0 +1,71 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { FileText, Plus, RefreshCw } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
+const typeLabels = { sale_closing: "Satış Kapama", land_share: "Kat Karşılığı" } as const;
+const partyLabels = { shared: "Ortak", seller: "Satıcı", buyer: "Alıcı", landowner: "Arsa sahibi", contractor: "Yüklenici" } as const;
+
+export default function ContractFormTemplates() {
+  const utils = trpc.useUtils();
+  const templates = trpc.contracts.formTemplates.list.useQuery({});
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const bundle = trpc.contracts.formTemplates.get.useQuery(
+    { templateId: selectedId ?? 0 },
+    { enabled: selectedId !== null },
+  );
+  const [formType, setFormType] = useState<"sale_closing" | "land_share">("sale_closing");
+  const [title, setTitle] = useState("");
+  const [partyScope, setPartyScope] = useState<keyof typeof partyLabels>("shared");
+  const [clauseTitle, setClauseTitle] = useState("");
+  const [clauseBody, setClauseBody] = useState("");
+
+  const createTemplate = trpc.contracts.formTemplates.create.useMutation({
+    onSuccess: (created) => {
+      setTitle("");
+      void templates.refetch();
+      if (created?.id) setSelectedId(created.id);
+    },
+  });
+  const addClause = trpc.contracts.formTemplates.addClause.useMutation({
+    onSuccess: () => {
+      setClauseTitle("");
+      setClauseBody("");
+      if (selectedId) void utils.contracts.formTemplates.get.invalidate({ templateId: selectedId });
+    },
+  });
+
+  const submitTemplate = () => {
+    if (title.trim().length < 3) return;
+    createTemplate.mutate({ formType, title: title.trim(), legalReviewNote: "Metinler kullanıcı tarafından sağlanacak; yayın öncesi hukuki kontrol gerektirir." });
+  };
+  const submitClause = () => {
+    if (!selectedId || clauseTitle.trim().length < 1 || clauseBody.trim().length < 1) return;
+    addClause.mutate({ templateId: selectedId, partyScope, title: clauseTitle.trim(), bodyTemplate: clauseBody.trim(), status: "draft" });
+  };
+
+  return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
+    <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
+      <div><p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]">Sözleşme form altyapısı</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Satış ve Kat Karşılığı Formları</h1><p className="mt-2 max-w-3xl text-sm text-[#70807c]">Genel sözleşme, teknik şartname ve tarafların isteğe bağlı ek maddeleri için taslak şablonları yönetin. Hukuki metinler kullanıcı tarafından sağlanana kadar bu ekran yalnız altyapı ve taslak kayıtlarını tutar.</p></div>
+      <Button variant="outline" className="rounded-xl bg-white" onClick={() => void templates.refetch()}><RefreshCw className="mr-2 h-4 w-4" /> Yenile</Button>
+    </header>
+    <div className="grid gap-6 xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.2fr)]">
+      <Card className="rounded-2xl border-[#e5e8e3] bg-white/80"><CardHeader><CardTitle className="font-serif text-xl">Yeni taslak şablon</CardTitle></CardHeader><CardContent className="space-y-4">
+        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Form türü</label><Select value={formType} onValueChange={(value) => setFormType(value as typeof formType)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale_closing">Satış Kapama</SelectItem><SelectItem value="land_share">Kat Karşılığı</SelectItem></SelectContent></Select></div>
+        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Şablon başlığı</label><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Örn. Satış Kapama Formu v1" /></div>
+        <Button className="w-full rounded-xl bg-[#173e39] hover:bg-[#20554e]" disabled={title.trim().length < 3 || createTemplate.isPending} onClick={submitTemplate}><Plus className="mr-2 h-4 w-4" /> Taslak şablon oluştur</Button>
+        {createTemplate.error && <p role="alert" className="text-xs text-[#a85745]">{createTemplate.error.message}</p>}
+      </CardContent></Card>
+      <Card className="rounded-2xl border-[#e5e8e3] bg-white/80"><CardHeader><CardTitle className="font-serif text-xl">Kayıtlı şablonlar</CardTitle></CardHeader><CardContent className="space-y-2">{templates.isLoading ? <p className="py-8 text-center text-sm text-[#87938f]">Şablonlar yükleniyor…</p> : !templates.data?.length ? <div className="rounded-xl bg-[#f7f7f4] px-4 py-10 text-center text-sm text-[#87938f]"><FileText className="mx-auto mb-3 h-6 w-6 text-[#bd975d]" />Henüz taslak şablon yok.</div> : templates.data.map((item) => <button key={item.id} type="button" onClick={() => setSelectedId(item.id)} className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition ${selectedId === item.id ? "border-[#7fae9d] bg-[#f0f7f3]" : "border-[#edf0ec] bg-white"}`}><FileText className="h-5 w-5 text-[#4b8878]" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-[#34433f]">{item.title}</span><span className="mt-1 block text-xs text-[#87938f]">{typeLabels[item.formType]} · v{item.version}</span></span><Badge variant="outline">{item.status === "draft" ? "Taslak" : item.status}</Badge></button>)}</CardContent></Card>
+    </div>
+    {selectedId !== null && <Card className="mt-6 rounded-2xl border-[#e5e8e3] bg-white/80"><CardHeader><CardTitle className="font-serif text-xl">{bundle.data?.template.title ?? "Şablon ayrıntıları"}</CardTitle><p className="text-xs text-[#87938f]">Bölümler ve alanlar örnek metin gelmeden boş tutulur. Ek maddeler yayınlanmadan önce manager kontrolünde kalır.</p></CardHeader><CardContent className="grid gap-6 lg:grid-cols-[.9fr_1.1fr]">
+      <div className="space-y-3"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a17b43]">Bölümler</p>{(bundle.data?.sections ?? []).length ? bundle.data?.sections.map((section) => <div key={section.id} className="rounded-xl border border-[#edf0ec] p-3"><p className="text-sm font-semibold text-[#34433f]">{section.title}</p><p className="mt-1 text-xs text-[#87938f]">{section.sectionType} · sıra {section.sortOrder}</p></div>) : <p className="rounded-xl bg-[#f7f7f4] p-4 text-sm text-[#87938f]">Genel sözleşme ve teknik şartname bölümleri metinler geldiğinde eklenecek.</p>}<p className="pt-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#a17b43]">Mevcut alan sayısı: {bundle.data?.fields.length ?? 0}</p></div>
+      <div className="space-y-4"><div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a17b43]">İsteğe bağlı ek madde ekle</p><p className="mt-1 text-xs text-[#87938f]">Satıcı, alıcı, arsa sahibi veya yüklenici özel maddesi taslak olarak kaydedilir; aktif edilmeden çıktıya girmez.</p></div><Select value={partyScope} onValueChange={(value) => setPartyScope(value as typeof partyScope)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Object.entries(partyLabels).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select><Input value={clauseTitle} onChange={(event) => setClauseTitle(event.target.value)} placeholder="Ek madde başlığı" /><Textarea value={clauseBody} onChange={(event) => setClauseBody(event.target.value)} placeholder="Örnek sözleşme metni geldiğinde bu alana girilecek madde metni" className="min-h-32" /><Button className="rounded-xl bg-[#173e39] hover:bg-[#20554e]" disabled={!clauseTitle.trim() || !clauseBody.trim() || addClause.isPending} onClick={submitClause}><Plus className="mr-2 h-4 w-4" /> Taslak ek madde kaydet</Button>{addClause.error && <p role="alert" className="text-xs text-[#a85745]">{addClause.error.message}</p>}<div className="space-y-2 pt-3">{(bundle.data?.clauses ?? []).map((clause) => <div key={clause.id} className="rounded-xl border border-[#edf0ec] p-3"><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold text-[#34433f]">{clause.title}</p><Badge variant="outline">{partyLabels[clause.partyScope]} · {clause.status === "draft" ? "Taslak" : clause.status}</Badge></div><p className="mt-2 whitespace-pre-wrap text-xs text-[#70807c]">{clause.bodyTemplate}</p></div>)}</div></div>
+    </CardContent></Card>}
+  </div>;
+}

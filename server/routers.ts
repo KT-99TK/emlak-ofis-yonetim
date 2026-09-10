@@ -77,6 +77,15 @@ import {
   createPortfolioRightsTransfer,
   listPortfolioRightsTransfers,
   approvePortfolioRightsTransfer,
+  listContractFormTemplates,
+  getContractFormBundle,
+  createContractFormTemplate,
+  addContractFormSection,
+  addContractFormField,
+  addContractFormClause,
+  setContractFormClauseStatus,
+  createContractFormInstance,
+  renderActiveContractFormClauses,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -466,6 +475,35 @@ export const appRouter = router({
       .mutation(({ ctx, input }) =>
         transitionContract(input.id, input.status, ctx.user.id)
       ),
+    formTemplates: router({
+      list: protectedProcedure
+        .input(z.object({ formType: z.enum(["sale_closing", "land_share"]).optional() }).optional())
+        .query(({ input }) => listContractFormTemplates(input?.formType)),
+      get: protectedProcedure
+        .input(z.object({ templateId: z.number().int().positive() }))
+        .query(({ input }) => getContractFormBundle(input.templateId)),
+      create: adminProcedure
+        .input(z.object({ formType: z.enum(["sale_closing", "land_share"]), title: z.string().min(3).max(200), legalReviewNote: z.string().max(2000).optional() }))
+        .mutation(({ ctx, input }) => createContractFormTemplate({ ...input, createdByUserId: ctx.user.id })),
+      addSection: adminProcedure
+        .input(z.object({ templateId: z.number().int().positive(), sectionKey: z.string().min(2).max(80), sectionType: z.enum(["general", "technical", "optional_clauses"]), title: z.string().min(2).max(200), contentTemplate: z.string().max(20000).optional(), sortOrder: z.number().int().min(0).optional() }))
+        .mutation(({ input }) => addContractFormSection(input)),
+      addField: adminProcedure
+        .input(z.object({ templateId: z.number().int().positive(), sectionId: z.number().int().positive().optional(), fieldKey: z.string().min(2).max(100), label: z.string().min(2).max(200), fieldType: z.enum(["text", "multiline", "date", "currency", "number", "checkbox", "select"]), partyScope: z.enum(["shared", "seller", "buyer", "landowner", "contractor"]), optionsJson: z.string().max(10000).optional(), required: z.boolean().optional(), sortOrder: z.number().int().min(0).optional() }))
+        .mutation(({ input }) => addContractFormField(input)),
+      addClause: adminProcedure
+        .input(z.object({ templateId: z.number().int().positive(), partyScope: z.enum(["shared", "seller", "buyer", "landowner", "contractor"]), title: z.string().min(1).max(200), bodyTemplate: z.string().min(1).max(20000), sortOrder: z.number().int().min(0).optional(), status: z.enum(["draft", "active", "archived"]).optional(), sourceNote: z.string().max(500).optional() }))
+        .mutation(({ ctx, input }) => addContractFormClause({ ...input, createdByUserId: ctx.user.id })),
+      setClauseStatus: adminProcedure
+        .input(z.object({ clauseId: z.number().int().positive(), status: z.enum(["draft", "active", "archived"]) }))
+        .mutation(({ ctx, input }) => setContractFormClauseStatus({ ...input, actorUserId: ctx.user.id })),
+      activeClauses: protectedProcedure
+        .input(z.object({ templateId: z.number().int().positive() }))
+        .query(({ input }) => renderActiveContractFormClauses(input.templateId)),
+      createInstance: protectedProcedure
+        .input(z.object({ contractId: z.number().int().positive(), templateId: z.number().int().positive(), fieldValues: z.record(z.string(), z.unknown()), selectedClauseIds: z.array(z.number().int().positive()).max(100), status: z.enum(["draft", "review", "approved", "signed", "archived"]).optional() }))
+        .mutation(({ ctx, input }) => createContractFormInstance({ ...input, createdByUserId: ctx.user.id })),
+    }),
   }),
   documents: router({
     list: protectedProcedure.query(async ({ ctx }) => {

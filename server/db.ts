@@ -28,6 +28,11 @@ import {
   commissionParticipants,
   consultantAgreementProfiles,
   portfolioRightsTransfers,
+  contractFormTemplates,
+  contractFormSections,
+  contractFormFields,
+  contractFormClauses,
+  contractFormInstances,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import {
@@ -44,6 +49,13 @@ import {
   isContractNumberForCode,
   normalizeConsultantCode,
 } from "../shared/consultantCode";
+import {
+  activeClausesForOutput,
+  normalizeClauseDraft,
+  type ContractFormClauseDraft,
+  type ContractFormParty,
+  type ContractFormType,
+} from "../shared/contractForms";
 import {
   assertSafeRevealReason,
   decryptSensitiveValue,
@@ -2824,4 +2836,200 @@ export async function approvePortfolioRightsTransfer(id: number, actorUserId: nu
   }
   await db.insert(auditLogs).values({ actorUserId, action: "portfolio-rights-transfer-approved", entityType: "portfolioRightsTransfer", entityId: id, summary: `Portföy hak transferi onaylandı: ${id} · hak sahibi ${transfer.rightsOwnerType}` });
   return { id, status: "approved" as const };
+}
+
+export async function listContractFormTemplates(formType?: ContractFormType) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(contractFormTemplates)
+    .where(formType ? eq(contractFormTemplates.formType, formType) : undefined)
+    .orderBy(desc(contractFormTemplates.updatedAt));
+}
+
+export async function getContractFormBundle(templateId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const templateRows = await db
+    .select()
+    .from(contractFormTemplates)
+    .where(eq(contractFormTemplates.id, templateId))
+    .limit(1);
+  const template = templateRows[0];
+  if (!template) return null;
+  const [sections, fields, clauses] = await Promise.all([
+    db
+      .select()
+      .from(contractFormSections)
+      .where(and(eq(contractFormSections.templateId, templateId), eq(contractFormSections.active, 1)))
+      .orderBy(contractFormSections.sortOrder),
+    db
+      .select()
+      .from(contractFormFields)
+      .where(and(eq(contractFormFields.templateId, templateId), eq(contractFormFields.active, 1)))
+      .orderBy(contractFormFields.sortOrder),
+    db
+      .select()
+      .from(contractFormClauses)
+      .where(eq(contractFormClauses.templateId, templateId))
+      .orderBy(contractFormClauses.sortOrder),
+  ]);
+  return { template, sections, fields, clauses };
+}
+
+export async function createContractFormTemplate(input: {
+  formType: ContractFormType;
+  title: string;
+  createdByUserId: number;
+  legalReviewNote?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const title = input.title.trim();
+  if (!title) throw new Error("Form şablonu başlığı boş bırakılamaz.");
+  await db.insert(contractFormTemplates).values({
+    formType: input.formType,
+    title,
+    legalReviewNote: input.legalReviewNote?.trim() || null,
+    createdByUserId: input.createdByUserId,
+  });
+  const created = await db
+    .select()
+    .from(contractFormTemplates)
+    .where(and(eq(contractFormTemplates.formType, input.formType), eq(contractFormTemplates.title, title)))
+    .orderBy(desc(contractFormTemplates.id))
+    .limit(1);
+  return created[0] ?? null;
+}
+
+export async function addContractFormSection(input: {
+  templateId: number;
+  sectionKey: string;
+  sectionType: "general" | "technical" | "optional_clauses";
+  title: string;
+  contentTemplate?: string;
+  sortOrder?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  await db.insert(contractFormSections).values({
+    templateId: input.templateId,
+    sectionKey: input.sectionKey.trim(),
+    sectionType: input.sectionType,
+    title: input.title.trim(),
+    contentTemplate: input.contentTemplate?.trim() || null,
+    sortOrder: Math.max(0, Math.trunc(input.sortOrder ?? 0)),
+  });
+  return getContractFormBundle(input.templateId);
+}
+
+export async function addContractFormField(input: {
+  templateId: number;
+  sectionId?: number;
+  fieldKey: string;
+  label: string;
+  fieldType: "text" | "multiline" | "date" | "currency" | "number" | "checkbox" | "select";
+  partyScope: ContractFormParty;
+  optionsJson?: string;
+  required?: boolean;
+  sortOrder?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  await db.insert(contractFormFields).values({
+    templateId: input.templateId,
+    sectionId: input.sectionId,
+    fieldKey: input.fieldKey.trim(),
+    label: input.label.trim(),
+    fieldType: input.fieldType,
+    partyScope: input.partyScope,
+    optionsJson: input.optionsJson?.trim() || null,
+    required: input.required ? 1 : 0,
+    sortOrder: Math.max(0, Math.trunc(input.sortOrder ?? 0)),
+  });
+  return getContractFormBundle(input.templateId);
+}
+
+export async function addContractFormClause(input: ContractFormClauseDraft & {
+  templateId: number;
+  createdByUserId: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const clause = normalizeClauseDraft(input);
+  await db.insert(contractFormClauses).values({
+    templateId: input.templateId,
+    partyScope: clause.partyScope,
+    title: clause.title,
+    bodyTemplate: clause.bodyTemplate,
+    sortOrder: clause.sortOrder,
+    status: clause.status,
+    sourceNote: clause.sourceNote ?? null,
+    createdByUserId: input.createdByUserId,
+  });
+  return getContractFormBundle(input.templateId);
+}
+
+export async function setContractFormClauseStatus(input: {
+  clauseId: number;
+  status: "draft" | "active" | "archived";
+  actorUserId: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  await db
+    .update(contractFormClauses)
+    .set({ status: input.status })
+    .where(eq(contractFormClauses.id, input.clauseId));
+  return db
+    .select()
+    .from(contractFormClauses)
+    .where(eq(contractFormClauses.id, input.clauseId))
+    .limit(1);
+}
+
+export async function createContractFormInstance(input: {
+  contractId: number;
+  templateId: number;
+  fieldValues: Record<string, unknown>;
+  selectedClauseIds: number[];
+  createdByUserId: number;
+  status?: "draft" | "review" | "approved" | "signed" | "archived";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const latest = await db
+    .select({ revision: contractFormInstances.revision })
+    .from(contractFormInstances)
+    .where(eq(contractFormInstances.contractId, input.contractId))
+    .orderBy(desc(contractFormInstances.revision))
+    .limit(1);
+  const revision = (latest[0]?.revision ?? 0) + 1;
+  await db.insert(contractFormInstances).values({
+    contractId: input.contractId,
+    templateId: input.templateId,
+    revision,
+    fieldValuesJson: JSON.stringify(input.fieldValues),
+    selectedClauseIdsJson: JSON.stringify(input.selectedClauseIds),
+    status: input.status ?? "draft",
+    createdByUserId: input.createdByUserId,
+  });
+  const created = await db
+    .select()
+    .from(contractFormInstances)
+    .where(and(eq(contractFormInstances.contractId, input.contractId), eq(contractFormInstances.revision, revision)))
+    .limit(1);
+  return created[0] ?? null;
+}
+
+export async function renderActiveContractFormClauses(templateId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const clauses = await db
+    .select()
+    .from(contractFormClauses)
+    .where(eq(contractFormClauses.templateId, templateId))
+    .orderBy(contractFormClauses.sortOrder);
+  return activeClausesForOutput(clauses);
 }

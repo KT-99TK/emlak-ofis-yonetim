@@ -10,6 +10,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 const Home = lazy(() => import("./pages/Home"));
 const Contracts = lazy(() => import("./pages/Contracts"));
 const AuthorityContracts = lazy(() => import("./pages/AuthorityContracts"));
+const ContractFormTemplates = lazy(() => import("./pages/ContractFormTemplates"));
 const OfflineWorkspace = lazy(() => import("./pages/OfflineWorkspace"));
 const OfflineOverview = lazy(() => import("./pages/OfflineOverview"));
 const OfflineAuthorityContracts = lazy(
@@ -75,6 +76,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/contracts" component={Contracts} />
         <Route path="/authority-contracts" component={AuthorityContracts} />
+        <Route path="/contract-form-templates" component={ContractFormTemplates} />
         <Route path="/clients" component={Records} />
         <Route path="/properties" component={Records} />
         <Route path="/accounting" component={Records} />
