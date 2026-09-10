@@ -96,3 +96,20 @@ export const EMPTY_FORM_BLUEPRINT = {
     { sectionKey: "optional_clauses", sectionType: "optional_clauses" as const, title: "Tarafların İsteğe Bağlı Ek Maddeleri", sortOrder: 30 },
   ],
 } as const;
+
+export function renderContractFormOutput(input: {
+  fields: Array<{ fieldKey: string; label: string; sortOrder: number }>;
+  fieldValues: Record<string, unknown>;
+  clauses: Array<{ id: number; title: string; bodyTemplate: string; sortOrder: number; status: string }>;
+}) {
+  return {
+    fields: [...input.fields]
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map(field => ({
+        fieldKey: field.fieldKey,
+        label: field.label,
+        value: input.fieldValues[field.fieldKey] == null ? "" : String(input.fieldValues[field.fieldKey]),
+      })),
+    clauses: activeClausesForOutput(input.clauses),
+  };
+}
