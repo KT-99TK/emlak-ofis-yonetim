@@ -145,6 +145,7 @@ export const EMPTY_FORM_BLUEPRINT = {
 } as const;
 
 export function renderContractFormOutput(input: {
+  formType?: ContractFormType;
   fields: Array<{ fieldKey: string; label: string; sortOrder: number }>;
   fieldValues: Record<string, unknown>;
   clauses: Array<{ id: number; title: string; bodyTemplate: string; sortOrder: number; status: string; partyScope?: ContractFormParty; requesterDisplayName?: string | null; includeRequesterFootnote?: number | boolean | null }>;
@@ -157,11 +158,15 @@ export function renderContractFormOutput(input: {
         label: field.label,
         value: input.fieldValues[field.fieldKey] == null ? "" : String(input.fieldValues[field.fieldKey]),
       })),
-    clauses: activeClausesForOutput(input.clauses).map((clause, index) => ({
-      ...clause,
-      clauseNumber: index + 1,
-      requesterFootnote: requesterFootnote(clause),
-    })),
+    clauses: (() => {
+      const activeClauses = activeClausesForOutput(input.clauses);
+      const numberedClauses = input.formType === "sale_closing" ? numberSaleClosingOptionalClauses(activeClauses) : activeClauses;
+      return numberedClauses.map((clause, index) => ({
+        ...clause,
+        clauseNumber: index + 1,
+        requesterFootnote: requesterFootnote(clause),
+      }));
+    })(),
   };
 }
 

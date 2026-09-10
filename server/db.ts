@@ -3083,7 +3083,7 @@ export async function addContractFormClause(input: ContractFormClauseDraft & {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
   const clause = normalizeClauseDraft(input);
-  await db.insert(contractFormClauses).values({
+  const result = await db.insert(contractFormClauses).values({
     templateId: input.templateId,
     partyScope: clause.partyScope,
     title: clause.title,
@@ -3094,6 +3094,14 @@ export async function addContractFormClause(input: ContractFormClauseDraft & {
     requesterDisplayName: clause.requesterDisplayName ?? null,
     includeRequesterFootnote: clause.includeRequesterFootnote === false ? 0 : 1,
     createdByUserId: input.createdByUserId,
+  });
+  const clauseId = Number(result[0].insertId);
+  await db.insert(auditLogs).values({
+    actorUserId: input.createdByUserId,
+    action: "contract_form_clause_created",
+    entityType: "contractFormClauses",
+    entityId: clauseId,
+    summary: `${clause.title} ek maddesi ${clause.status} olarak oluşturuldu${clause.requesterDisplayName ? `; talep sahibi=${clause.requesterDisplayName}` : ""}.`,
   });
   return getContractFormBundle(input.templateId);
 }

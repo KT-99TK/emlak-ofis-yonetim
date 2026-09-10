@@ -50,6 +50,7 @@ describe("contract form clause model", () => {
 
   it("renders fillable fields and excludes draft clauses from output", () => {
     const output = renderContractFormOutput({
+      formType: "sale_closing",
       fields: [
         { fieldKey: "buyerName", label: "Alıcı", sortOrder: 20 },
         { fieldKey: "contractDate", label: "Tarih", sortOrder: 10 },
@@ -65,6 +66,7 @@ describe("contract form clause model", () => {
       { fieldKey: "buyerName", label: "Alıcı", value: "Ayşe Kaya" },
     ]);
     expect(output.clauses.map(clause => clause.id)).toEqual([1]);
+    expect(output.clauses[0].articleNumber).toBe(17);
   });
 
   it("outputs only active non-empty clauses in their configured order", () => {
