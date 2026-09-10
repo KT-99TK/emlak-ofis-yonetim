@@ -246,3 +246,14 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Alım-Satım Ön Protokolü ön kontrol checklist’ini danışmanların görebileceği akışa taşı; manager-only kısıtını yalnız şablon yayınlama/audit işlemlerinde koru. Menü erişimi tüm authenticated kullanıcılara açıldı; manager işlemleri UI/backend’de korundu.
 - [x] Checklist backend okuma/kaydetme/tamamlama yetkisini yetkili danışmanlara aç; şablon yönetimi prosedürlerini manager-only bırak. Checklist protectedProcedure, şablon yönetimi adminProcedure olarak ayrıldı.
 - [ ] Başarılı danışman login’i sonrası kırmızı panelin görünürlüğünü ve kayıt/çıktı kapısını test et.
+
+## 11. Sözleşme ve teknik şartname ayrımı
+- [ ] Alım-Satım Ön Protokolü kalan maddelerini, nihai numara ve başlık düzenini tamamlamadan önce incele.
+- [ ] Kat Karşılığı genel sözleşmesini ayrı şablon olarak tut; metin kullanıcı tarafından yüklenmeden kesin madde ekleme.
+- [ ] Kat Karşılığı teknik şartnamesini genel sözleşmeden ayrı başlık/şablon olarak tut; malzeme, marka/model ve kalite alanlarını bağımsız tasarla.
+- [ ] Alım-Satım Ön Protokolü ile teknik şartnameyi çıktı ve ekler yapısında birbirine karıştırma; teknik şartnameyi gerektiğinde ayrı ek belge olarak ilişkilendir.
+- [x] Özel maddelerde talep sahibi tarafı (Alıcı/Satıcı/arsa sahibi/yüklenici), görünür ad/unvanı ve `... talebi üzerine protokole eklenmiştir` dipnotunu destekle; audit’te ekleyen danışman, tarih-saat ve yayın durumunu ayrıca sakla.
+- [x] Özel madde dipnotunu çıktı üzerinde göster; ayrıntılı audit bilgisini yalnız yetkili kullanıcıya göster ve özel maddeleri Madde 17 bölümünde sıralayıp sonraki maddeleri dinamik numaralandır.
+- [x] Özel madde modeline talep sahibi görünür adı/unvanı, talep sahibi tarafı ve çıktı dipnoti alanlarını ekle; örnek dipnotu `Bu madde, [taraf] [ad/unvan] talebi üzerine protokole eklenmiştir.` biçiminde üret.
+- [x] Özel maddeleri çıktı modelinde Madde 17 bölümünde sıralı göster; yetkili mahkeme ve madde sayısı hükümlerini özel maddelerden sonra dinamik numaralandır.
+- [x] Özel madde dipnotu ve ayrıntılı audit bilgisi için schema, router, UI ve regresyon testlerini güncelle; Kat Karşılığı ve teknik şartname ayrımını koru.

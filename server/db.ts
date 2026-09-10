@@ -53,8 +53,11 @@ import {
 import {
   activeClausesForOutput,
   getDefaultFormFields,
+  getSaleClosingArticleNumbering,
+  numberSaleClosingOptionalClauses,
   EMPTY_FORM_BLUEPRINT,
   normalizeClauseDraft,
+  requesterFootnote,
   normalizePreparationChecks,
   preparationChecksComplete,
   SALE_CLOSING_PREPARATION_CHECKS,
@@ -3088,6 +3091,8 @@ export async function addContractFormClause(input: ContractFormClauseDraft & {
     sortOrder: clause.sortOrder,
     status: clause.status,
     sourceNote: clause.sourceNote ?? null,
+    requesterDisplayName: clause.requesterDisplayName ?? null,
+    includeRequesterFootnote: clause.includeRequesterFootnote === false ? 0 : 1,
     createdByUserId: input.createdByUserId,
   });
   return getContractFormBundle(input.templateId);
@@ -3179,11 +3184,15 @@ export async function previewContractForm(input: {
   const selected = input.selectedClauseIds?.length
     ? activeClauses.filter(clause => input.selectedClauseIds!.includes(clause.id))
     : activeClauses;
+  const numberedClauses = bundle.template.formType === "sale_closing"
+    ? numberSaleClosingOptionalClauses(selected)
+    : selected.map(clause => ({ ...clause, articleNumber: undefined as number | undefined }));
   return {
     template: bundle.template,
     sections: bundle.sections,
     fields: bundle.fields,
-    clauses: selected,
+    clauses: numberedClauses.map(clause => ({ ...clause, requesterFootnote: requesterFootnote(clause) })),
+    articleNumbering: bundle.template.formType === "sale_closing" ? getSaleClosingArticleNumbering(selected.length) : null,
     clauseIds: selected.map(clause => clause.id),
   };
 }

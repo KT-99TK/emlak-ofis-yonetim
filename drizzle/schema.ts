@@ -275,6 +275,8 @@ export const contractFormClauses = mysqlTable("contractFormClauses", {
   sortOrder: int("sortOrder").default(0).notNull(),
   status: mysqlEnum("status", ["draft", "active", "archived"]).default("draft").notNull(),
   sourceNote: varchar("sourceNote", { length: 500 }),
+  requesterDisplayName: varchar("requesterDisplayName", { length: 200 }),
+  includeRequesterFootnote: int("includeRequesterFootnote").default(1).notNull(),
   createdByUserId: int("createdByUserId").notNull(),
   approvedByUserId: int("approvedByUserId"),
   approvedAt: timestamp("approvedAt"),

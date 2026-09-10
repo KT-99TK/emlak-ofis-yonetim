@@ -35,7 +35,29 @@ export type ContractFormClauseDraft = {
   sortOrder?: number;
   status?: "draft" | "active" | "archived";
   sourceNote?: string;
+  requesterDisplayName?: string;
+  includeRequesterFootnote?: boolean;
 };
+
+const REQUESTER_PARTY_LABELS: Record<ContractFormParty, string> = {
+  shared: "Tarafların",
+  seller: "Satıcı",
+  buyer: "Alıcı",
+  landowner: "Arsa sahibi",
+  contractor: "Yüklenici",
+};
+
+export function requesterFootnote(input: {
+  partyScope?: ContractFormParty;
+  requesterDisplayName?: string | null;
+  includeRequesterFootnote?: number | boolean | null;
+}) {
+  if (input.includeRequesterFootnote === false || input.includeRequesterFootnote === 0) return undefined;
+  const displayName = input.requesterDisplayName?.trim();
+  if (!displayName) return undefined;
+  const partyLabel = REQUESTER_PARTY_LABELS[input.partyScope ?? "shared"];
+  return `(Bu madde, ${partyLabel} ${displayName} talebi üzerine protokole eklenmiştir.)`;
+}
 
 export function normalizeClauseDraft(input: ContractFormClauseDraft) {
   const title = input.title.trim();
@@ -51,13 +73,35 @@ export function normalizeClauseDraft(input: ContractFormClauseDraft) {
     sortOrder: Math.max(0, Math.trunc(input.sortOrder ?? 0)),
     status: input.status ?? "draft",
     sourceNote: input.sourceNote?.trim() || undefined,
+    requesterDisplayName: input.requesterDisplayName?.trim() || undefined,
+    includeRequesterFootnote: input.includeRequesterFootnote ?? true,
   };
 }
+
+export const SALE_CLOSING_APPROVED_ARTICLE_COUNT = 16;
 
 export function activeClausesForOutput<T extends { status: string; bodyTemplate: string; sortOrder: number }>(clauses: T[]) {
   return clauses
     .filter(clause => clause.status === "active" && clause.bodyTemplate.trim().length > 0)
     .sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+export function getSaleClosingArticleNumbering(activeOptionalClauseCount: number) {
+  const safeCount = Math.max(0, Math.trunc(activeOptionalClauseCount));
+  const firstOptionalArticleNumber = SALE_CLOSING_APPROVED_ARTICLE_COUNT + 1;
+  const jurisdictionArticleNumber = firstOptionalArticleNumber + safeCount;
+  const finalArticleNumber = jurisdictionArticleNumber + 1;
+  return {
+    firstOptionalArticleNumber,
+    jurisdictionArticleNumber,
+    finalArticleNumber,
+    jurisdictionArticleTitle: "İzmir/Urla mahkemeleri",
+  };
+}
+
+export function numberSaleClosingOptionalClauses<T>(clauses: T[]) {
+  const { firstOptionalArticleNumber } = getSaleClosingArticleNumbering(clauses.length);
+  return clauses.map((clause, index) => ({ ...clause, articleNumber: firstOptionalArticleNumber + index }));
 }
 
 const COMMON_FORM_FIELDS = [
@@ -103,7 +147,7 @@ export const EMPTY_FORM_BLUEPRINT = {
 export function renderContractFormOutput(input: {
   fields: Array<{ fieldKey: string; label: string; sortOrder: number }>;
   fieldValues: Record<string, unknown>;
-  clauses: Array<{ id: number; title: string; bodyTemplate: string; sortOrder: number; status: string }>;
+  clauses: Array<{ id: number; title: string; bodyTemplate: string; sortOrder: number; status: string; partyScope?: ContractFormParty; requesterDisplayName?: string | null; includeRequesterFootnote?: number | boolean | null }>;
 }) {
   return {
     fields: [...input.fields]
@@ -113,7 +157,11 @@ export function renderContractFormOutput(input: {
         label: field.label,
         value: input.fieldValues[field.fieldKey] == null ? "" : String(input.fieldValues[field.fieldKey]),
       })),
-    clauses: activeClausesForOutput(input.clauses),
+    clauses: activeClausesForOutput(input.clauses).map((clause, index) => ({
+      ...clause,
+      clauseNumber: index + 1,
+      requesterFootnote: requesterFootnote(clause),
+    })),
   };
 }
 

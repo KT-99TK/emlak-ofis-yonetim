@@ -500,7 +500,7 @@ export const appRouter = router({
         .input(z.object({ templateId: z.number().int().positive(), sectionId: z.number().int().positive().optional(), fieldKey: z.string().min(2).max(100), label: z.string().min(2).max(200), fieldType: z.enum(["text", "multiline", "date", "currency", "number", "checkbox", "select"]), partyScope: z.enum(["shared", "seller", "buyer", "landowner", "contractor"]), optionsJson: z.string().max(10000).optional(), required: z.boolean().optional(), sortOrder: z.number().int().min(0).optional() }))
         .mutation(({ input }) => addContractFormField(input)),
       addClause: adminProcedure
-        .input(z.object({ templateId: z.number().int().positive(), partyScope: z.enum(["shared", "seller", "buyer", "landowner", "contractor"]), title: z.string().min(1).max(200), bodyTemplate: z.string().min(1).max(20000), sortOrder: z.number().int().min(0).optional(), status: z.enum(["draft", "active", "archived"]).optional(), sourceNote: z.string().max(500).optional() }))
+        .input(z.object({ templateId: z.number().int().positive(), partyScope: z.enum(["shared", "seller", "buyer", "landowner", "contractor"]), title: z.string().min(1).max(200), bodyTemplate: z.string().min(1).max(20000), sortOrder: z.number().int().min(0).optional(), status: z.enum(["draft", "active", "archived"]).optional(), sourceNote: z.string().max(500).optional(), requesterDisplayName: z.string().max(200).optional(), includeRequesterFootnote: z.boolean().optional() }))
         .mutation(({ ctx, input }) => addContractFormClause({ ...input, createdByUserId: ctx.user.id })),
       setClauseStatus: adminProcedure
         .input(z.object({ clauseId: z.number().int().positive(), status: z.enum(["draft", "active", "archived"]) }))

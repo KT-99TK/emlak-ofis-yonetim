@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeClausesForOutput, getDefaultFormFields, normalizeClauseDraft, normalizePreparationChecks, preparationChecksComplete, renderContractFormOutput, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
+import { activeClausesForOutput, getDefaultFormFields, getSaleClosingArticleNumbering, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, preparationChecksComplete, renderContractFormOutput, requesterFootnote, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
 
 describe("contract form clause model", () => {
   it("normalizes a party-specific optional clause without inventing legal text", () => {
@@ -13,6 +13,23 @@ describe("contract form clause model", () => {
       bodyTemplate: "[teslim koşulu]",
       status: "draft",
       sortOrder: 0,
+    });
+  });
+
+  it("adds a requester footnote only when a display name and inclusion flag allow it", () => {
+    expect(requesterFootnote({ partyScope: "seller", requesterDisplayName: "Mustafa Bey", includeRequesterFootnote: true })).toBe("(Bu madde, Satıcı Mustafa Bey talebi üzerine protokole eklenmiştir.)");
+    expect(requesterFootnote({ partyScope: "buyer", requesterDisplayName: "Ayşe Hanım", includeRequesterFootnote: false })).toBeUndefined();
+    expect(requesterFootnote({ partyScope: "buyer", requesterDisplayName: "   ", includeRequesterFootnote: true })).toBeUndefined();
+  });
+
+  it("numbers sale-closing optional clauses from article 17 and shifts trailing articles", () => {
+    const numbered = numberSaleClosingOptionalClauses([{ title: "Alıcı özel hükmü" }, { title: "Satıcı özel hükmü" }]);
+    expect(numbered.map(item => item.articleNumber)).toEqual([17, 18]);
+    expect(getSaleClosingArticleNumbering(numbered.length)).toMatchObject({
+      firstOptionalArticleNumber: 17,
+      jurisdictionArticleNumber: 19,
+      finalArticleNumber: 20,
+      jurisdictionArticleTitle: "İzmir/Urla mahkemeleri",
     });
   });
 
