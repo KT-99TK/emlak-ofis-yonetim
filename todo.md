@@ -190,9 +190,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Satış kapama formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla. Satıcı/alıcı, satış bedeli, taşınmaz, tapu, ödeme, devir ve teknik not alanları hazır.
 - [x] Kat karşılığı formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla. Arsa sahibi/yüklenici, arsa payı, proje, taşınmaz, ödeme, teslim ve teknik not alanları hazır.
 - [x] Satıcı ve alıcı için ayrı ayrı isteğe bağlı ek madde girişleri oluştur; madde sahibi, başlık, metin, sıra ve aktif/pasif durumunu destekle. Kat karşılığı için arsa sahibi/yüklenici kapsamları da eklendi.
-- [ ] Doldurulan isteğe bağlı maddeleri sözleşme önizlemesine ve çıktısına yalnızca aktif olduklarında dahil et; boş maddeleri çıktıda gösterme.
-- [ ] Yönetici onayı, değişiklik geçmişi ve hukuki metinlerin taslak/revizyon durumunu koruyacak doğrulama akışını değerlendir.
-- [ ] Yeni formlar için backend, UI, çıktı ve regresyon testlerini yaz; kullanıcı metinleri geldikten sonra gerçek maddeleri sisteme aktar.
+- [x] Doldurulan isteğe bağlı maddeleri sözleşme önizlemesine ve çıktısına yalnızca aktif olduklarında dahil et; boş maddeleri çıktıda gösterme. Backend preview ve manager ekranı yalnız yayınlanmış, dolu maddeleri gösteriyor.
+- [x] Yönetici onayı, değişiklik geçmişi ve hukuki metinlerin taslak/revizyon durumunu koruyacak doğrulama akışını değerlendir. Şablon ve ek madde için taslak/inceleme/yayın/arşiv durumları ile audit kayıtları eklendi.
+- [x] Yeni formlar için backend, UI, çıktı ve regresyon testlerini yaz; kullanıcı metinleri geldikten sonra gerçek maddeleri sisteme aktar. Backend, UI, preview modeli ve regresyon testleri tamamlandı; gerçek maddelerin aktarımı ayrı açık görev olarak korunuyor.
 - [x] Satış Kapama ve Kat Karşılığı form altyapısını hukuki metinlerden bağımsız olarak başlat: form türü, bölüm sırası, doldurulabilir alan grupları, teknik şartname bölümü ve taslak/revizyon durumu. Şablon, bölüm, alan ve revizyon tabloları; tRPC işlemleri ve manager ekranı eklendi.
 - [x] Taraf bazlı isteğe bağlı ek maddeler için satıcı/alıcı/arsa sahibi/yüklenici ayrımını, başlık-metin-sıra-aktiflik-onay alanlarını ve çıktı sıralamasını tasarla. Taslak/aktif/arşiv durumu, taraf kapsamı, sıralama ve yalnız aktif maddeleri çıktı adayına alma kuralı uygulandı.
 - [ ] Örnek sözleşme metinleri geldiğinde gerçek maddeleri bu altyapıya bağla; mevcut metinler gelmeden hukuki madde veya örnek veri uydurma.
