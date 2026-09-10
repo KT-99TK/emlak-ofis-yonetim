@@ -196,3 +196,22 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Satış Kapama ve Kat Karşılığı form altyapısını hukuki metinlerden bağımsız olarak başlat: form türü, bölüm sırası, doldurulabilir alan grupları, teknik şartname bölümü ve taslak/revizyon durumu. Şablon, bölüm, alan ve revizyon tabloları; tRPC işlemleri ve manager ekranı eklendi.
 - [x] Taraf bazlı isteğe bağlı ek maddeler için satıcı/alıcı/arsa sahibi/yüklenici ayrımını, başlık-metin-sıra-aktiflik-onay alanlarını ve çıktı sıralamasını tasarla. Taslak/aktif/arşiv durumu, taraf kapsamı, sıralama ve yalnız aktif maddeleri çıktı adayına alma kuralı uygulandı.
 - [ ] Örnek sözleşme metinleri geldiğinde gerçek maddeleri bu altyapıya bağla; mevcut metinler gelmeden hukuki madde veya örnek veri uydurma.
+
+## 7. Eski satış sözleşmesi formu incelemesi
+- [ ] Eski satış sözleşmesi metninde mükerrer, çelişkili, tarih/hesap/atıf hatalı ve eksik alanları kullanıcıya değişiklik yapmadan raporla.
+- [ ] Kullanıcı onayından sonra kabul edilen maddeleri Satış Kapama formuna aktar; onay gelmeden sözleşme metnini veya sistemi değiştirme.
+- [ ] Eski form incelemesinde kişi adları, T.C. kimlik numaraları, IBAN, telefon ve gerçek taşınmaz bilgilerini yok say; yalnız anonim alan yapısı ve madde mantığı üzerinden çalış.
+- [x] Kişisel veriler çıkarılmış Madde 1–4 humanizer metinleri kullanıcı tarafından onaylandı; Madde 4 yalnız toplam %4 tapu harcı ile döner sermaye bedelini kapsıyor, başka resmi gider eklenmedi.
+- [x] Madde 5’i eski anonim metin ve humanizer önerisi olarak karşılaştır; kullanıcı onayı olmadan kesinleştirme. Kullanıcı A seçeneğini onayladı: yalnız cümle yapısı sadeleştirildi, kapora/cayma sonuçları bu maddede genişletilmedi.
+- [x] Madde 6’yı eski anonim metin ve humanizer önerisi olarak karşılaştır; Madde 4 ile mükerrerliği birlikte değerlendir. Kullanıcı onayladı; Madde 6 ayrı madde olarak kaldırılacak ve hüküm Madde 4’te tek kez korunacak.
+- [x] Madde 7’yi eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı.
+- [x] Madde 8’i eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı B seçeneğini onayladı; Madde 1–2’deki satış iradesi tekrarı çıkarılacak, aracılık hizmeti Madde 9 ile birlikte değerlendirilecek.
+- [x] Madde 9’u eski anonim metin ve humanizer önerisi olarak karşılaştır; Madde 8’in aracılık hizmeti bölümüyle birleştirme seçeneğini değerlendir. Kullanıcı onayladı; aracılık hizmeti ve hizmet bedeline hak kazanma hükmü tek maddede korunacak.
+- [x] Madde 10’u eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı; toplam %4 + KDV komisyon %2 + KDV Alıcı/%2 + KDV Satıcı olarak paylaşılacak ve ödeme tapu devri tamamlandıktan sonra yapılacak.
+- [x] Madde 11’i eski anonim metin ve humanizer önerisi olarak karşılaştır; cayma, komisyon ve tarih hükümlerini ayrı değerlendir. Komisyon vazgeçen tarafa, cayma bedeli ise protokole yazılacak sabit tutar alanına bağlandı.
+- [x] Madde 11’de kullanıcı kararı kaydedildi: vazgeçen taraf toplam %4 + KDV komisyonu ödeyecek; “cayma bedelinin iki katı” yerine protokole doğrudan yazılacak sabit `[cayma bedeli] TL` alanı kullanılacak.
+- [x] Madde 11’de son tapu devir tarihi ile Madde 7 tarih aralığı arasındaki seçim netleştirilecek. Kullanıcı tek ve doldurulabilir `[son tapu devir tarihi]` alanını seçti.
+- [x] Madde 11 form alanlarını tanımla: tek `[son tapu devir tarihi]`; Alıcı ve Satıcı için Yurtiçi/Yurtdışı seçimi; Yurtdışı seçilirse ülke, tebligat adresi, Türkiye’de vekil ve vekâlet bilgisi alanları. Satış Kapama default alan setine eklendi ve seçenekler optionsJson ile saklanıyor.
+- [x] Madde 11 sabit cayma bedeli için Alıcı ve Satıcı ayrı onayları, onay tarihi ve audit kaydı gerektiren form akışını tasarla. Kullanıcı, ayrı onay açıklamasının metinde yer almasını istemedi; tutar görüşmede belirlenip doğrudan protokole yazılacağı için ayrı alan akışı uygulanmadı.
+- [x] Madde 11 cayma bedeli metninde tarafların görüşme/onay sürecini açıklayan ifade kullanılmayacak; yalnızca protokole yazılacak `[cayma bedeli] TL` tutar alanı bulunacak.
+- [x] Madde 11’in tek son tapu tarihi, yurtiçi/yurtdışı taraf durumu ve sabit cayma bedeli alanlarıyla nihai form taslağını kullanıcı onayına sun. Kullanıcı `aynen` diyerek kabul etti; alanlar Satış Kapama default setine eklendi.
