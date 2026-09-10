@@ -23,8 +23,9 @@ describe("contract form clause model", () => {
     expect(saleKeys).toContain("buyerName");
     expect(saleKeys).toContain("finalDeedTransferDate");
     expect(saleKeys).toContain("agreedWithdrawalFee");
-    expect(saleKeys).toContain("sellerResidenceStatus");
-    expect(saleKeys).toContain("buyerResidenceStatus");
+    expect(saleKeys).toContain("legalBasisReferences");
+    expect(saleKeys).not.toContain("sellerResidenceStatus");
+    expect(saleKeys).not.toContain("buyerResidenceStatus");
     expect(saleKeys).not.toContain("landShareRatio");
     expect(landShareKeys).toContain("landShareRatio");
     expect(landShareKeys).not.toContain("salePrice");

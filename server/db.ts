@@ -2935,7 +2935,7 @@ export async function createContractFormTemplate(input: {
       label: field.label,
       fieldType: field.fieldType,
       partyScope: field.partyScope,
-      optionsJson: "optionsJson" in field ? field.optionsJson : null,
+      optionsJson: "optionsJson" in field && typeof field.optionsJson === "string" ? field.optionsJson : null,
       required: field.required ? 1 : 0,
       sortOrder: field.sortOrder,
     });

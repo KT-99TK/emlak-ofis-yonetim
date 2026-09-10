@@ -68,19 +68,12 @@ const COMMON_FORM_FIELDS = [
   { fieldKey: "paymentPlan", label: "Ödeme planı", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 80 },
   { fieldKey: "deliveryDate", label: "Teslim / devir tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: false, sortOrder: 90 },
   { fieldKey: "technicalSpecificationNotes", label: "Teknik şartname notları", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 100 },
+  { fieldKey: "legalBasisReferences", label: "İlgili kanun ve yönetmelik atıfları", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 110 },
 ] as const;
 
 const SALE_CLOSING_FIELDS = [
   { fieldKey: "sellerName", label: "Satıcı adı veya unvanı", fieldType: "text" as const, partyScope: "seller" as const, required: true, sortOrder: 30 },
   { fieldKey: "buyerName", label: "Alıcı adı veya unvanı", fieldType: "text" as const, partyScope: "buyer" as const, required: true, sortOrder: 40 },
-  { fieldKey: "sellerResidenceStatus", label: "Satıcının bulunduğu/ikamet ettiği yer", fieldType: "select" as const, partyScope: "seller" as const, optionsJson: '["Yurtiçi","Yurtdışı"]', required: false, sortOrder: 42 },
-  { fieldKey: "buyerResidenceStatus", label: "Alıcının bulunduğu/ikamet ettiği yer", fieldType: "select" as const, partyScope: "buyer" as const, optionsJson: '["Yurtiçi","Yurtdışı"]', required: false, sortOrder: 44 },
-  { fieldKey: "sellerForeignCountry", label: "Satıcı yurtdışındaysa ülke", fieldType: "text" as const, partyScope: "seller" as const, required: false, sortOrder: 46 },
-  { fieldKey: "buyerForeignCountry", label: "Alıcı yurtdışındaysa ülke", fieldType: "text" as const, partyScope: "buyer" as const, required: false, sortOrder: 48 },
-  { fieldKey: "sellerNoticeAddress", label: "Satıcı tebligat adresi", fieldType: "multiline" as const, partyScope: "seller" as const, required: false, sortOrder: 50 },
-  { fieldKey: "buyerNoticeAddress", label: "Alıcı tebligat adresi", fieldType: "multiline" as const, partyScope: "buyer" as const, required: false, sortOrder: 52 },
-  { fieldKey: "sellerTurkeyAttorney", label: "Satıcının Türkiye’de vekili / vekâlet bilgisi", fieldType: "multiline" as const, partyScope: "seller" as const, required: false, sortOrder: 54 },
-  { fieldKey: "buyerTurkeyAttorney", label: "Alıcının Türkiye’de vekili / vekâlet bilgisi", fieldType: "multiline" as const, partyScope: "buyer" as const, required: false, sortOrder: 56 },
   { fieldKey: "salePrice", label: "Satış bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 70 },
   { fieldKey: "finalDeedTransferDate", label: "Son tapu devir tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: true, sortOrder: 92 },
   { fieldKey: "agreedWithdrawalFee", label: "Cayma bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 94 },

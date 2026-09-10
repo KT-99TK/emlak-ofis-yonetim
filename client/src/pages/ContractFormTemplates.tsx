@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Plus, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
-const typeLabels = { sale_closing: "Satış Kapama", land_share: "Kat Karşılığı" } as const;
+const typeLabels = { sale_closing: "Alım-Satım Ön Protokolü", land_share: "Kat Karşılığı" } as const;
 const partyLabels = { shared: "Ortak", seller: "Satıcı", buyer: "Alıcı", landowner: "Arsa sahibi", contractor: "Yüklenici" } as const;
 
 export default function ContractFormTemplates() {
@@ -61,13 +61,13 @@ export default function ContractFormTemplates() {
 
   return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
     <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
-      <div><p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]">Sözleşme form altyapısı</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Satış ve Kat Karşılığı Formları</h1><p className="mt-2 max-w-3xl text-sm text-[#70807c]">Genel sözleşme, teknik şartname ve tarafların isteğe bağlı ek maddeleri için taslak şablonları yönetin. Hukuki metinler kullanıcı tarafından sağlanana kadar bu ekran yalnız altyapı ve taslak kayıtlarını tutar.</p></div>
+      <div><p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]">Sözleşme form altyapısı</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Alım-Satım Ön Protokolü ve Kat Karşılığı Formları</h1><p className="mt-2 max-w-3xl text-sm text-[#70807c]">Genel sözleşme, teknik şartname ve tarafların isteğe bağlı ek maddeleri için taslak şablonları yönetin. Hukuki metinler kullanıcı tarafından sağlanana kadar bu ekran yalnız altyapı ve taslak kayıtlarını tutar.</p></div>
       <Button variant="outline" className="rounded-xl bg-white" onClick={() => void templates.refetch()}><RefreshCw className="mr-2 h-4 w-4" /> Yenile</Button>
     </header>
     <div className="grid gap-6 xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.2fr)]">
       <Card className="rounded-2xl border-[#e5e8e3] bg-white/80"><CardHeader><CardTitle className="font-serif text-xl">Yeni taslak şablon</CardTitle></CardHeader><CardContent className="space-y-4">
-        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Form türü</label><Select value={formType} onValueChange={(value) => setFormType(value as typeof formType)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale_closing">Satış Kapama</SelectItem><SelectItem value="land_share">Kat Karşılığı</SelectItem></SelectContent></Select></div>
-        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Şablon başlığı</label><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Örn. Satış Kapama Formu v1" /></div>
+        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Form türü</label><Select value={formType} onValueChange={(value) => setFormType(value as typeof formType)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale_closing">Alım-Satım Ön Protokolü</SelectItem><SelectItem value="land_share">Kat Karşılığı</SelectItem></SelectContent></Select></div>
+        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Şablon başlığı</label><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Örn. Alım-Satım Ön Protokolü v1" /></div>
         <Button className="w-full rounded-xl bg-[#173e39] hover:bg-[#20554e]" disabled={title.trim().length < 3 || createTemplate.isPending} onClick={submitTemplate}><Plus className="mr-2 h-4 w-4" /> Taslak şablon oluştur</Button>
         {createTemplate.error && <p role="alert" className="text-xs text-[#a85745]">{createTemplate.error.message}</p>}
       </CardContent></Card>
