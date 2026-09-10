@@ -60,6 +60,35 @@ export function activeClausesForOutput<T extends { status: string; bodyTemplate:
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
+const COMMON_FORM_FIELDS = [
+  { fieldKey: "contractDate", label: "Sözleşme tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: true, sortOrder: 10 },
+  { fieldKey: "contractPlace", label: "Sözleşme yeri", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 20 },
+  { fieldKey: "propertyAddress", label: "Taşınmaz adresi", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 50 },
+  { fieldKey: "titleDeedInfo", label: "Tapu ve bağımsız bölüm bilgileri", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 60 },
+  { fieldKey: "paymentPlan", label: "Ödeme planı", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 80 },
+  { fieldKey: "deliveryDate", label: "Teslim / devir tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: false, sortOrder: 90 },
+  { fieldKey: "technicalSpecificationNotes", label: "Teknik şartname notları", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 100 },
+] as const;
+
+const SALE_CLOSING_FIELDS = [
+  { fieldKey: "sellerName", label: "Satıcı adı veya unvanı", fieldType: "text" as const, partyScope: "seller" as const, required: true, sortOrder: 30 },
+  { fieldKey: "buyerName", label: "Alıcı adı veya unvanı", fieldType: "text" as const, partyScope: "buyer" as const, required: true, sortOrder: 40 },
+  { fieldKey: "salePrice", label: "Satış bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 70 },
+] as const;
+
+const LAND_SHARE_FIELDS = [
+  { fieldKey: "landownerName", label: "Arsa sahibi adı veya unvanı", fieldType: "text" as const, partyScope: "landowner" as const, required: true, sortOrder: 30 },
+  { fieldKey: "contractorName", label: "Yüklenici adı veya unvanı", fieldType: "text" as const, partyScope: "contractor" as const, required: true, sortOrder: 40 },
+  { fieldKey: "landShareRatio", label: "Arsa payı / bağımsız bölüm paylaşım özeti", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 70 },
+  { fieldKey: "projectDescription", label: "Proje ve yapı tanımı", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 75 },
+] as const;
+
+export function getDefaultFormFields(formType: ContractFormType) {
+  return formType === "sale_closing"
+    ? [...COMMON_FORM_FIELDS, ...SALE_CLOSING_FIELDS].sort((a, b) => a.sortOrder - b.sortOrder)
+    : [...COMMON_FORM_FIELDS, ...LAND_SHARE_FIELDS].sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
 export const EMPTY_FORM_BLUEPRINT = {
   sections: [
     { sectionKey: "general", sectionType: "general" as const, title: "Genel Sözleşme Bilgileri", sortOrder: 10 },

@@ -187,9 +187,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 6. Satış kapama ve kat karşılığı doldurulabilir formları
 
-- [ ] Satış kapama formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla.
-- [ ] Kat karşılığı formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla.
-- [ ] Satıcı ve alıcı için ayrı ayrı isteğe bağlı ek madde girişleri oluştur; madde sahibi, başlık, metin, sıra ve aktif/pasif durumunu destekle.
+- [x] Satış kapama formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla. Satıcı/alıcı, satış bedeli, taşınmaz, tapu, ödeme, devir ve teknik not alanları hazır.
+- [x] Kat karşılığı formu için genel sözleşme bölümü, teknik şartname bölümü ve standart doldurulabilir alanları tasarla. Arsa sahibi/yüklenici, arsa payı, proje, taşınmaz, ödeme, teslim ve teknik not alanları hazır.
+- [x] Satıcı ve alıcı için ayrı ayrı isteğe bağlı ek madde girişleri oluştur; madde sahibi, başlık, metin, sıra ve aktif/pasif durumunu destekle. Kat karşılığı için arsa sahibi/yüklenici kapsamları da eklendi.
 - [ ] Doldurulan isteğe bağlı maddeleri sözleşme önizlemesine ve çıktısına yalnızca aktif olduklarında dahil et; boş maddeleri çıktıda gösterme.
 - [ ] Yönetici onayı, değişiklik geçmişi ve hukuki metinlerin taslak/revizyon durumunu koruyacak doğrulama akışını değerlendir.
 - [ ] Yeni formlar için backend, UI, çıktı ve regresyon testlerini yaz; kullanıcı metinleri geldikten sonra gerçek maddeleri sisteme aktar.

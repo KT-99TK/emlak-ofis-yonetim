@@ -86,6 +86,7 @@ import {
   setContractFormClauseStatus,
   createContractFormInstance,
   renderActiveContractFormClauses,
+  previewContractForm,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -500,6 +501,9 @@ export const appRouter = router({
       activeClauses: protectedProcedure
         .input(z.object({ templateId: z.number().int().positive() }))
         .query(({ input }) => renderActiveContractFormClauses(input.templateId)),
+      preview: protectedProcedure
+        .input(z.object({ templateId: z.number().int().positive(), selectedClauseIds: z.array(z.number().int().positive()).max(100).optional() }))
+        .query(({ input }) => previewContractForm(input)),
       createInstance: protectedProcedure
         .input(z.object({ contractId: z.number().int().positive(), templateId: z.number().int().positive(), fieldValues: z.record(z.string(), z.unknown()), selectedClauseIds: z.array(z.number().int().positive()).max(100), status: z.enum(["draft", "review", "approved", "signed", "archived"]).optional() }))
         .mutation(({ ctx, input }) => createContractFormInstance({ ...input, createdByUserId: ctx.user.id })),

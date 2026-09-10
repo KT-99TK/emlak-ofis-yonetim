@@ -51,6 +51,8 @@ import {
 } from "../shared/consultantCode";
 import {
   activeClausesForOutput,
+  getDefaultFormFields,
+  EMPTY_FORM_BLUEPRINT,
   normalizeClauseDraft,
   type ContractFormClauseDraft,
   type ContractFormParty,
@@ -2888,19 +2890,56 @@ export async function createContractFormTemplate(input: {
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
   const title = input.title.trim();
   if (!title) throw new Error("Form şablonu başlığı boş bırakılamaz.");
+  const latest = await db
+    .select({ version: contractFormTemplates.version })
+    .from(contractFormTemplates)
+    .where(eq(contractFormTemplates.formType, input.formType))
+    .orderBy(desc(contractFormTemplates.version))
+    .limit(1);
+  const version = (latest[0]?.version ?? 0) + 1;
   await db.insert(contractFormTemplates).values({
     formType: input.formType,
+    version,
     title,
     legalReviewNote: input.legalReviewNote?.trim() || null,
     createdByUserId: input.createdByUserId,
   });
-  const created = await db
+  const createdRows = await db
     .select()
     .from(contractFormTemplates)
-    .where(and(eq(contractFormTemplates.formType, input.formType), eq(contractFormTemplates.title, title)))
-    .orderBy(desc(contractFormTemplates.id))
+    .where(and(eq(contractFormTemplates.formType, input.formType), eq(contractFormTemplates.version, version)))
     .limit(1);
-  return created[0] ?? null;
+  const created = createdRows[0];
+  if (!created) return null;
+  const sectionIds = new Map<string, number>();
+  for (const section of EMPTY_FORM_BLUEPRINT.sections) {
+    await db.insert(contractFormSections).values({
+      templateId: created.id,
+      sectionKey: section.sectionKey,
+      sectionType: section.sectionType,
+      title: section.title,
+      sortOrder: section.sortOrder,
+    });
+    const sectionRow = await db
+      .select({ id: contractFormSections.id })
+      .from(contractFormSections)
+      .where(and(eq(contractFormSections.templateId, created.id), eq(contractFormSections.sectionKey, section.sectionKey)))
+      .limit(1);
+    if (sectionRow[0]) sectionIds.set(section.sectionKey, sectionRow[0].id);
+  }
+  for (const field of getDefaultFormFields(input.formType)) {
+    await db.insert(contractFormFields).values({
+      templateId: created.id,
+      sectionId: sectionIds.get(field.fieldKey === "technicalSpecificationNotes" ? "technical" : "general"),
+      fieldKey: field.fieldKey,
+      label: field.label,
+      fieldType: field.fieldType,
+      partyScope: field.partyScope,
+      required: field.required ? 1 : 0,
+      sortOrder: field.sortOrder,
+    });
+  }
+  return getContractFormBundle(created.id);
 }
 
 export async function addContractFormSection(input: {
@@ -3032,4 +3071,23 @@ export async function renderActiveContractFormClauses(templateId: number) {
     .where(eq(contractFormClauses.templateId, templateId))
     .orderBy(contractFormClauses.sortOrder);
   return activeClausesForOutput(clauses);
+}
+
+export async function previewContractForm(input: {
+  templateId: number;
+  selectedClauseIds?: number[];
+}) {
+  const bundle = await getContractFormBundle(input.templateId);
+  if (!bundle) return null;
+  const activeClauses = activeClausesForOutput(bundle.clauses);
+  const selected = input.selectedClauseIds?.length
+    ? activeClauses.filter(clause => input.selectedClauseIds!.includes(clause.id))
+    : activeClauses;
+  return {
+    template: bundle.template,
+    sections: bundle.sections,
+    fields: bundle.fields,
+    clauses: selected,
+    clauseIds: selected.map(clause => clause.id),
+  };
 }
