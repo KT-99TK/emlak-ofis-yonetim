@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeClausesForOutput, getDefaultFormFields, normalizeClauseDraft, renderContractFormOutput } from "./contractForms";
+import { activeClausesForOutput, getDefaultFormFields, normalizeClauseDraft, normalizePreparationChecks, preparationChecksComplete, renderContractFormOutput, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
 
 describe("contract form clause model", () => {
   it("normalizes a party-specific optional clause without inventing legal text", () => {
@@ -58,5 +58,19 @@ describe("contract form clause model", () => {
       { status: "active", bodyTemplate: "birinci", sortOrder: 10 },
     ]);
     expect(clauses.map(item => item.bodyTemplate)).toEqual(["birinci", "ikinci"]);
+  });
+
+  it("keeps fixed deed fees out of the variable preparation checklist", () => {
+    const labels = SALE_CLOSING_PREPARATION_CHECKS.map(check => check.label).join(" ");
+    expect(labels).not.toContain("%4");
+    expect(labels).not.toContain("döner sermaye");
+    expect(SALE_CLOSING_PREPARATION_CHECKS.length).toBe(8);
+  });
+
+  it("requires every preparation check before the protocol gate opens", () => {
+    const partial = normalizePreparationChecks({ parties_verified: true });
+    expect(preparationChecksComplete(partial)).toBe(false);
+    const complete = normalizePreparationChecks(Object.fromEntries(SALE_CLOSING_PREPARATION_CHECKS.map(check => [check.key, true])));
+    expect(preparationChecksComplete(complete)).toBe(true);
   });
 });

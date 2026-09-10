@@ -88,6 +88,9 @@ import {
   createContractFormInstance,
   renderActiveContractFormClauses,
   previewContractForm,
+  getContractPreparationChecks,
+  saveContractPreparationChecks,
+  assertContractPreparationComplete,
 } from "./db";
 import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
@@ -509,8 +512,20 @@ export const appRouter = router({
         .input(z.object({ templateId: z.number().int().positive(), selectedClauseIds: z.array(z.number().int().positive()).max(100).optional() }))
         .query(({ input }) => previewContractForm(input)),
       createInstance: protectedProcedure
-        .input(z.object({ contractId: z.number().int().positive(), templateId: z.number().int().positive(), fieldValues: z.record(z.string(), z.unknown()), selectedClauseIds: z.array(z.number().int().positive()).max(100), status: z.enum(["draft", "review", "approved", "signed", "archived"]).optional() }))
-        .mutation(({ ctx, input }) => createContractFormInstance({ ...input, createdByUserId: ctx.user.id })),
+        .input(z.object({ contractId: z.number().int().positive(), templateId: z.number().int().positive(), fieldValues: z.record(z.string(), z.unknown()), selectedClauseIds: z.array(z.number().int().positive()).max(100), status: z.enum(["draft", "review", "approved", "signed", "archived"]).optional(), preparationDraftKey: z.string().min(8).max(120) }))
+        .mutation(async ({ ctx, input }) => {
+          const template = await getContractFormBundle(input.templateId);
+          if (!template) throw new Error("Form şablonu bulunamadı.");
+          await assertContractPreparationComplete({ draftKey: input.preparationDraftKey, formType: template.template.formType, actorUserId: ctx.user.id });
+          const { preparationDraftKey: _preparationDraftKey, ...instanceInput } = input;
+          return createContractFormInstance({ ...instanceInput, createdByUserId: ctx.user.id });
+        }),
+      preparationChecks: protectedProcedure
+        .input(z.object({ draftKey: z.string().min(8).max(120), formType: z.enum(["sale_closing", "land_share"]) }))
+        .query(({ input }) => getContractPreparationChecks(input)),
+      savePreparationChecks: protectedProcedure
+        .input(z.object({ draftKey: z.string().min(8).max(120), formType: z.enum(["sale_closing", "land_share"]), checks: z.record(z.string(), z.unknown()) }))
+        .mutation(({ ctx, input }) => saveContractPreparationChecks({ ...input, actorUserId: ctx.user.id })),
     }),
   }),
   documents: router({

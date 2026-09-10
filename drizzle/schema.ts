@@ -304,6 +304,18 @@ export const contractFormInstances = mysqlTable("contractFormInstances", {
   ),
 }));
 
+export const contractPreparationChecks = mysqlTable("contractPreparationChecks", {
+  id: int("id").autoincrement().primaryKey(),
+  draftKey: varchar("draftKey", { length: 120 }).notNull().unique(),
+  formType: mysqlEnum("formType", ["sale_closing", "land_share"]).notNull(),
+  checklistJson: text("checklistJson").notNull(),
+  completed: int("completed").default(0).notNull(),
+  createdByUserId: int("createdByUserId").notNull(),
+  updatedByUserId: int("updatedByUserId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const contractDocuments = mysqlTable("contractDocuments", {
   id: int("id").autoincrement().primaryKey(),
   contractId: int("contractId"),

@@ -116,3 +116,27 @@ export function renderContractFormOutput(input: {
     clauses: activeClausesForOutput(input.clauses),
   };
 }
+
+
+export const SALE_CLOSING_PREPARATION_CHECKS = [
+  { key: "parties_verified", label: "Alıcı ve Satıcı bilgileri görüşme ve kimlik belgeleriyle doğrulandı.", required: true },
+  { key: "property_verified", label: "Taşınmazın adresi, tapu ve bağımsız bölüm bilgileri doğrulandı.", required: true },
+  { key: "title_deed_debt_checked", label: "Takyidat ve borç ön kontrolü tamamlandı; satışa engel bir durum bulunmadığı teyit edildi.", required: true },
+  { key: "sale_price_payment_checked", label: "Toplam satış bedeli, tapu işlem tutarı, kapora ve bakiye birbiriyle kontrol edildi.", required: true },
+  { key: "withdrawal_fee_confirmed", label: "Sabit cayma bedeli görüşmede belirlendi ve protokole yazılacak tutar kontrol edildi.", required: true },
+  { key: "commission_terms_checked", label: "Komisyon oranı, taraf payları ve tapu devri sonrası ödeme zamanı kontrol edildi.", required: true },
+  { key: "power_of_attorney_checked", label: "Vekâletle işlem varsa vekâletname ve temsil yetkisi kontrol edildi; yoksa bu durum teyit edildi.", required: true },
+  { key: "payment_evidence_planned", label: "Havale dekontları ile nakit teslim belgesinin alınması ve saklanması planlandı.", required: true },
+] as const;
+
+export type PreparationCheckKey = (typeof SALE_CLOSING_PREPARATION_CHECKS)[number]["key"];
+
+export function preparationChecksComplete(checks: Record<string, boolean>) {
+  return SALE_CLOSING_PREPARATION_CHECKS.every(check => checks[check.key] === true);
+}
+
+export function normalizePreparationChecks(checks: Record<string, unknown>) {
+  return Object.fromEntries(
+    SALE_CLOSING_PREPARATION_CHECKS.map(check => [check.key, checks[check.key] === true])
+  ) as Record<PreparationCheckKey, boolean>;
+}

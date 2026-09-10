@@ -260,6 +260,13 @@
       "when": 1789037933706,
       "tag": "0036_youthful_doomsday",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1789069055415,
+      "tag": "0037_chief_pandemic",
+      "breakpoints": true
     }
   ]
 }

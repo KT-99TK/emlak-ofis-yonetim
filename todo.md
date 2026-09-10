@@ -199,12 +199,17 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 7. Eski satış sözleşmesi formu incelemesi
 - [ ] Eski satış sözleşmesi metninde mükerrer, çelişkili, tarih/hesap/atıf hatalı ve eksik alanları kullanıcıya değişiklik yapmadan raporla.
-- [ ] Kullanıcı onayından sonra kabul edilen maddeleri Satış Kapama formuna aktar; onay gelmeden sözleşme metnini veya sistemi değiştirme.
+- [ ] Kullanıcı onayından sonra kabul edilen maddeleri Alım-Satım Ön Protokolü formuna aktar; onay gelmeden sözleşme metnini veya sistemi değiştirme.
 - [x] Eski form incelemesinde kişi adları, T.C. kimlik numaraları, IBAN, telefon ve gerçek taşınmaz bilgilerini yok say; yalnız anonim alan yapısı ve madde mantığı üzerinden çalış. Tüm inceleme anonim alanlar ve madde mantığı üzerinden yürütüldü.
 - [x] Kişisel veriler çıkarılmış Madde 1–4 humanizer metinleri kullanıcı tarafından onaylandı; Madde 4 yalnız toplam %4 tapu harcı ile döner sermaye bedelini kapsıyor, başka resmi gider eklenmedi.
 - [x] Madde 5’i eski anonim metin ve humanizer önerisi olarak karşılaştır; kullanıcı onayı olmadan kesinleştirme. Kullanıcı A seçeneğini onayladı: yalnız cümle yapısı sadeleştirildi, kapora/cayma sonuçları bu maddede genişletilmedi.
 - [x] Madde 6’yı eski anonim metin ve humanizer önerisi olarak karşılaştır; Madde 4 ile mükerrerliği birlikte değerlendir. Kullanıcı onayladı; Madde 6 ayrı madde olarak kaldırılacak ve hüküm Madde 4’te tek kez korunacak.
 - [x] Madde 7’yi eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı.
+- [x] Madde 12’yi eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı; vekâlet ve yetkisiz temsil sorumluluğu iki paragraflı humanizer biçiminde korunacak.
+- [x] Madde 13’ü eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı; alıcının tescil kişisinden bağımsız borç ve şahsi sorumluluk hükmü korunacak.
+- [x] Madde 14’ü eski anonim metin ve humanizer önerisi olarak karşılaştır; emlak komisyoncusunun sözleşmedeki konumunu ve sorumluluk sınırını değerlendir. Kullanıcı onayladı.
+- [x] Madde 15’i eski anonim metin ve humanizer önerisi olarak karşılaştır; resmi şekil, cayma akçesi ve hizmet bedeli ifadelerini değerlendirmeye al. Kullanıcı A seçeneğini onayladı; resmi şekil eksikliği gerekçesiyle geçersizlik ileri sürülmemesi korunacak, geniş feragat cümlesi kesin metne alınmayacak.
+- [ ] Madde 16’yı eski anonim metin ve humanizer önerisi olarak karşılaştır; nüsha sayısı ve vergi/resim/harç giderlerinin taraflara dağılımını değerlendir.
 - [x] Madde 8’i eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı B seçeneğini onayladı; Madde 1–2’deki satış iradesi tekrarı çıkarılacak, aracılık hizmeti Madde 9 ile birlikte değerlendirilecek.
 - [x] Madde 9’u eski anonim metin ve humanizer önerisi olarak karşılaştır; Madde 8’in aracılık hizmeti bölümüyle birleştirme seçeneğini değerlendir. Kullanıcı onayladı; aracılık hizmeti ve hizmet bedeline hak kazanma hükmü tek maddede korunacak.
 - [x] Madde 10’u eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı; toplam %4 + KDV komisyon %2 + KDV Alıcı/%2 + KDV Satıcı olarak paylaşılacak ve ödeme tapu devri tamamlandıktan sonra yapılacak.
@@ -220,3 +225,24 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] İlgili kanun ve yönetmelik atıflarını eski metinden koru; doğrulama yapılmadan kaldırma veya sessizce değiştirme. Nihai formda `İlgili kanun ve yönetmelik atıfları` alanı eklendi; eski metin atıflarının madde bazlı aktarımı sonraki maddeler incelenirken korunacak ve doğrulama notuyla tutulacak.
 - [ ] Dev-only drizzle-kit/esbuild ve Babel advisory’leri için kontrollü istisna kaydını açık tut; upstream uyumlu sürüm yayımlandığında yeniden değerlendir ve güvenlik dokümanını güncelle.
 - [ ] Genel auditte kalan dev-only advisory’ler için her bağımlılık güncellemesi veya en geç 90 günde bir yeniden kontrol yap; `pnpm audit --prod --audit-level=moderate` temizliğini koru.
+
+## 8. Alım-Satım Ön Protokolü bütünsel eksiklik kontrolü
+
+- [ ] Onaylı maddeler ile form alanlarını karşılaştır: taraflar, taşınmaz, bedel, ödeme, dekont/teslim kanıtı, tapu, gider, komisyon, cayma, vekâlet, tescil, nüsha, uyuşmazlık, imza ve ekler.
+- [ ] Eksik veya belirsiz hususları yeni madde eklemeden önce kullanıcı kararına sun; mükerrer ve çelişkili hükümleri ayrı işaretle.
+- [ ] Kanun/yönetmelik atıflarının korunmasını, güncel doğrulama yapılmadan silinmemesini ve atıf alanının formda kalmasını kontrol et.
+- [x] Eksiklik kontrolünü ofis iş akışına göre daralt: teslim/anahtar maddesi ekleme; aidat/vergi/abonelikleri mevcut haliyle bırak; takyidat ve borç kontrolünü sözleşme öncesi kontrol olarak tut ve uygun değilse protokol oluşturma.
+- [x] Takyidat/borç ön kontrolünü sözleşme metnine otomatik aktarma; satıcı sorumluluğu yaklaşımını yalnız ofis içi hazırlık notu olarak koru. Checklist metne aktarmıyor; yalnız audit’e hazırlık kontrolü olarak kaydediyor.
+
+## 9. Alım-Satım Ön Protokolü hazırlık kontrolü
+
+- [x] Protokol formu açılırken danışmana kırmızı uyarı paneli göster: sözleşme metnine eklenmeyen, yalnız hazırlık aşamasında kontrol edilen işlemler açıkça ayrı tutulsun. Panel form şablon ekranına bağlandı.
+- [x] Zorunlu kontrol maddelerini belirle: taraf/taşınmaz bilgilerinin doğrulanması; takyidat ve borç ön kontrolünün tamamlanması; toplam satış bedeli, tapu işlem tutarı, kapora ve bakiye uyumu; sabit cayma bedeli; komisyon oranı ve ödeme zamanı; vekâlet varsa belge kontrolü; havale dekontu/nakit teslim belgesi planı. Sabit %4 tapu harcı ve döner sermaye kontrol listesine alınmayacak, yalnız Madde 4’te kalacak. Sekiz değişken kontrol maddesi ortak sabite alındı.
+- [x] Tüm kontroller işaretlenmeden protokol kaydı ve yazdırılabilir çıktı işlemlerini engelle; uyarı mesajını açık ve erişilebilir göster. Server `assertContractPreparationComplete` kapısı ve kırmızı UI durumu bağlandı.
+- [x] Kontrol işaretlerini kullanıcı, zaman ve protokol taslağıyla birlikte audit kaydına al; bu kayıtlar sözleşme maddelerine otomatik eklenmesin. Her kaydetmede kullanıcı, taslak anahtarı, tamamlanma sayısı ve zaman audit’e yazılıyor.
+- [x] Alım-Satım Ön Protokolü hazırlık kontrolü için backend, UI ve regresyon testlerini yaz. Checklist birim testleri 6/6 geçti; TypeScript doğrulandı.
+
+## 10. Danışman checklist görünürlüğü
+- [x] Alım-Satım Ön Protokolü ön kontrol checklist’ini danışmanların görebileceği akışa taşı; manager-only kısıtını yalnız şablon yayınlama/audit işlemlerinde koru. Menü erişimi tüm authenticated kullanıcılara açıldı; manager işlemleri UI/backend’de korundu.
+- [x] Checklist backend okuma/kaydetme/tamamlama yetkisini yetkili danışmanlara aç; şablon yönetimi prosedürlerini manager-only bırak. Checklist protectedProcedure, şablon yönetimi adminProcedure olarak ayrıldı.
+- [ ] Başarılı danışman login’i sonrası kırmızı panelin görünürlüğünü ve kayıt/çıktı kapısını test et.
