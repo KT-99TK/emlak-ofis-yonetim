@@ -97,7 +97,7 @@ import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { changeLocalPassword, createLocalConsultantAccount, loginLocalUser, logoutLocalUser, resetLocalConsultantPassword } from "./localAuth";
-import { getMissingRequiredContractFormFields } from "../shared/contractForms";
+import { getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields } from "../shared/contractForms";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
 const MAX_MOBILE_PDF_BYTES = 12 * 1024 * 1024;
@@ -526,6 +526,10 @@ export const appRouter = router({
             const missingFields = getMissingRequiredContractFormFields(template.fields, input.fieldValues);
             if (missingFields.length > 0) {
               throw new Error(`Form onaylanamaz; zorunlu alanlar eksik: ${missingFields.map(field => field.label).join(", ")}`);
+            }
+            const missingAttachments = getMissingRequiredContractFormAttachments(template.attachments.map(attachment => ({ title: attachment.title, required: attachment.required, status: attachment.status })));
+            if (missingAttachments.length > 0) {
+              throw new Error(`Form onaylanamaz; zorunlu ekler hazır değil: ${missingAttachments.join(", ")}`);
             }
           }
           const { preparationDraftKey: _preparationDraftKey, ...instanceInput } = input;
