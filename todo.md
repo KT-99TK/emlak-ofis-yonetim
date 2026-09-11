@@ -327,3 +327,5 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Canlı alan adı ile dev preview TLS/HTTP yanıtlarını aynı zaman aralığında karşılaştır; uygulama kodunu değiştirmeden kanıtları kaydet. Her ikisi de HTTP/2 200 ve TLS 1.3 ile sandbox ortamından açıldı; canlı sertifika doğrulandı.
 - [x] Kullanıcı ağı/operatör kaynaklı filtre veya TLS kesintisi ihtimalini, farklı ağ testi olmadan kesin kök neden olarak ilan etme; GSM kanıtı yalnızca tek ağ ihtimalini daraltıyor, kesinleştirmiyor.
 - [x] Platform desteğine tam alan adı, tarih-saat, saat dilimi, hata metni ve ekran görüntüsüyle teknik aktarım metni hazırla; destek metni `docs/tls-support-message-en-2026-09-11.md` içinde.
+
+- [x] 11.09.2026 18:16 TRT’de Wi‑Fi kapalı yalnız GSM/4.5G üzerinden normal canlı hostname’in tekrar `ERR_CONNECTION_RESET` vermesini destek kanıtına ekle; noktalı hostname’in 404 sonucu ile birlikte değerlendir.
