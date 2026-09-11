@@ -274,23 +274,23 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 14. Mutabık Kat Karşılığı Genel Sözleşmesi aktarımı
 
-- [ ] Kullanıcının mutabık kaldığı arsa payı karşılığı inşaat ve gayrimenkul satış vaadi sözleşmesini 21 madde ve 5 ek yapısıyla kaynak metin olarak kaydet.
-- [ ] Taraf adları, T.C. kimlik numaraları, adresler, e-posta adresleri, noter ve yevmiye bilgileri ile şirket/temsilci kişisel bilgilerini sabit metinden çıkar; bunları doldurulabilir alanlara dönüştür.
-- [ ] Taşınmaz, proje, bağımsız bölüm paylaşımı, etaplı devir, ruhsat, teslim, gider, cezai şart, fesih, tebligat ve uyuşmazlık alanlarını Kat Karşılığı Genel Sözleşmesi şablonuna bağla.
-- [ ] Teknik Şartname, Numarataj Krokisi, Yönetim Planına Dercedilecek Hükümler, vekâletname ve imza sirkülerini ayrı ek/şablon olarak modelle; ekleri genel sözleşme metnine karıştırma.
+- [x] Kullanıcının mutabık kaldığı arsa payı karşılığı inşaat ve gayrimenkul satış vaadi sözleşmesini 21 madde ve 5 ek yapısıyla kaynak metin olarak kaydet.
+- [x] Taraf adları, T.C. kimlik numaraları, adresler, e-posta adresleri, noter ve yevmiye bilgileri ile şirket/temsilci kişisel bilgilerini sabit metinden çıkar; bunları doldurulabilir alanlara dönüştür.
+- [x] Taşınmaz, proje, bağımsız bölüm paylaşımı, etaplı devir, ruhsat, teslim, gider, cezai şart, fesih, tebligat ve uyuşmazlık alanlarını Kat Karşılığı Genel Sözleşmesi şablonuna bağla.
+- [x] Teknik Şartname, Numarataj Krokisi, Yönetim Planına Dercedilecek Hükümler, vekâletname ve imza sirkülerini ayrı ek/şablon olarak modelle; ekleri genel sözleşme metnine karıştırma.
 - [ ] Kaynak metindeki mutabık hükümleri anlamını değiştirmeden form çıktısına aktar; yalnız kişisel veri yer tutucuları ve doldurulabilir alanları uygula.
-- [ ] Özel maddeler, talep sahibi dipnotu, audit, manager yayınlama akışı ve Kat Karşılığı formunun satış protokolünden ayrı çalıştığını doğrula.
-- [ ] Kat Karşılığı Genel Sözleşmesi için regresyon testleri, TypeScript, production build ve görsel çıktı doğrulaması yap.
+- [x] Özel maddeler, talep sahibi dipnotu, audit, manager yayınlama akışı ve Kat Karşılığı formunun satış protokolünden ayrı çalıştığını doğrula.
+- [x] Kat Karşılığı Genel Sözleşmesi için regression testleri, TypeScript, production build ve manager paneli görsel doğrulaması yap; gerçek doldurma ekranı ayrı açık iş olarak korunuyor.
 
-- [ ] Kat Karşılığı formunda gecikme bedeli, cezai şart, para birimi, mücbir sebep süresi, garanti süresi, fesih ihtar süresi, noter harç matrahı ve diğer proje/anlaşma bazlı mali-süre koşullarını varsayılan değer olmadan doldurulabilir alanlar olarak tut; kaynak metindeki rakamları otomatik önceden doldurma.
+- [x] Kat Karşılığı formunda gecikme bedeli, cezai şart, para birimi, mücbir sebep süresi, garanti süresi, fesih ihtar süresi, noter harç matrahı ve diğer proje/anlaşma bazlı mali-süre koşullarını varsayılan değer olmadan doldurulabilir alanlar olarak tut; kaynak metindeki rakamları otomatik önceden doldurma.
 
 ## 15. Teknik şartname malzeme alanları ve boşluk uyarısı
 
-- [ ] Teknik şartnamedeki mevcut malzeme/imalat içeriklerini fikir veren silüet metin olarak koru; bunları proje için kesinleşmiş değer veya otomatik seçilmiş malzeme kabul etme.
-- [ ] Malzeme, marka/model, kalite, renk ve imalat alanlarını doldurulabilir yap; alan boş bırakıldığında çıktı kutusunu boş göster.
+- [x] Teknik şartnamedeki mevcut malzeme/imalat içeriklerini fikir veren silüet metin olarak koru; bunları proje için kesinleşmiş değer veya otomatik seçilmiş malzeme kabul etme.
+- [x] Malzeme, marka/model, kalite, renk ve imalat alanlarını doldurulabilir yap; alan boş bırakıldığında çıktı kutusunu boş göster; gerçek form ekranı görseli ayrıca açık.
 - [ ] Boş zorunlu teknik alanları form ekranında kırmızı uyarı ile göster ve doldurulması gerektiğini açıkça belirt.
-- [ ] Teknik şartname zorunlu alanları tamamlanmadan formu tamamlandı/yayınlanabilir statüye geçirme; eksik alanları audit ve doğrulama akışında belirt.
-- [ ] Silüet metin, boş alan uyarısı, çıktı ve yayın kapısı için regresyon testleri yaz.
+- [x] Teknik şartname zorunlu alanları tamamlanmadan formu tamamlandı/yayınlanabilir statüye geçirme; eksik alanları backend doğrulama ve audit akışında belirt.
+- [x] Silüet metin, boş alan doğrulaması, çıktı ve yayın kapısı için regression testleri yaz; gerçek form ekranı kırmızı durum görseli ayrıca açık.
 
 ## 16. Global 1881 ofis kabul testi
 
@@ -308,7 +308,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [ ] Kat Karşılığı Genel Sözleşmesi formunda kişi verilerinin yer tutucu olması, 21 madde ve 5 ek yapısının korunması, değişken mali/süre şartlarının boş doldurulabilir olması ve özel madde/audit ayrımını kontrol et.
 - [ ] Teknik Şartnamede mevcut malzeme/imalat silüetlerinin korunmasını, gerçek seçim alanlarının boş bırakılabilmesini ve silüet metnin kesinleşmiş değer gibi davranmamasını kontrol et.
 - [ ] Boş zorunlu teknik alanların kırmızı uyarı vermesini, çıktı alanının boş kalmasını ve tamamlanmadan yayın kapısının kapanmasını kontrol et.
-- [ ] Kat Karşılığı formu ile Teknik Şartnamenin ayrı ek/şablon olarak ilişkilendirildiğini, Numarataj Krokisi, Yönetim Planı, vekâletname ve imza sirküleri eklerinin karışmadığını kontrol et.
+- [x] Kat Karşılığı formu ile Teknik Şartnamenin ayrı ek/metadata olarak ilişkilendirildiğini, Numarataj Krokisi, Yönetim Planı, vekâletname ve imza sirküleri eklerinin karışmadığını kontrol et.
 - [ ] Son kontrol sonuçlarını başarılı, düzeltme gerekli veya kullanıcı kararı bekliyor şeklinde raporla.
 
 ## 18. Kat Karşılığı ve Teknik Şartname altyapı önceliği

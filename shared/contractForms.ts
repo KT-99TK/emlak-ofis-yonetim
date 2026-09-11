@@ -219,7 +219,7 @@ export function getDefaultFormFields(formType: ContractFormType) {
     : [...COMMON_FORM_FIELDS, ...LAND_SHARE_FORM_FIELDS].sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export type RequiredContractFormField = { fieldKey: string; label: string; required: boolean | number };
+export type RequiredContractFormField = { fieldKey: string; label: string; required?: boolean | number };
 
 export function getMissingRequiredContractFormFields(
   fields: RequiredContractFormField[],
@@ -273,11 +273,13 @@ export const EMPTY_FORM_BLUEPRINT = {
 
 export function renderContractFormOutput(input: {
   formType?: ContractFormType;
-  fields: Array<{ fieldKey: string; label: string; sortOrder: number }>;
+  fields: Array<{ fieldKey: string; label: string; sortOrder: number; required?: boolean | number }>;
   fieldValues: Record<string, unknown>;
   clauses: Array<{ id: number; title: string; bodyTemplate: string; sortOrder: number; status: string; partyScope?: ContractFormParty; requesterDisplayName?: string | null; includeRequesterFootnote?: number | boolean | null }>;
 }) {
+  const missingRequiredFields = getMissingRequiredContractFormFields(input.fields, input.fieldValues);
   return {
+    missingRequiredFields,
     fields: [...input.fields]
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map(field => ({

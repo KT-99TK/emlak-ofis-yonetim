@@ -107,12 +107,23 @@ describe("contract form clause model", () => {
         { id: 1, title: "Aktif", bodyTemplate: "aktif metin", sortOrder: 10, status: "active" },
       ],
     });
+    expect(output.missingRequiredFields).toEqual([]);
     expect(output.fields).toEqual([
       { fieldKey: "contractDate", label: "Tarih", value: "" },
       { fieldKey: "buyerName", label: "Alıcı", value: "Ayşe Kaya" },
     ]);
     expect(output.clauses.map(clause => clause.id)).toEqual([1]);
     expect(output.clauses[0].articleNumber).toBe(17);
+  });
+
+  it("reports missing required fields in the shared output model", () => {
+    const output = renderContractFormOutput({
+      formType: "land_share",
+      fields: [{ fieldKey: "technical_kitchenEquipment", label: "Mutfak ekipmanı", sortOrder: 1, required: true }],
+      fieldValues: {},
+      clauses: [],
+    });
+    expect(output.missingRequiredFields).toEqual([{ fieldKey: "technical_kitchenEquipment", label: "Mutfak ekipmanı" }]);
   });
 
   it("outputs only active non-empty clauses in their configured order", () => {
