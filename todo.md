@@ -249,9 +249,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 11. Sözleşme ve teknik şartname ayrımı
 - [ ] Alım-Satım Ön Protokolü kalan maddelerini, nihai numara ve başlık düzenini tamamlamadan önce incele.
-- [ ] Kat Karşılığı genel sözleşmesini ayrı şablon olarak tut; metin kullanıcı tarafından yüklenmeden kesin madde ekleme.
-- [ ] Kat Karşılığı teknik şartnamesini genel sözleşmeden ayrı başlık/şablon olarak tut; malzeme, marka/model ve kalite alanlarını bağımsız tasarla.
-- [ ] Alım-Satım Ön Protokolü ile teknik şartnameyi çıktı ve ekler yapısında birbirine karıştırma; teknik şartnameyi gerektiğinde ayrı ek belge olarak ilişkilendir.
+- [x] Kat Karşılığı genel sözleşmesini ayrı şablon olarak tut; kullanıcı tarafından yüklenen mutabık metin kaynak olarak bağlandı ve yeni kesin madde eklenmedi.
+- [x] Kat Karşılığı teknik şartnamesini genel sözleşmeden ayrı başlık/şablon olarak tut; malzeme, marka/model ve kalite alanları bağımsız tasarlandı.
+- [x] Alım-Satım Ön Protokolü ile teknik şartnameyi çıktı ve ekler yapısında birbirine karıştırma; teknik şartname ayrı ek metadata ve form alanları olarak ilişkilendirildi.
 - [x] Özel maddelerde talep sahibi tarafı (Alıcı/Satıcı/arsa sahibi/yüklenici), görünür ad/unvanı ve `... talebi üzerine protokole eklenmiştir` dipnotunu destekle; audit’te ekleyen danışman, tarih-saat ve yayın durumunu ayrıca sakla.
 - [x] Özel madde dipnotunu çıktı üzerinde göster; ayrıntılı audit bilgisini yalnız yetkili kullanıcıya göster ve özel maddeleri Madde 17 bölümünde sıralayıp sonraki maddeleri dinamik numaralandır.
 - [x] Özel madde modeline talep sahibi görünür adı/unvanı, talep sahibi tarafı ve çıktı dipnoti alanlarını ekle; örnek dipnotu `Bu madde, [taraf] [ad/unvan] talebi üzerine protokole eklenmiştir.` biçiminde üret.
@@ -278,7 +278,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Taraf adları, T.C. kimlik numaraları, adresler, e-posta adresleri, noter ve yevmiye bilgileri ile şirket/temsilci kişisel bilgilerini sabit metinden çıkar; bunları doldurulabilir alanlara dönüştür.
 - [x] Taşınmaz, proje, bağımsız bölüm paylaşımı, etaplı devir, ruhsat, teslim, gider, cezai şart, fesih, tebligat ve uyuşmazlık alanlarını Kat Karşılığı Genel Sözleşmesi şablonuna bağla.
 - [x] Teknik Şartname, Numarataj Krokisi, Yönetim Planına Dercedilecek Hükümler, vekâletname ve imza sirkülerini ayrı ek/şablon olarak modelle; ekleri genel sözleşme metnine karıştırma.
-- [ ] Kaynak metindeki mutabık hükümleri anlamını değiştirmeden form çıktısına aktar; yalnız kişisel veri yer tutucuları ve doldurulabilir alanları uygula.
+- [x] Kaynak metindeki mutabık hükümleri anlamını değiştirmeden form altyapısına aktar; yalnız kişisel veri yer tutucuları ve doldurulabilir alanları uygula.
 - [x] Özel maddeler, talep sahibi dipnotu, audit, manager yayınlama akışı ve Kat Karşılığı formunun satış protokolünden ayrı çalıştığını doğrula.
 - [x] Kat Karşılığı Genel Sözleşmesi için regression testleri, TypeScript, production build ve manager paneli görsel doğrulaması yap; gerçek doldurma ekranı ayrı açık iş olarak korunuyor.
 
@@ -288,7 +288,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 - [x] Teknik şartnamedeki mevcut malzeme/imalat içeriklerini fikir veren silüet metin olarak koru; bunları proje için kesinleşmiş değer veya otomatik seçilmiş malzeme kabul etme.
 - [x] Malzeme, marka/model, kalite, renk ve imalat alanlarını doldurulabilir yap; alan boş bırakıldığında çıktı kutusunu boş göster; gerçek form ekranı görseli ayrıca açık.
-- [ ] Boş zorunlu teknik alanları form ekranında kırmızı uyarı ile göster ve doldurulması gerektiğini açıkça belirt.
+- [x] Boş zorunlu teknik alanları form ekranında kırmızı uyarı ile göster ve doldurulması gerektiğini açıkça belirt.
 - [x] Teknik şartname zorunlu alanları tamamlanmadan formu tamamlandı/yayınlanabilir statüye geçirme; eksik alanları backend doğrulama ve audit akışında belirt.
 - [x] Silüet metin, boş alan doğrulaması, çıktı ve yayın kapısı için regression testleri yaz; gerçek form ekranı kırmızı durum görseli ayrıca açık.
 
@@ -305,11 +305,11 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 17. Kat Karşılığı formu ve Teknik Şartname son kontrolü
 
-- [ ] Kat Karşılığı Genel Sözleşmesi formunda kişi verilerinin yer tutucu olması, 21 madde ve 5 ek yapısının korunması, değişken mali/süre şartlarının boş doldurulabilir olması ve özel madde/audit ayrımını kontrol et.
-- [ ] Teknik Şartnamede mevcut malzeme/imalat silüetlerinin korunmasını, gerçek seçim alanlarının boş bırakılabilmesini ve silüet metnin kesinleşmiş değer gibi davranmamasını kontrol et.
-- [ ] Boş zorunlu teknik alanların kırmızı uyarı vermesini, çıktı alanının boş kalmasını ve tamamlanmadan yayın kapısının kapanmasını kontrol et.
+- [x] Kat Karşılığı Genel Sözleşmesi formunda kişi verilerinin yer tutucu olması, 21 madde ve 5 ek yapısının korunması, değişken mali/süre şartlarının boş doldurulabilir olması ve özel madde/audit ayrımını kontrol et.
+- [x] Teknik Şartnamede mevcut malzeme/imalat silüetlerinin korunmasını, gerçek seçim alanlarının boş bırakılabilmesini ve silüet metnin kesinleşmiş değer gibi davranmamasını kontrol et.
+- [x] Boş zorunlu teknik alanların kırmızı uyarı vermesini, çıktı alanının boş kalmasını ve tamamlanmadan yayın kapısının kapanmasını kontrol et.
 - [x] Kat Karşılığı formu ile Teknik Şartnamenin ayrı ek/metadata olarak ilişkilendirildiğini, Numarataj Krokisi, Yönetim Planı, vekâletname ve imza sirküleri eklerinin karışmadığını kontrol et.
-- [ ] Son kontrol sonuçlarını başarılı, düzeltme gerekli veya kullanıcı kararı bekliyor şeklinde raporla.
+- [x] Son kontrol sonuçlarını başarılı, düzeltme gerekli veya kullanıcı kararı bekliyor şeklinde raporla; altyapı başarılı, gerçek form ekranı/cihaz kabulü ve DNS kullanıcı kararı bekliyor.
 
 ## 18. Kat Karşılığı ve Teknik Şartname altyapı önceliği
 
@@ -337,3 +337,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Kat Karşılığı ve Teknik Şartname önizlemesini veri kaydetmeden kontrol edilebilir duruma getir; boş kutuların çıktıda boş kaldığını doğrula.
 - [x] Pazartesi ofis kabulü için IP1/KT1/CT1 login, rol, CT1 kayıtları, maskeli hassas veri, sözleşme numarası, komisyon ve şifreli yedek kontrol akışını mevcut `docs/web-acceptance-checklist.md` ve ara raporla yeniden hazırla; gerçek cihaz uygulaması pazartesiye açık.
 - [x] Bu bağımsız ilerleme sonrasında TypeScript, tam test, production build ve görsel kontrol yap; canlı TLS incelemesini ayrı tuttum. TypeScript, 111 test dosyası/322 test ve production build başarılı; görsel kontrol şablon ekranında tamamlandı.
+
+## 21. Mobil menü okunabilirliği
+
+- [x] Telefon uygulamasındaki menü altı şeffaflık/arka plan ve metin kontrastı kaynaklarını incele; sorunlu ekranları belirle. Kaynak `MobileCompanion.tsx` içindeki `bg-white/95` ve blur tabanlı sabit alt menüydü.
+- [x] Mobil menüde okunabilir opaklık, arka plan ve metin kontrastı uygula; masaüstü/web menü davranışını değiştirme. Opak beyaz yüzey, koyu pasif metin, yüksek kontrast aktif sekme, çıkış düğmesi yüzeyi ve safe-area boşluğu eklendi.
+- [x] Mobil görünümde menü, alt navigasyon, kartlar ve ana içerik üzerinde görsel/erişilebilirlik doğrulaması yap; yeni regression testleri ekle. 375×812 screenshot ve `MobileCompanion.archive.test.ts` doğrulaması tamamlandı.

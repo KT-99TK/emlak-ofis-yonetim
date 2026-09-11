@@ -21,5 +21,10 @@ describe("MobileCompanion customer digital archive", () => {
     expect(source).toContain("Banka → kasa");
     expect(source).toContain("Fatura, makbuz veya banka dekont no *");
     expect(source).toContain("Gün sonu fizikî kasa sayımı");
+    expect(source).toContain('aria-label="Mobil ana menü"');
+    expect(source).toContain("bg-white px-3 pb-[calc(1rem+env(safe-area-inset-bottom))]");
+    expect(source).toContain("bg-[#f2f7f3] text-[#29483f]");
+    expect(source).toContain("bg-[#173e39] text-white shadow-sm");
+    expect(source).toContain("pb-[calc(7rem+env(safe-area-inset-bottom))]");
   });
 });

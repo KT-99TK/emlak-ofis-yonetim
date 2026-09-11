@@ -511,7 +511,7 @@ export default function MobileCompanion() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f7f4] pb-24 text-[#243733]">
+    <main className="min-h-screen bg-[#f7f7f4] pb-[calc(7rem+env(safe-area-inset-bottom))] text-[#243733]">
       <header className="bg-[#173e39] px-5 pb-6 pt-10 text-white">
         <div className="mx-auto flex max-w-xl items-start justify-between gap-4">
           <div>
@@ -1364,7 +1364,7 @@ export default function MobileCompanion() {
         )}
       </section>
 
-      <nav className="fixed inset-x-0 bottom-0 border-t border-[#dce5df] bg-white/95 px-3 pb-4 pt-2 backdrop-blur">
+      <nav aria-label="Mobil ana menü" className="fixed inset-x-0 bottom-0 z-40 border-t border-[#cbdad1] bg-white px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(23,62,57,0.14)]">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-1">
           <Tab
             label="Gündem"
@@ -1393,7 +1393,7 @@ export default function MobileCompanion() {
           <button
             type="button"
             onClick={() => void logout()}
-            className="flex flex-col items-center gap-1 px-2 py-1 text-[10px] font-medium text-[#8a6051]"
+            className="flex min-w-[3.25rem] flex-col items-center gap-1 rounded-xl border border-[#ead8d0] bg-[#fff8f5] px-2 py-2 text-[10px] font-semibold text-[#8a4f40] transition-colors"
           >
             <LogOut className="h-5 w-5" />
             Çıkış
@@ -1507,7 +1507,8 @@ function Tab({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center gap-1 rounded-xl px-2 py-1 text-[10px] font-medium ${active ? "bg-[#173e39] text-white" : "text-[#667770]"}`}
+      aria-current={active ? "page" : undefined}
+      className={`flex min-w-[3.25rem] flex-col items-center gap-1 rounded-xl border px-2 py-2 text-[10px] font-semibold transition-colors ${active ? "border-[#173e39] bg-[#173e39] text-white shadow-sm" : "border-[#dbe6df] bg-[#f2f7f3] text-[#29483f]"}`}
     >
       {icon}
       {label}
