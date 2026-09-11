@@ -318,3 +318,5 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Teknik Şartname, Numarataj Krokisi, Yönetim Planı, vekâletname ve imza sirkülerini ayrı ek belge metadata modeliyle ilişkilendir.
 - [x] Kat Karşılığı ve Teknik Şartname yayın kapısını backend doğrulaması ve audit ile güvenceye al.
 - [x] Altyapı değişiklikleri için test, TypeScript ve production build doğrulamasını tamamla.
+
+- [x] Kat Karşılığı şablon ayrıntılarında EK-1–EK-5 ek metadata durumlarını ve zorunlu ek uyarısını manager için görünür kıl; gerçek doldurma formunu ayrı aşamada tut.
