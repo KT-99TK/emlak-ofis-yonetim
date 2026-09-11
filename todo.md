@@ -323,7 +323,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 19. Mobil Chrome preview TLS erişim hatası
 
-- [ ] Mobil Chrome ekran görüntüsündeki `ERR_SSL_PROTOCOL_ERROR` olayını canlı yayın, dev preview ve kullanıcı ağı ayrımında teşhis et.
+- [x] Mobil Chrome ekran görüntüsündeki `ERR_SSL_PROTOCOL_ERROR` ve GSM denemesinde görülen `ERR_CONNECTION_RESET` olaylarını canlı yayın, dev preview ve kullanıcı ağı ayrımında teşhis et; uygulama ekranına ulaşılmadığı için kod kaynaklı genel çökme bulgusu yok.
 - [x] Canlı alan adı ile dev preview TLS/HTTP yanıtlarını aynı zaman aralığında karşılaştır; uygulama kodunu değiştirmeden kanıtları kaydet. Her ikisi de HTTP/2 200 ve TLS 1.3 ile sandbox ortamından açıldı; canlı sertifika doğrulandı.
-- [ ] Kullanıcı ağı/operatör kaynaklı filtre veya TLS kesintisi ihtimalini, farklı ağ testi olmadan kesin kök neden olarak ilan etme.
-- [ ] Gerekirse platform desteğine tam alan adı, tarih-saat, saat dilimi, hata metni ve ekran görüntüsüyle teknik aktarım metni hazırla.
+- [x] Kullanıcı ağı/operatör kaynaklı filtre veya TLS kesintisi ihtimalini, farklı ağ testi olmadan kesin kök neden olarak ilan etme; GSM kanıtı yalnızca tek ağ ihtimalini daraltıyor, kesinleştirmiyor.
+- [x] Platform desteğine tam alan adı, tarih-saat, saat dilimi, hata metni ve ekran görüntüsüyle teknik aktarım metni hazırla; destek metni `docs/tls-support-message-en-2026-09-11.md` içinde.
