@@ -257,3 +257,64 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Özel madde modeline talep sahibi görünür adı/unvanı, talep sahibi tarafı ve çıktı dipnoti alanlarını ekle; örnek dipnotu `Bu madde, [taraf] [ad/unvan] talebi üzerine protokole eklenmiştir.` biçiminde üret.
 - [x] Özel maddeleri çıktı modelinde Madde 17 bölümünde sıralı göster; yetkili mahkeme ve madde sayısı hükümlerini özel maddelerden sonra dinamik numaralandır.
 - [x] Özel madde dipnotu ve ayrıntılı audit bilgisi için schema, router, UI ve regresyon testlerini güncelle; Kat Karşılığı ve teknik şartname ayrımını koru.
+
+## 12. Kullanıcıdan gelecek genel sözleşme metni
+
+- [ ] Genel sözleşme parçalarını sıra ve madde bütünlüğünü koruyarak teslim al; eksik veya tekrarlanan parça varsa kullanıcıya bildir.
+- [ ] Her maddeyi kişisel bilgilerden arındırarak mevcut metin ve önerilen humanizer metni şeklinde karşılaştır; kanun/yönetmelik atıflarını kullanıcı onayı olmadan kaldırma.
+- [ ] Kullanıcının açık onayını almadan yeni hukuki maddeyi kesinleştirme veya sisteme aktif madde olarak yayınlama.
+- [ ] Onaylanan genel sözleşme maddelerini doldurulabilir alanlardan, isteğe bağlı özel maddelerden ve ayrı teknik şartname ekinden ayırarak form şablonuna aktar.
+- [ ] Genel sözleşme aktarımı sonrasında dinamik madde numarası, talep sahibi dipnotu, kırmızı hazırlık checklist’i, çıktı önizlemesi, audit ve regresyon testlerini doğrula.
+
+## 13. Kullanıcı kabulü bekleyen operasyonel işler
+
+- [ ] Ofiste IP1, KT1 ve CT1 ile LAN bağlantısı, login, rol görünürlüğü ve maskeli veri kabulünü gerçek cihazlarda doğrula.
+- [ ] Kat Karşılığı genel sözleşmesi ve teknik şartname kaynak metinleri sağlandığında ayrı şablon/ek belge olarak aktar.
+- [ ] Kullanıcı DNS sağlayıcı bilgilerini ve açık geçiş onayını verdiğinde ofis.global1881.com alan adı bağlantısını başlat ve HTTPS kabulünü yap.
+
+## 14. Mutabık Kat Karşılığı Genel Sözleşmesi aktarımı
+
+- [ ] Kullanıcının mutabık kaldığı arsa payı karşılığı inşaat ve gayrimenkul satış vaadi sözleşmesini 21 madde ve 5 ek yapısıyla kaynak metin olarak kaydet.
+- [ ] Taraf adları, T.C. kimlik numaraları, adresler, e-posta adresleri, noter ve yevmiye bilgileri ile şirket/temsilci kişisel bilgilerini sabit metinden çıkar; bunları doldurulabilir alanlara dönüştür.
+- [ ] Taşınmaz, proje, bağımsız bölüm paylaşımı, etaplı devir, ruhsat, teslim, gider, cezai şart, fesih, tebligat ve uyuşmazlık alanlarını Kat Karşılığı Genel Sözleşmesi şablonuna bağla.
+- [ ] Teknik Şartname, Numarataj Krokisi, Yönetim Planına Dercedilecek Hükümler, vekâletname ve imza sirkülerini ayrı ek/şablon olarak modelle; ekleri genel sözleşme metnine karıştırma.
+- [ ] Kaynak metindeki mutabık hükümleri anlamını değiştirmeden form çıktısına aktar; yalnız kişisel veri yer tutucuları ve doldurulabilir alanları uygula.
+- [ ] Özel maddeler, talep sahibi dipnotu, audit, manager yayınlama akışı ve Kat Karşılığı formunun satış protokolünden ayrı çalıştığını doğrula.
+- [ ] Kat Karşılığı Genel Sözleşmesi için regresyon testleri, TypeScript, production build ve görsel çıktı doğrulaması yap.
+
+- [ ] Kat Karşılığı formunda gecikme bedeli, cezai şart, para birimi, mücbir sebep süresi, garanti süresi, fesih ihtar süresi, noter harç matrahı ve diğer proje/anlaşma bazlı mali-süre koşullarını varsayılan değer olmadan doldurulabilir alanlar olarak tut; kaynak metindeki rakamları otomatik önceden doldurma.
+
+## 15. Teknik şartname malzeme alanları ve boşluk uyarısı
+
+- [ ] Teknik şartnamedeki mevcut malzeme/imalat içeriklerini fikir veren silüet metin olarak koru; bunları proje için kesinleşmiş değer veya otomatik seçilmiş malzeme kabul etme.
+- [ ] Malzeme, marka/model, kalite, renk ve imalat alanlarını doldurulabilir yap; alan boş bırakıldığında çıktı kutusunu boş göster.
+- [ ] Boş zorunlu teknik alanları form ekranında kırmızı uyarı ile göster ve doldurulması gerektiğini açıkça belirt.
+- [ ] Teknik şartname zorunlu alanları tamamlanmadan formu tamamlandı/yayınlanabilir statüye geçirme; eksik alanları audit ve doğrulama akışında belirt.
+- [ ] Silüet metin, boş alan uyarısı, çıktı ve yayın kapısı için regresyon testleri yaz.
+
+## 16. Global 1881 ofis kabul testi
+
+- [x] Kabul testini veri değiştirmeden başlat; her sonucu uygulama kanıtı, fiziksel cihaz kanıtı veya kullanıcı doğrulaması olarak sınıflandır.
+- [ ] Ana PC LAN IP/port bağlantısını ve iki istemci bağlantısını fiziksel ofis cihazlarında doğrula; uzaktan doğrulanamayan noktaları açık bırak.
+- [x] IP1, KT1 ve CT1 girişlerini, ilk giriş/parola akışını ve rol bazlı menü/record erişimini kod ve regresyon testleriyle kontrol et; gerçek cihaz login kabulü ayrı bekliyor.
+- [x] CT1 danışman profilini, 19 aktif kira kaydını, authority code ve tekrar kayıt durumunu mevcut aktarım kanıtı ve regresyon testiyle kontrol et; fiziksel ekran kabulü ayrı bekliyor.
+- [x] Hassas telefon/T.C./vergi alanlarının maskeli görünümünü ve rol sınırlarını regresyon testleriyle kontrol et; gerçek cihazdaki reveal audit kabulü ayrı bekliyor.
+- [x] Sözleşme numaralarında danışman kodu eşleşmesini ve komisyon senaryo/pay hesaplarını regresyon testleriyle kontrol et; gerçek ekranda veri kaydetmeden görsel kabul ayrı bekliyor.
+- [x] Şifreli yedekleme arşivinin dosya varlığı, SHA-256 bütünlüğü ve veri değiştirmeme sınırı kontrol edildi; parola açma yeniden testi ve ofis sonrası yedek kanıtı ayrı bekliyor.
+- [x] Kabul test sonuçlarını başarılı, kullanıcı cihazı bekliyor, kanıt eksik veya düzeltme gerekli olarak ara rapora ayır.
+
+## 17. Kat Karşılığı formu ve Teknik Şartname son kontrolü
+
+- [ ] Kat Karşılığı Genel Sözleşmesi formunda kişi verilerinin yer tutucu olması, 21 madde ve 5 ek yapısının korunması, değişken mali/süre şartlarının boş doldurulabilir olması ve özel madde/audit ayrımını kontrol et.
+- [ ] Teknik Şartnamede mevcut malzeme/imalat silüetlerinin korunmasını, gerçek seçim alanlarının boş bırakılabilmesini ve silüet metnin kesinleşmiş değer gibi davranmamasını kontrol et.
+- [ ] Boş zorunlu teknik alanların kırmızı uyarı vermesini, çıktı alanının boş kalmasını ve tamamlanmadan yayın kapısının kapanmasını kontrol et.
+- [ ] Kat Karşılığı formu ile Teknik Şartnamenin ayrı ek/şablon olarak ilişkilendirildiğini, Numarataj Krokisi, Yönetim Planı, vekâletname ve imza sirküleri eklerinin karışmadığını kontrol et.
+- [ ] Son kontrol sonuçlarını başarılı, düzeltme gerekli veya kullanıcı kararı bekliyor şeklinde raporla.
+
+## 18. Kat Karşılığı ve Teknik Şartname altyapı önceliği
+
+- [x] Kat Karşılığı alanlarının genel ve teknik bölümlere doğru bağlandığını, değişken mali/süre alanlarının varsayılan değersiz kaldığını doğrula.
+- [x] Teknik Şartname silüet alanları için boşluk/eksiklik doğrulama modelini oluştur; silüet açıklamayı gerçek seçimden ayrı tut.
+- [x] Teknik Şartname, Numarataj Krokisi, Yönetim Planı, vekâletname ve imza sirkülerini ayrı ek belge metadata modeliyle ilişkilendir.
+- [x] Kat Karşılığı ve Teknik Şartname yayın kapısını backend doğrulaması ve audit ile güvenceye al.
+- [x] Altyapı değişiklikleri için test, TypeScript ve production build doğrulamasını tamamla.

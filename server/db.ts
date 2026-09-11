@@ -32,6 +32,7 @@ import {
   contractFormSections,
   contractFormFields,
   contractFormClauses,
+  contractFormAttachments,
   contractFormInstances,
   contractPreparationChecks,
 } from "../drizzle/schema";
@@ -53,14 +54,18 @@ import {
 import {
   activeClausesForOutput,
   getDefaultFormFields,
+  getMissingRequiredContractFormFields,
+  TECHNICAL_FORM_FIELD_KEYS,
   getSaleClosingArticleNumbering,
   numberSaleClosingOptionalClauses,
   EMPTY_FORM_BLUEPRINT,
   normalizeClauseDraft,
   requesterFootnote,
+  isTechnicalContractFormField,
   normalizePreparationChecks,
   preparationChecksComplete,
   SALE_CLOSING_PREPARATION_CHECKS,
+  LAND_SHARE_ATTACHMENT_DEFINITIONS,
   type ContractFormClauseDraft,
   type ContractFormParty,
   type ContractFormType,
@@ -2914,7 +2919,7 @@ export async function getContractFormBundle(templateId: number) {
     .limit(1);
   const template = templateRows[0];
   if (!template) return null;
-  const [sections, fields, clauses] = await Promise.all([
+  const [sections, fields, clauses, attachments] = await Promise.all([
     db
       .select()
       .from(contractFormSections)
@@ -2930,8 +2935,13 @@ export async function getContractFormBundle(templateId: number) {
       .from(contractFormClauses)
       .where(eq(contractFormClauses.templateId, templateId))
       .orderBy(contractFormClauses.sortOrder),
+    db
+      .select()
+      .from(contractFormAttachments)
+      .where(eq(contractFormAttachments.templateId, templateId))
+      .orderBy(contractFormAttachments.id),
   ]);
-  return { template, sections, fields, clauses };
+  return { template, sections, fields, clauses, attachments };
 }
 
 export async function createContractFormTemplate(input: {
@@ -2984,7 +2994,7 @@ export async function createContractFormTemplate(input: {
   for (const field of getDefaultFormFields(input.formType)) {
     await db.insert(contractFormFields).values({
       templateId: created.id,
-      sectionId: sectionIds.get(field.fieldKey === "technicalSpecificationNotes" ? "technical" : "general"),
+      sectionId: sectionIds.get(isTechnicalContractFormField(field.fieldKey) ? "technical" : "general"),
       fieldKey: field.fieldKey,
       label: field.label,
       fieldType: field.fieldType,
@@ -2993,6 +3003,19 @@ export async function createContractFormTemplate(input: {
       required: field.required ? 1 : 0,
       sortOrder: field.sortOrder,
     });
+  }
+  if (input.formType === "land_share") {
+    for (const attachment of LAND_SHARE_ATTACHMENT_DEFINITIONS) {
+      await db.insert(contractFormAttachments).values({
+        templateId: created.id,
+        attachmentType: attachment.attachmentType,
+        title: attachment.title,
+        required: attachment.required ? 1 : 0,
+        status: "missing",
+        createdByUserId: input.createdByUserId,
+        updatedByUserId: input.createdByUserId,
+      });
+    }
   }
   await db.insert(auditLogs).values({
     actorUserId: input.createdByUserId,
@@ -3012,11 +3035,21 @@ export async function setContractFormTemplateStatus(input: {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
   const rows = await db
-    .select({ title: contractFormTemplates.title })
+    .select({ title: contractFormTemplates.title, formType: contractFormTemplates.formType })
     .from(contractFormTemplates)
     .where(eq(contractFormTemplates.id, input.templateId))
     .limit(1);
   if (!rows[0]) throw new Error("Form şablonu bulunamadı.");
+  if (input.status === "published" && rows[0].formType === "land_share") {
+    const requiredAttachments = await db
+      .select({ title: contractFormAttachments.title, status: contractFormAttachments.status })
+      .from(contractFormAttachments)
+      .where(and(eq(contractFormAttachments.templateId, input.templateId), eq(contractFormAttachments.required, 1)));
+    const missingAttachments = requiredAttachments.filter(attachment => attachment.status !== "ready");
+    if (missingAttachments.length > 0) {
+      throw new Error(`Kat Karşılığı şablonu yayınlanamaz; zorunlu ekler hazır değil: ${missingAttachments.map(attachment => attachment.title).join(", ")}`);
+    }
+  }
   await db.update(contractFormTemplates).set({ status: input.status }).where(eq(contractFormTemplates.id, input.templateId));
   await db.insert(auditLogs).values({
     actorUserId: input.actorUserId,
@@ -3026,6 +3059,45 @@ export async function setContractFormTemplateStatus(input: {
     summary: `${rows[0].title} şablonunun durumu ${input.status} olarak değiştirildi.`,
   });
   return getContractFormBundle(input.templateId);
+}
+
+export async function setContractFormAttachmentStatus(input: {
+  attachmentId: number;
+  status: "missing" | "draft" | "ready" | "archived";
+  storageKey?: string;
+  originalFileName?: string;
+  sha256?: string;
+  note?: string;
+  actorUserId: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const attachmentRows = await db
+    .select({ templateId: contractFormAttachments.templateId, title: contractFormAttachments.title, required: contractFormAttachments.required })
+    .from(contractFormAttachments)
+    .where(eq(contractFormAttachments.id, input.attachmentId))
+    .limit(1);
+  const attachment = attachmentRows[0];
+  if (!attachment) throw new Error("Form eki bulunamadı.");
+  if (input.status === "ready" && (!input.storageKey || !input.sha256)) {
+    throw new Error("Hazır ek için dosya referansı ve SHA-256 özeti zorunludur.");
+  }
+  await db.update(contractFormAttachments).set({
+    status: input.status,
+    storageKey: input.storageKey?.trim() || null,
+    originalFileName: input.originalFileName?.trim() || null,
+    sha256: input.sha256?.trim() || null,
+    note: input.note?.trim() || null,
+    updatedByUserId: input.actorUserId,
+  }).where(eq(contractFormAttachments.id, input.attachmentId));
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "contract_form_attachment_status_changed",
+    entityType: "contractFormAttachments",
+    entityId: input.attachmentId,
+    summary: `${attachment.title} eki ${input.status} olarak işaretlendi${attachment.required ? " (zorunlu)" : ""}.`,
+  });
+  return getContractFormBundle(attachment.templateId);
 }
 
 export async function addContractFormSection(input: {

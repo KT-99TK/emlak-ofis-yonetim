@@ -284,6 +284,34 @@ export const contractFormClauses = mysqlTable("contractFormClauses", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const contractFormAttachments = mysqlTable("contractFormAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull(),
+  attachmentType: mysqlEnum("attachmentType", [
+    "technical_specification",
+    "numbering_sketch",
+    "management_plan",
+    "power_of_attorney",
+    "signature_circular",
+  ]).notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  required: int("required").default(0).notNull(),
+  status: mysqlEnum("status", ["missing", "draft", "ready", "archived"]).default("missing").notNull(),
+  storageKey: varchar("storageKey", { length: 255 }),
+  originalFileName: varchar("originalFileName", { length: 255 }),
+  sha256: varchar("sha256", { length: 64 }),
+  note: text("note"),
+  createdByUserId: int("createdByUserId").notNull(),
+  updatedByUserId: int("updatedByUserId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => ({
+  templateAttachmentTypeUnique: uniqueIndex("contract_form_attachments_template_type_unique").on(
+    table.templateId,
+    table.attachmentType,
+  ),
+}));
+
 export const contractFormInstances = mysqlTable("contractFormInstances", {
   id: int("id").autoincrement().primaryKey(),
   contractId: int("contractId").notNull(),

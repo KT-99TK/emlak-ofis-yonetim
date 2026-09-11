@@ -81,6 +81,7 @@ import {
   getContractFormBundle,
   createContractFormTemplate,
   setContractFormTemplateStatus,
+  setContractFormAttachmentStatus,
   addContractFormSection,
   addContractFormField,
   addContractFormClause,
@@ -96,6 +97,7 @@ import { storagePut } from "./storage";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { changeLocalPassword, createLocalConsultantAccount, loginLocalUser, logoutLocalUser, resetLocalConsultantPassword } from "./localAuth";
+import { getMissingRequiredContractFormFields } from "../shared/contractForms";
 
 export const isManager = (user: { role: string }) => user.role === "admin";
 const MAX_MOBILE_PDF_BYTES = 12 * 1024 * 1024;
@@ -493,6 +495,9 @@ export const appRouter = router({
       setStatus: adminProcedure
         .input(z.object({ templateId: z.number().int().positive(), status: z.enum(["draft", "review", "published", "archived"]) }))
         .mutation(({ ctx, input }) => setContractFormTemplateStatus({ ...input, actorUserId: ctx.user.id })),
+      setAttachmentStatus: adminProcedure
+        .input(z.object({ attachmentId: z.number().int().positive(), status: z.enum(["missing", "draft", "ready", "archived"]), storageKey: z.string().max(255).optional(), originalFileName: z.string().max(255).optional(), sha256: z.string().length(64).optional(), note: z.string().max(2000).optional() }))
+        .mutation(({ ctx, input }) => setContractFormAttachmentStatus({ ...input, actorUserId: ctx.user.id })),
       addSection: adminProcedure
         .input(z.object({ templateId: z.number().int().positive(), sectionKey: z.string().min(2).max(80), sectionType: z.enum(["general", "technical", "optional_clauses"]), title: z.string().min(2).max(200), contentTemplate: z.string().max(20000).optional(), sortOrder: z.number().int().min(0).optional() }))
         .mutation(({ input }) => addContractFormSection(input)),
@@ -517,6 +522,12 @@ export const appRouter = router({
           const template = await getContractFormBundle(input.templateId);
           if (!template) throw new Error("Form şablonu bulunamadı.");
           await assertContractPreparationComplete({ draftKey: input.preparationDraftKey, formType: template.template.formType, actorUserId: ctx.user.id });
+          if (input.status === "approved" || input.status === "signed") {
+            const missingFields = getMissingRequiredContractFormFields(template.fields, input.fieldValues);
+            if (missingFields.length > 0) {
+              throw new Error(`Form onaylanamaz; zorunlu alanlar eksik: ${missingFields.map(field => field.label).join(", ")}`);
+            }
+          }
           const { preparationDraftKey: _preparationDraftKey, ...instanceInput } = input;
           return createContractFormInstance({ ...instanceInput, createdByUserId: ctx.user.id });
         }),

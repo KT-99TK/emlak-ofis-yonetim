@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeClausesForOutput, getDefaultFormFields, getSaleClosingArticleNumbering, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, preparationChecksComplete, renderContractFormOutput, requesterFootnote, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
+import { activeClausesForOutput, contractFormFieldsComplete, getDefaultFormFields, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, preparationChecksComplete, renderContractFormOutput, requesterFootnote, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
 
 describe("contract form clause model", () => {
   it("normalizes a party-specific optional clause without inventing legal text", () => {
@@ -46,6 +46,42 @@ describe("contract form clause model", () => {
     expect(saleKeys).not.toContain("landShareRatio");
     expect(landShareKeys).toContain("landShareRatio");
     expect(landShareKeys).not.toContain("salePrice");
+  });
+
+  it("includes technical silhouette fields and leaves variable financial terms empty by default", () => {
+    const landShareFields = getDefaultFormFields("land_share");
+    const technicalField = landShareFields.find(field => field.fieldKey === "technical_kitchenEquipment");
+    const delayPenalty = landShareFields.find(field => field.fieldKey === "delayPenaltyAmount");
+    expect(technicalField).toMatchObject({ fieldType: "multiline", required: true });
+    expect(technicalField?.label).toContain("silüet");
+    expect(delayPenalty).toMatchObject({ fieldType: "currency", required: false });
+  });
+
+  it("blocks incomplete required fields and classifies technical silhouette fields", () => {
+    const fields = [
+      { fieldKey: "propertyAddress", label: "Taşınmaz adresi", required: true },
+      { fieldKey: "delayPenaltyAmount", label: "Geç teslim bedeli", required: false },
+      { fieldKey: "technical_kitchenEquipment", label: "Mutfak ekipmanı", required: true },
+    ];
+    expect(getMissingRequiredContractFormFields(fields, { propertyAddress: "", technical_kitchenEquipment: "" })).toEqual([
+      { fieldKey: "propertyAddress", label: "Taşınmaz adresi" },
+      { fieldKey: "technical_kitchenEquipment", label: "Mutfak ekipmanı" },
+    ]);
+    expect(contractFormFieldsComplete(fields, { propertyAddress: "Urla", technical_kitchenEquipment: "Franke veya muadili" })).toBe(true);
+    expect(isTechnicalContractFormField("technical_kitchenEquipment")).toBe(true);
+    expect(isTechnicalContractFormField("delayPenaltyAmount")).toBe(false);
+  });
+
+  it("keeps Kat Karşılığı annexes separate and makes Technical Specification required", () => {
+    expect(LAND_SHARE_ATTACHMENT_DEFINITIONS.map(item => item.attachmentType)).toEqual([
+      "technical_specification",
+      "numbering_sketch",
+      "management_plan",
+      "power_of_attorney",
+      "signature_circular",
+    ]);
+    expect(LAND_SHARE_ATTACHMENT_DEFINITIONS[0]).toMatchObject({ title: "EK-1 Teknik Şartname", required: true });
+    expect(LAND_SHARE_ATTACHMENT_DEFINITIONS.slice(1).every(item => item.required === false)).toBe(true);
   });
 
   it("renders fillable fields and excludes draft clauses from output", () => {
