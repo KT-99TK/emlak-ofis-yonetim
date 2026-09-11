@@ -30,6 +30,10 @@ describe("contract form clause model", () => {
     expect(parameterized).toContain("{{constructionMilestones}}");
     expect(parameterized).toContain("{{temporaryAcceptanceThresholdPercent}}");
     expect(parameterized).toContain("{{noticePeriodDays}}");
+    expect(parameterized).toContain("{{forceMajeureMaximumDays}}");
+    expect(parameterized).toContain("{{generalPenaltyAmount}}");
+    expect(parameterized).toContain("{{landShareTransferDemandDeadlineDays}}");
+    expect(parameterized).toContain("{{notaryOfficeName}}");
     expect(parameterized).toContain("{{technicalSpecificationPageCount}}");
     expect(parameterized).not.toContain("2331 ada, 27 ve 39 parsel");
     expect(parameterized).not.toContain("1.500 USD");
