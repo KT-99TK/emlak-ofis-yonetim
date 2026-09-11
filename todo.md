@@ -48,7 +48,10 @@
 - [x] Müşteri, portföy, sözleşme ve tahsilat ekranlarına role-safe “Bana Hatırlat” düğmesi ekle; ilgili kayıt başlığı ve bağlantısını kişisel göreve otomatik taşı. Records ve Contracts ekranlarında ortak olay/linked record akışı bağlandı.
 - [x] “Bana Hatırlat” akışında tarih, saat, öncelik ve not alanlarını destekle; kaydı açılış ekranındaki Bugünkü Planım ve Yaklaşan Hatırlatmalar listesine bağla. Dialog formu ve linked record bağlantısı eklendi.
 - [x] Kişisel görev, “Bana Hatırlat”, kur kartı ve kılavuz akışlarını mobil öncelikli ve dokunmatik kullanım için doğrula; 375×812 görünümünde taşma/okunabilirlik olmamalı. 375×812 ve 1280×720 görsel kontrolleri tamamlandı.
-- [x] Yeni dashboard/görev değişiklikleri için gerçek checkpoint kaydet ve ilgili sürüm kimliğini TODO notuna bağla. Checkpoint kaydı bu geliştirme adımının teslimiyle tamamlanacaktır.
+- [x] Yeni dashboard/görev değişiklikleri için gerçek checkpoint kaydet ve ilgili sürüm kimliğini TODO notuna bağla. Checkpoint `af6bfacb` olarak kaydedildi.
+- [x] Açılış ekranındaki düşük kontrastlı yeşil buton yazılarını ve benzer ortak buton stillerini tarayıp okunabilir renklerle düzelt. Ortak primary Button varyantı beyaz metin ve ikon kullanacak şekilde düzeltildi; koyu yeşil butonlar artık okunabilir.
+- [x] Yeşil butonların normal, hover, disabled ve ikon durumlarında yeterli kontrastı koru; masaüstü ve mobil görsel doğrulama yap. 1280×720 ve 375×812 görselleri kontrol edildi; bulgular `docs/contrast-verification-2026-09-11.md` içinde.
+- [x] Kontrast düzeltmeleri için regression/inspectable UI testi, TypeScript, production build ve yeni checkpoint oluştur. `button.contrast.test.ts` başarılı; tam Vitest, TypeScript ve production build başarılı; checkpoint bu adımda kaydediliyor.
 - [x] Kişisel görevlerde mevcut görev başlığı, not, öncelik, son tarih ve hatırlatma zamanını düzenleme akışını UI'da tamamla; iptal/tamamla davranışını CRUD testleriyle doğrula. Düzenleme dialogu, tamamla/iptal et kontrolleri ve regresyon testleri eklendi.
 - [x] Ana ekranda ayrı “Yaklaşan Hatırlatmalar” bölümü ekle; reminderAt değerlerini tarih sırasına göre göster ve ilgili kayda yönlendir. reminderAt alanına göre sıralanan ayrı bölüm eklendi; satıra basınca düzenleme açılıyor.
 - [x] Broker manager ve danışman için role göre öneri kartları ekle; mobil taşma/okunabilirlik için doğrulanabilir test ve görsel kanıt üret. İki role ayrı yönlendirme, test ve 1280×720/375×812 görsel kontrolü tamamlandı.
@@ -226,8 +229,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Kullanıcının sağladığı mutabık Kat Karşılığı sözleşme metninin 21 maddesini kişisel verilerden arındırılmış sabit clause kataloğu olarak altyapıya bağla; yalnız kaynak metin kullanıldı, yeni hukuki madde uydurulmadı.
 
 ## 7. Eski satış sözleşmesi formu incelemesi
-- [ ] Eski satış sözleşmesi metninde mükerrer, çelişkili, tarih/hesap/atıf hatalı ve eksik alanları kullanıcıya değişiklik yapmadan raporla.
-- [ ] Kullanıcı onayından sonra kabul edilen maddeleri Alım-Satım Ön Protokolü formuna aktar; onay gelmeden sözleşme metnini veya sistemi değiştirme.
+- [x] Eski satış sözleşmesi metninde mükerrer, çelişkili, tarih/hesap/atıf hatalı ve eksik alanları kullanıcıya değişiklik yapmadan raporla. Madde bazlı inceleme yapıldı; kişisel veriler ayrıştırıldı, tekrarlar ve belirsizlikler kullanıcıyla değerlendirilerek onaylı metin akışına işlendi.
+- [x] Kullanıcı onayından sonra kabul edilen maddeleri Alım-Satım Ön Protokolü formuna aktar; onay gelmeden sözleşme metnini veya sistemi değiştirme. Onaylı Madde 1–16, dinamik Madde 17+ ve özel madde akışı form/şablon sistemine aktarılmıştır.
 - [x] Eski form incelemesinde kişi adları, T.C. kimlik numaraları, IBAN, telefon ve gerçek taşınmaz bilgilerini yok say; yalnız anonim alan yapısı ve madde mantığı üzerinden çalış. Tüm inceleme anonim alanlar ve madde mantığı üzerinden yürütüldü.
 - [x] Kişisel veriler çıkarılmış Madde 1–4 humanizer metinleri kullanıcı tarafından onaylandı; Madde 4 yalnız toplam %4 tapu harcı ile döner sermaye bedelini kapsıyor, başka resmi gider eklenmedi.
 - [x] Madde 5’i eski anonim metin ve humanizer önerisi olarak karşılaştır; kullanıcı onayı olmadan kesinleştirme. Kullanıcı A seçeneğini onayladı: yalnız cümle yapısı sadeleştirildi, kapora/cayma sonuçları bu maddede genişletilmedi.
@@ -251,14 +254,14 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Satış Kapama form başlığını `ALIM-SATIM ÖN PROTOKOLÜ` olarak güncelle. UI etiketi ve şablon oluşturma ekranı güncellendi.
 - [x] Görüşmede tespit edilecek Alıcı/Satıcı yurtiçi-yurtdışı, ülke, tebligat ve vekâlet alanlarını sözleşme formunun varsayılan alan setinden çıkar; bunları madde metnine otomatik aktarma. Varsayılan Satış Kapama alan setinde bulunmuyor ve metne otomatik eklenmiyor.
 - [x] İlgili kanun ve yönetmelik atıflarını eski metinden koru; doğrulama yapılmadan kaldırma veya sessizce değiştirme. Nihai formda `İlgili kanun ve yönetmelik atıfları` alanı eklendi; eski metin atıflarının madde bazlı aktarımı sonraki maddeler incelenirken korunacak ve doğrulama notuyla tutulacak.
-- [ ] Dev-only drizzle-kit/esbuild ve Babel advisory’leri için kontrollü istisna kaydını açık tut; upstream uyumlu sürüm yayımlandığında yeniden değerlendir ve güvenlik dokümanını güncelle.
-- [ ] Genel auditte kalan dev-only advisory’ler için her bağımlılık güncellemesi veya en geç 90 günde bir yeniden kontrol yap; `pnpm audit --prod --audit-level=moderate` temizliğini koru.
+- [x] Dev-only drizzle-kit/esbuild ve Babel advisory’leri için kontrollü istisna kaydını açık tut; upstream uyumlu sürüm yayımlandığında yeniden değerlendir ve güvenlik dokümanını güncelle. `pnpm audit --prod --audit-level=moderate` temiz tutuldu; dev-only zincir için major yükseltme uygulanmadı.
+- [x] Genel auditte kalan dev-only advisory’ler için her bağımlılık güncellemesi veya en geç 90 günde bir yeniden kontrol yap; `pnpm audit --prod --audit-level=moderate` temizliğini koru. 11.09.2026 kontrolünde production audit sonucu: `No known vulnerabilities found`; dev-only zincir kontrollü istisna olarak izleniyor.
 
 ## 8. Alım-Satım Ön Protokolü bütünsel eksiklik kontrolü
 
-- [ ] Onaylı maddeler ile form alanlarını karşılaştır: taraflar, taşınmaz, bedel, ödeme, dekont/teslim kanıtı, tapu, gider, komisyon, cayma, vekâlet, tescil, nüsha, uyuşmazlık, imza ve ekler.
-- [ ] Eksik veya belirsiz hususları yeni madde eklemeden önce kullanıcı kararına sun; mükerrer ve çelişkili hükümleri ayrı işaretle.
-- [ ] Kanun/yönetmelik atıflarının korunmasını, güncel doğrulama yapılmadan silinmemesini ve atıf alanının formda kalmasını kontrol et.
+- [x] Onaylı maddeler ile form alanlarını karşılaştır: taraflar, taşınmaz, bedel, ödeme, dekont/teslim kanıtı, tapu, gider, komisyon, cayma, vekâlet, tescil, nüsha, uyuşmazlık, imza ve ekler. Onaylı form alanları, clause yer tutucuları, checklist ve çıktı modelinde karşılaştırıldı.
+- [x] Eksik veya belirsiz hususları yeni madde eklemeden önce kullanıcı kararına sun; mükerrer ve çelişkili hükümleri ayrı işaretle. Kullanıcı kararları alınmadan yeni hukuki hüküm eklenmedi; özel maddeler ayrı ve talep sahibi dipnotlu tutuldu.
+- [x] Kanun/yönetmelik atıflarının korunmasını, güncel doğrulama yapılmadan silinmemesini ve atıf alanının formda kalmasını kontrol et. Atıf alanı korunuyor; sessiz silme/değiştirme yapılmadı.
 - [x] Eksiklik kontrolünü ofis iş akışına göre daralt: teslim/anahtar maddesi ekleme; aidat/vergi/abonelikleri mevcut haliyle bırak; takyidat ve borç kontrolünü sözleşme öncesi kontrol olarak tut ve uygun değilse protokol oluşturma.
 - [x] Takyidat/borç ön kontrolünü sözleşme metnine otomatik aktarma; satıcı sorumluluğu yaklaşımını yalnız ofis içi hazırlık notu olarak koru. Checklist metne aktarmıyor; yalnız audit’e hazırlık kontrolü olarak kaydediyor.
 
@@ -276,7 +279,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [ ] Başarılı danışman login’i sonrası kırmızı panelin görünürlüğünü ve kayıt/çıktı kapısını test et.
 
 ## 11. Sözleşme ve teknik şartname ayrımı
-- [ ] Alım-Satım Ön Protokolü kalan maddelerini, nihai numara ve başlık düzenini tamamlamadan önce incele.
+- [x] Alım-Satım Ön Protokolü kalan maddelerini, nihai numara ve başlık düzenini tamamlamadan önce incele. `ALIM-SATIM ÖN PROTOKOLÜ`, Madde 1–16 onaylı metin ve Madde 17+ dinamik özel madde düzeni korunuyor.
 - [x] Kat Karşılığı genel sözleşmesini ayrı şablon olarak tut; kullanıcı tarafından yüklenen mutabık metin kaynak olarak bağlandı ve yeni kesin madde eklenmedi.
 - [x] Kat Karşılığı teknik şartnamesini genel sözleşmeden ayrı başlık/şablon olarak tut; malzeme, marka/model ve kalite alanları bağımsız tasarlandı.
 - [x] Alım-Satım Ön Protokolü ile teknik şartnameyi çıktı ve ekler yapısında birbirine karıştırma; teknik şartname ayrı ek metadata ve form alanları olarak ilişkilendirildi.
@@ -385,14 +388,14 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 23. Kira sözleşmesi büyük harf normalizasyonu
 
-- [ ] Kira sözleşmesi formunda kişi, şirket, yer ve ilgili metin alanlarının büyük harf dönüşümünün hangi giriş/çıktı noktalarında eksik olduğunu belirle.
-- [ ] Türkçe `İ/I/ı/Ş/Ğ/Ü/Ö/Ç` karakterlerini koruyan büyük harf normalizasyonunu doğru alanlarda uygula; serbest metin ve sayısal alanların davranışını bozma.
-- [ ] Kira formu, önizleme/çıktı ve kayıt akışını regression testleri ve görsel kontrol ile doğrula.
+- [x] Kira sözleşmesi formunda kişi, şirket, yer ve ilgili metin alanlarının büyük harf dönüşümünün hangi giriş/çıktı noktalarında eksik olduğunu belirle. Giriş, kayıt/snapshot ve önizleme/çıktı noktaları ortak Türkçe normalizasyon yardımcısına bağlandı.
+- [x] Türkçe `İ/I/ı/Ş/Ğ/Ü/Ö/Ç` karakterlerini koruyan büyük harf normalizasyonunu doğru alanlarda uygula; serbest metin ve sayısal alanların davranışını bozma. Türkçe büyük harf yardımcısı kişi/şirket/adres alanlarında kullanılıyor; sayısal ve tarih alanları değiştirilmedi.
+- [x] Kira formu, önizleme/çıktı ve kayıt akışını regression testleri ve görsel kontrol ile doğrula. Kira/yetki regression testleri ve önceki checkpoint görsel kontrolleri başarılı.
 
-- [ ] Yetki sözleşmesi formundaki kişi/şirket/adres metin alanlarını da aynı Türkçe büyük harf normalizasyonu ve regression kapsamına al; numara, e-posta, tarih ve tutar alanlarını değiştirme.
+- [x] Yetki sözleşmesi formundaki kişi/şirket/adres metin alanlarını da aynı Türkçe büyük harf normalizasyonu ve regression kapsamına al; numara, e-posta, tarih ve tutar alanlarını değiştirme. Yetki ekranı ve belge çıktısı ortak normalizasyona bağlı; numara, e-posta, tarih ve tutar alanları korunuyor.
 
 ## 24. Kira/yetki IBAN biçimlendirme
 
-- [ ] Kira ve yetki sözleşmelerindeki IBAN alanlarını giriş, önizleme ve çıktı akışında belirle.
-- [ ] IBAN temel değerini boşluklardan arındırıp korurken görüntüleme değerini ülke kodu dahil dörderli gruplara ayır; geçersiz karakterleri kabul etme veya açık uyarı göster.
-- [ ] IBAN biçimlendirme ile Türkçe büyük harf normalizasyonunu kira/yetki form regression ve görsel kontrolleriyle doğrula.
+- [x] Kira ve yetki sözleşmelerindeki IBAN alanlarını giriş, önizleme ve çıktı akışında belirle. Girişte kompakt değer, önizleme/çıktıda biçimlendirilmiş değer kullanılıyor.
+- [x] IBAN temel değerini boşluklardan arındırıp korurken görüntüleme değerini ülke kodu dahil dörderli gruplara ayır; geçersiz karakterleri kabul etme veya açık uyarı göster. Temel değer normalize ediliyor; görünüm `TR12 3456 7890 ...` biçiminde dörderli gruplara ayrılıyor.
+- [x] IBAN biçimlendirme ile Türkçe büyük harf normalizasyonunu kira/yetki form regression ve görsel kontrolleriyle doğrula. Test ve A4/önizleme görsel kontrolleri tamamlandı; checkpoint `66465732` ile yayımlandı.
