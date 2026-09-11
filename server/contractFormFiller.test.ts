@@ -14,6 +14,9 @@ describe("Kat Karşılığı gerçek form ekranı", () => {
     expect(page).toContain("createInstance.mutate");
     expect(page).toContain('field.fieldType === "select"');
     expect(page).toContain("optionsJson");
+    expect(page).toContain("Madde ve hükümler");
+    expect(page).toContain("clause.bodyTemplate");
+    expect(page).toContain("clause.requesterFootnote");
   });
 
   it("keeps instance creation behind the existing backend contract and does not fabricate records", () => {

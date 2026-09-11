@@ -343,3 +343,5 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Telefon uygulamasındaki menü altı şeffaflık/arka plan ve metin kontrastı kaynaklarını incele; sorunlu ekranları belirle. Kaynak `MobileCompanion.tsx` içindeki `bg-white/95` ve blur tabanlı sabit alt menüydü.
 - [x] Mobil menüde okunabilir opaklık, arka plan ve metin kontrastı uygula; masaüstü/web menü davranışını değiştirme. Opak beyaz yüzey, koyu pasif metin, yüksek kontrast aktif sekme, çıkış düğmesi yüzeyi ve safe-area boşluğu eklendi.
 - [x] Mobil görünümde menü, alt navigasyon, kartlar ve ana içerik üzerinde görsel/erişilebilirlik doğrulaması yap; yeni regression testleri ekle. 375×812 screenshot ve `MobileCompanion.archive.test.ts` doğrulaması tamamlandı.
+
+- [x] Kat Karşılığı gerçek doldurma ekranında seeded sabit maddeleri ve varsa talep sahibi dipnotlarını önizlemede göster; clause gövdesi/dipnot görünürlüğü için regression testi ekle.
