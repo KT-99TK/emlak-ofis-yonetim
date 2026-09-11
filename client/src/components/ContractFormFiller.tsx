@@ -33,6 +33,16 @@ function fieldValueForInput(value: unknown) {
   return value == null ? "" : String(value);
 }
 
+function parseOptions(optionsJson?: string | null) {
+  if (!optionsJson) return [] as string[];
+  try {
+    const parsed = JSON.parse(optionsJson);
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [] as string[];
+  }
+}
+
 export function ContractFormFiller({ bundle, preview }: { bundle: FillerBundle; preview?: FillerPreview | null }) {
   const [contractId, setContractId] = useState("");
   const [fieldValues, setFieldValues] = useState<Record<string, unknown>>({});
@@ -61,6 +71,7 @@ export function ContractFormFiller({ bundle, preview }: { bundle: FillerBundle; 
     const value = fieldValues[field.fieldKey];
     if (field.fieldType === "checkbox") return <div className={shell}><label className="flex items-center gap-2 text-sm text-[#34433f]"><Checkbox checked={Boolean(value)} onCheckedChange={(checked) => updateValue(field.fieldKey, checked === true)} />{field.label}{field.required ? " *" : ""}</label></div>;
     if (field.fieldType === "multiline") return <div className={shell}>{label}<Textarea value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="min-h-24 bg-white" /></div>;
+    if (field.fieldType === "select") return <div className={shell}>{label}<select value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"><option value="">Seçiniz</option>{parseOptions(field.optionsJson).map((option) => <option key={option} value={option}>{option}</option>)}</select></div>;
     return <div className={shell}>{label}<Input type={field.fieldType === "date" ? "date" : field.fieldType === "number" || field.fieldType === "currency" ? "number" : "text"} value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="bg-white" /></div>;
   };
 

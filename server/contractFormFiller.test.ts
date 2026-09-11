@@ -12,6 +12,8 @@ describe("Kat Karşılığı gerçek form ekranı", () => {
     expect(page).toContain("border-[#cf6b5d]");
     expect(page).toContain("Mevcut sözleşme ID’si");
     expect(page).toContain("createInstance.mutate");
+    expect(page).toContain('field.fieldType === "select"');
+    expect(page).toContain("optionsJson");
   });
 
   it("keeps instance creation behind the existing backend contract and does not fabricate records", () => {
