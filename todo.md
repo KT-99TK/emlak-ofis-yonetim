@@ -195,7 +195,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Yeni formlar için backend, UI, çıktı ve regresyon testlerini yaz; kullanıcı metinleri geldikten sonra gerçek maddeleri sisteme aktar. Backend, UI, preview modeli ve regresyon testleri tamamlandı; gerçek maddelerin aktarımı ayrı açık görev olarak korunuyor.
 - [x] Satış Kapama ve Kat Karşılığı form altyapısını hukuki metinlerden bağımsız olarak başlat: form türü, bölüm sırası, doldurulabilir alan grupları, teknik şartname bölümü ve taslak/revizyon durumu. Şablon, bölüm, alan ve revizyon tabloları; tRPC işlemleri ve manager ekranı eklendi.
 - [x] Taraf bazlı isteğe bağlı ek maddeler için satıcı/alıcı/arsa sahibi/yüklenici ayrımını, başlık-metin-sıra-aktiflik-onay alanlarını ve çıktı sıralamasını tasarla. Taslak/aktif/arşiv durumu, taraf kapsamı, sıralama ve yalnız aktif maddeleri çıktı adayına alma kuralı uygulandı.
-- [ ] Örnek sözleşme metinleri geldiğinde gerçek maddeleri bu altyapıya bağla; mevcut metinler gelmeden hukuki madde veya örnek veri uydurma.
+- [x] Kullanıcının sağladığı mutabık Kat Karşılığı sözleşme metninin 21 maddesini kişisel verilerden arındırılmış sabit clause kataloğu olarak altyapıya bağla; yalnız kaynak metin kullanıldı, yeni hukuki madde uydurulmadı.
 
 ## 7. Eski satış sözleşmesi formu incelemesi
 - [ ] Eski satış sözleşmesi metninde mükerrer, çelişkili, tarih/hesap/atıf hatalı ve eksik alanları kullanıcıya değişiklik yapmadan raporla.

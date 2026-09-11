@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { activeClausesForOutput, contractFormFieldsComplete, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, preparationChecksComplete, renderContractFormOutput, requesterFootnote, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
+import { LAND_SHARE_FIXED_CLAUSES } from "./landShareFixedClauses";
 
 describe("contract form clause model", () => {
+  it("contains the 21 agreed land-share articles without source personal data", () => {
+    expect(LAND_SHARE_FIXED_CLAUSES).toHaveLength(21);
+    expect(LAND_SHARE_FIXED_CLAUSES.map(clause => clause.sortOrder)).toEqual(Array.from({ length: 21 }, (_, index) => 1001 + index));
+    const serialized = JSON.stringify(LAND_SHARE_FIXED_CLAUSES);
+    expect(serialized).not.toContain("Yaşar Yılmaz");
+    expect(serialized).not.toContain("İbrahim Parin");
+    expect(serialized).not.toContain("@gmail.com");
+  });
+
   it("normalizes a party-specific optional clause without inventing legal text", () => {
     expect(normalizeClauseDraft({
       partyScope: "seller",

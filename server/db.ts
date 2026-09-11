@@ -71,6 +71,7 @@ import {
   type ContractFormParty,
   type ContractFormType,
 } from "../shared/contractForms";
+import { LAND_SHARE_FIXED_CLAUSES } from "../shared/landShareFixedClauses";
 import {
   assertSafeRevealReason,
   decryptSensitiveValue,
@@ -3009,6 +3010,20 @@ export async function createContractFormTemplate(input: {
     });
   }
   if (input.formType === "land_share") {
+    await db.insert(contractFormClauses).values(
+      LAND_SHARE_FIXED_CLAUSES.map(clause => ({
+        templateId: created.id,
+        partyScope: clause.partyScope,
+        title: clause.title,
+        bodyTemplate: clause.bodyTemplate,
+        sortOrder: clause.sortOrder,
+        status: clause.status,
+        sourceNote: clause.sourceNote,
+        requesterDisplayName: null,
+        includeRequesterFootnote: 0,
+        createdByUserId: input.createdByUserId,
+      }))
+    );
     for (const attachment of LAND_SHARE_ATTACHMENT_DEFINITIONS) {
       await db.insert(contractFormAttachments).values({
         templateId: created.id,
