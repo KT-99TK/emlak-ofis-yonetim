@@ -245,6 +245,16 @@ export function isTechnicalContractFormField(fieldKey: string) {
   return TECHNICAL_FORM_FIELD_KEYS.includes(fieldKey as (typeof TECHNICAL_FORM_FIELD_KEYS)[number]) || fieldKey.startsWith("technical_");
 }
 
+export type ContractFormAttachmentStatus = "missing" | "draft" | "ready" | "archived";
+
+export function getMissingRequiredContractFormAttachments(
+  attachments: Array<{ title: string; required: boolean | number; status: ContractFormAttachmentStatus }>,
+) {
+  return attachments
+    .filter(attachment => (attachment.required === true || attachment.required === 1) && attachment.status !== "ready")
+    .map(attachment => attachment.title);
+}
+
 export const LAND_SHARE_ATTACHMENT_DEFINITIONS = [
   { attachmentType: "technical_specification" as const, title: "EK-1 Teknik Şartname", required: true },
   { attachmentType: "numbering_sketch" as const, title: "EK-2 Numarataj Krokisi", required: false },

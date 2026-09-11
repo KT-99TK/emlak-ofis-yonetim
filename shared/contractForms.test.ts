@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeClausesForOutput, contractFormFieldsComplete, getDefaultFormFields, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, preparationChecksComplete, renderContractFormOutput, requesterFootnote, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
+import { activeClausesForOutput, contractFormFieldsComplete, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, preparationChecksComplete, renderContractFormOutput, requesterFootnote, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
 
 describe("contract form clause model", () => {
   it("normalizes a party-specific optional clause without inventing legal text", () => {
@@ -82,6 +82,16 @@ describe("contract form clause model", () => {
     ]);
     expect(LAND_SHARE_ATTACHMENT_DEFINITIONS[0]).toMatchObject({ title: "EK-1 Teknik Şartname", required: true });
     expect(LAND_SHARE_ATTACHMENT_DEFINITIONS.slice(1).every(item => item.required === false)).toBe(true);
+  });
+
+  it("blocks publication until the required Technical Specification attachment is ready", () => {
+    expect(getMissingRequiredContractFormAttachments([
+      { title: "EK-1 Teknik Şartname", required: true, status: "missing" },
+      { title: "EK-2 Numarataj Krokisi", required: false, status: "missing" },
+    ])).toEqual(["EK-1 Teknik Şartname"]);
+    expect(getMissingRequiredContractFormAttachments([
+      { title: "EK-1 Teknik Şartname", required: 1, status: "ready" },
+    ])).toEqual([]);
   });
 
   it("renders fillable fields and excludes draft clauses from output", () => {

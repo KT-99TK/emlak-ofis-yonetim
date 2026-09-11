@@ -66,6 +66,7 @@ import {
   preparationChecksComplete,
   SALE_CLOSING_PREPARATION_CHECKS,
   LAND_SHARE_ATTACHMENT_DEFINITIONS,
+  getMissingRequiredContractFormAttachments,
   type ContractFormClauseDraft,
   type ContractFormParty,
   type ContractFormType,
@@ -3045,9 +3046,9 @@ export async function setContractFormTemplateStatus(input: {
       .select({ title: contractFormAttachments.title, status: contractFormAttachments.status })
       .from(contractFormAttachments)
       .where(and(eq(contractFormAttachments.templateId, input.templateId), eq(contractFormAttachments.required, 1)));
-    const missingAttachments = requiredAttachments.filter(attachment => attachment.status !== "ready");
+    const missingAttachments = getMissingRequiredContractFormAttachments(requiredAttachments.map(attachment => ({ ...attachment, required: 1 })));
     if (missingAttachments.length > 0) {
-      throw new Error(`Kat Karşılığı şablonu yayınlanamaz; zorunlu ekler hazır değil: ${missingAttachments.map(attachment => attachment.title).join(", ")}`);
+      throw new Error(`Kat Karşılığı şablonu yayınlanamaz; zorunlu ekler hazır değil: ${missingAttachments.join(", ")}`);
     }
   }
   await db.update(contractFormTemplates).set({ status: input.status }).where(eq(contractFormTemplates.id, input.templateId));
