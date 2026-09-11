@@ -29,7 +29,13 @@
   - [x] Onaylı 19 kaydı merkezi Aktif Kiralamalar tablosuna aktar ve tekrar kayıt kontrolü yap. `imported=19`, `createdClients=19`, unique fingerprint 19/19; IP1 kaydı değiştirilmedi.
   - [x] Telefon maskesi/şifreli kasa ve boş tahliye alanlarını aktarım sonrası doğrula. 19 kiracı telefonu, 19 müşteri telefonu maskeli; toplam 38 vault kaydı ve 19/19 authorityCode doğrulandı. Kullanıcının boş bıraktığı tahliye tarihleri boş kaldı; Sakız Ağacı Anaokulu satırındaki 01.07.2037 korundu.
 
-Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Önceki ayrıntılı görev geçmişi `todo-archive.md` ve `todo-history-2026-08-29.md` içinde korunmaktadır; hiçbir geçmiş kayıt silinmemiştir.
+- [x] Sözleşme metinlerinde ISO tarihlerini Türkçe GG.AA.YYYY biçimine dönüştür ve tarih çıktısını doğrula. `2026-09-01` artık `01.09.2026` olarak çözülüyor.
+- [x] Kira/yetki formlarında Türkçe büyük harf normalizasyonu ve IBAN gruplamasını tamamla; mevcut TypeScript hatalarını gider. Kişi/adres alanları Türkçe büyük harfe, IBAN çıktısı dörderli gruplara ayrılıyor.
+- [x] Tarih, büyük harf ve IBAN için Vitest regresyon testlerini ekle/çalıştır. Tam paket: 112 test dosyası / 330 test başarılı.
+- [x] Form önizlemelerini görsel olarak kontrol et ve checkpoint al. Yetki, form şablonu ve offline çalışma alanı önizlemeleri kontrol edildi; tarih, büyük harf ve IBAN düzeltmeleri bu checkpoint kapsamındadır.
+
+Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
+ Önceki ayrıntılı görev geçmişi `todo-archive.md` ve `todo-history-2026-08-29.md` içinde korunmaktadır; hiçbir geçmiş kayıt silinmemiştir.
 
 ## 1. Güvenli Windows / Electron kabulü — dağıtım durduruldu
 
@@ -62,7 +68,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] ExcelJS üzerinden gelen `uuid@8.3.2` advisory’sini gerçek uyumlu bir düzeltmeyle kapat; ExcelJS üretim/test bağımlılıklarından kaldırıldı ve `pnpm why uuid` artık boş. `read-excel-file@9.3.10` üretim parserı ve `write-excel-file@4.1.1` test fixture üretimi kullanılıyor.
 - [x] ExcelJS yerine bakımı süren ve advisory zincirini taşımayan bir Excel kütüphanesine geçişi veya upstream uyumlu ExcelJS/uuid düzeltmesini teknik olarak değerlendir; Aktif Kiralamalar parserı, 19 satırlık CT1 aktarımı ve Excel export regresyonları 7/7 odaklı testle korundu.
 - [x] Güvenli bağımlılık düzeltmesi uygulanırsa `pnpm why uuid`, `pnpm audit`, tam test, TypeScript ve production build ile uuid advisory’sinin kalktığını kanıtla; uuid ağacı boş, 110 dosya/309 test, TypeScript ve production build başarılı. Audit’te uuid/ExcelJS bulgusu artık yok.
-- [ ] Kalan bağımlılık audit bulgularını ayrı planla: production `qs` artık patched `6.16.0`; paketleme `fast-uri`/`js-yaml`, tar/Vite/PostCSS, browserslist ve Vitest zincirleri patched sürümlere çekildi. `pnpm audit --prod --audit-level=moderate` sonucu 0 critical/high/moderate/low; genel auditte yalnız dev-only `drizzle-kit > @esbuild-kit/core-utils > esbuild@0.18.20` ve düşük Babel/esbuild kayıtları açık. Kontrollü dev-only istisna güvenlik dokümanına işlendi; Drizzle upstream uyumlu çözüm yayımlandığında yeniden değerlendirilecek.
+- [x] Kalan bağımlılık audit bulgularını ayrı planla: production `qs` artık patched `6.16.0`; paketleme `fast-uri`/`js-yaml`, tar/Vite/PostCSS, browserslist ve Vitest zincirleri patched sürümlere çekildi. `pnpm audit --prod --audit-level=moderate` sonucu 0 critical/high/moderate/low; genel auditte yalnız dev-only `drizzle-kit > @esbuild-kit/core-utils > esbuild@0.18.20` ve düşük Babel/esbuild kayıtları açık. Kontrollü dev-only istisna güvenlik dokümanına işlendi; Drizzle upstream uyumlu çözüm yayımlandığında yeniden değerlendirilecek.
   - [x] Production dependency güvenlik taramasını temiz sonuçla doğrula: `AUDIT_PROD_EXIT=0`, tüm seviyeler 0.
   - [ ] Dev-only drizzle-kit/esbuild ve düşük Babel/esbuild advisory’lerini upstream uyumlu sürüm geldiğinde kapat; `drizzle-kit` 0.31.10’a yükseltildi, ancak `@esbuild-kit/esm-loader@2.6.5 → core-utils@3.3.2 → esbuild@0.18.20` zinciri ve plugin-react 5 içindeki `@babel/core@7.28.4` sürdüğü için advisory açık. Vite 7 uyumluluğunu bozacak plugin-react 6/Vite 8 major geçişi ve etkisiz nested override uygulanmadı. Kontrollü dev-only istisna korunuyor.
 - [x] Express 5 rota geçişinden sonra ana sayfanın HTTP 200 ve korunan `/manus-storage/office-documents/example.pdf` isteğinin HTTP 403 davranışını doğrula.
@@ -354,3 +360,17 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Clause değişken çözümleme, boş değer, kişisel veri temizliği ve mali şartların varsayılan değersiz kalması için regression testleri ekle.
 
 - [x] Ortak çıktı modelinde clause yer tutucularını mevcut form değerleriyle çözümle; boş değerleri boş bırak ve çıktı regression testiyle doğrula.
+
+## 23. Kira sözleşmesi büyük harf normalizasyonu
+
+- [ ] Kira sözleşmesi formunda kişi, şirket, yer ve ilgili metin alanlarının büyük harf dönüşümünün hangi giriş/çıktı noktalarında eksik olduğunu belirle.
+- [ ] Türkçe `İ/I/ı/Ş/Ğ/Ü/Ö/Ç` karakterlerini koruyan büyük harf normalizasyonunu doğru alanlarda uygula; serbest metin ve sayısal alanların davranışını bozma.
+- [ ] Kira formu, önizleme/çıktı ve kayıt akışını regression testleri ve görsel kontrol ile doğrula.
+
+- [ ] Yetki sözleşmesi formundaki kişi/şirket/adres metin alanlarını da aynı Türkçe büyük harf normalizasyonu ve regression kapsamına al; numara, e-posta, tarih ve tutar alanlarını değiştirme.
+
+## 24. Kira/yetki IBAN biçimlendirme
+
+- [ ] Kira ve yetki sözleşmelerindeki IBAN alanlarını giriş, önizleme ve çıktı akışında belirle.
+- [ ] IBAN temel değerini boşluklardan arındırıp korurken görüntüleme değerini ülke kodu dahil dörderli gruplara ayır; geçersiz karakterleri kabul etme veya açık uyarı göster.
+- [ ] IBAN biçimlendirme ile Türkçe büyük harf normalizasyonunu kira/yetki form regression ve görsel kontrolleriyle doğrula.

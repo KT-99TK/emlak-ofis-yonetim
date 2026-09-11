@@ -1,5 +1,6 @@
 import { formatTurkishDate } from "./turkishDate";
 import { maskIdentityOrTaxNo, maskPhone } from "./privacy";
+import { isUppercaseTextField, toTurkishUpperCase } from "./textFormatting";
 
 export type AuthorityContractDetails = {
   mode: "sale" | "rent";
@@ -105,6 +106,12 @@ export function toTurkishTitleCase(value: string) {
   return value.trim().split(/(\s+|-)/).map((part) => /^\s+$|^-$/.test(part) ? part : titleWord(part)).join("");
 }
 
+/** Yetki sözleşmesi formunda kişi, unvan, adres ve taşınmaz metinlerini Türkçe büyük harfe taşır. */
+export function normalizeAuthorityField(key: keyof AuthorityContractDetails, value: string) {
+  if (key === "eidsAuthorizationNumber") return value.replace(/\D/g, "");
+  return isUppercaseTextField(String(key)) ? toTurkishUpperCase(value) : value;
+}
+
 /** Türkiye yerel numaralarını E.164 biçimine çevirir; zaten uluslararası olanı korur. */
 export function toInternationalPhone(value: string) {
   const digits = value.replace(/\D/g, "");
@@ -154,17 +161,20 @@ export function formatAuthorityCurrency(value: number, currency: AuthorityContra
 export function normalizeAuthorityDetails(details: AuthorityContractDetails): AuthorityContractDetails {
   return {
     ...details,
-    ownerName: toTurkishTitleCase(details.ownerName),
-    ownerAddress: toTurkishTitleCase(details.ownerAddress),
-    eidsAuthorizationNumber: details.eidsAuthorizationNumber.replace(/\D/g, ""),
-    propertyAddress: toTurkishTitleCase(details.propertyAddress),
-    propertyType: toTurkishTitleCase(details.propertyType),
-    floorAndView: toTurkishTitleCase(details.floorAndView),
-    condition: toTurkishTitleCase(details.condition),
-    consultantName: toTurkishTitleCase(details.consultantName),
-    consultantTitle: toTurkishTitleCase(details.consultantTitle),
-    officeName: toTurkishTitleCase(details.officeName),
-    officeAddress: toTurkishTitleCase(details.officeAddress),
+    ownerName: normalizeAuthorityField("ownerName", details.ownerName),
+    ownerAddress: normalizeAuthorityField("ownerAddress", details.ownerAddress),
+    eidsAuthorizationNumber: normalizeAuthorityField("eidsAuthorizationNumber", details.eidsAuthorizationNumber),
+    eidsAuthorizedBy: normalizeAuthorityField("eidsAuthorizedBy", details.eidsAuthorizedBy),
+    propertyNeighborhood: normalizeAuthorityField("propertyNeighborhood", details.propertyNeighborhood),
+    propertyAddress: normalizeAuthorityField("propertyAddress", details.propertyAddress),
+    propertyType: normalizeAuthorityField("propertyType", details.propertyType),
+    floorAndView: normalizeAuthorityField("floorAndView", details.floorAndView),
+    condition: normalizeAuthorityField("condition", details.condition),
+    consultantName: normalizeAuthorityField("consultantName", details.consultantName),
+    consultantTitle: normalizeAuthorityField("consultantTitle", details.consultantTitle),
+    officeName: normalizeAuthorityField("officeName", details.officeName),
+    officeTaxOffice: normalizeAuthorityField("officeTaxOffice", details.officeTaxOffice),
+    officeAddress: normalizeAuthorityField("officeAddress", details.officeAddress),
     price: formatWholeAmount(details.price),
     serviceFeeAmount: formatWholeAmount(details.serviceFeeAmount),
     authorityDurationMonths: normalizeAuthorityDuration(details.authorityDurationMonths),
@@ -175,7 +185,8 @@ export function normalizeAuthorityDetails(details: AuthorityContractDetails): Au
 }
 
 /** Kullanıcının sağladığı Claude şablonundan türetilen, belgeye snapshot olarak yazılan koşul metni. */
-export function authorityContractConditions(details: AuthorityContractDetails) {
+export function authorityContractConditions(input: AuthorityContractDetails) {
+  const details = normalizeAuthorityDetails(input);
   const isSale = details.mode === "sale";
   const commission = "%2 + KDV";
   const penalty = "%4 + KDV";

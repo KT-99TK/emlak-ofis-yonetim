@@ -32,6 +32,8 @@ import {
   emptyRentalDetails,
   firstPaymentDeadline,
   formatWholeRentalAmount,
+  normalizeRentalDetails,
+  normalizeRentalField,
   type OfflineRentalDetails,
 } from "@/lib/rentalContract";
 import {
@@ -44,6 +46,7 @@ import {
   searchOfflineContractLookups,
 } from "@/lib/offlineContractLookup";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
+import { formatIban } from "@/lib/textFormatting";
 import { formatTurkishDate } from "@/lib/turkishDate";
 import {
   getUserId,
@@ -170,7 +173,10 @@ export default function OfflineRentalContracts() {
 
   const update = (key: keyof OfflineRentalDetails, value: string | boolean) =>
     setDetails(
-      current => ({ ...current, [key]: value }) as OfflineRentalDetails
+      current => ({
+        ...current,
+        [key]: typeof value === "string" ? normalizeRentalField(key, value) : value,
+      }) as OfflineRentalDetails
     );
   const updateMoney = (
     key: "monthlyRent" | "deposit" | "guarantorLimit" | "proratedAmount",
@@ -185,7 +191,7 @@ export default function OfflineRentalContracts() {
     setDetails(current => ({
       ...current,
       useType,
-      usagePurpose: useType === "commercial" ? "İşyeri" : "Konut",
+      usagePurpose: useType === "commercial" ? "İŞYERİ" : "KONUT",
     }));
   const printDocument = (mode: PrintMode) => {
     setPrintMode(mode);
@@ -202,14 +208,14 @@ export default function OfflineRentalContracts() {
     if (kind === "owner")
       setDetails(current => ({
         ...current,
-        ownerName: record.title,
-        ownerAddress: record.details || current.ownerAddress,
+        ownerName: normalizeRentalField("ownerName", record.title),
+        ownerAddress: normalizeRentalField("ownerAddress", record.details || current.ownerAddress),
       }));
     else
       setDetails(current => ({
         ...current,
-        tenantName: record.title,
-        tenantAddress: record.details || current.tenantAddress,
+        tenantName: normalizeRentalField("tenantName", record.title),
+        tenantAddress: normalizeRentalField("tenantAddress", record.details || current.tenantAddress),
       }));
     if (kind === "owner") setOwnerRecordId(id);
     else setTenantRecordId(id);
@@ -221,9 +227,10 @@ export default function OfflineRentalContracts() {
     if (record)
       setDetails(current => ({
         ...current,
-        propertyAddress: record.details
-          ? `${record.title} · ${record.details}`
-          : record.title,
+        propertyAddress: normalizeRentalField(
+          "propertyAddress",
+          record.details ? `${record.title} · ${record.details}` : record.title
+        ),
       }));
   };
 
@@ -235,15 +242,17 @@ export default function OfflineRentalContracts() {
     setOwnerRecordId(String(source.snapshot.sourceOwnerRecordId ?? ""));
     setTenantRecordId(String(source.snapshot.sourceTenantRecordId ?? ""));
     setPropertyRecordId(String(source.snapshot.sourcePropertyRecordId ?? ""));
-    setDetails({
-      ...emptyRentalDetails(),
-      ...(source.snapshot as Partial<OfflineRentalDetails>),
-      startDate: today,
-      firstPaymentDueDate: firstPaymentDeadline(today),
-      signedByParties: false,
-      signedAt: "",
-      ownerApproval: "pending",
-    });
+    setDetails(
+      normalizeRentalDetails({
+        ...emptyRentalDetails(),
+        ...(source.snapshot as Partial<OfflineRentalDetails>),
+        startDate: today,
+        firstPaymentDueDate: firstPaymentDeadline(today),
+        signedByParties: false,
+        signedAt: "",
+        ownerApproval: "pending",
+      })
+    );
     setContractNo("");
     setMessage(
       `${source.contractNo} numaralı önceki kira sözleşmesi yeni taslağa kopyalandı. Yeni kayıt numarasını ve güncel bilgileri kontrol edip kaydedin.`
@@ -870,8 +879,11 @@ export default function OfflineRentalContracts() {
                         IBAN
                       </label>
                       <Input
-                        value={details.iban}
+                        value={formatIban(details.iban)}
                         onChange={event => update("iban", event.target.value)}
+                        placeholder="TR00 0000 0000 0000 0000 0000 00"
+                        maxLength={32}
+                        inputMode="text"
                       />
                     </div>
                     <div>

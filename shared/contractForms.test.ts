@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeClausesForOutput, contractFormFieldsComplete, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, parameterizeLandShareClauseBody, preparationChecksComplete, renderContractFormOutput, requesterFootnote, resolveContractFormPlaceholders, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
+import { activeClausesForOutput, contractFormFieldsComplete, formatContractFormDate, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, parameterizeLandShareClauseBody, preparationChecksComplete, renderContractFormOutput, requesterFootnote, resolveContractFormPlaceholders, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
 import { LAND_SHARE_FIXED_CLAUSES } from "./landShareFixedClauses";
 
 describe("contract form clause model", () => {
@@ -38,6 +38,14 @@ describe("contract form clause model", () => {
     expect(parameterized).not.toContain("2331 ada, 27 ve 39 parsel");
     expect(parameterized).not.toContain("1.500 USD");
     expect(parameterized).not.toContain("90 gün içinde hazırlanarak");
+  });
+
+  it("formats date fields as Turkish day-month-year in clauses and field output", () => {
+    expect(formatContractFormDate("contractDate", "2026-09-01")).toBe("01.09.2026");
+    expect(resolveContractFormPlaceholders("İşbu sözleşme {{contractDate}} tarihinde, {{contractPlace}}'da.", { contractDate: "2026-09-01", contractPlace: "Urla" })).toBe("İşbu sözleşme 01.09.2026 tarihinde, Urla'da.");
+    expect(formatContractFormDate("powerOfAttorneyReference", "2026-09-01")).toBe("2026-09-01");
+    const output = renderContractFormOutput({ formType: "land_share", fields: [{ fieldKey: "contractDate", label: "Tarih", sortOrder: 1 }], fieldValues: { contractDate: "2026-09-01" }, clauses: [] });
+    expect(output.fields[0].value).toBe("01.09.2026");
   });
 
   it("normalizes a party-specific optional clause without inventing legal text", () => {

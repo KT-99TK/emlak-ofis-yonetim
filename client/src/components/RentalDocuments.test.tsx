@@ -138,7 +138,7 @@ describe("rental documents", () => {
     const withGuarantor = renderToStaticMarkup(<RentalContractDocument details={{ ...details, hasGuarantor: true, guarantorName: "Selin Kefil", guarantorIdentity: "11111111111" }} contractNo="KIR-2026-001" fontSize="10" />);
     expect(withoutGuarantor).not.toContain("KEFİL");
     expect(withGuarantor).toContain("KEFİL");
-    expect(withGuarantor).toContain("Selin Kefil");
+    expect(withGuarantor).toContain("SELİN KEFİL");
     expect(withoutGuarantor.match(/<div class="rental-party-signature-box"/g)).toHaveLength(2);
     expect(withGuarantor.match(/<div class="rental-party-signature-box"/g)).toHaveLength(3);
     expect(withGuarantor).toContain("rental-with-guarantor");

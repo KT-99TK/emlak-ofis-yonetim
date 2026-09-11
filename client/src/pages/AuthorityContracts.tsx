@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import AuthorityContractDocument from "@/components/AuthorityContractDocument";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { authorityContractTitle, emptyAuthorityDetails, type AuthorityContractDetails } from "@/lib/authorityContract";
+import { authorityContractTitle, emptyAuthorityDetails, normalizeAuthorityDetails, normalizeAuthorityField, type AuthorityContractDetails } from "@/lib/authorityContract";
 
 const partyFields: Array<[keyof AuthorityContractDetails, string]> = [
   ["ownerName", "Malik adı / unvanı"],
@@ -48,7 +48,7 @@ export default function AuthorityContracts() {
 
   const update = (key: keyof AuthorityContractDetails, value: string) => {
     setSaved(false);
-    setDetails((current) => ({ ...current, [key]: value }));
+    setDetails((current) => ({ ...current, [key]: normalizeAuthorityField(key, value) }));
   };
 
   const chooseClient = (value: string) => {
@@ -57,10 +57,10 @@ export default function AuthorityContracts() {
     if (client) {
       setDetails((current) => ({
         ...current,
-        ownerName: client.name,
+        ownerName: normalizeAuthorityField("ownerName", client.name),
         ownerIdentity: client.identityOrTaxNo ?? "",
         ownerPhone: client.phone ?? "",
-        ownerAddress: client.address ?? "",
+        ownerAddress: normalizeAuthorityField("ownerAddress", client.address ?? ""),
       }));
     }
   };
@@ -71,8 +71,8 @@ export default function AuthorityContracts() {
     if (property) {
       setDetails((current) => ({
         ...current,
-        propertyAddress: property.address,
-        propertyType: property.type,
+        propertyAddress: normalizeAuthorityField("propertyAddress", property.address),
+        propertyType: normalizeAuthorityField("propertyType", property.type),
         grossM2: property.grossM2 ?? "",
         roomCount: property.roomCount ?? "",
         price: property.price ?? current.price,
@@ -81,16 +81,17 @@ export default function AuthorityContracts() {
   };
 
   const submit = () => {
-    if (!contractNo.trim() || !details.ownerName.trim() || !details.propertyAddress.trim()) return;
+    const normalized = normalizeAuthorityDetails(details);
+    if (!contractNo.trim() || !normalized.ownerName.trim() || !normalized.propertyAddress.trim()) return;
     create.mutate({
       contractNo: contractNo.trim(),
       type: "authority",
-      subtype: details.mode,
-      title: `${authorityContractTitle(details.mode)} — ${details.ownerName}`,
-      amount: details.price || undefined,
+      subtype: normalized.mode,
+      title: `${authorityContractTitle(normalized.mode)} — ${normalized.ownerName}`,
+      amount: normalized.price || undefined,
       clientId: clientId ? Number(clientId) : undefined,
       propertyId: propertyId ? Number(propertyId) : undefined,
-      details: JSON.stringify({ template: "claude-authority-v1", ...details }),
+      details: JSON.stringify({ template: "claude-authority-v1", ...normalized }),
     });
     setSaved(true);
   };

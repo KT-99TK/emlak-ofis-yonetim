@@ -309,11 +309,19 @@ export function parameterizeLandShareClauseBody(bodyTemplate: string) {
     .replace(/İşbu sözleşme 21 maddeden/g, "İşbu sözleşme {{totalContractArticles}} maddeden");
 }
 
+const CONTRACT_FORM_DATE_FIELDS = new Set(["contractDate", "deliveryDate", "finalDeedTransferDate", "eidsAuthorizedAt"]);
+
+/** Form çıktılarında HTML date input'un ISO değerini Türkçe GG.AA.YYYY görünümüne çevirir. */
+export function formatContractFormDate(fieldKey: string, value: unknown) {
+  if (value == null) return "";
+  const text = String(value);
+  if (!CONTRACT_FORM_DATE_FIELDS.has(fieldKey)) return text;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : text;
+}
+
 export function resolveContractFormPlaceholders(bodyTemplate: string, fieldValues: Record<string, unknown>) {
-  return bodyTemplate.replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (_match, fieldKey: string) => {
-    const value = fieldValues[fieldKey];
-    return value == null ? "" : String(value);
-  });
+  return bodyTemplate.replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (_match, fieldKey: string) => formatContractFormDate(fieldKey, fieldValues[fieldKey]));
 }
 
 export type ContractFormAttachmentStatus = "missing" | "draft" | "ready" | "archived";
@@ -356,7 +364,7 @@ export function renderContractFormOutput(input: {
       .map(field => ({
         fieldKey: field.fieldKey,
         label: field.label,
-        value: input.fieldValues[field.fieldKey] == null ? "" : String(input.fieldValues[field.fieldKey]),
+        value: formatContractFormDate(field.fieldKey, input.fieldValues[field.fieldKey]),
       })),
     clauses: (() => {
       const activeClauses = activeClausesForOutput(input.clauses);

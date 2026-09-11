@@ -14,7 +14,7 @@ describe("offline authority draft lookup", () => {
       record("rental", "2026-08-03T09:00:00.000Z", { schema: "global1881-offline-rental-v1", contractNo: "KIR-1" }),
     ]);
     expect(drafts.map((draft) => draft.recordId)).toEqual(["new", "old"]);
-    expect(drafts[1]).toMatchObject({ contractNo: "YET-2026-MS-001", ownerName: "Mert Somuncu", propertyAddress: "İzmir Alsancak" });
+    expect(drafts[1]).toMatchObject({ contractNo: "YET-2026-MS-001", ownerName: "MERT SOMUNCU", propertyAddress: "İZMİR ALSANCAK" });
   });
 
   it("finds a prior draft by owner, address, consultant or number", () => {

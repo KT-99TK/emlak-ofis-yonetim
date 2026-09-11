@@ -10,7 +10,7 @@ describe("authority contract signature boxes", () => {
     const html = renderToStaticMarkup(<AuthorityContractDocument details={{ ...emptyAuthorityDetails(), ownerName: "Ayşe Malik", officeName: "Global 1881 Gayrimenkul", consultantName: "Cahit Tercan" }} contractNo="YET-2026-CT-001" fontSize="10" />);
     expect(html).toContain("TAŞINMAZ MALİKİ");
     expect(html).toContain("YETKİ ALAN EMLAK OFİSİ / DANIŞMAN");
-    expect(html).toContain("Yetkili danışman: Cahit Tercan");
+    expect(html).toContain("Yetkili danışman: CAHİT TERCAN");
     expect(html.match(/<div class="authority-party-signature-box"/g)).toHaveLength(2);
     expect(html).toContain("global1881-muhur-seffaf_4acda0e7.png");
     expect(html).toContain("authority-contract-document");

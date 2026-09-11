@@ -1,5 +1,6 @@
-import { calculateRentalSummary, rentalFixtureSummary, type OfflineRentalDetails } from "@/lib/rentalContract";
+import { calculateRentalSummary, normalizeRentalDetails, rentalFixtureSummary, type OfflineRentalDetails } from "@/lib/rentalContract";
 import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "@/lib/rentalConditions";
+import { formatIban } from "@/lib/textFormatting";
 import { formatTurkishDate } from "@/lib/turkishDate";
 import React from "react";
 
@@ -20,54 +21,55 @@ function FullWidthRow({ label, text }: { label: string; text: string }) {
 }
 
 export default function RentalContractDocument({ details, contractNo, fontSize }: RentalContractDocumentProps) {
-  const summary = calculateRentalSummary(details);
-  const kind = details.useType === "commercial" ? "İŞYERİ KİRA SÖZLEŞMESİ" : "KONUT KİRA SÖZLEŞMESİ";
-  const conditions = rentalContractConditions(details, summary.endDate);
-  const selectedAppendices = Object.entries(details.appendixSelection).filter(([, included]) => included).map(([kind]) => appendixLabel[kind as keyof typeof appendixLabel]).join(" · ");
+  const normalized = normalizeRentalDetails(details);
+  const summary = calculateRentalSummary(normalized);
+  const kind = normalized.useType === "commercial" ? "İŞYERİ KİRA SÖZLEŞMESİ" : "KONUT KİRA SÖZLEŞMESİ";
+  const conditions = rentalContractConditions(normalized, summary.endDate);
+  const selectedAppendices = Object.entries(normalized.appendixSelection).filter(([, included]) => included).map(([kind]) => appendixLabel[kind as keyof typeof appendixLabel]).join(" · ");
 
   return <article className="authority-print-document authority-contract-document rental-contract-document bg-[#fff] text-[#1c2524]" style={{ "--authority-print-font-size": `${fontSize}pt` } as React.CSSProperties}>
     <header className="rental-document-header"><p className="rental-document-record">Kira sözleşmesi kaydı: {value(contractNo)}</p></header>
     <div className="authority-document-rule" />
     <h2 className="authority-document-title">{kind}</h2>
-    <p className="authority-document-meta">Düzenleme Tarihi: <strong>{formatTurkishDate(details.startDate)}</strong> · Belge yeri: <strong>{value(details.documentPlace)}</strong></p>
+    <p className="authority-document-meta">Düzenleme Tarihi: <strong>{formatTurkishDate(normalized.startDate)}</strong> · Belge yeri: <strong>{value(normalized.documentPlace)}</strong></p>
 
     <section className="authority-document-section"><h3>KİRAYA VEREN VE KİRACI BİLGİLERİ</h3><table><tbody>
-      <Row firstLabel="Kiraya Veren" firstValue={details.ownerName} secondLabel="T.C. Kimlik No / VKN" secondValue={details.ownerIdentity} />
-      <Row firstLabel="Kiraya Veren Adresi" firstValue={details.ownerAddress} secondLabel="Telefon / E-posta" secondValue={joined(details.ownerPhone, details.ownerEmail)} />
-      <Row firstLabel="Kiracı" firstValue={details.tenantName} secondLabel="T.C. Kimlik No / VKN" secondValue={details.tenantIdentity} />
-      <Row firstLabel="Kiracı Adresi" firstValue={details.tenantAddress} secondLabel="Telefon / E-posta" secondValue={joined(details.tenantPhone, details.tenantEmail)} />
-      {details.useType === "commercial" && <>
-        <Row firstLabel="Kiraya Veren KDV Mükellefi" firstValue={statusLabel(details.ownerVatRegistered)} secondLabel="Kiracı Vergi Dairesi" secondValue={details.tenantTaxOffice} />
-        <Row firstLabel="Kiracı Stopaj Mükellefi" firstValue={statusLabel(details.tenantWithholdingRegistered)} secondLabel="KDV Durumu" secondValue={details.kdvIncluded ? "KDV dâhil" : "KDV hariç"} />
+      <Row firstLabel="Kiraya Veren" firstValue={normalized.ownerName} secondLabel="T.C. Kimlik No / VKN" secondValue={normalized.ownerIdentity} />
+      <Row firstLabel="Kiraya Veren Adresi" firstValue={normalized.ownerAddress} secondLabel="Telefon / E-posta" secondValue={joined(normalized.ownerPhone, normalized.ownerEmail)} />
+      <Row firstLabel="Kiracı" firstValue={normalized.tenantName} secondLabel="T.C. Kimlik No / VKN" secondValue={normalized.tenantIdentity} />
+      <Row firstLabel="Kiracı Adresi" firstValue={normalized.tenantAddress} secondLabel="Telefon / E-posta" secondValue={joined(normalized.tenantPhone, normalized.tenantEmail)} />
+      {normalized.useType === "commercial" && <>
+        <Row firstLabel="Kiraya Veren KDV Mükellefi" firstValue={statusLabel(normalized.ownerVatRegistered)} secondLabel="Kiracı Vergi Dairesi" secondValue={normalized.tenantTaxOffice} />
+        <Row firstLabel="Kiracı Stopaj Mükellefi" firstValue={statusLabel(normalized.tenantWithholdingRegistered)} secondLabel="KDV Durumu" secondValue={normalized.kdvIncluded ? "KDV dâhil" : "KDV hariç"} />
       </>}
     </tbody></table></section>
 
     <section className="authority-document-section"><h3>TAŞINMAZ, BEDEL VE SÜRE BİLGİLERİ</h3><table><tbody>
-      <Row firstLabel="Mahalle / Yerleşim" firstValue={details.propertyNeighborhood} secondLabel="Niteliği / Cinsi" secondValue={details.propertyType} />
-      <Row firstLabel="Taşınmaz Açık Adresi" firstValue={details.propertyAddress} secondLabel="DASK Poliçe No" secondValue={details.daskPolicyNo} />
-      <Row firstLabel="Ada / Parsel" firstValue={details.parcelInfo} secondLabel={details.useType === "commercial" ? "Bağımsız Bölüm No" : "Kullanım Amacı"} secondValue={details.useType === "commercial" ? details.independentSectionNo : details.usagePurpose} />
-      {details.useType === "commercial" && <>
-        <Row firstLabel="Tapu Kaydındaki Niteliği" firstValue={details.propertyType} secondLabel="Faaliyet Konusu" secondValue={details.usagePurpose} />
-        <Row firstLabel="Yapı Kullanma İzni (İskân)" firstValue={statusLabel(details.occupancyPermit)} secondLabel="Kat Mülkiyetine Tabi mi?" secondValue={statusLabel(details.condominiumStatus)} />
+      <Row firstLabel="Mahalle / Yerleşim" firstValue={normalized.propertyNeighborhood} secondLabel="Niteliği / Cinsi" secondValue={normalized.propertyType} />
+      <Row firstLabel="Taşınmaz Açık Adresi" firstValue={normalized.propertyAddress} secondLabel="DASK Poliçe No" secondValue={normalized.daskPolicyNo} />
+      <Row firstLabel="Ada / Parsel" firstValue={normalized.parcelInfo} secondLabel={normalized.useType === "commercial" ? "Bağımsız Bölüm No" : "Kullanım Amacı"} secondValue={normalized.useType === "commercial" ? normalized.independentSectionNo : normalized.usagePurpose} />
+      {normalized.useType === "commercial" && <>
+        <Row firstLabel="Tapu Kaydındaki Niteliği" firstValue={normalized.propertyType} secondLabel="Faaliyet Konusu" secondValue={normalized.usagePurpose} />
+        <Row firstLabel="Yapı Kullanma İzni (İskân)" firstValue={statusLabel(normalized.occupancyPermit)} secondLabel="Kat Mülkiyetine Tabi mi?" secondValue={statusLabel(normalized.condominiumStatus)} />
       </>}
-      <Row firstLabel={details.useType === "commercial" ? "KDV Durumu" : "İkamet Edecek Kişi"} firstValue={details.useType === "commercial" ? (details.kdvIncluded ? "KDV dâhil" : "KDV hariç") : details.residentsCount} secondLabel={details.useType === "commercial" ? "Aylık Net Kira Bedeli" : "Aylık Kira Bedeli"} secondValue={money(summary.monthlyRent)} />
-      <Row firstLabel="Depozito" firstValue={money(Number(details.deposit.replace(/\./g, "").replace(",", ".")))} secondLabel="İlk Kira Son Ödeme Tarihi" secondValue={`${formatTurkishDate(summary.firstDueDate)} (en geç 5 gün)`} />
-      {details.useType === "commercial" && (details.proratedStartDate || details.proratedEndDate || details.proratedDays || details.proratedAmount) && <FullWidthRow label="Kıst Dönem" text={joined(details.proratedStartDate && formatTurkishDate(details.proratedStartDate), details.proratedEndDate && formatTurkishDate(details.proratedEndDate), details.proratedDays && `${details.proratedDays} gün`, details.proratedAmount && `${details.proratedAmount} ₺`)} />}
-      <Row firstLabel="Sözleşme Süresi" firstValue={`${summary.durationMonths} ay`} secondLabel="Sonraki Ödeme Günü / IBAN" secondValue={`Her ayın ${summary.paymentDay}. günü · ${value(details.iban)}`} />
-      <Row firstLabel="Başlangıç Tarihi" firstValue={formatTurkishDate(details.startDate)} secondLabel="Bitiş / Tahliye Uyarısı" secondValue={`${formatTurkishDate(summary.endDate)} / ${formatTurkishDate(summary.noticeDate)}`} />
+      <Row firstLabel={normalized.useType === "commercial" ? "KDV Durumu" : "İkamet Edecek Kişi"} firstValue={normalized.useType === "commercial" ? (normalized.kdvIncluded ? "KDV dâhil" : "KDV hariç") : normalized.residentsCount} secondLabel={normalized.useType === "commercial" ? "Aylık Net Kira Bedeli" : "Aylık Kira Bedeli"} secondValue={money(summary.monthlyRent)} />
+      <Row firstLabel="Depozito" firstValue={money(Number(normalized.deposit.replace(/\./g, "").replace(",", ".")))} secondLabel="İlk Kira Son Ödeme Tarihi" secondValue={`${formatTurkishDate(summary.firstDueDate)} (en geç 5 gün)`} />
+      {normalized.useType === "commercial" && (normalized.proratedStartDate || normalized.proratedEndDate || normalized.proratedDays || normalized.proratedAmount) && <FullWidthRow label="Kıst Dönem" text={joined(normalized.proratedStartDate && formatTurkishDate(normalized.proratedStartDate), normalized.proratedEndDate && formatTurkishDate(normalized.proratedEndDate), normalized.proratedDays && `${normalized.proratedDays} gün`, normalized.proratedAmount && `${normalized.proratedAmount} ₺`)} />}
+      <Row firstLabel="Sözleşme Süresi" firstValue={`${summary.durationMonths} ay`} secondLabel="Sonraki Ödeme Günü / IBAN" secondValue={`Her ayın ${summary.paymentDay}. günü · ${value(formatIban(normalized.iban))}`} />
+      <Row firstLabel="Başlangıç Tarihi" firstValue={formatTurkishDate(normalized.startDate)} secondLabel="Bitiş / Tahliye Uyarısı" secondValue={`${formatTurkishDate(summary.endDate)} / ${formatTurkishDate(summary.noticeDate)}`} />
     </tbody></table></section>
 
     <section className="authority-document-section"><h3>KİRA SÖZLEŞMESİ TESLİM / DEMİRBAŞ EKİ</h3><table><tbody>
-      <Row firstLabel="Elektrik Sayaç No" firstValue={details.electricityMeterNo} secondLabel="Su Sayaç No" secondValue={details.waterMeterNo} />
-      <FullWidthRow label="Doğalgaz Sayaç No" text={details.naturalGasMeterNo} />
-      <FullWidthRow label="Demirbaşlar ve Teslim Durumu" text={rentalFixtureSummary(details)} />
-      <FullWidthRow label="Diğer Sayaç / Abonelik Notları" text={details.meterNotes} />
+      <Row firstLabel="Elektrik Sayaç No" firstValue={normalized.electricityMeterNo} secondLabel="Su Sayaç No" secondValue={normalized.waterMeterNo} />
+      <FullWidthRow label="Doğalgaz Sayaç No" text={normalized.naturalGasMeterNo} />
+      <FullWidthRow label="Demirbaşlar ve Teslim Durumu" text={rentalFixtureSummary(normalized)} />
+      <FullWidthRow label="Diğer Sayaç / Abonelik Notları" text={normalized.meterNotes} />
       <FullWidthRow label="Sözleşme Paketine Dahil Edilen Ekler" text={selectedAppendices} />
-      {details.hasGuarantor && <Row firstLabel="Kefil" firstValue={details.guarantorName} secondLabel="Kefil TCKN / Azami Tutar" secondValue={[details.guarantorIdentity, details.guarantorLimit].filter(Boolean).join(" / ")} />}
+      {normalized.hasGuarantor && <Row firstLabel="Kefil" firstValue={normalized.guarantorName} secondLabel="Kefil TCKN / Azami Tutar" secondValue={[normalized.guarantorIdentity, normalized.guarantorLimit].filter(Boolean).join(" / ")} />}
     </tbody></table></section>
 
     <section className="authority-document-conditions"><h3>HUSUSİ ŞARTLAR</h3><p className="authority-document-conditions-note">Hususi şartlar kira sözleşmesinin ayrılmaz bir parçasıdır.</p><ol>{conditions.map((condition, index) => <li key={index}>{condition}</li>)}</ol></section>
-    <section className={`authority-document-signatures rental-document-signatures rental-party-signature-boxes ${details.hasGuarantor ? "rental-with-guarantor" : ""}`}><div className="rental-party-signature-box"><p>KİRAYA VEREN</p><strong>{value(details.ownerName)}</strong><span>İmza</span></div><div className="rental-party-signature-box"><p>KİRACI</p><strong>{value(details.tenantName)}</strong><span>İmza</span></div>{details.hasGuarantor && <div className="rental-party-signature-box"><p>KEFİL</p><strong>{value(details.guarantorName)}</strong><span>İmza</span></div>}</section>
-    <footer className="rental-advisor-trace">Düzenleme izi · {consultantInitials(details.consultantName)} · {formatTurkishDate(details.startDate)} · Form: {value(contractNo)}</footer>
+    <section className={`authority-document-signatures rental-document-signatures rental-party-signature-boxes ${normalized.hasGuarantor ? "rental-with-guarantor" : ""}`}><div className="rental-party-signature-box"><p>KİRAYA VEREN</p><strong>{value(normalized.ownerName)}</strong><span>İmza</span></div><div className="rental-party-signature-box"><p>KİRACI</p><strong>{value(normalized.tenantName)}</strong><span>İmza</span></div>{normalized.hasGuarantor && <div className="rental-party-signature-box"><p>KEFİL</p><strong>{value(normalized.guarantorName)}</strong><span>İmza</span></div>}</section>
+    <footer className="rental-advisor-trace">Düzenleme izi · {consultantInitials(normalized.consultantName)} · {formatTurkishDate(normalized.startDate)} · Form: {value(contractNo)}</footer>
   </article>;
 }

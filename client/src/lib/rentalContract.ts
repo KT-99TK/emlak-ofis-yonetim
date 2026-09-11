@@ -2,6 +2,7 @@ import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./
 
 import { formatTurkishDate } from "./turkishDate";
 import { maskIdentityOrTaxNo, maskPhone } from "./privacy";
+import { formatIban, isUppercaseTextField, normalizeIban, toTurkishUpperCase } from "./textFormatting";
 
 export type RentalFixtureItem = { id: string; item: string; quantity: string; condition: string };
 export type RentalAppendixSelection = { evacuation: boolean; handover: boolean; return: boolean; fixtures: boolean };
@@ -98,6 +99,23 @@ export const emptyRentalDetails = (): OfflineRentalDetails => ({
   usagePurpose: "Konut", residentsCount: "", courtCity: "Urla", documentPlace: "Urla", ownerApproval: "pending", consultantName: "", consultantCode: "", officeName: "Global 1881 Gayrimenkul", officeAuthorizationNo: "3500211",
 });
 
+/** Kira formundaki isim/adres alanlarını Türkçe büyük harfe, IBAN'ı kompakt biçime taşır. */
+export function normalizeRentalField(key: keyof OfflineRentalDetails, value: string) {
+  if (key === "iban") return normalizeIban(value);
+  return isUppercaseTextField(String(key)) ? toTurkishUpperCase(value) : value;
+}
+
+export function normalizeRentalDetails(details: OfflineRentalDetails): OfflineRentalDetails {
+  const normalized = { ...details };
+  (Object.keys(normalized) as Array<keyof OfflineRentalDetails>).forEach((key) => {
+    const value = normalized[key];
+    if (typeof value === "string") {
+      (normalized as Record<string, unknown>)[key] = normalizeRentalField(key, value);
+    }
+  });
+  return normalized;
+}
+
 const money = (value: string) => {
   const compact = value.trim().replace(/\s/g, "");
   const normalized = compact.includes(",") ? compact.replace(/\./g, "").replace(",", ".") : compact.replace(/\./g, "");
@@ -159,42 +177,44 @@ export function calculateRentalSummary(details: OfflineRentalDetails) {
 }
 
 export function renderRentalContract(details: OfflineRentalDetails) {
+  const normalized = normalizeRentalDetails(details);
   const value = (raw: string) => raw.trim() || "................................";
-  const summary = calculateRentalSummary(details);
-  const kind = details.useType === "commercial" ? "İŞYERİ KİRA SÖZLEŞMESİ" : "KONUT KİRA SÖZLEŞMESİ";
+  const summary = calculateRentalSummary(normalized);
+  const kind = normalized.useType === "commercial" ? "İŞYERİ KİRA SÖZLEŞMESİ" : "KONUT KİRA SÖZLEŞMESİ";
   return [
     kind, "",
-    `Kiraya veren: ${value(details.ownerName)} | TCKN/VKN: ${value(details.ownerIdentity)}`,
-    `Kiracı: ${value(details.tenantName)} | TCKN/VKN: ${value(details.tenantIdentity)}`,
-    `Taşınmaz: ${value(details.propertyAddress)} | Nitelik: ${value(details.propertyType)}`,
-    `Ada/Parsel/Bağımsız Bölüm: ${value(details.parcelInfo)}`,
-    `Kullanım amacı: ${value(details.usagePurpose)}`,
-    `Aylık kira: ${value(details.monthlyRent)} ${details.currency} | Yıllık kira: ${summary.annualRent || "................................"} ${details.currency}`,
-    `Depozito: ${value(details.deposit)} ${details.currency} | İlk kira son ödeme tarihi: ${formatTurkishDate(summary.firstDueDate)} (sözleşmeden en geç 5 gün sonra)`,
-    `Sonraki aylarda ödeme günü: her ayın ${summary.paymentDay}. günü | IBAN: ${value(details.iban)}`,
-    `Süre: ${summary.durationMonths} ay | Başlangıç: ${formatTurkishDate(details.startDate)} | Bitiş: ${formatTurkishDate(summary.endDate)}`,
+    `Kiraya veren: ${value(normalized.ownerName)} | TCKN/VKN: ${value(normalized.ownerIdentity)}`,
+    `Kiracı: ${value(normalized.tenantName)} | TCKN/VKN: ${value(normalized.tenantIdentity)}`,
+    `Taşınmaz: ${value(normalized.propertyAddress)} | Nitelik: ${value(normalized.propertyType)}`,
+    `Ada/Parsel/Bağımsız Bölüm: ${value(normalized.parcelInfo)}`,
+    `Kullanım amacı: ${value(normalized.usagePurpose)}`,
+    `Aylık kira: ${value(normalized.monthlyRent)} ${normalized.currency} | Yıllık kira: ${summary.annualRent || "................................"} ${normalized.currency}`,
+    `Depozito: ${value(normalized.deposit)} ${normalized.currency} | İlk kira son ödeme tarihi: ${formatTurkishDate(summary.firstDueDate)} (sözleşmeden en geç 5 gün sonra)`,
+    `Sonraki aylarda ödeme günü: her ayın ${summary.paymentDay}. günü | IBAN: ${value(formatIban(normalized.iban))}`,
+    `Süre: ${summary.durationMonths} ay | Başlangıç: ${formatTurkishDate(normalized.startDate)} | Bitiş: ${formatTurkishDate(summary.endDate)}`,
     `Tahliye ihbarı: ${summary.noticeDays} gün | Uyarı tarihi: ${formatTurkishDate(summary.noticeDate)}`,
-    `Elektrik sayaç no: ${value(details.electricityMeterNo)} | Su sayaç no: ${value(details.waterMeterNo)} | Doğalgaz sayaç no: ${value(details.naturalGasMeterNo)}`,
-    `DASK poliçe no: ${value(details.daskPolicyNo)} | Demirbaş/teslim notu: ${value(rentalFixtureSummary(details))} | Sayaç notu: ${value(details.meterNotes)}`,
-    details.hasGuarantor ? `Kefil: ${value(details.guarantorName)} | TCKN: ${value(details.guarantorIdentity)} | Azami tutar: ${value(details.guarantorLimit)} ${details.currency}` : "",
-    `Mülk sahibi yeniden kiralama onayı: ${details.ownerApproval === "approved" ? "onaylandı" : "onay bekliyor"}.`,
-    `Danışman: ${value(details.consultantName)} | Kod: ${value(details.consultantCode)} | Ofis: ${value(details.officeName)} | Yetki belgesi: ${value(details.officeAuthorizationNo)}`,
+    `Elektrik sayaç no: ${value(normalized.electricityMeterNo)} | Su sayaç no: ${value(normalized.waterMeterNo)} | Doğalgaz sayaç no: ${value(normalized.naturalGasMeterNo)}`,
+    `DASK poliçe no: ${value(normalized.daskPolicyNo)} | Demirbaş/teslim notu: ${value(rentalFixtureSummary(normalized))} | Sayaç notu: ${value(normalized.meterNotes)}`,
+    normalized.hasGuarantor ? `Kefil: ${value(normalized.guarantorName)} | TCKN: ${value(normalized.guarantorIdentity)} | Azami tutar: ${value(normalized.guarantorLimit)} ${normalized.currency}` : "",
+    `Mülk sahibi yeniden kiralama onayı: ${normalized.ownerApproval === "approved" ? "onaylandı" : "onay bekliyor"}.`,
+    `Danışman: ${value(normalized.consultantName)} | Kod: ${value(normalized.consultantCode)} | Ofis: ${value(normalized.officeName)} | Yetki belgesi: ${value(normalized.officeAuthorizationNo)}`,
     "", "TESLİM / DEMİRBAŞ VE İMZA EKİ",
-    `Teslim/demirbaş listesi: ${value(rentalFixtureSummary(details))}`,
-    `Elektrik / su / doğalgaz sayaç no: ${value(details.electricityMeterNo)} / ${value(details.waterMeterNo)} / ${value(details.naturalGasMeterNo)}`,
-    `DASK poliçe no: ${value(details.daskPolicyNo)} | Sayaç / abonelik notu: ${value(details.meterNotes)}`,
-    details.hasGuarantor ? "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Kefil imza: ____________________" : "Kiraya Veren imza: ____________________    Kiracı imza: ____________________",
+    `Teslim/demirbaş listesi: ${value(rentalFixtureSummary(normalized))}`,
+    `Elektrik / su / doğalgaz sayaç no: ${value(normalized.electricityMeterNo)} / ${value(normalized.waterMeterNo)} / ${value(normalized.naturalGasMeterNo)}`,
+    `DASK poliçe no: ${value(normalized.daskPolicyNo)} | Sayaç / abonelik notu: ${value(normalized.meterNotes)}`,
+    normalized.hasGuarantor ? "Kiraya Veren imza: ____________________    Kiracı imza: ____________________    Kefil imza: ____________________" : "Kiraya Veren imza: ____________________    Kiracı imza: ____________________",
     "", "HUSUSİ ŞARTLAR", "Hususi şartlar kira sözleşmesinin ayrılmaz bir parçasıdır.",
-    ...rentalContractConditions(details, summary.endDate).map((condition, index) => `${index + 1}. ${condition}`),
+    ...rentalContractConditions(normalized, summary.endDate).map((condition, index) => `${index + 1}. ${condition}`),
     "", "Bu taslak offline cihazda oluşturulmuştur. Aktifleştirme, owner approval ve imza kontrolünden sonra gerçekleştirilmelidir.",
   ].join("\n");
 }
 
 export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contractNo: string, sourceOwnerRecordId?: string, sourceTenantRecordId?: string, sourcePropertyRecordId?: string) {
-  const summary = calculateRentalSummary(details);
-  const evacuationCommitmentDate = details.evacuationCommitmentDate ?? "";
+  const normalized = normalizeRentalDetails(details);
+  const summary = calculateRentalSummary(normalized);
+  const evacuationCommitmentDate = normalized.evacuationCommitmentDate ?? "";
   const maskedDetails: OfflineRentalDetails = {
-    ...details,
+    ...normalized,
     ownerIdentity: maskIdentityOrTaxNo(details.ownerIdentity),
     ownerPhone: maskPhone(details.ownerPhone),
     tenantIdentity: maskIdentityOrTaxNo(details.tenantIdentity),
@@ -211,9 +231,9 @@ export function createOfflineRentalSnapshot(details: OfflineRentalDetails, contr
     vatCollection: "separate" as const,
     summary,
     conditionTemplateVersion: RENTAL_CONDITIONS_TEMPLATE_VERSION,
-    conditions: rentalContractConditions(details, summary.endDate),
-    deliveryAppendix: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo, daskPolicyNo: details.daskPolicyNo, deliveryDate: details.startDate },
+    conditions: rentalContractConditions(normalized, summary.endDate),
+    deliveryAppendix: { fixtures: rentalFixtureSummary(normalized), fixtureItems: rentalFixtureItems(normalized), meterNotes: normalized.meterNotes, electricityMeterNo: normalized.electricityMeterNo, waterMeterNo: normalized.waterMeterNo, naturalGasMeterNo: normalized.naturalGasMeterNo, daskPolicyNo: normalized.daskPolicyNo, deliveryDate: normalized.startDate },
     appendixTemplateVersion: RENTAL_APPENDIX_TEMPLATE_VERSION,
-    appendices: { evacuation: { plannedDate: evacuationCommitmentDate, commitmentDate: evacuationCommitmentDate, includedInPackage: details.appendixSelection.evacuation }, handover: { plannedDate: details.startDate, includedInPackage: details.appendixSelection.handover, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, return: { plannedDate: summary.endDate, includedInPackage: details.appendixSelection.return, fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), electricityMeterNo: details.electricityMeterNo, waterMeterNo: details.waterMeterNo, naturalGasMeterNo: details.naturalGasMeterNo }, fixtures: { fixtures: rentalFixtureSummary(details), fixtureItems: rentalFixtureItems(details), meterNotes: details.meterNotes, includedInPackage: details.appendixSelection.fixtures } },
+    appendices: { evacuation: { plannedDate: evacuationCommitmentDate, commitmentDate: evacuationCommitmentDate, includedInPackage: normalized.appendixSelection.evacuation }, handover: { plannedDate: normalized.startDate, includedInPackage: normalized.appendixSelection.handover, fixtures: rentalFixtureSummary(normalized), fixtureItems: rentalFixtureItems(normalized), electricityMeterNo: normalized.electricityMeterNo, waterMeterNo: normalized.waterMeterNo, naturalGasMeterNo: normalized.naturalGasMeterNo }, return: { plannedDate: summary.endDate, includedInPackage: normalized.appendixSelection.return, fixtures: rentalFixtureSummary(normalized), fixtureItems: rentalFixtureItems(normalized), electricityMeterNo: normalized.electricityMeterNo, waterMeterNo: normalized.waterMeterNo, naturalGasMeterNo: normalized.naturalGasMeterNo }, fixtures: { fixtures: rentalFixtureSummary(normalized), fixtureItems: rentalFixtureItems(normalized), meterNotes: normalized.meterNotes, includedInPackage: normalized.appendixSelection.fixtures } },
   };
 }

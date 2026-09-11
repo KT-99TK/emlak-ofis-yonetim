@@ -5,7 +5,7 @@ describe("authority contract template", () => {
   it("renders the rent template with safe placeholders", () => {
     const output = renderAuthorityContract(emptyAuthorityDetails());
     expect(authorityContractTitle("rent")).toBe("KİRALAMA YETKİ SÖZLEŞMESİ");
-    expect(output).toContain("Global 1881 Gayrimenkul");
+    expect(output).toContain("GLOBAL 1881 GAYRİMENKUL");
     expect(output).toContain("................................");
   });
 
@@ -27,7 +27,7 @@ describe("authority contract template", () => {
     const snapshot = createOfflineAuthoritySnapshot({ ...emptyAuthorityDetails(), ownerName: "Ayşe Malik" }, " YET-OF-001 ", "client-1", "property-1");
     expect(snapshot.schema).toBe("global1881-offline-authority-v2");
     expect(snapshot.contractNo).toBe("YET-OF-001");
-    expect(snapshot.ownerName).toBe("Ayşe Malik");
+    expect(snapshot.ownerName).toBe("AYŞE MALİK");
     expect(snapshot.sourceClientRecordId).toBe("client-1");
     expect(snapshot.authorityDurationMonths).toBe("3");
     expect(snapshot.eidsAuthorizationNumber).toBe("");
