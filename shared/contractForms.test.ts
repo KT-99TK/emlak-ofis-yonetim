@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeClausesForOutput, contractFormFieldsComplete, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, preparationChecksComplete, renderContractFormOutput, requesterFootnote, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
+import { activeClausesForOutput, contractFormFieldsComplete, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, parameterizeLandShareClauseBody, preparationChecksComplete, renderContractFormOutput, requesterFootnote, resolveContractFormPlaceholders, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
 import { LAND_SHARE_FIXED_CLAUSES } from "./landShareFixedClauses";
 
 describe("contract form clause model", () => {
@@ -10,6 +10,30 @@ describe("contract form clause model", () => {
     expect(serialized).not.toContain("Yaşar Yılmaz");
     expect(serialized).not.toContain("İbrahim Parin");
     expect(serialized).not.toContain("@gmail.com");
+  });
+
+  it("parameterizes project-specific land-share values and leaves missing values blank", () => {
+    const source = "İzmir ili, Urla ilçesi, Güvendik Mahallesi'nde, tapunun L17-A-10-C-3-A ve L17-A-10-C-3-D paftaları, 2331 ada, 27 ve 39 parsel numaralarında kayıtlıdır. 1.500 USD (bin beş yüz Amerikan Doları)";
+    const parameterized = parameterizeLandShareClauseBody(source);
+    expect(parameterized).toContain("{{propertyProvince}}");
+    expect(parameterized).toContain("{{delayPenaltyAmount}}");
+    expect(resolveContractFormPlaceholders(parameterized, { propertyProvince: "İzmir", delayPenaltyAmount: 500000, delayPenaltyCurrency: "TL" })).toContain("İzmir");
+    expect(resolveContractFormPlaceholders(parameterized, {})).not.toContain("2331 ada");
+    expect(resolveContractFormPlaceholders(parameterized, {})).not.toContain("1.500 USD");
+  });
+
+  it("parameterizes remaining land-share schedules, transfer, acceptance, notice, and annex literals", () => {
+    const source = [0, 5, 7, 9, 10, 11, 12, 16, 18, 19, 20].map(index => LAND_SHARE_FIXED_CLAUSES[index].bodyTemplate).join("\\n");
+    const parameterized = parameterizeLandShareClauseBody(source);
+    expect(parameterized).toContain("{{independentSectionDistribution}}");
+    expect(parameterized).toContain("{{contractorTransferStages}}");
+    expect(parameterized).toContain("{{constructionMilestones}}");
+    expect(parameterized).toContain("{{temporaryAcceptanceThresholdPercent}}");
+    expect(parameterized).toContain("{{noticePeriodDays}}");
+    expect(parameterized).toContain("{{technicalSpecificationPageCount}}");
+    expect(parameterized).not.toContain("2331 ada, 27 ve 39 parsel");
+    expect(parameterized).not.toContain("1.500 USD");
+    expect(parameterized).not.toContain("90 gün içinde hazırlanarak");
   });
 
   it("normalizes a party-specific optional clause without inventing legal text", () => {
@@ -114,7 +138,7 @@ describe("contract form clause model", () => {
       fieldValues: { buyerName: "Ayşe Kaya" },
       clauses: [
         { id: 2, title: "Taslak", bodyTemplate: "taslak metin", sortOrder: 20, status: "draft" },
-        { id: 1, title: "Aktif", bodyTemplate: "aktif metin", sortOrder: 10, status: "active" },
+        { id: 1, title: "Aktif", bodyTemplate: "aktif {{buyerName}}", sortOrder: 10, status: "active" },
       ],
     });
     expect(output.missingRequiredFields).toEqual([]);
@@ -124,6 +148,7 @@ describe("contract form clause model", () => {
     ]);
     expect(output.clauses.map(clause => clause.id)).toEqual([1]);
     expect(output.clauses[0].articleNumber).toBe(17);
+    expect(output.clauses[0].body).toBe("aktif Ayşe Kaya");
   });
 
   it("reports missing required fields in the shared output model", () => {

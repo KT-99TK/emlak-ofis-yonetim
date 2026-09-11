@@ -173,6 +173,8 @@ const LAND_SHARE_FIELDS = [
   { fieldKey: "propertyNeighborhood", label: "Taşınmaz mahallesi", fieldType: "text" as const, partyScope: "shared" as const, required: true, sortOrder: 52 },
   { fieldKey: "titleDeedParcelDetails", label: "Pafta, ada ve parsel bilgileri", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 53 },
   { fieldKey: "projectNameAndLogo", label: "Proje adı ve logo kararı", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 54 },
+  { fieldKey: "localAuthorityName", label: "İlgili belediye/yerel idare adı", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 55 },
+  { fieldKey: "officialInstitutionsAndApplications", label: "Resmî kurumlar ve başvuru kapsamı", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 56 },
   { fieldKey: "landShareRatio", label: "Arsa sahibi / yüklenici paylaşım oranı", fieldType: "text" as const, partyScope: "shared" as const, required: true, sortOrder: 70 },
   { fieldKey: "independentSectionDistribution", label: "Bağımsız bölüm paylaşım tablosu", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 71 },
   { fieldKey: "totalIndependentSections", label: "Toplam bağımsız bölüm sayısı", fieldType: "number" as const, partyScope: "shared" as const, required: true, sortOrder: 72 },
@@ -182,18 +184,32 @@ const LAND_SHARE_FIELDS = [
   { fieldKey: "landDeliveryDeadlineDays", label: "Yer teslimi süresi (gün)", fieldType: "number" as const, partyScope: "landowner" as const, required: false, sortOrder: 80 },
   { fieldKey: "projectPreparationDeadlineDays", label: "Proje hazırlama süresi (gün)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 81 },
   { fieldKey: "permitApplicationDeadlineDays", label: "Ruhsat başvuru süresi (iş günü)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 82 },
+  { fieldKey: "approvedProjectPermitDeadlineMonths", label: "Proje onayından sonra ruhsat süresi (ay)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 82.5 },
   { fieldKey: "buildingPermitDeadlineMonths", label: "Yapı ruhsatı alma süresi (ay)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 83 },
   { fieldKey: "constructionStartDeadlineDays", label: "Ruhsat sonrası işe başlama süresi (gün)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 84 },
   { fieldKey: "completionDeadlineMonths", label: "İşi tamamlama süresi (ay)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 85 },
   { fieldKey: "constructionMilestones", label: "İnşaat ara takvimi", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 86 },
   { fieldKey: "contractorTransferStages", label: "Yükleniciye kademeli devir etapları", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 90 },
+  { fieldKey: "contractorSectionSummary", label: "Yükleniciye ait bağımsız bölüm özeti", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 90.5 },
+  { fieldKey: "transferReviewDeadlineDays", label: "Devir aşaması kontrol süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 90.6 },
   { fieldKey: "specialTransferCondition", label: "Özel bağımsız bölüm devir koşulu", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 91 },
   { fieldKey: "delayPenaltyAmount", label: "Geç teslim bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 100 },
+  { fieldKey: "delayPenaltyDailyAmount", label: "Günlük geç teslim bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 100.5 },
+  { fieldKey: "delayPenaltyTriggerMonths", label: "Cezai şart tetiklenme süresi (ay)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 100.6 },
+  { fieldKey: "delayNotificationDeadlineDays", label: "Gecikme bildirim süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 100.7 },
+  { fieldKey: "contractDate", label: "Sözleşme tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: false, sortOrder: 141.5 },
   { fieldKey: "delayPenaltyCurrency", label: "Geç teslim bedeli para birimi", fieldType: "select" as const, partyScope: "shared" as const, optionsJson: JSON.stringify(["TL", "USD", "EUR", "Diğer"]), required: false, sortOrder: 101 },
   { fieldKey: "generalPenaltyAmount", label: "Genel cezai şart", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 102 },
   { fieldKey: "forceMajeureMaximumDays", label: "Mücbir sebep azami ek süre (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 103 },
   { fieldKey: "warrantyPeriodYears", label: "Garanti süresi (yıl)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 104 },
   { fieldKey: "noticePeriodDays", label: "Genel fesih ihtar süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 105 },
+  { fieldKey: "receiptDeliveryDeadlineMonths", label: "Ödeme belgesi teslim süresi (ay)", fieldType: "number" as const, partyScope: "contractor" as const, required: false, sortOrder: 105.1 },
+  { fieldKey: "supplierComplaintCureDays", label: "Alt yüklenici/tedarikçi şikâyet giderme süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 105.5 },
+  { fieldKey: "temporaryAcceptanceNoticeDays", label: "Geçici kabul bildirim süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 105.6 },
+  { fieldKey: "temporaryAcceptanceThresholdPercent", label: "Geçici kabul imalat tamamlanma yüzdesi", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 105.65 },
+  { fieldKey: "temporaryAcceptanceAdditionalPeriodMonths", label: "Geçici kabul eksik işleri ek süresi (ay)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 105.7 },
+  { fieldKey: "officialApplicationResponseDeadlineBusinessDays", label: "Vekil resmî işlem yanıt süresi (iş günü)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 105.8 },
+  { fieldKey: "heirReplacementDeadlineDays", label: "Vefat sonrası yeni vekil süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 105.9 },
   { fieldKey: "technicalSpecificationNotes", label: "Teknik Şartname bağlantı notları", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 110 },
   { fieldKey: "projectStandards", label: "Proje ve imalat standartları", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 111 },
   { fieldKey: "soilStudyAndGroundImprovement", label: "Zemin etüdü ve zemin iyileştirme koşulları", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 112 },
@@ -206,8 +222,11 @@ const LAND_SHARE_FIELDS = [
   { fieldKey: "noticeAddresses", label: "Yasal tebligat adresleri", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 130 },
   { fieldKey: "noticeEmails", label: "Yazılı bildirim e-posta adresleri", fieldType: "multiline" as const, partyScope: "shared" as const, required: false, sortOrder: 131 },
   { fieldKey: "notaryFeeBaseAmount", label: "Noter harç matrahı", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 140 },
+  { fieldKey: "technicalSpecificationPageCount", label: "Teknik Şartname sayfa sayısı", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 140.5 },
   { fieldKey: "competentCourtAndEnforcementOffice", label: "Yetkili mahkeme ve icra daireleri", fieldType: "text" as const, partyScope: "shared" as const, required: true, sortOrder: 141 },
+  { fieldKey: "executionPlace", label: "Düzenleme/noter yeri", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 141.2 },
   { fieldKey: "copyCount", label: "Sözleşme nüsha sayısı", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 142 },
+  { fieldKey: "totalContractArticles", label: "Sözleşme madde sayısı", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 142.5 },
   { fieldKey: "annexRegister", label: "Sözleşme ekleri kayıt listesi", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 143 },
 ] as const;
 
@@ -243,6 +262,52 @@ export function contractFormFieldsComplete(
 
 export function isTechnicalContractFormField(fieldKey: string) {
   return TECHNICAL_FORM_FIELD_KEYS.includes(fieldKey as (typeof TECHNICAL_FORM_FIELD_KEYS)[number]) || fieldKey.startsWith("technical_");
+}
+
+export function parameterizeLandShareClauseBody(bodyTemplate: string) {
+  return bodyTemplate
+    .replace(/İzmir ili, Urla ilçesi, Güvendik Mahallesi'nde, tapunun L17-A-10-C-3-A ve L17-A-10-C-3-D paftaları, 2331 ada, 27 ve 39 parsel numaralarında kayıtlıdır\./g, "{{propertyProvince}} ili, {{propertyDistrict}} ilçesi, {{propertyNeighborhood}} Mahallesi'nde, tapunun {{titleDeedParcelDetails}} kayıtlıdır.")
+    .replace(/24 daire ve 4 ikiz villa olmak üzere toplam 28 bağımsız bölüm/g, "{{apartmentAndVillaCounts}} olmak üzere toplam {{totalIndependentSections}} bağımsız bölüm")
+    .replace(/Bu kapsamda;[\s\S]*?(?=d\. Kat mülkiyeti yönetim planına)/g, "Bu kapsamda; {{independentSectionDistribution}}. ")
+    .replace(/8-1\.[\s\S]*?(?=8-2\.)/g, "8-1. {{contractorTransferStages}} ")
+    .replace(/en geç 15 gün içinde/g, "en geç {{landDeliveryDeadlineDays}} gün içinde")
+    .replace(/Yüklenici tarafından arsa sahibi adına yapılan ödemelerin makbuz ve belge örnekleri, ödemeyi izleyen 1 ay içinde/g, "Yüklenici tarafından arsa sahibi adına yapılan ödemelerin makbuz ve belge örnekleri, ödemeyi izleyen {{receiptDeliveryDeadlineMonths}} ay içinde")
+    .replace(/en geç 90 gün içinde hazırlanarak/g, "en geç {{projectPreparationDeadlineDays}} gün içinde hazırlanarak")
+    .replace(/en geç 15 iş günü içinde inşaat ruhsatı/g, "en geç {{permitApplicationDeadlineDays}} iş günü içinde inşaat ruhsatı")
+    .replace(/6 ay içinde inşaat ruhsatını/g, "{{approvedProjectPermitDeadlineMonths}} ay içinde inşaat ruhsatını")
+    .replace(/12 ay içinde yapı ruhsatı/g, "{{buildingPermitDeadlineMonths}} ay içinde yapı ruhsatı")
+    .replace(/en geç 30 gün içinde şantiyeyi/g, "en geç {{constructionStartDeadlineDays}} gün içinde şantiyeyi")
+    .replace(/en geç 18 ay içinde işi/g, "en geç {{completionDeadlineMonths}} ay içinde işi")
+    .replace(/10 gün içinde arsa sahibine/g, "{{delayNotificationDeadlineDays}} gün içinde arsa sahibine")
+    .replace(/kaba inşaat 6\. ay;[\s\S]*?18\. ay sonuna kadar\./g, "{{constructionMilestones}}.")
+    .replace(/%90 seviyesine/g, "%{{temporaryAcceptanceThresholdPercent}} seviyesine")
+    .replace(/15 gün önceden yazılı bildirimi/g, "{{temporaryAcceptanceNoticeDays}} gün önceden yazılı bildirimi")
+    .replace(/1 aylık ek süre/g, "{{temporaryAcceptanceAdditionalPeriodMonths}} aylık ek süre")
+    .replace(/5 yıl süreyle/g, "{{warrantyPeriodYears}} yıl süreyle")
+    .replace(/1\.500 USD \(bin beş yüz Amerikan Doları\)/g, "{{delayPenaltyAmount}} {{delayPenaltyCurrency}}")
+    .replace(/50 USD \(1\.500 USD'nin otuzda biri\)/g, "{{delayPenaltyDailyAmount}} {{delayPenaltyCurrency}}")
+    .replace(/kesintisiz 3 ay tahakkuku/g, "kesintisiz {{delayPenaltyTriggerMonths}} ay tahakkuku")
+    .replace(/15 gün içinde giderilmemesi/g, "{{supplierComplaintCureDays}} gün içinde giderilmemesi")
+    .replace(/60 günlük ihtara gerek olmaksızın/g, "{{noticePeriodDays}} günlük ihtara gerek olmaksızın")
+    .replace(/en az 60 gün süreli ihtar/g, "en az {{noticePeriodDays}} gün süreli ihtar")
+    .replace(/en geç 5 iş günü içinde/g, "en geç {{officialApplicationResponseDeadlineBusinessDays}} iş günü içinde")
+    .replace(/60 gün içinde yeni bir vekil/g, "{{heirReplacementDeadlineDays}} gün içinde yeni bir vekil")
+    .replace(/60 gün içinde sözleşme hükümlerine/g, "{{heirReplacementDeadlineDays}} gün içinde sözleşme hükümlerine")
+    .replace(/Urla Mahkemeleri ve İcra Daireleri/g, "{{competentCourtAndEnforcementOffice}}")
+    .replace(/\[\.……...........\] TL \(\[\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\] Türk Lirası\)/g, "{{notaryFeeBaseAmount}} TL")
+    .replace(/Teknik Şartname \(9 Sayfa\)/g, "Teknik Şartname ({{technicalSpecificationPageCount}} Sayfa)")
+    .replace(/İşbu sözleşme …\/.…\/.2026 tarihinde/g, "İşbu sözleşme {{contractDate}} tarihinde")
+    .replace(/2 nüsha olarak/g, "{{copyCount}} nüsha olarak")
+    .replace(/Urla Belediyesinin/g, "{{localAuthorityName}}'nin")
+    .replace(/Urla Belediyesince/g, "{{localAuthorityName}}'nce")
+    .replace(/İşbu sözleşme 21 maddeden/g, "İşbu sözleşme {{totalContractArticles}} maddeden");
+}
+
+export function resolveContractFormPlaceholders(bodyTemplate: string, fieldValues: Record<string, unknown>) {
+  return bodyTemplate.replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (_match, fieldKey: string) => {
+    const value = fieldValues[fieldKey];
+    return value == null ? "" : String(value);
+  });
 }
 
 export type ContractFormAttachmentStatus = "missing" | "draft" | "ready" | "archived";
@@ -292,6 +357,7 @@ export function renderContractFormOutput(input: {
       const numberedClauses = input.formType === "sale_closing" ? numberSaleClosingOptionalClauses(activeClauses) : activeClauses;
       return numberedClauses.map((clause, index) => ({
         ...clause,
+        body: resolveContractFormPlaceholders(clause.bodyTemplate, input.fieldValues),
         clauseNumber: index + 1,
         requesterFootnote: requesterFootnote(clause),
       }));

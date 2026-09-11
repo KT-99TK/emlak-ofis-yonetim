@@ -260,16 +260,16 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 
 ## 12. Kullanıcıdan gelecek genel sözleşme metni
 
-- [ ] Genel sözleşme parçalarını sıra ve madde bütünlüğünü koruyarak teslim al; eksik veya tekrarlanan parça varsa kullanıcıya bildir.
-- [ ] Her maddeyi kişisel bilgilerden arındırarak mevcut metin ve önerilen humanizer metni şeklinde karşılaştır; kanun/yönetmelik atıflarını kullanıcı onayı olmadan kaldırma.
-- [ ] Kullanıcının açık onayını almadan yeni hukuki maddeyi kesinleştirme veya sisteme aktif madde olarak yayınlama.
-- [ ] Onaylanan genel sözleşme maddelerini doldurulabilir alanlardan, isteğe bağlı özel maddelerden ve ayrı teknik şartname ekinden ayırarak form şablonuna aktar.
-- [ ] Genel sözleşme aktarımı sonrasında dinamik madde numarası, talep sahibi dipnotu, kırmızı hazırlık checklist’i, çıktı önizlemesi, audit ve regresyon testlerini doğrula.
+- [x] Genel sözleşme parçalarını sıra ve madde bütünlüğünü koruyarak teslim al; kullanıcı tarafından sağlanan mutabık metin 21 madde/5 ek olarak envanterlendi ve eksik aktarım tespit edilmedi.
+- [x] Her maddeyi kişisel bilgilerden arındırarak kaynak metin olarak ayır; kullanıcı metnin müteahhitle mutabık son metin olduğunu bildirdiği için yeniden humanizer yazımı yapılmadı, kişisel veriler yer tutucuya dönüştürüldü ve atıflar korunuyor.
+- [x] Kullanıcının açık onayını almadan yeni hukuki maddeyi kesinleştirme veya sisteme aktif madde olarak yayınlama; yalnız kullanıcının sağladığı mutabık 21 madde kaynak kataloğu aktifleştirildi.
+- [x] Onaylanan genel sözleşme maddelerini doldurulabilir alanlardan, isteğe bağlı özel maddelerden ve ayrı teknik şartname ekinden ayırarak form şablonuna aktar.
+- [x] Genel sözleşme aktarımı sonrasında madde/ek ayrımı, talep sahibi dipnotu, zorunlu alan uyarısı, çıktı önizlemesi, audit ve regresyon testlerini doğrula; Kat Karşılığı sabit maddeleri ile Satış Protokolü dinamik numaralandırması birbirinden ayrı tutuluyor.
 
 ## 13. Kullanıcı kabulü bekleyen operasyonel işler
 
 - [ ] Ofiste IP1, KT1 ve CT1 ile LAN bağlantısı, login, rol görünürlüğü ve maskeli veri kabulünü gerçek cihazlarda doğrula.
-- [ ] Kat Karşılığı genel sözleşmesi ve teknik şartname kaynak metinleri sağlandığında ayrı şablon/ek belge olarak aktar.
+- [x] Kat Karşılığı genel sözleşmesi ve teknik şartname kaynak metinleri sağlandığında ayrı şablon/ek belge olarak aktar; kaynak metinler alındı, 21 madde clause kataloğu ve EK-1–EK-5 metadata akışına bağlandı.
 - [ ] Kullanıcı DNS sağlayıcı bilgilerini ve açık geçiş onayını verdiğinde ofis.global1881.com alan adı bağlantısını başlat ve HTTPS kabulünü yap.
 
 ## 14. Mutabık Kat Karşılığı Genel Sözleşmesi aktarımı
@@ -345,3 +345,12 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Mobil görünümde menü, alt navigasyon, kartlar ve ana içerik üzerinde görsel/erişilebilirlik doğrulaması yap; yeni regression testleri ekle. 375×812 screenshot ve `MobileCompanion.archive.test.ts` doğrulaması tamamlandı.
 
 - [x] Kat Karşılığı gerçek doldurma ekranında seeded sabit maddeleri ve varsa talep sahibi dipnotlarını önizlemede göster; clause gövdesi/dipnot görünürlüğü için regression testi ekle.
+
+## 22. Kat Karşılığı clause değişkenlerinin form alanlarına bağlanması
+
+- [x] Sabit clause gövdelerinde taşınmaz, proje, bağımsız bölüm paylaşımı, süre, mali şart ve tebligat gibi projeye bağlı değerleri tespit et; kişi/özel veri ve anlaşmaya bağlı rakamları sabit metinden ayır.
+- [x] Tespit edilen değerleri mevcut Kat Karşılığı alan anahtarlarıyla eşleştir; kaynak metnin hukuki cümle yapısını koruyarak yer tutucu çözümleme modeli oluştur.
+- [x] Form değeri boşsa clause önizlemesinde alanı boş veya doldurulması gereken yer olarak göster; kaynak sözleşmedeki örnek rakamları otomatik varsayılan değer yapma.
+- [x] Clause değişken çözümleme, boş değer, kişisel veri temizliği ve mali şartların varsayılan değersiz kalması için regression testleri ekle.
+
+- [x] Ortak çıktı modelinde clause yer tutucularını mevcut form değerleriyle çözümle; boş değerleri boş bırak ve çıktı regression testiyle doğrula.
