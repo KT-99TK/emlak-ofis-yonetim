@@ -191,6 +191,7 @@ const LAND_SHARE_FIELDS = [
   { fieldKey: "constructionMilestones", label: "İnşaat ara takvimi", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 86 },
   { fieldKey: "contractorTransferStages", label: "Yükleniciye kademeli devir etapları", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 90 },
   { fieldKey: "contractorSectionSummary", label: "Yükleniciye ait bağımsız bölüm özeti", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 90.5 },
+  { fieldKey: "landShareTransferDemandDeadlineDays", label: "Tapu devir talep süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 90.55 },
   { fieldKey: "transferReviewDeadlineDays", label: "Devir aşaması kontrol süresi (gün)", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 90.6 },
   { fieldKey: "specialTransferCondition", label: "Özel bağımsız bölüm devir koşulu", fieldType: "multiline" as const, partyScope: "contractor" as const, required: false, sortOrder: 91 },
   { fieldKey: "delayPenaltyAmount", label: "Geç teslim bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 100 },
@@ -225,6 +226,7 @@ const LAND_SHARE_FIELDS = [
   { fieldKey: "technicalSpecificationPageCount", label: "Teknik Şartname sayfa sayısı", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 140.5 },
   { fieldKey: "competentCourtAndEnforcementOffice", label: "Yetkili mahkeme ve icra daireleri", fieldType: "text" as const, partyScope: "shared" as const, required: true, sortOrder: 141 },
   { fieldKey: "executionPlace", label: "Düzenleme/noter yeri", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 141.2 },
+  { fieldKey: "notaryOfficeName", label: "Noterlik adı", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 141.3 },
   { fieldKey: "copyCount", label: "Sözleşme nüsha sayısı", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 142 },
   { fieldKey: "totalContractArticles", label: "Sözleşme madde sayısı", fieldType: "number" as const, partyScope: "shared" as const, required: false, sortOrder: 142.5 },
   { fieldKey: "annexRegister", label: "Sözleşme ekleri kayıt listesi", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 143 },
@@ -271,6 +273,7 @@ export function parameterizeLandShareClauseBody(bodyTemplate: string) {
     .replace(/Bu kapsamda;[\s\S]*?(?=d\. Kat mülkiyeti yönetim planına)/g, "Bu kapsamda; {{independentSectionDistribution}}. ")
     .replace(/8-1\.[\s\S]*?(?=8-2\.)/g, "8-1. {{contractorTransferStages}} ")
     .replace(/en geç 15 gün içinde/g, "en geç {{landDeliveryDeadlineDays}} gün içinde")
+    .replace(/7 günlük süre içinde/g, "{{landShareTransferDemandDeadlineDays}} günlük süre içinde")
     .replace(/Yüklenici tarafından arsa sahibi adına yapılan ödemelerin makbuz ve belge örnekleri, ödemeyi izleyen 1 ay içinde/g, "Yüklenici tarafından arsa sahibi adına yapılan ödemelerin makbuz ve belge örnekleri, ödemeyi izleyen {{receiptDeliveryDeadlineMonths}} ay içinde")
     .replace(/en geç 90 gün içinde hazırlanarak/g, "en geç {{projectPreparationDeadlineDays}} gün içinde hazırlanarak")
     .replace(/en geç 15 iş günü içinde inşaat ruhsatı/g, "en geç {{permitApplicationDeadlineDays}} iş günü içinde inşaat ruhsatı")
@@ -287,6 +290,8 @@ export function parameterizeLandShareClauseBody(bodyTemplate: string) {
     .replace(/1\.500 USD \(bin beş yüz Amerikan Doları\)/g, "{{delayPenaltyAmount}} {{delayPenaltyCurrency}}")
     .replace(/50 USD \(1\.500 USD'nin otuzda biri\)/g, "{{delayPenaltyDailyAmount}} {{delayPenaltyCurrency}}")
     .replace(/kesintisiz 3 ay tahakkuku/g, "kesintisiz {{delayPenaltyTriggerMonths}} ay tahakkuku")
+    .replace(/azami 60 gün/g, "azami {{forceMajeureMaximumDays}} gün")
+    .replace(/10\.000\.000 TL \(on milyon Türk Lirası\)/g, "{{generalPenaltyAmount}} TL")
     .replace(/15 gün içinde giderilmemesi/g, "{{supplierComplaintCureDays}} gün içinde giderilmemesi")
     .replace(/60 günlük ihtara gerek olmaksızın/g, "{{noticePeriodDays}} günlük ihtara gerek olmaksızın")
     .replace(/en az 60 gün süreli ihtar/g, "en az {{noticePeriodDays}} gün süreli ihtar")
@@ -297,6 +302,7 @@ export function parameterizeLandShareClauseBody(bodyTemplate: string) {
     .replace(/\[\.……...........\] TL \(\[\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\] Türk Lirası\)/g, "{{notaryFeeBaseAmount}} TL")
     .replace(/Teknik Şartname \(9 Sayfa\)/g, "Teknik Şartname ({{technicalSpecificationPageCount}} Sayfa)")
     .replace(/İşbu sözleşme …\/.…\/.2026 tarihinde/g, "İşbu sözleşme {{contractDate}} tarihinde")
+    .replace(/Urla 1\. Noterliğince/g, "{{notaryOfficeName}} Noterliğince")
     .replace(/2 nüsha olarak/g, "{{copyCount}} nüsha olarak")
     .replace(/Urla Belediyesinin/g, "{{localAuthorityName}}'nin")
     .replace(/Urla Belediyesince/g, "{{localAuthorityName}}'nce")
