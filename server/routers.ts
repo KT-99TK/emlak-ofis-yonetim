@@ -44,6 +44,10 @@ import {
   getNextContractNumber,
   listLedger,
   listObligations,
+  listPersonalTasks,
+  createPersonalTask,
+  updatePersonalTask,
+  cancelPersonalTask,
   listProperties,
   listTeamMembers,
   saveReminderSchedule,
@@ -94,6 +98,7 @@ import {
   assertContractPreparationComplete,
 } from "./db";
 import { storagePut } from "./storage";
+import { getEurTryReferenceRate } from "./exchangeRates";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { changeLocalPassword, createLocalConsultantAccount, loginLocalUser, logoutLocalUser, resetLocalConsultantPassword } from "./localAuth";
@@ -847,6 +852,46 @@ export const appRouter = router({
           throw new Error("Ofis asistanı vade kaydı oluşturamaz.");
         return createObligation({ ...input, assignedUserId: ctx.user.id });
       }),
+  }),
+  personalTasks: router({
+    list: protectedProcedure.query(({ ctx }) => listPersonalTasks(ctx.user.id)),
+    create: protectedProcedure
+      .input(
+        z.object({
+          title: z.string().trim().min(1).max(240),
+          notes: z.string().max(2000).nullable().optional(),
+          priority: z.enum(["low", "normal", "high"]).default("normal"),
+          dueAt: z.coerce.date().nullable().optional(),
+          reminderAt: z.coerce.date().nullable().optional(),
+          linkedEntityType: z
+            .enum(["client", "property", "contract", "ledger", "obligation", "rentalServiceTask"])
+            .nullable()
+            .optional(),
+          linkedEntityId: z.number().int().positive().nullable().optional(),
+          linkedLabel: z.string().max(240).nullable().optional(),
+          linkedPath: z.string().max(255).nullable().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) => createPersonalTask({ ...input, userId: ctx.user.id })),
+    update: protectedProcedure
+      .input(
+        z.object({
+          taskId: z.number().int().positive(),
+          title: z.string().trim().min(1).max(240).optional(),
+          notes: z.string().max(2000).nullable().optional(),
+          priority: z.enum(["low", "normal", "high"]).optional(),
+          status: z.enum(["open", "done", "cancelled"]).optional(),
+          dueAt: z.coerce.date().nullable().optional(),
+          reminderAt: z.coerce.date().nullable().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) => updatePersonalTask({ ...input, userId: ctx.user.id })),
+    cancel: protectedProcedure
+      .input(z.object({ taskId: z.number().int().positive() }))
+      .mutation(({ ctx, input }) => cancelPersonalTask({ ...input, userId: ctx.user.id })),
+  }),
+  exchangeRates: router({
+    eurTry: protectedProcedure.query(() => getEurTryReferenceRate()),
   }),
   reminders: router({
     schedule: protectedProcedure.mutation(async () => {

@@ -742,6 +742,24 @@ export const reminderPreferences = mysqlTable("reminderPreferences", {
   lastReminderRunKey: varchar("lastReminderRunKey", { length: 80 }),
 });
 
+export const personalTasks = mysqlTable("personalTasks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 240 }).notNull(),
+  notes: text("notes"),
+  priority: mysqlEnum("priority", ["low", "normal", "high"]).default("normal").notNull(),
+  status: mysqlEnum("status", ["open", "done", "cancelled"]).default("open").notNull(),
+  dueAt: timestamp("dueAt"),
+  reminderAt: timestamp("reminderAt"),
+  completedAt: timestamp("completedAt"),
+  linkedEntityType: varchar("linkedEntityType", { length: 40 }),
+  linkedEntityId: int("linkedEntityId"),
+  linkedLabel: varchar("linkedLabel", { length: 240 }),
+  linkedPath: varchar("linkedPath", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const backupManifests = mysqlTable("backupManifests", {
   id: int("id").autoincrement().primaryKey(),
   createdByUserId: int("createdByUserId").notNull(),

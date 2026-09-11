@@ -9,6 +9,10 @@ import {
   type OfficeFlowLedgerEntry,
   type OfficeFlowObligation,
 } from "@/components/OfficeFlowPanel";
+import { PersonalTaskPanel } from "@/components/PersonalTaskPanel";
+import { ExchangeRateCard } from "@/components/ExchangeRateCard";
+import { UserGuideDialog } from "@/components/UserGuideDialog";
+import { RoleSuggestionCard } from "@/components/RoleSuggestionCard";
 import {
   Dialog,
   DialogContent,
@@ -259,6 +263,7 @@ export default function Home() {
               <ShieldCheck className="mr-2 h-3.5 w-3.5 text-[#2b786e]" />{" "}
               Güvenli çalışma alanı
             </Badge>
+            <UserGuideDialog onOpenPath={path => setLocation(path)} />
             <Button
               disabled={centralOperationsLocked}
               onClick={() => setLocation("/contracts")}
@@ -344,6 +349,16 @@ export default function Home() {
             edin.
           </div>
         )}
+        {isDashboard && (
+          <>
+            <section className="mb-6 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
+              <PersonalTaskPanel onOpenPath={path => setLocation(path)} />
+              <ExchangeRateCard />
+            </section>
+            <RoleSuggestionCard isManager={user?.role === "admin"} onOpenPath={path => setLocation(path)} />
+          </>
+        )}
+
         {!summaryQuery.isLoading &&
           !summaryQuery.isError &&
           summary &&

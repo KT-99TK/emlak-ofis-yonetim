@@ -15,6 +15,7 @@ import {
   properties,
   rentalObligations,
   reminderPreferences,
+  personalTasks,
   teams,
   treasuryCashDailyCounts,
   treasuryCashMovements,
@@ -1180,6 +1181,126 @@ async function assertAnonymousBrokerGuidanceSummary(
       "Broker yönlendirme notuna merkezi müşteri, kiracı veya taşınmaz adı yazılamaz."
     );
   return normalized;
+}
+
+export type PersonalTaskStatus = "open" | "done" | "cancelled";
+export type PersonalTaskPriority = "low" | "normal" | "high";
+
+function normalizePersonalTaskDate(value: Date | string | null | undefined) {
+  if (!value) return null;
+  const parsed = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(parsed.getTime())) throw new Error("Geçersiz görev tarihi.");
+  return parsed;
+}
+
+export async function listPersonalTasks(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(personalTasks)
+    .where(eq(personalTasks.userId, userId))
+    .orderBy(personalTasks.status, personalTasks.dueAt, desc(personalTasks.createdAt));
+}
+
+export async function createPersonalTask(input: {
+  userId: number;
+  title: string;
+  notes?: string | null;
+  priority?: PersonalTaskPriority;
+  dueAt?: Date | string | null;
+  reminderAt?: Date | string | null;
+  linkedEntityType?: string | null;
+  linkedEntityId?: number | null;
+  linkedLabel?: string | null;
+  linkedPath?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const title = input.title.trim();
+  if (!title) throw new Error("Görev başlığı boş bırakılamaz.");
+  const result = await db.insert(personalTasks).values({
+    userId: input.userId,
+    title,
+    notes: input.notes?.trim() || null,
+    priority: input.priority ?? "normal",
+    dueAt: normalizePersonalTaskDate(input.dueAt),
+    reminderAt: normalizePersonalTaskDate(input.reminderAt),
+    linkedEntityType: input.linkedEntityType ?? null,
+    linkedEntityId: input.linkedEntityId ?? null,
+    linkedLabel: input.linkedLabel?.trim() || null,
+    linkedPath: input.linkedPath ?? null,
+  });
+  const id = Number(result[0].insertId);
+  await db.insert(auditLogs).values({
+    actorUserId: input.userId,
+    action: "personal_task_created",
+    entityType: "personalTask",
+    entityId: id,
+    summary: `Kişisel görev #${id} oluşturuldu.`,
+  });
+  return id;
+}
+
+export async function updatePersonalTask(input: {
+  userId: number;
+  taskId: number;
+  title?: string;
+  notes?: string | null;
+  priority?: PersonalTaskPriority;
+  status?: PersonalTaskStatus;
+  dueAt?: Date | string | null;
+  reminderAt?: Date | string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const current = await db
+    .select()
+    .from(personalTasks)
+    .where(and(eq(personalTasks.id, input.taskId), eq(personalTasks.userId, input.userId)))
+    .limit(1);
+  if (!current[0]) throw new Error("Kişisel görev bulunamadı.");
+  const nextStatus = input.status ?? current[0].status;
+  const title = input.title === undefined ? undefined : input.title.trim();
+  if (title !== undefined && !title) throw new Error("Görev başlığı boş bırakılamaz.");
+  await db
+    .update(personalTasks)
+    .set({
+      ...(title === undefined ? {} : { title }),
+      ...(input.notes === undefined ? {} : { notes: input.notes?.trim() || null }),
+      ...(input.priority === undefined ? {} : { priority: input.priority }),
+      ...(input.status === undefined ? {} : { status: input.status }),
+      ...(input.dueAt === undefined ? {} : { dueAt: normalizePersonalTaskDate(input.dueAt) }),
+      ...(input.reminderAt === undefined ? {} : { reminderAt: normalizePersonalTaskDate(input.reminderAt) }),
+      ...(input.status === undefined ? {} : { completedAt: nextStatus === "done" ? new Date() : null }),
+    })
+    .where(and(eq(personalTasks.id, input.taskId), eq(personalTasks.userId, input.userId)));
+  await db.insert(auditLogs).values({
+    actorUserId: input.userId,
+    action: input.status === "done" ? "personal_task_completed" : "personal_task_updated",
+    entityType: "personalTask",
+    entityId: input.taskId,
+    summary: `Kişisel görev #${input.taskId} güncellendi.`,
+  });
+  return true;
+}
+
+export async function cancelPersonalTask(input: { userId: number; taskId: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
+  const result = await db
+    .update(personalTasks)
+    .set({ status: "cancelled" })
+    .where(and(eq(personalTasks.id, input.taskId), eq(personalTasks.userId, input.userId)));
+  if (result[0].affectedRows === 0) throw new Error("Kişisel görev bulunamadı.");
+  await db.insert(auditLogs).values({
+    actorUserId: input.userId,
+    action: "personal_task_cancelled",
+    entityType: "personalTask",
+    entityId: input.taskId,
+    summary: `Kişisel görev #${input.taskId} iptal edildi.`,
+  });
+  return true;
 }
 
 export async function listBrokerGuidanceNotes() {

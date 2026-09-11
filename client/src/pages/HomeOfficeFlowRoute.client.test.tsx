@@ -38,6 +38,8 @@ vi.mock("@/lib/trpc", () => ({
     contracts: { list: { useQuery: () => query([{ id: 11, status: "draft" }]) } },
     ledger: { list: { useQuery: () => query([{ id: 21, entryType: "receivable", status: "pending" }]) } },
     activeRentals: { serviceTasks: { list: { useQuery: () => query([]) } } },
+    personalTasks: { list: { useQuery: () => query([]) }, create: { useMutation: mutation }, update: { useMutation: mutation }, cancel: { useMutation: mutation } },
+    exchangeRates: { eurTry: { useQuery: () => query({ rate: 56.3329, rateDate: "2026-09-11", source: "ECB", sourceUrl: "https://data-api.ecb.europa.eu", isReferenceRate: true }) } },
     brokerGuidanceNotes: { list: { useQuery: () => query([]) }, create: { useMutation: mutation }, resolve: { useMutation: mutation } },
   },
 }));
