@@ -320,3 +320,10 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Altyapı değişiklikleri için test, TypeScript ve production build doğrulamasını tamamla.
 
 - [x] Kat Karşılığı şablon ayrıntılarında EK-1–EK-5 ek metadata durumlarını ve zorunlu ek uyarısını manager için görünür kıl; gerçek doldurma formunu ayrı aşamada tut.
+
+## 19. Mobil Chrome preview TLS erişim hatası
+
+- [ ] Mobil Chrome ekran görüntüsündeki `ERR_SSL_PROTOCOL_ERROR` olayını canlı yayın, dev preview ve kullanıcı ağı ayrımında teşhis et.
+- [x] Canlı alan adı ile dev preview TLS/HTTP yanıtlarını aynı zaman aralığında karşılaştır; uygulama kodunu değiştirmeden kanıtları kaydet. Her ikisi de HTTP/2 200 ve TLS 1.3 ile sandbox ortamından açıldı; canlı sertifika doğrulandı.
+- [ ] Kullanıcı ağı/operatör kaynaklı filtre veya TLS kesintisi ihtimalini, farklı ağ testi olmadan kesin kök neden olarak ilan etme.
+- [ ] Gerekirse platform desteğine tam alan adı, tarih-saat, saat dilimi, hata metni ve ekran görüntüsüyle teknik aktarım metni hazırla.
