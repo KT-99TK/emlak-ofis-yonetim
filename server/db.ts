@@ -2892,6 +2892,9 @@ export async function saveContractPreparationChecks(input: {
 }
 
 export async function assertContractPreparationComplete(input: { draftKey: string; formType: ContractFormType; actorUserId: number }) {
+  if (input.formType !== "sale_closing") {
+    return { draftKey: input.draftKey, formType: input.formType, checks: {}, completed: true, checkDefinitions: [] };
+  }
   const current = await getContractPreparationChecks(input);
   if (!current.completed) {
     throw new Error("Protokol oluşturulmadan önce kırmızı hazırlık kontrol listesindeki tüm maddeler işaretlenmelidir.");

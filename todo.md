@@ -329,3 +329,11 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir. Ön
 - [x] Platform desteğine tam alan adı, tarih-saat, saat dilimi, hata metni ve ekran görüntüsüyle teknik aktarım metni hazırla; destek metni `docs/tls-support-message-en-2026-09-11.md` içinde.
 
 - [x] 11.09.2026 18:16 TRT’de Wi‑Fi kapalı yalnız GSM/4.5G üzerinden normal canlı hostname’in tekrar `ERR_CONNECTION_RESET` vermesini destek kanıtına ekle; noktalı hostname’in 404 sonucu ile birlikte değerlendir.
+
+## 20. Canlı TLS düzeltmesi beklenirken bağımsız ilerleme
+
+- [x] Kat Karşılığı için gerçek doldurma ekranını mevcut alan modeli, EK-1–EK-5 metadata ve zorunlu alan listesiyle bağla; canlı alan adı/DNS katmanına dokunulmadı.
+- [x] Teknik Şartname alanlarında silüet açıklamayı ayrı göster; gerçek malzeme/marka/model/kalite/renk seçimleri boşsa kırmızı uyarı ve eksik alan listesini göster.
+- [x] Kat Karşılığı ve Teknik Şartname önizlemesini veri kaydetmeden kontrol edilebilir duruma getir; boş kutuların çıktıda boş kaldığını doğrula.
+- [x] Pazartesi ofis kabulü için IP1/KT1/CT1 login, rol, CT1 kayıtları, maskeli hassas veri, sözleşme numarası, komisyon ve şifreli yedek kontrol akışını mevcut `docs/web-acceptance-checklist.md` ve ara raporla yeniden hazırla; gerçek cihaz uygulaması pazartesiye açık.
+- [x] Bu bağımsız ilerleme sonrasında TypeScript, tam test, production build ve görsel kontrol yap; canlı TLS incelemesini ayrı tuttum. TypeScript, 111 test dosyası/322 test ve production build başarılı; görsel kontrol şablon ekranında tamamlandı.
