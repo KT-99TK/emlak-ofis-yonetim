@@ -51,7 +51,7 @@
 - [x] Yeni dashboard/görev değişiklikleri için gerçek checkpoint kaydet ve ilgili sürüm kimliğini TODO notuna bağla. Checkpoint `af6bfacb` olarak kaydedildi.
 - [x] Açılış ekranındaki düşük kontrastlı yeşil buton yazılarını ve benzer ortak buton stillerini tarayıp okunabilir renklerle düzelt. Ortak primary Button varyantı beyaz metin ve ikon kullanacak şekilde düzeltildi; koyu yeşil butonlar artık okunabilir.
 - [x] Yeşil butonların normal, hover, disabled ve ikon durumlarında yeterli kontrastı koru; masaüstü ve mobil görsel doğrulama yap. 1280×720 ve 375×812 görselleri kontrol edildi; bulgular `docs/contrast-verification-2026-09-11.md` içinde.
-- [x] Kontrast düzeltmeleri için regression/inspectable UI testi, TypeScript, production build ve yeni checkpoint oluştur. `button.contrast.test.ts` başarılı; tam Vitest, TypeScript ve production build başarılı; checkpoint bu adımda kaydediliyor.
+- [x] Kontrast düzeltmeleri için regression/inspectable UI testi, TypeScript, production build ve yeni checkpoint oluştur. `button.contrast.test.ts` başarılı; tam Vitest, TypeScript ve production build başarılı; checkpoint `80d033a5` olarak kaydedildi.
 - [x] Kişisel görevlerde mevcut görev başlığı, not, öncelik, son tarih ve hatırlatma zamanını düzenleme akışını UI'da tamamla; iptal/tamamla davranışını CRUD testleriyle doğrula. Düzenleme dialogu, tamamla/iptal et kontrolleri ve regresyon testleri eklendi.
 - [x] Ana ekranda ayrı “Yaklaşan Hatırlatmalar” bölümü ekle; reminderAt değerlerini tarih sırasına göre göster ve ilgili kayda yönlendir. reminderAt alanına göre sıralanan ayrı bölüm eklendi; satıra basınca düzenleme açılıyor.
 - [x] Broker manager ve danışman için role göre öneri kartları ekle; mobil taşma/okunabilirlik için doğrulanabilir test ve görsel kanıt üret. İki role ayrı yönlendirme, test ve 1280×720/375×812 görsel kontrolü tamamlandı.
@@ -67,9 +67,14 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Defender’ın `Trojan:Script/Wacatac.H!ml` algıladığı 1.0.23 EXE, ZIP ve BAT dosyalarını geçersiz kabul etmeyi sürdür; bu dosyaları yeniden üretme, gönderme, geri yükletme, izin verme veya güvenlik korumasını aşma yönlendirmesi yapma. Bu süreçte yeni EXE/ZIP/BAT üretilmedi veya dağıtılmadı.
 - [x] Kullanıcının mevcut 1.0.22 kurulumu ve `%APPDATA%\Global 1881 Gayrimenkul` verilerini değiştirmeden koru. Web geliştirme ve migration işlemleri bu Windows kurulumuna/AppData’ya dokunmadı.
 - [x] Gelecekte offline Windows dağıtımı yeniden ele alınırsa yalnız gerçek Windows ortamında oluşturulan, bağımsız güvenlik incelemesinden geçmiş ve kullanıcı kabulü için tek toplu paket yaklaşımını değerlendir; bu karar oluşmadan paket üretme. Karar: yeni offline paket üretilmeyecek; mevcut 1.0.22 korunacak ve merkezi web/LAN kabulü tercih edilecek.
-- [ ] Güvenli bir Windows kabul yolu oluştuğunda tek oturumda Offline Genel Bakış açılışı, `startup.log`, `En geç` tarihinin `GG.AA.YYYY` görünümü, A4 kira/yetki belgeleri, DASK/EİDS/ekler, menü ve Ofis Akışı yerleşimini doğrula.
+- [ ] Güvenli bir Windows kabul yolu oluştuğunda tek oturumda Offline Genel Bakış açılışı, `startup.log`, `En geç` tarihinin `GG.AA.YYYY` görünümü, A4 kira/yetki belgeleri, DASK/EİDS/ekler, menü ve Ofis Akışı yerleşimini doğrula. Offline Windows dağıtımı Defender riski nedeniyle kapsam dışıdır; bu Windows kabul oturumu yapılmadı.
+- [x] Offline Windows kabul yolunun kapsam dışı bırakıldığını ayrı karar maddesi olarak kaydet; mevcut 1.0.22’yi değiştirme ve yeni EXE/ZIP üretme. Merkezi web/LAN kabulü tercih edildi; mevcut 1.0.22 korunuyor.
+- [ ] Merkezi web/LAN kabulünde Offline Genel Bakış karşılığı web ekranlarını, `GG.AA.YYYY` tarih görünümünü, A4 kira/yetki belgelerini, ekleri, menüyü ve Ofis Akışı yerleşimini gerçek cihazlarda doğrula.
 
 ## 2. Canlı web erişimi — platform / alan adı takibi
+
+- [ ] Manus dışına taşınabilirlik envanteri hazırla: GitHub kapsamı, Manus Auth, database, storage, schedules, external APIs, environment variables ve runtime gereksinimleri.
+- [ ] Veritabanı export/backup, abonelik sona ermesi ve veri saklama sınırlarını doğrulanabilir kaynaklarla belgeleyerek kullanıcıya açıkça aktar.
 
 - [ ] Yayın alanı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Ubuntu kontrolünde TLS sertifikası geçerli ve giriş sayfası HTTP 200 dönmüştür; bu, kullanıcı ağındaki önceki `ERR_SSL_PROTOCOL_ERROR` ve bakım ekranını tek başına kapatmaz.
 - [ ] `ofis.global1881.com` özel alt alan adı için DNS yönetim yetkisini, mevcut `ofis` kaydının boşluğunu ve kayıt ekleyecek web tasarımcısı/sağlayıcıyı doğrula; bağlantı penceresi başlatılmadan önce DNS kaydı eklemeye hazır olsun. 04.09.2026 mobil Chrome ekranında `DNS_PROBE_FINISHED_NXDOMAIN` doğrulandı; bu, alt alan adı için DNS kaydının henüz oluşturulmadığını gösterir. DNS değişikliği yapılmadı.
@@ -240,7 +245,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Madde 13’ü eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı; alıcının tescil kişisinden bağımsız borç ve şahsi sorumluluk hükmü korunacak.
 - [x] Madde 14’ü eski anonim metin ve humanizer önerisi olarak karşılaştır; emlak komisyoncusunun sözleşmedeki konumunu ve sorumluluk sınırını değerlendir. Kullanıcı onayladı.
 - [x] Madde 15’i eski anonim metin ve humanizer önerisi olarak karşılaştır; resmi şekil, cayma akçesi ve hizmet bedeli ifadelerini değerlendirmeye al. Kullanıcı A seçeneğini onayladı; resmi şekil eksikliği gerekçesiyle geçersizlik ileri sürülmemesi korunacak, geniş feragat cümlesi kesin metne alınmayacak.
-- [ ] Madde 16’yı eski anonim metin ve humanizer önerisi olarak karşılaştır; nüsha sayısı ve vergi/resim/harç giderlerinin taraflara dağılımını değerlendir.
+- [x] Madde 16’yı eski anonim metin ve humanizer önerisi olarak karşılaştır; nüsha sayısı ve vergi/resim/harç giderlerinin taraflara dağılımını değerlendir. Madde 16 kullanıcı onayıyla tamamlandı; üç nüsha hükmü ve ilgili gider/dağılım yaklaşımı form metnine aktarıldı.
 - [x] Madde 8’i eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı B seçeneğini onayladı; Madde 1–2’deki satış iradesi tekrarı çıkarılacak, aracılık hizmeti Madde 9 ile birlikte değerlendirilecek.
 - [x] Madde 9’u eski anonim metin ve humanizer önerisi olarak karşılaştır; Madde 8’in aracılık hizmeti bölümüyle birleştirme seçeneğini değerlendir. Kullanıcı onayladı; aracılık hizmeti ve hizmet bedeline hak kazanma hükmü tek maddede korunacak.
 - [x] Madde 10’u eski anonim metin ve humanizer önerisi olarak karşılaştır. Kullanıcı onayladı; toplam %4 + KDV komisyon %2 + KDV Alıcı/%2 + KDV Satıcı olarak paylaşılacak ve ödeme tapu devri tamamlandıktan sonra yapılacak.
@@ -302,6 +307,10 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [ ] Ofiste IP1, KT1 ve CT1 ile LAN bağlantısı, login, rol görünürlüğü ve maskeli veri kabulünü gerçek cihazlarda doğrula.
 - [x] Kat Karşılığı genel sözleşmesi ve teknik şartname kaynak metinleri sağlandığında ayrı şablon/ek belge olarak aktar; kaynak metinler alındı, 21 madde clause kataloğu ve EK-1–EK-5 metadata akışına bağlandı.
 - [ ] Kullanıcı DNS sağlayıcı bilgilerini ve açık geçiş onayını verdiğinde ofis.global1881.com alan adı bağlantısını başlat ve HTTPS kabulünü yap.
+- [ ] `global1881.com` mevcut web sitesi altyapısını ve ilan yayınlama kapasitesini doğrula; WordPress/CMS, özel yazılım, hosting ve erişilebilir API/feed seçeneklerini tespit et.
+- [ ] Ofis otomasyonundaki portföy kaydını ilan kaynağı yapacak veri modeli, fotoğraf/medya, açıklama, yayın durumu, slug ve senkronizasyon geçmişi kapsamını tasarla.
+- [ ] `global1881.com` için güvenli ilan oluşturma/güncelleme/arşivleme senkronizasyon yolunu; sahibinden.com için yalnız resmî API/XML/ilan aktarım seçeneği varsa ikinci hedefi doğrula.
+- [ ] Harici hesap parolası saklamadan, API anahtarı/OAuth veya yetkili aktarım yöntemiyle role-safe yayınlama, hata kaydı, tekrar deneme ve idempotency planını oluştur.
 
 ## 14. Mutabık Kat Karşılığı Genel Sözleşmesi aktarımı
 
@@ -399,3 +408,20 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Kira ve yetki sözleşmelerindeki IBAN alanlarını giriş, önizleme ve çıktı akışında belirle. Girişte kompakt değer, önizleme/çıktıda biçimlendirilmiş değer kullanılıyor.
 - [x] IBAN temel değerini boşluklardan arındırıp korurken görüntüleme değerini ülke kodu dahil dörderli gruplara ayır; geçersiz karakterleri kabul etme veya açık uyarı göster. Temel değer normalize ediliyor; görünüm `TR12 3456 7890 ...` biçiminde dörderli gruplara ayrılıyor.
 - [x] IBAN biçimlendirme ile Türkçe büyük harf normalizasyonunu kira/yetki form regression ve görsel kontrolleriyle doğrula. Test ve A4/önizleme görsel kontrolleri tamamlandı; checkpoint `66465732` ile yayımlandı.
+
+- [ ] GitHub hesabı `KT-99TK` ile projeyi bağla ve `global1881-emlak` adında private repository oluştur.
+- [ ] Client, server, shared, drizzle schema/migrations, package/config/test/docs kaynaklarını repository’ye gönder; secret, `.env`, token ve anahtarları dışarıda bırak.
+- [ ] GitHub repository görünürlüğünü, dosya kapsamını ve gönderilen dosya sayısını doğrula; repository URL’sini kullanıcıya teslim et.
+
+- [ ] GitHub Connector’ın KT-99TK hesabında kurulu görünmesine rağmen Settings → GitHub ekranında Connect döngüsünü teşhis et.
+- [ ] OAuth bağlantısı repository owner/name/visibility kartına ulaşırsa `global1881-emlak` private repository export’unu tamamla; ulaşmazsa destek aktarımı için hata durumunu belgeleyip kullanıcıya kalan tek adımı bildir.
+- [ ] GitHub export sonrası repository URL’sini, private görünürlüğünü, secret/.env dışlamasını ve gönderilen dosya sayısını doğrula.
+
+- [ ] GitHub App `KT-99TK` hesabında kurulu ve full permissions olmasına rağmen Manus proje binding’i owner/name/visibility kartına ilerlemiyor; Connect döngüsünü platform bug’ı olarak eskale et.
+- [ ] `KT-99TK/global1881-emlak` hedefini private repository olarak, Connect düğmesini yeniden denemeden, yalnızca desteklenen iç export yolu veya insan teknik destek üzerinden tamamla.
+- [ ] GitHub export tamamlanırsa source kapsamı, secret/.env dışlaması, private görünürlük ve dosya sayısını doğrula; tamamlanamazsa kullanıcıya açık teknik blokaj ve destek referansı ver.
+
+- [x] Checkpoint yedekleri ile resmî Manus Task Data Backup kapsamını ayır ve kullanıcıya hangi yedeğin alındığını açıkça belgeleyen not hazırla. Ayrım `docs/backup-and-archive-guide.md` içinde belgelendi.
+- [x] Hassas secret, parola, token ve müşteri verilerini arşive taşımadan teknik kararlar/görüşme özeti için okunabilir proje arşivi hazırla. `docs/backup-and-archive-guide.md` oluşturuldu; tam sohbet dışa aktarımı olmadığı açıkça belirtiliyor.
+- [x] Açılış ekranına görünür “Proje Yedekleri ve Görüşme Arşivi” alanı ekle; son checkpoint, yedekleme yönergesi ve güvenli arşiv bağlantılarını göster. `BackupArchiveCard` açılış dashboard’una eklendi.
+- [x] Yedek alanını masaüstü/mobil test et, TypeScript/Vitest/build doğrulaması yap ve checkpoint al. 1280×720 ve 375×812 görsel kontrolleri, tam Vitest, TypeScript ve production build başarılı; checkpoint bu geliştirme adımında kaydediliyor.

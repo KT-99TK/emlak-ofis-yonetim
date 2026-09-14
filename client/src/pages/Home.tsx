@@ -13,6 +13,7 @@ import { PersonalTaskPanel } from "@/components/PersonalTaskPanel";
 import { ExchangeRateCard } from "@/components/ExchangeRateCard";
 import { UserGuideDialog } from "@/components/UserGuideDialog";
 import { RoleSuggestionCard } from "@/components/RoleSuggestionCard";
+import { BackupArchiveCard } from "@/components/BackupArchiveCard";
 import {
   Dialog,
   DialogContent,
@@ -356,6 +357,9 @@ export default function Home() {
               <ExchangeRateCard />
             </section>
             <RoleSuggestionCard isManager={user?.role === "admin"} onOpenPath={path => setLocation(path)} />
+            <div className="mt-6">
+              <BackupArchiveCard />
+            </div>
           </>
         )}
 
