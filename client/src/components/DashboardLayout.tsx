@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { Banknote, CalendarClock, Cloud, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
+import { Archive, Banknote, CalendarClock, Cloud, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -44,6 +44,7 @@ const menuItems = [
   { icon: Users, label: "Ekip Yönetimi", path: "/team" },
   { icon: Cloud, label: "Online Başlangıç", path: "/online-start", managerOnly: true },
   { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit" },
+  { icon: Archive, label: "Proje Yedekleri", path: "/backups" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

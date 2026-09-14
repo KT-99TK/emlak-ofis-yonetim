@@ -73,8 +73,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 2. Canlı web erişimi — platform / alan adı takibi
 
-- [ ] Manus dışına taşınabilirlik envanteri hazırla: GitHub kapsamı, Manus Auth, database, storage, schedules, external APIs, environment variables ve runtime gereksinimleri.
-- [ ] Veritabanı export/backup, abonelik sona ermesi ve veri saklama sınırlarını doğrulanabilir kaynaklarla belgeleyerek kullanıcıya açıkça aktar.
+- [x] Manus dışına taşınabilirlik envanteri hazırla: GitHub kapsamı, Manus Auth, database, storage, schedules, external APIs, environment variables ve runtime gereksinimleri. `migration-readiness-report.md` ile kod değişikliği yapmadan hazırlandı ve kullanıcıya teslim edildi.
+- [x] Veritabanı export/backup, abonelik sona ermesi ve veri saklama sınırlarını doğrulanabilir kaynaklarla belgeleyerek kullanıcıya açıkça aktar. `migration-readiness-report.md` içinde kaynak ve doğrulanamayan sınırlar ayrıştırıldı; resmi görev yedeği ayrıca kullanıcı panelinden doğrulanacak açık dış bağımlılık olarak bırakıldı.
 
 - [ ] Yayın alanı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Ubuntu kontrolünde TLS sertifikası geçerli ve giriş sayfası HTTP 200 dönmüştür; bu, kullanıcı ağındaki önceki `ERR_SSL_PROTOCOL_ERROR` ve bakım ekranını tek başına kapatmaz.
 - [ ] `ofis.global1881.com` özel alt alan adı için DNS yönetim yetkisini, mevcut `ofis` kaydının boşluğunu ve kayıt ekleyecek web tasarımcısı/sağlayıcıyı doğrula; bağlantı penceresi başlatılmadan önce DNS kaydı eklemeye hazır olsun. 04.09.2026 mobil Chrome ekranında `DNS_PROBE_FINISHED_NXDOMAIN` doğrulandı; bu, alt alan adı için DNS kaydının henüz oluşturulmadığını gösterir. DNS değişikliği yapılmadı.
@@ -425,3 +425,20 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Hassas secret, parola, token ve müşteri verilerini arşive taşımadan teknik kararlar/görüşme özeti için okunabilir proje arşivi hazırla. `docs/backup-and-archive-guide.md` oluşturuldu; tam sohbet dışa aktarımı olmadığı açıkça belirtiliyor.
 - [x] Açılış ekranına görünür “Proje Yedekleri ve Görüşme Arşivi” alanı ekle; son checkpoint, yedekleme yönergesi ve güvenli arşiv bağlantılarını göster. `BackupArchiveCard` açılış dashboard’una eklendi.
 - [x] Yedek alanını masaüstü/mobil test et, TypeScript/Vitest/build doğrulaması yap ve checkpoint al. 1280×720 ve 375×812 görsel kontrolleri, tam Vitest, TypeScript ve production build başarılı; checkpoint bu geliştirme adımında kaydediliyor.
+
+- [ ] Kullanıcı komutu gerektirmeyen düzenli proje arşivleme kapsamını ve resmi Task Data Backup sınırlarını doğrula.
+- [ ] Otomatik arşivleme için güvenli zamanlama, retention ve hata görünürlüğü politikasını belirle; sohbet metninin otomatik dışa aktarımı desteklenmiyorsa bunu açıkça belgeleyip varsayım yapma.
+- [ ] Açılış ekranındaki yedekleme kartında son arşiv zamanı, kapsam ve başarısız/manuel adım durumunu görünür kıl.
+
+- [x] Sol menüye kalıcı ve belirgin “Proje Yedekleri” bağlantısı ekle; açılış yedek kartıyla aynı güvenli kapsamı göster.
+- [x] Proje Yedekleri ekranında son checkpoint, arşiv kapsamı, resmi yedekleme yönergesi ve hassas verilerin dışarıda bırakıldığını görünür kıl.
+- [x] Proje Yedekleri ekranını masaüstü/mobil doğrula, test/build çalıştır ve checkpoint al.
+
+
+## 3. Proje Yedekleri görünürlüğü — tamamlandı
+
+- [x] Sidebar navigasyonuna `Proje Yedekleri` bağlantısını `/backups` yolu ve Archive ikonu ile ekle.
+- [x] `ProjectBackups` sayfasını lazy route olarak `/backups` altında kaydet ve mevcut DashboardLayout ile çalıştır.
+- [x] Yedek kapsamı, hariç tutulan gizli değerler ve resmi Manus Task Data Backup ayrımını tek sayfada görünür kıl.
+- [x] Proje Yedekleri route/menü/kapsam regresyon testini ekle; hedef testler, TypeScript ve production build başarılı.
+- [x] `/backups` ekranını 1280×720 masaüstü ve 375×812 mobil görünümlerinde kontrol et; menü ve kartlarda taşma/okunabilirlik sorunu görülmedi.
