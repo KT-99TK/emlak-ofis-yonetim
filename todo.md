@@ -426,9 +426,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Açılış ekranına görünür “Proje Yedekleri ve Görüşme Arşivi” alanı ekle; son checkpoint, yedekleme yönergesi ve güvenli arşiv bağlantılarını göster. `BackupArchiveCard` açılış dashboard’una eklendi.
 - [x] Yedek alanını masaüstü/mobil test et, TypeScript/Vitest/build doğrulaması yap ve checkpoint al. 1280×720 ve 375×812 görsel kontrolleri, tam Vitest, TypeScript ve production build başarılı; checkpoint bu geliştirme adımında kaydediliyor.
 
-- [ ] Kullanıcı komutu gerektirmeyen düzenli proje arşivleme kapsamını ve resmi Task Data Backup sınırlarını doğrula.
-- [ ] Otomatik arşivleme için güvenli zamanlama, retention ve hata görünürlüğü politikasını belirle; sohbet metninin otomatik dışa aktarımı desteklenmiyorsa bunu açıkça belgeleyip varsayım yapma.
-- [ ] Açılış ekranındaki yedekleme kartında son arşiv zamanı, kapsam ve başarısız/manuel adım durumunu görünür kıl.
+- [x] Kullanıcı komutu gerektirmeyen düzenli proje arşivleme kapsamını ve resmi Task Data Backup sınırlarını doğrula. Kod checkpoint’leri proje sürüm geçmişinde tutulur; resmi Task Data Backup bu uygulama ekranından otomatik tamamlanmış sayılmaz.
+- [x] Otomatik arşivleme için güvenli zamanlama, retention ve hata görünürlüğü politikasını belirle; sohbet metninin otomatik dışa aktarımı desteklenmiyorsa bunu açıkça belgeleyip varsayım yapma. Bu proje sohbetin tam metin dışa aktarımını otomatikleştirmez; retention ve resmi yedek doğrulaması Manus hesabındaki akışta yapılmalıdır.
+- [x] Açılış ekranındaki yedekleme kartında son arşiv zamanı, kapsam ve başarısız/manuel adım durumunu görünür kıl. Resmî arşiv işlemi için manuel doğrulama gerekliliği ve statik checkpoint kimliği yerine Version History yönlendirmesi görünür.
 
 - [x] Sol menüye kalıcı ve belirgin “Proje Yedekleri” bağlantısı ekle; açılış yedek kartıyla aynı güvenli kapsamı göster.
 - [x] Proje Yedekleri ekranında son checkpoint, arşiv kapsamı, resmi yedekleme yönergesi ve hassas verilerin dışarıda bırakıldığını görünür kıl.

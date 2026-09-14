@@ -20,10 +20,13 @@ describe("Project backups navigation", () => {
 
   it("keeps backup scope and secret exclusions visible", () => {
     const page = read("client/src/pages/ProjectBackups.tsx");
+    const card = read("client/src/components/BackupArchiveCard.tsx");
 
     expect(page).toContain("Yedek kapsamına dahil");
     expect(page).toContain("Yedek dışında bırakılanlar");
     expect(page).toContain("Parolalar, tokenlar, API anahtarları ve .env değerleri");
     expect(page).toContain("sözleşme/form tanımları");
+    expect(card).toContain("Son kayıtlı sürüm");
+    expect(card).toContain("Hesap panelinden ayrıca alınmalı ve doğrulanmalıdır.");
   });
 });

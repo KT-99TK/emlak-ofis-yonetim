@@ -13,7 +13,8 @@ const homeSource = fs.readFileSync(
 
 describe("BackupArchiveCard", () => {
   it("shows the latest checkpoint and official backup destinations", () => {
-    expect(componentSource).toContain("80d033a5");
+    expect(componentSource).toContain("Son kayıtlı sürüm");
+    expect(componentSource).toContain("Hesap panelinden ayrıca alınmalı ve doğrulanmalıdır.");
     expect(componentSource).toContain("https://manus.im/backup");
     expect(componentSource).toContain("https://help.manus.im");
   });

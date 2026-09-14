@@ -29,7 +29,7 @@ export function BackupArchiveCard() {
               <ShieldCheck className="h-4 w-4 text-[#2b786e]" /> Kod checkpoint’i
             </div>
             <p className="mt-1 text-[11px] text-[#7a8783]">
-              Son sürüm: <strong className="text-[#34433f]">80d033a5</strong>
+              Durum: <strong className="text-[#34433f]">Son kayıtlı sürüm</strong>
             </p>
           </div>
           <div className="rounded-xl border border-[#f0e5d2] bg-[#fffbf3] p-3">
@@ -37,7 +37,7 @@ export function BackupArchiveCard() {
               <FileLock2 className="h-4 w-4 text-[#a17b43]" /> Resmi Task Data Backup
             </div>
             <p className="mt-1 text-[11px] text-[#8b7755]">
-              Hesap panelinden ayrıca alınmalıdır.
+              Hesap panelinden ayrıca alınmalı ve doğrulanmalıdır.
             </p>
           </div>
         </div>
@@ -46,7 +46,7 @@ export function BackupArchiveCard() {
             <History className="h-4 w-4 text-[#4d4b7e]" /> Görüşme arşivi durumu
           </div>
           <p className="mt-1">
-            Kod ve teknik kararlar checkpoint’lerle korunur. Bu kart, sohbetin tam metin dışa aktarımının yerine geçmez; tam görev yedeği Manus Backup sayfasından alınmalıdır.
+            Kod ve teknik kararlar checkpoint’lerle korunur. Bu kart, sohbetin tam metin dışa aktarımının yerine geçmez; son sürüm Management UI sürüm geçmişinden, tam görev yedeği ise Manus Backup sayfasından doğrulanmalıdır.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
