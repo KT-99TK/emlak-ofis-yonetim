@@ -193,13 +193,18 @@ export default function OfflineRentalContracts() {
       useType,
       usagePurpose: useType === "commercial" ? "İŞYERİ" : "KONUT",
     }));
+  const safePdfPart = (value: string) => value.trim().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/İ/g, "I").replace(/ı/g, "i").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "musteri";
+  const printFileName = useMemo(() => {
+    const customer = safePdfPart(details.tenantName || details.ownerName);
+    const label = printMode === "package" ? "Kira-Sozlesmesi-ve-Ekleri" : printMode === "contract" ? "Kira-Sozlesmesi" : safePdfPart(appendixOptions.find(option => option.kind === printMode)?.label ?? "Kira-Belgesi");
+    return `${customer}-${label}.pdf`;
+  }, [details.ownerName, details.tenantName, printMode]);
   const printDocument = (mode: PrintMode) => {
     setPrintMode(mode);
     setPrintPreviewOpen(true);
   };
   const printFromPreview = () => {
-    setPrintPreviewOpen(false);
-    window.setTimeout(() => window.print(), 140);
+    window.print();
   };
 
   const fillPerson = (id: string, kind: "owner" | "tenant") => {
@@ -390,7 +395,7 @@ export default function OfflineRentalContracts() {
           variant="outline"
           className="rounded-xl bg-white"
         >
-          <Printer className="mr-2 h-4 w-4" /> Sözleşme + seçili ekler
+          <Printer className="mr-2 h-4 w-4" /> Print / PDF: sözleşme + seçili ekler
         </Button>
       </header>
       <section className="mx-auto mb-6 max-w-[1440px] rounded-2xl border border-[#e7dfc9] bg-[#fffaf0] px-4 py-3 print:hidden">
@@ -1264,7 +1269,7 @@ export default function OfflineRentalContracts() {
                   onClick={() => printDocument("package")}
                   disabled={selectedAppendixCount === 0}
                 >
-                  <Printer className="mr-1 h-3.5 w-3.5" /> Sözleşme + seçili
+                  <Printer className="mr-1 h-3.5 w-3.5" /> Print / PDF: sözleşme + seçili
                   ekler ({selectedAppendixCount})
                 </Button>
                 <Button
@@ -1272,7 +1277,7 @@ export default function OfflineRentalContracts() {
                   variant="outline"
                   onClick={() => printDocument("contract")}
                 >
-                  <Printer className="mr-1 h-3.5 w-3.5" /> Ana sözleşme
+                  <Printer className="mr-1 h-3.5 w-3.5" /> Print / PDF: ana sözleşme
                 </Button>
                 {appendixOptions.map(option => (
                   <Button
@@ -1281,7 +1286,7 @@ export default function OfflineRentalContracts() {
                     variant="outline"
                     onClick={() => printDocument(option.kind)}
                   >
-                    <Printer className="mr-1 h-3.5 w-3.5" /> {option.label}
+                    <Printer className="mr-1 h-3.5 w-3.5" /> Print / PDF: {option.label}
                   </Button>
                 ))}
               </div>
@@ -1330,6 +1335,7 @@ export default function OfflineRentalContracts() {
         }
         subtitle="Belge sistem yazdırma penceresine gönderilmeden önce burada gerçek A4 oranında incelenir."
         onPrint={printFromPreview}
+        fileName={printFileName}
       >
         <RentalContractDocument
           details={details}

@@ -466,3 +466,34 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Sol menüde `Proje Yedekleri` bağlantısının yayımlanmış alan adı ve giriş sonrası görünürlüğünü kontrol et. Web menüsü `/backups` altında, offline menü ise `#/offline-backups` altında doğrulandı.
 - [x] Dünkü checkpoint ile resmi Task Data Backup ayrımını kullanıcıya görünür ve anlaşılır şekilde doğrula; gerekirse menü/sayfa metnini düzelt. `ProjectBackups` sayfası her iki router’a bağlandı ve ayrım metni korunuyor.
 - [x] Masaüstü ve mobil menü görünümünü test et; sonucu checkpoint veya kullanıcıya açıklama ile teslim et. Online görünüm 1280×720’de kontrol edildi; offline route source/regression testleri, tam Vitest 120/348, TypeScript ve production build başarılı.
+
+
+## 7. Kira sözleşmesi eklerinin çıktısı
+
+- [ ] Kira sözleşmesindeki Teslim Alma ve diğer sözleşme eklerinin önizleme/çıktı akışını incele.
+- [ ] Eklerin çıktı verisine aktarılmamasına veya indirme düğmesinin çalışmamasına neden olan hatayı düzelt.
+- [ ] Teslim Alma ve diğer ekler için çıktı/önizleme regresyon testleri ekle veya güncelle; tam test, TypeScript ve production build çalıştır.
+- [ ] Düzeltmeyi geri alınabilir checkpoint’e kaydet ve kullanıcıya test adımlarını bildir.
+
+
+## 8. Kira ekleri için Print to PDF
+
+- [x] Kira sözleşmesi eklerinin veri modelini, mevcut önizleme ve çıktı/indirme akışını incele.
+- [x] Teslim Alma dahil her eki sözleşmeden bağımsız seçilebilir önizleme olarak göster.
+- [x] Sözleşme ve seçilen ek için tarayıcı yazdırma penceresini açan `Print / PDF olarak kaydet` işlevini ekle; yazdırma CSS’inde yalnız belgeyi göster.
+- [x] Kira eki çıktıları için regresyon testleri, tam Vitest, TypeScript ve production build çalıştır. 120 test dosyası / 348 test başarılı; TypeScript ve production build başarılı.
+- [x] Düzeltmeyi checkpoint’e kaydet ve kullanım adımlarını Kazım’a bildir.
+
+
+## 9. 1.0.22 eski kiracı tahliye belgeleri
+
+- [x] Offline 1.0.22’de mevcut kira kaydından tahliye ve teslim eki oluşturma akışını doğrula. Kira Sözleşmeleri ekranındaki önceki kira kaydını çağırma, ek seçimi ve ayrı belge yazdırma akışı kaynakta doğrulandı.
+- [x] Eski kiracı için Tahliye Taahhütnamesi, Teslim Alma Formu ve Demirbaş/Teslim Listesi kullanım sırasını belgeleyip kullanıcıya bildir.
+
+
+## 10. Print/PDF görünürlüğü ve dosya adı
+
+- [x] Print to PDF sonrasında belge görünürlüğünün neden kaybolduğunu ve tarayıcı yazdırma akışını incele. Dialog kapanışı ile native print arasında 300 ms güvenli bekleme ve `afterprint` başlık geri yükleme eklendi.
+- [x] Kayıt/indirme düğmesinin gerçekten belgeyi çıktı olarak kaydettiğini doğrula veya düzelt. Ortak düğme `Print / PDF olarak kaydet` olarak netleştirildi ve sistem yazdırma/PDF akışına bağlandı.
+- [x] Ana sözleşme ve ekler için varsayılan dosya adını müşterinin adı temel alınacak şekilde üret; Türkçe karakter ve Windows dosya adı güvenliğini koru. Kiracı adı, kiraya veren adı yoksa yedek olarak kullanılıyor; çıktı adı `MUSTERI-Kira-Sozlesmesi.pdf`, `MUSTERI-Teslim-Alma-Formu.pdf` vb. biçiminde oluşturuluyor.
+- [x] Print/PDF ve kayıt akışı için regresyon testleri, tam test, TypeScript ve production build çalıştır; checkpoint’e kaydet. 120 test dosyası / 348 test başarılı; TypeScript ve production build başarılı.

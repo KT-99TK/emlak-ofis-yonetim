@@ -9,13 +9,24 @@ type DocumentPrintPreviewProps = {
   title: string;
   subtitle: string;
   onPrint: () => void;
+  fileName?: string;
   children: ReactNode;
 };
 
-export default function DocumentPrintPreview({ open, onOpenChange, title, subtitle, onPrint, children }: DocumentPrintPreviewProps) {
+export default function DocumentPrintPreview({ open, onOpenChange, title, subtitle, onPrint, fileName, children }: DocumentPrintPreviewProps) {
   const continueToSystemPrint = () => {
     onOpenChange(false);
-    window.setTimeout(onPrint, 140);
+    window.setTimeout(() => {
+      const previousTitle = document.title;
+      if (fileName?.trim()) document.title = fileName.trim();
+      const restoreTitle = () => {
+        document.title = previousTitle;
+        window.removeEventListener("afterprint", restoreTitle);
+      };
+      window.addEventListener("afterprint", restoreTitle, { once: true });
+      onPrint();
+      window.setTimeout(restoreTitle, 10_000);
+    }, 300);
   };
 
   return <Dialog open={open} onOpenChange={onOpenChange}>
@@ -25,7 +36,7 @@ export default function DocumentPrintPreview({ open, onOpenChange, title, subtit
         <Button type="button" variant="ghost" size="icon" className="shrink-0" aria-label="Önizlemeyi kapat" onClick={() => onOpenChange(false)}><X className="h-4 w-4" /></Button>
       </div>
       <div className="max-h-[64vh] overflow-auto bg-[#dfe6e1] p-4 sm:p-7" aria-label="A4 belge önizlemesi"><div className="mx-auto w-fit min-w-[210mm] shadow-[0_18px_38px_rgba(20,46,40,.22)]">{children}</div></div>
-      <div className="flex flex-col-reverse gap-2 border-t border-[#d9e2dc] bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><p className="text-xs text-[#68736f]">A4 oranını ve tablo sınırlarını burada kontrol edin. Onaydan sonra sistem yazdırmasına geçin.</p><div className="flex gap-2"><Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Kapat</Button><Button type="button" className="bg-[#173e39] text-white hover:bg-[#20554e] hover:text-white" onClick={continueToSystemPrint}><Printer className="mr-2 h-4 w-4" /> Sistem yazdırmasına geç</Button></div></div>
+      <div className="flex flex-col-reverse gap-2 border-t border-[#d9e2dc] bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><p className="text-xs text-[#68736f]">A4 oranını ve tablo sınırlarını burada kontrol edin. Devam ettiğinizde yazıcı seçebilir veya hedef olarak PDF kaydedebilirsiniz.</p><div className="flex gap-2"><Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Kapat</Button><Button type="button" className="bg-[#173e39] text-white hover:bg-[#20554e] hover:text-white" onClick={continueToSystemPrint}><Printer className="mr-2 h-4 w-4" /> Print / PDF olarak kaydet</Button></div></div>
     </DialogContent>
   </Dialog>;
 }
