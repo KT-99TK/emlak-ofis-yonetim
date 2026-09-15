@@ -442,3 +442,27 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Yedek kapsamı, hariç tutulan gizli değerler ve resmi Manus Task Data Backup ayrımını tek sayfada görünür kıl.
 - [x] Proje Yedekleri route/menü/kapsam regresyon testini ekle; hedef testler, TypeScript ve production build başarılı.
 - [x] `/backups` ekranını 1280×720 masaüstü ve 375×812 mobil görünümlerinde kontrol et; menü ve kartlarda taşma/okunabilirlik sorunu görülmedi.
+
+
+## 4. Üçlü yerel login kabul hazırlığı
+
+- [x] KT1, IP1 ve CT1 hesaplarının yerel login durumunu ve mevcut OAuth/yerel kimlik ayrımını doğrula. Mevcut hesaplar ve OAuth ayrımı kontrol edildi.
+- [x] KT1 ve IP1 için yerel login credential oluştur; mevcut Manus OAuth hesaplarını silmeden koru. Her iki hesabın OAuth kimliği korunarak yerel credential eklendi.
+- [x] CT1 için süresi dolmuş geçici parolayı sıfırla; üç hesap için 24 saat geçerli tek kullanımlık geçici parolaları oluştur. Üç parola 15.09.2026 22:43 Türkiye saatine kadar geçerli olacak şekilde üretildi.
+- [x] Üç hesabın ilk login sonrası parola değiştirme zorunluluğunu ve broker manager rol kapsamını doğrula. Üç hesapta `mustChangePassword=1`; KT1 broker manager olarak korundu.
+- [x] Geçici parolaları güvenli biçimde kullanıcıya bir kez teslim et; parolaları audit/log veya proje dosyalarına yazma. Hash eşleşmeleri doğrulandı; geçici betikler silindi ve parolalar proje dosyalarına yazılmadı.
+
+
+## 5. Server laptopı için merkezi çalışma hazırlığı
+
+- [x] Mevcut 1.0.22 offline kurulumunun server olarak kullanılıp kullanılamayacağını, web server çalışma modeliyle karıştırmadan doğrula. 1.0.22 IndexedDB kullanan bağımsız Electron/offline modelidir; LAN server değildir ve mevcut proje çalışma ağacında bunu server’a dönüştürecek Electron giriş runtime’ı bulunmuyor.
+- [ ] Defender tarafından daha önce uyarılan imzasız EXE/ZIP/BAT riskini yeniden üretmeden güvenli server dağıtım seçeneğini belirle.
+- [ ] Server laptopı için merkezi uygulama başlatma, LAN bind, port ve firewall adımlarını ayrı ve doğrulanabilir biçimde hazırla.
+- [ ] Server laptopından kendi laptopuna ve IP1/CT1 istemcilerine bağlantıyı gerçek cihazlarda test et; başarısız noktaları kullanıcı kabulüne bırak.
+
+
+## 6. Proje Yedekleri menü görünürlüğü
+
+- [x] Sol menüde `Proje Yedekleri` bağlantısının yayımlanmış alan adı ve giriş sonrası görünürlüğünü kontrol et. Web menüsü `/backups` altında, offline menü ise `#/offline-backups` altında doğrulandı.
+- [x] Dünkü checkpoint ile resmi Task Data Backup ayrımını kullanıcıya görünür ve anlaşılır şekilde doğrula; gerekirse menü/sayfa metnini düzelt. `ProjectBackups` sayfası her iki router’a bağlandı ve ayrım metni korunuyor.
+- [x] Masaüstü ve mobil menü görünümünü test et; sonucu checkpoint veya kullanıcıya açıklama ile teslim et. Online görünüm 1280×720’de kontrol edildi; offline route source/regression testleri, tam Vitest 120/348, TypeScript ve production build başarılı.

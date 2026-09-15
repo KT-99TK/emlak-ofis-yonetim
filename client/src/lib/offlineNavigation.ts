@@ -13,6 +13,7 @@ export const offlineNavigationItems = [
   { icon: Target, label: "Yıllık Ciro Hedefleri", path: "#/offline-targets", section: "office", managerOnly: true },
   { icon: BellRing, label: "Talep Eşleşmeleri", path: "#/offline-request-matches", section: "office", managerOnly: true },
   { icon: GitMerge, label: "Yedekleri Birleştir", path: "#/offline-merge", section: "office" },
+  { icon: Archive, label: "Proje Yedekleri", path: "#/offline-backups", section: "office" },
   { icon: UserRound, label: "Benim Sözleşmelerim", path: "#/offline-my-contracts", section: "personal" },
   { icon: HandCoins, label: "Benim Ofis Payı Özetim", path: "#/offline-my-contributions", section: "personal" },
   { icon: FileLock2, label: "Aktif İmzalı Belgeler", path: "#/offline-active-documents", section: "personal" },
@@ -21,5 +22,5 @@ export const offlineNavigationItems = [
 ];
 
 export function normalizeOfflineHash(hash: string | undefined) {
-  return hash === "#/offline-overview" || hash === "#/offline-merge" || hash === "#/offline-authority" || hash === "#/offline-rental" || hash === "#/offline-active-documents" || hash === "#/offline-archive" || hash === "#/offline-performance" || hash === "#/offline-my-contracts" || hash === "#/offline-my-contributions" || hash === "#/offline-targets" || hash === "#/offline-requests" || hash === "#/offline-request-matches" || hash === "#/offline-transactions" || hash === "#/offline-cash-bank" || hash === "#/offline-internal-control" || hash === "#/offline-office-contributions" ? hash : "#/offline";
+  return hash === "#/offline-overview" || hash === "#/offline-merge" || hash === "#/offline-backups" || hash === "#/offline-authority" || hash === "#/offline-rental" || hash === "#/offline-active-documents" || hash === "#/offline-archive" || hash === "#/offline-performance" || hash === "#/offline-my-contracts" || hash === "#/offline-my-contributions" || hash === "#/offline-targets" || hash === "#/offline-requests" || hash === "#/offline-request-matches" || hash === "#/offline-transactions" || hash === "#/offline-cash-bank" || hash === "#/offline-internal-control" || hash === "#/offline-office-contributions" ? hash : "#/offline";
 }

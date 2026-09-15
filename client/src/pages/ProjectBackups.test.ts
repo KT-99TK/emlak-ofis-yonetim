@@ -12,10 +12,15 @@ describe("Project backups navigation", () => {
   it("exposes a visible sidebar route", () => {
     const layout = read("client/src/components/DashboardLayout.tsx");
     const app = read("client/src/App.tsx");
+    const offlineNavigation = read("client/src/lib/offlineNavigation.ts");
 
     expect(layout).toContain('label: "Proje Yedekleri"');
     expect(layout).toContain('path: "/backups"');
     expect(app).toContain('<Route path="/backups" component={ProjectBackups} />');
+    expect(offlineNavigation).toContain('label: "Proje Yedekleri"');
+    expect(offlineNavigation).toContain('path: "#/offline-backups"');
+    expect(app).toContain('window.location.hash === "#/offline-backups" ? "backups"');
+    expect(app).toContain('route === "backups" ? <ProjectBackups />');
   });
 
   it("keeps backup scope and secret exclusions visible", () => {
