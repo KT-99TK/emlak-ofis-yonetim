@@ -649,3 +649,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Müşteri, portföy, ledger ve sözleşme listelerinde mevcut filtreleri ve filtre özetini PDF çıktısına taşı. Records ve Contracts ekranlarında A4 yatay yazdırılabilir PDF penceresi eklendi.
 - [x] PDF çıktısında kayıt sayısı, aktif/pasif seçimi ve manager danışman filtresini göster. Arama kriteri de filtre özetine dahil edildi.
 - [x] XLSX dışa aktarma ve ayrıntılı finans performans raporunu sonraki aşamaya bırak.
+
+## 2026-09-15 — Dialog kontrast ve opaklık düzeltmesi
+
+- [x] Hassas bilgi ve benzeri modal dialoglarda arka listedeki metinlerin görünmesini engelle; ortak DialogContent yüzeyi `bg-white`, `opacity-100` ve `isolate` ile tamamen opak yapıldı.
+- [x] Dialog başlığı, açıklaması, textarea ve buton kontrastını yükselt; modal açıklaması koyu okunabilir renge, hassas bilgi textarea’sı beyaz zemine ve koyu metne alındı.
+- [x] Masaüstü/mobil görsel doğrulama, regression test, TypeScript ve production build sonrası checkpoint kaydet. 125 test dosyası / 363 test başarılı; TypeScript ve production build başarılı; `/clients` masaüstü ve mobil görünümleri kontrol edildi.

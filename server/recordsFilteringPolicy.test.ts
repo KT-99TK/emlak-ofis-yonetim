@@ -22,6 +22,12 @@ describe("central record filtering policy", () => {
     expect(routers).toContain('consultantCode: z.string().trim().min(2).max(40).optional()');
   });
 
+  it("keeps modal surfaces opaque and readable", () => {
+    const dialog = read("client/src/components/ui/dialog.tsx");
+    expect(dialog).toContain("isolate bg-white text-[#1d2928] opacity-100");
+    expect(dialog).toContain("text-[#5f6d68] text-sm");
+  });
+
   it("shows an explicit active/passive filter in the central records UI", () => {
     const records = read("client/src/pages/Records.tsx");
     const contracts = read("client/src/pages/Contracts.tsx");
