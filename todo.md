@@ -655,3 +655,12 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Hassas bilgi ve benzeri modal dialoglarda arka listedeki metinlerin görünmesini engelle; ortak DialogContent yüzeyi `bg-white`, `opacity-100` ve `isolate` ile tamamen opak yapıldı.
 - [x] Dialog başlığı, açıklaması, textarea ve buton kontrastını yükselt; modal açıklaması koyu okunabilir renge, hassas bilgi textarea’sı beyaz zemine ve koyu metne alındı.
 - [x] Masaüstü/mobil görsel doğrulama, regression test, TypeScript ve production build sonrası checkpoint kaydet. 125 test dosyası / 363 test başarılı; TypeScript ve production build başarılı; `/clients` masaüstü ve mobil görünümleri kontrol edildi.
+
+## 2026-09-15 — Merkezi müşteri numaralandırmasına geçiş
+
+- [x] Eski `KT001-`, `IP001-`, `CT001-` müşteri referanslarını kaldır; mevcut müşterilere tek merkezi dört haneli seri ata. 34 kayıt `0001–0034` merkezi serisine geçirildi.
+- [x] Sıralama kuralını sabitle: KT1 müşterileri `0001`’den başlar; IP1 müşterileri KT1 grubunun devamından; CT1 müşterileri IP1 grubunun devamından numara alır. Sonuç: KT1 `0001–0009`, IP1 `0010–0015`, CT1 `0016–0034`.
+- [x] Danışman kodunu müşteri numarasından ayır; `consultantCode` yalnız sorumlu danışman ve yetki filtresi olarak kalsın. Yeni kayıt üretimi ofis genelindeki merkezi serinin devamını kullanıyor.
+- [x] Müşteri araması, Müşteri Dosyası ve PDF görünümlerini merkezi numaraya geçir; eski numara desteği bırakıldı. Müşteri listesi ve dosyası sorumlu danışman kodunu da gösteriyor.
+- [x] Merkezi numara geçişini duplicate kontrolü, Vitest, TypeScript, production build ve veri doğrulamasıyla tamamla. 34 benzersiz numara doğrulandı; 125 test dosyası / 363 test, TypeScript ve production build başarılı.
+- [x] Danışman filtresi ile müşteri ataması birebir örtüşsün; her müşteri satırında `Sorumlu danışman: KT1/IP1/CT1` bilgisi merkezi numaranın yanında gösterilsin.

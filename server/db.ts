@@ -997,8 +997,9 @@ export async function getClientFile(
   if (!db) return null;
   const scopedIds = permittedUserIds ?? [userId];
   const clientRows = await db
-    .select()
+    .select({ client: clients, consultantCode: userProfiles.consultantCode })
     .from(clients)
+    .leftJoin(userProfiles, eq(clients.assignedUserId, userProfiles.userId))
     .where(
       and(
         eq(clients.id, clientId),
@@ -1010,8 +1011,9 @@ export async function getClientFile(
       )
     )
     .limit(1);
-  const client = clientRows[0];
-  if (!client) return null;
+  const clientRow = clientRows[0];
+  if (!clientRow) return null;
+  const client = clientRow.client;
   const scoped = <T extends { assignedUserId: any }>(table: T) =>
     isManager
       ? undefined
@@ -1028,6 +1030,7 @@ export async function getClientFile(
   return {
     client: {
       ...client,
+      consultantCode: clientRow.consultantCode,
       identityOrTaxNo: maskIdentityOrTaxNo(client.identityOrTaxNo),
       phone: maskPhone(client.phone),
       canRevealSensitive: isManager || (officeRole === "consultant" && client.assignedUserId === userId),
@@ -1604,32 +1607,19 @@ export async function markReminderRun(userId: number, runKey: string) {
     .where(eq(reminderPreferences.userId, userId));
   return true;
 }
-function customerPrefix(consultantCode: string | null | undefined, assignedUserId: number) {
-  const compact = (consultantCode ?? `USR${assignedUserId}`).replace(/[^a-z0-9]/gi, "").toUpperCase();
-  const match = compact.match(/^([A-Z]+)(\d+)$/);
-  if (match) return `${match[1]}${match[2].padStart(3, "0")}`;
-  return compact.slice(0, 6) || `USR${assignedUserId}`;
-}
-
 async function nextClientReferenceNo(
-  db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
-  assignedUserId: number
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>
 ) {
-  const profile = await db
-    .select({ consultantCode: userProfiles.consultantCode })
-    .from(userProfiles)
-    .where(eq(userProfiles.userId, assignedUserId))
-    .limit(1);
-  const prefix = customerPrefix(profile[0]?.consultantCode, assignedUserId);
   const existing = await db
     .select({ referenceNo: clients.referenceNo })
-    .from(clients)
-    .where(and(eq(clients.assignedUserId, assignedUserId), like(clients.referenceNo, `${prefix}-%`)));
+    .from(clients);
   const maxSequence = existing.reduce((max, row) => {
-    const value = Number(row.referenceNo?.split("-").at(-1));
-    return Number.isFinite(value) ? Math.max(max, value) : max;
+    const raw = row.referenceNo?.trim() ?? "";
+    if (!/^\d{4,}$/.test(raw)) return max;
+    const value = Number(raw);
+    return Number.isSafeInteger(value) ? Math.max(max, value) : max;
   }, 0);
-  return `${prefix}-${String(maxSequence + 1).padStart(4, "0")}`;
+  return String(maxSequence + 1).padStart(4, "0");
 }
 
 export async function createClient(input: {
@@ -1639,7 +1629,7 @@ export async function createClient(input: {
   const db = await getDb();
   if (!db) return null;
   await assertCentralOnlineStartAllowsRecord();
-  const referenceNo = await nextClientReferenceNo(db, input.assignedUserId);
+  const referenceNo = await nextClientReferenceNo(db);
   const result = await db
     .insert(clients)
     .values({ referenceNo, name: input.name, assignedUserId: input.assignedUserId });
@@ -2329,7 +2319,7 @@ export async function importActiveRentalSummaries(
         .limit(1)
     )[0];
     if (!client) {
-      const referenceNo = await nextClientReferenceNo(db, row.assignedUserId);
+      const referenceNo = await nextClientReferenceNo(db);
       const result = await db
         .insert(clients)
         .values({
