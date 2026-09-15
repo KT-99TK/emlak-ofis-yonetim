@@ -664,3 +664,10 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Müşteri araması, Müşteri Dosyası ve PDF görünümlerini merkezi numaraya geçir; eski numara desteği bırakıldı. Müşteri listesi ve dosyası sorumlu danışman kodunu da gösteriyor.
 - [x] Merkezi numara geçişini duplicate kontrolü, Vitest, TypeScript, production build ve veri doğrulamasıyla tamamla. 34 benzersiz numara doğrulandı; 125 test dosyası / 363 test, TypeScript ve production build başarılı.
 - [x] Danışman filtresi ile müşteri ataması birebir örtüşsün; her müşteri satırında `Sorumlu danışman: KT1/IP1/CT1` bilgisi merkezi numaranın yanında gösterilsin.
+
+## 2026-09-15 — Merkezi müşteri araması ve danışman eşleşmeli PDF
+
+- [x] Merkezi müşteri numarası için hızlı arama alanını belirginleştir; `0001`, `0010`, `0034` gibi numaralarla doğrudan müşteri bul. Arama alanı merkezi numara/ad araması olarak görünür ve sonuç sayısını gösterir.
+- [x] Müşteri PDF çıktısında merkezi müşteri numarası, müşteri adı ve sorumlu danışman kodunu aynı satırda göster. Müşteri PDF’sine özel kolon başlıkları eklendi.
+- [x] PDF filtre özetinde merkezi numara araması, danışman kodu, aktif/pasif kapsamı ve toplam kayıt sayısını göster.
+- [x] Arama ve PDF akışını Vitest, TypeScript, production build ve masaüstü/mobil görsel doğrulamayla tamamla. 125 test dosyası / 363 test başarılı; TypeScript ve production build başarılı; 1280×720 ve 375×812 görünümleri doğrulandı.
