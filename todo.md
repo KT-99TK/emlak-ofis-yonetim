@@ -629,3 +629,23 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Müşteri Dosyası sorgusunda seçilen müşteriye bağlı mülk/portföy, kira, satış, yetki, sözleşme ve tahsilat kayıtlarını kapsam filtreleriyle tek sonuçta getir. Protected `clients.file` endpoint’i portföy, aktif kira, sözleşme, yükümlülük ve ledger kayıtlarını kapsam içinde topluyor.
 - [x] Müşteriler ekranında numara/ad arama sonucuna Müşteri Dosyası açma düğmesi ve bağlı kayıt bölümleri ekle. Her müşteri satırında `Müşteri Dosyası` düğmesi ve bölümlü modal görünümü eklendi.
 - [x] Müşteri Dosyası erişimini KT1/IP1/CT1 rol ve danışman kapsamlarıyla test et; hassas alanları mevcut gerekçeli açma kuralıyla koru. Sorgu aynı `getCentralAccessScope` ve masked sensitive field yaklaşımını kullanıyor; 124 test dosyası / 359 test ve TypeScript başarılı.
+
+## 2026-09-15 — Aktif görünürlük ve mahremiyet filtreleri (yeniden yürütüm)
+
+- [x] Sözleşme, portföy ve ledger listelerinde varsayılan aktif görünümü; pasif/arşiv dahil filtresini uygula. Contracts ve Records ekranlarında varsayılan aktif seçimi ve backend status kapsamı bağlandı.
+- [x] Danışmanların yalnız kendi atanmış müşteri ve kayıtlarını görmesini; broker manager’ın danışman kodu ile ofis geneli filtrelemesini uygula. Server-side permittedUserIds kapsamı korundu; manager için consultantCode filtresi eklendi.
+- [ ] Broker Manager finans performansında tarih, danışman ve durum filtreleri ile toplamları uygula.
+- [x] Filtrelenmiş listeleri PDF olarak, filtre özetiyle dışa aktar. XLSX bilinçli olarak sonraki aşamaya bırakıldı.
+- [x] Filtreleme ve mahremiyet için regresyon testleri, TypeScript ve production build doğrulaması yap. 125 test dosyası / 362 test başarılı; TypeScript ve production build başarılı. Görsel polish daraltılmış kapsam dışında bırakıldı.
+
+## Kapsam daraltma kararı — 2026-09-15
+
+- [x] Elzem kapsam: aktif varsayılanı, pasif/arşiv filtresi, danışman mahremiyeti ve broker manager’ın tam ofis görünürlüğü.
+- [ ] Ertelenen kapsam: XLSX filtre özeti ve dışa aktarma senkronizasyonu.
+- [ ] Ertelenen kapsam: ayrıntılı manager finans performansında tarih/danışman/durum toplamları ve raporlama polish’i.
+
+## PDF çıktısı kapsam güncellemesi — 2026-09-15
+
+- [x] Müşteri, portföy, ledger ve sözleşme listelerinde mevcut filtreleri ve filtre özetini PDF çıktısına taşı. Records ve Contracts ekranlarında A4 yatay yazdırılabilir PDF penceresi eklendi.
+- [x] PDF çıktısında kayıt sayısı, aktif/pasif seçimi ve manager danışman filtresini göster. Arama kriteri de filtre özetine dahil edildi.
+- [x] XLSX dışa aktarma ve ayrıntılı finans performans raporunu sonraki aşamaya bırak.

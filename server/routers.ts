@@ -386,18 +386,21 @@ export const appRouter = router({
     }),
   }),
   contracts: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      const scope = await getCentralAccessScope(
-        ctx.user.id,
-        isManager(ctx.user)
-      );
-      return listContracts(
-        ctx.user.id,
-        scope.isManager,
-        scope.permittedUserIds,
-        scope.officeRole
-      );
-    }),
+    list: protectedProcedure
+      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.string().trim().min(2).max(40).optional(), assignedUserId: z.number().int().positive().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return listContracts(
+          ctx.user.id,
+          scope.isManager,
+          scope.permittedUserIds,
+          scope.officeRole,
+          input ?? {}
+        );
+      }),
     nextNumber: protectedProcedure.query(({ ctx }) =>
       getNextContractNumber(ctx.user.id)
     ),
@@ -720,18 +723,21 @@ export const appRouter = router({
       }),
   }),
   clients: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      const scope = await getCentralAccessScope(
-        ctx.user.id,
-        isManager(ctx.user)
-      );
-      return listClients(
-        ctx.user.id,
-        scope.isManager,
-        scope.permittedUserIds,
-        scope.officeRole
-      );
-    }),
+    list: protectedProcedure
+      .input(z.object({ consultantCode: z.string().trim().min(2).max(40).optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return listClients(
+          ctx.user.id,
+          scope.isManager,
+          scope.permittedUserIds,
+          scope.officeRole,
+          input ?? {}
+        );
+      }),
     file: protectedProcedure
       .input(z.object({ clientId: z.number().int().positive() }))
       .query(async ({ ctx, input }) => {
@@ -800,17 +806,20 @@ export const appRouter = router({
       ),
   }),
   properties: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      const scope = await getCentralAccessScope(
-        ctx.user.id,
-        isManager(ctx.user)
-      );
-      return listProperties(
-        ctx.user.id,
-        scope.isManager,
-        scope.permittedUserIds
-      );
-    }),
+    list: protectedProcedure
+      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.string().trim().min(2).max(40).optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return listProperties(
+          ctx.user.id,
+          scope.isManager,
+          scope.permittedUserIds,
+          input ?? {}
+        );
+      }),
     create: protectedProcedure
       .input(
         z.object({
@@ -965,13 +974,15 @@ export const appRouter = router({
     cancel: adminProcedure.input(z.object({ transactionId: z.number().int().positive(), reason: z.string().min(8).max(1000) })).mutation(({ ctx, input }) => cancelCentralCommissionTransaction(input.transactionId, input.reason, ctx.user.id)),
   }),
   ledger: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      const scope = await getCentralAccessScope(
-        ctx.user.id,
-        isManager(ctx.user)
-      );
-      return listLedger(ctx.user.id, scope.isManager, scope.permittedUserIds);
-    }),
+    list: protectedProcedure
+      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.string().trim().min(2).max(40).optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return listLedger(ctx.user.id, scope.isManager, scope.permittedUserIds, input ?? {});
+      }),
     create: protectedProcedure
       .input(
         z.object({

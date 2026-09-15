@@ -625,28 +625,38 @@ export async function listContracts(
   userId: number,
   isManager: boolean,
   permittedUserIds?: number[],
-  officeRole?: CentralAccessScope["officeRole"]
+  officeRole?: CentralAccessScope["officeRole"],
+  filters: { includeInactive?: boolean; consultantCode?: string; assignedUserId?: number } = {}
 ) {
   const db = await getDb();
   if (!db) return [];
   const scopedIds = permittedUserIds ?? [userId];
   const rows = await db
-    .select()
+    .select({ contract: contracts, consultantCode: userProfiles.consultantCode })
     .from(contracts)
-    .where(
+    .leftJoin(userProfiles, eq(contracts.assignedUserId, userProfiles.userId))
+    .where(and(
       isManager
         ? undefined
         : scopedIds.length
           ? inArray(contracts.assignedUserId, scopedIds)
-          : sql`1 = 0`
-    )
+          : sql`1 = 0`,
+      filters.includeInactive ? undefined : eq(contracts.status, "active"),
+      isManager && filters.assignedUserId
+        ? eq(contracts.assignedUserId, filters.assignedUserId)
+        : undefined,
+      isManager && filters.consultantCode
+        ? eq(userProfiles.consultantCode, filters.consultantCode)
+        : undefined
+    ))
     .orderBy(desc(contracts.updatedAt));
   return rows.map(row => ({
-    ...row,
-    details: protectContractDetails(row.details ?? undefined).maskedDetails ?? null,
+    ...row.contract,
+    consultantCode: row.consultantCode,
+    details: protectContractDetails(row.contract.details ?? undefined).maskedDetails ?? null,
     canRevealSensitive:
       isManager ||
-      (officeRole === "consultant" && row.assignedUserId === userId),
+      (officeRole === "consultant" && row.contract.assignedUserId === userId),
   }));
 }
 export async function getNextContractNumber(userId: number) {
@@ -944,29 +954,35 @@ export async function listClients(
   userId: number,
   isManager: boolean,
   permittedUserIds?: number[],
-  officeRole?: CentralAccessScope["officeRole"]
+  officeRole?: CentralAccessScope["officeRole"],
+  filters: { consultantCode?: string } = {}
 ) {
   const db = await getDb();
   if (!db) return [];
   const scopedIds = permittedUserIds ?? [userId];
   const rows = await db
-    .select()
+    .select({ client: clients, consultantCode: userProfiles.consultantCode })
     .from(clients)
-    .where(
+    .leftJoin(userProfiles, eq(clients.assignedUserId, userProfiles.userId))
+    .where(and(
       isManager
         ? undefined
         : scopedIds.length
           ? inArray(clients.assignedUserId, scopedIds)
-          : sql`1 = 0`
-    )
+          : sql`1 = 0`,
+      isManager && filters.consultantCode
+        ? eq(userProfiles.consultantCode, filters.consultantCode)
+        : undefined
+    ))
     .orderBy(desc(clients.updatedAt));
   return rows.map(row => ({
-    ...row,
-    identityOrTaxNo: maskIdentityOrTaxNo(row.identityOrTaxNo),
-    phone: maskPhone(row.phone),
+    ...row.client,
+    consultantCode: row.consultantCode,
+    identityOrTaxNo: maskIdentityOrTaxNo(row.client.identityOrTaxNo),
+    phone: maskPhone(row.client.phone),
     canRevealSensitive:
       isManager ||
-      (officeRole === "consultant" && row.assignedUserId === userId),
+      (officeRole === "consultant" && row.client.assignedUserId === userId),
   }));
 }
 
@@ -1424,42 +1440,59 @@ export async function resolveBrokerGuidanceNote(
 export async function listProperties(
   userId: number,
   isManager: boolean,
-  permittedUserIds?: number[]
+  permittedUserIds?: number[],
+  filters: { includeInactive?: boolean; consultantCode?: string } = {}
 ) {
   const db = await getDb();
   if (!db) return [];
   const scopedIds = permittedUserIds ?? [userId];
-  return db
-    .select()
+  const rows = await db
+    .select({ property: properties, consultantCode: userProfiles.consultantCode })
     .from(properties)
-    .where(
+    .leftJoin(userProfiles, eq(properties.assignedUserId, userProfiles.userId))
+    .where(and(
       isManager
         ? undefined
         : scopedIds.length
           ? inArray(properties.assignedUserId, scopedIds)
-          : sql`1 = 0`
-    )
+          : sql`1 = 0`,
+      filters.includeInactive ? undefined : eq(properties.status, "active"),
+      isManager && filters.consultantCode
+        ? eq(userProfiles.consultantCode, filters.consultantCode)
+        : undefined
+    ))
     .orderBy(desc(properties.createdAt));
+  return rows.map(row => ({ ...row.property, consultantCode: row.consultantCode }));
 }
 export async function listLedger(
   userId: number,
   isManager: boolean,
-  permittedUserIds?: number[]
+  permittedUserIds?: number[],
+  filters: { includeInactive?: boolean; consultantCode?: string; from?: Date; to?: Date; status?: "pending" | "partial" | "paid" | "cancelled" } = {}
 ) {
   const db = await getDb();
   if (!db) return [];
   const scopedIds = permittedUserIds ?? [userId];
-  return db
-    .select()
+  const rows = await db
+    .select({ ledger: ledgerEntries, consultantCode: userProfiles.consultantCode })
     .from(ledgerEntries)
-    .where(
+    .leftJoin(userProfiles, eq(ledgerEntries.assignedUserId, userProfiles.userId))
+    .where(and(
       isManager
         ? undefined
         : scopedIds.length
           ? inArray(ledgerEntries.assignedUserId, scopedIds)
-          : sql`1 = 0`
-    )
+          : sql`1 = 0`,
+      filters.includeInactive ? undefined : ne(ledgerEntries.status, "cancelled"),
+      filters.status ? eq(ledgerEntries.status, filters.status) : undefined,
+      isManager && filters.consultantCode
+        ? eq(userProfiles.consultantCode, filters.consultantCode)
+        : undefined,
+      filters.from ? gte(ledgerEntries.createdAt, filters.from) : undefined,
+      filters.to ? lte(ledgerEntries.createdAt, filters.to) : undefined
+    ))
     .orderBy(desc(ledgerEntries.createdAt));
+  return rows.map(row => ({ ...row.ledger, consultantCode: row.consultantCode }));
 }
 export async function listAudit(isManager: boolean) {
   const db = await getDb();
