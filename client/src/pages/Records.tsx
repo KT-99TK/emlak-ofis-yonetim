@@ -18,7 +18,8 @@ export default function Records() {
   const [includeInactive, setIncludeInactive] = useState(false);
   const [consultantCode, setConsultantCode] = useState("");
   const recordFilters = useMemo(() => ({ includeInactive, consultantCode: consultantCode.trim() || undefined }), [includeInactive, consultantCode]);
-  const clients = trpc.clients.list.useQuery({ consultantCode: recordFilters.consultantCode }, { enabled: kind === "clients", retry: false });
+  const clientListInput = useMemo(() => recordFilters.consultantCode ? { consultantCode: recordFilters.consultantCode } : undefined, [recordFilters.consultantCode]);
+  const clients = trpc.clients.list.useQuery(clientListInput, { enabled: kind === "clients", retry: false });
   const properties = trpc.properties.list.useQuery(recordFilters, { enabled: kind === "properties", retry: false });
   const ledger = trpc.ledger.list.useQuery(recordFilters, { enabled: kind === "ledger", retry: false });
   const query = kind === "clients" ? clients : kind === "properties" ? properties : ledger;

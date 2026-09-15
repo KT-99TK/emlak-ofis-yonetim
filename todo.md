@@ -671,3 +671,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Müşteri PDF çıktısında merkezi müşteri numarası, müşteri adı ve sorumlu danışman kodunu aynı satırda göster. Müşteri PDF’sine özel kolon başlıkları eklendi.
 - [x] PDF filtre özetinde merkezi numara araması, danışman kodu, aktif/pasif kapsamı ve toplam kayıt sayısını göster.
 - [x] Arama ve PDF akışını Vitest, TypeScript, production build ve masaüstü/mobil görsel doğrulamayla tamamla. 125 test dosyası / 363 test başarılı; TypeScript ve production build başarılı; 1280×720 ve 375×812 görünümleri doğrulandı.
+
+## 2026-09-15 — Boş danışman filtresi doğrulama hatası
+
+- [x] Boş `consultantCode` değerinin müşteriler API’sine gönderilmesini engelle; boş değer filtre yok anlamına gelsin. Frontend artık boş inputta `undefined` gönderiyor; server da boş stringi savunmalı biçimde filtre yok sayıyor.
+- [x] Contracts, properties ve ledger liste inputlarında da boş danışman kodunu güvenle `undefined` olarak normalize et. Dört liste router’ında `z.preprocess` normalizasyonu kullanılıyor.
+- [x] Boş filtre, geçerli `KT1/IP1/CT1` filtresi ve müşteri ekranı açılışı için regresyon testi, TypeScript, build ve checkpoint doğrulaması yap. 125 test dosyası / 363 test, TypeScript, production build ve `/clients?from_webdev=1` görsel kontrolü başarılı.

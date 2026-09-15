@@ -19,7 +19,8 @@ describe("central record filtering policy", () => {
     expect(db).toContain("inArray(properties.assignedUserId, scopedIds)");
     expect(db).toContain("inArray(ledgerEntries.assignedUserId, scopedIds)");
     expect(db).toContain("eq(userProfiles.consultantCode, filters.consultantCode)");
-    expect(routers).toContain('consultantCode: z.string().trim().min(2).max(40).optional()');
+    expect(routers).toContain('z.preprocess(value => typeof value === "string" && value.trim() === "" ? undefined : value');
+    expect(routers).toContain('consultantCode: z.preprocess');
   });
 
   it("keeps modal surfaces opaque and readable", () => {
@@ -39,5 +40,7 @@ describe("central record filtering policy", () => {
     expect(contracts).toContain("includeInactive");
     expect(contracts).toContain("printFilteredContractsPdf");
     expect(contracts).toContain("Filtreler:");
+    expect(records).toContain("clientListInput");
+    expect(records).toContain("recordFilters.consultantCode ? { consultantCode: recordFilters.consultantCode } : undefined");
   });
 });

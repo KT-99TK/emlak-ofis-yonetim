@@ -387,7 +387,7 @@ export const appRouter = router({
   }),
   contracts: router({
     list: protectedProcedure
-      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.string().trim().min(2).max(40).optional(), assignedUserId: z.number().int().positive().optional() }).optional())
+      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.preprocess(value => typeof value === "string" && value.trim() === "" ? undefined : value, z.string().trim().min(2).max(40).optional()), assignedUserId: z.number().int().positive().optional() }).optional())
       .query(async ({ ctx, input }) => {
         const scope = await getCentralAccessScope(
           ctx.user.id,
@@ -724,7 +724,7 @@ export const appRouter = router({
   }),
   clients: router({
     list: protectedProcedure
-      .input(z.object({ consultantCode: z.string().trim().min(2).max(40).optional() }).optional())
+      .input(z.object({ consultantCode: z.preprocess(value => typeof value === "string" && value.trim() === "" ? undefined : value, z.string().trim().min(2).max(40).optional()) }).optional())
       .query(async ({ ctx, input }) => {
         const scope = await getCentralAccessScope(
           ctx.user.id,
@@ -807,7 +807,7 @@ export const appRouter = router({
   }),
   properties: router({
     list: protectedProcedure
-      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.string().trim().min(2).max(40).optional() }).optional())
+      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.preprocess(value => typeof value === "string" && value.trim() === "" ? undefined : value, z.string().trim().min(2).max(40).optional()) }).optional())
       .query(async ({ ctx, input }) => {
         const scope = await getCentralAccessScope(
           ctx.user.id,
@@ -975,7 +975,7 @@ export const appRouter = router({
   }),
   ledger: router({
     list: protectedProcedure
-      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.string().trim().min(2).max(40).optional() }).optional())
+      .input(z.object({ includeInactive: z.boolean().optional(), consultantCode: z.preprocess(value => typeof value === "string" && value.trim() === "" ? undefined : value, z.string().trim().min(2).max(40).optional()) }).optional())
       .query(async ({ ctx, input }) => {
         const scope = await getCentralAccessScope(
           ctx.user.id,
