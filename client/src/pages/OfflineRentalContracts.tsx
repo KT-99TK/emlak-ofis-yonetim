@@ -127,6 +127,7 @@ export default function OfflineRentalContracts() {
   const [printMode, setPrintMode] = useState<PrintMode>("contract");
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const userId = getUserId();
   const contractAccess = {
     userId,
@@ -283,7 +284,10 @@ export default function OfflineRentalContracts() {
       );
       return;
     }
-    const backOfficeDetails = {
+    setIsSaving(true);
+    setMessage("Kayıt yapılıyor...");
+    try {
+      const backOfficeDetails = {
       ...details,
       vatCollection: "separate" as const,
       firstPaymentDueDate: summary.firstDueDate,
@@ -369,6 +373,12 @@ export default function OfflineRentalContracts() {
     );
     setContractNo("");
     await refresh();
+      setMessage("Kayıt edilmiştir.");
+    } catch (error) {
+      setMessage(`Kayıt yapılamadı: ${error instanceof Error ? error.message : "Beklenmeyen bir hata oluştu."}`);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const annualRent = new Intl.NumberFormat("tr-TR", {
@@ -1172,10 +1182,11 @@ export default function OfflineRentalContracts() {
                 <div className="flex flex-wrap gap-3">
                   <Button
                     onClick={() => void saveDraft()}
+                    disabled={isSaving}
+                    aria-busy={isSaving}
                     className="flex-1 rounded-xl bg-[#173e39] text-white hover:bg-[#20554e] hover:text-white [&_svg]:text-white"
                   >
-                    <Save className="mr-2 h-4 w-4" /> Yerel kira sözleşmesi ve
-                    vade kayıtlarını kaydet
+                    <Save className="mr-2 h-4 w-4" /> {isSaving ? "Kayıt yapılıyor..." : "Yerel kira sözleşmesi ve vade kayıtlarını kaydet"}
                   </Button>
                   {details.signedByParties && (
                     <Button

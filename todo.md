@@ -497,3 +497,35 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Kayıt/indirme düğmesinin gerçekten belgeyi çıktı olarak kaydettiğini doğrula veya düzelt. Ortak düğme `Print / PDF olarak kaydet` olarak netleştirildi ve sistem yazdırma/PDF akışına bağlandı.
 - [x] Ana sözleşme ve ekler için varsayılan dosya adını müşterinin adı temel alınacak şekilde üret; Türkçe karakter ve Windows dosya adı güvenliğini koru. Kiracı adı, kiraya veren adı yoksa yedek olarak kullanılıyor; çıktı adı `MUSTERI-Kira-Sozlesmesi.pdf`, `MUSTERI-Teslim-Alma-Formu.pdf` vb. biçiminde oluşturuluyor.
 - [x] Print/PDF ve kayıt akışı için regresyon testleri, tam test, TypeScript ve production build çalıştır; checkpoint’e kaydet. 120 test dosyası / 348 test başarılı; TypeScript ve production build başarılı.
+
+
+## 11. Gönderilen demirbaş teslim alma formu PDF’i
+
+- [x] `teslimalmaformu.jpg` içeriğini ve düzenini doğrula; kişi, adres, tarih ve demirbaş bilgilerini koru. Görseldeki kişi, adres, tarih ve dört demirbaş değeri korundu; teslim durumu ve sayaç alanları boş bırakıldı.
+- [x] Teslim Alma Bilgileri, demirbaş kontrol tablosu, sayaç alanları ve imza bölümüyle temiz A4 form oluştur. A4 dikey, tek sayfa ve villa/daire başlığı değişkenli form oluşturuldu.
+- [x] PDF’i derle, görsel ve metin doğrulamasını yapıp Kazım’a teslim et. Typst derleme başarılı, PDF doğrulaması 6/6 PASS ve tek sayfa görsel kontrol tamamlandı.
+
+
+## 12. Taşınmaz türüne göre demirbaş başlıkları
+
+- [x] Demirbaş teslim alma/etme başlıklarını taşınmaz türü seçimine bağla; villa ve daire başlıklarını ayrı üret. Kaynak başlıkları `property_type` değişkeni üzerinden villa/daireye uyarlanabilir; mevcut PDF villa başlığıyla üretildi.
+- [x] Güncellenmiş başlıklarla A4 PDF’i yeniden derle, önizle ve indirilebilir çıktıyı teslim et. Villa demirbaş teslim alma PDF’i derlendi ve önizlemesi doğrulandı.
+
+
+## 13. Demirbaş açıklama hücreleri
+
+- [x] Teslim Durumu / Açıklama sütunundaki noktalı çizgileri kaldır; hücreleri el yazısıyla not yazılabilecek boş alan olarak bırak.
+- [x] Güncel villa demirbaş teslim alma PDF’ini derle, görsel/metin kontrolünü yap ve teslim et. Typst derleme başarılı, PDF doğrulaması 6/6 PASS ve tek sayfa görsel kontrol tamamlandı.
+
+
+## 14. Kira kayıt düğmesi ve ayrı PDF çıktıları
+
+- [x] Kira sözleşmesi kayıt düğmesinin handler, zorunlu alan ve hata mesajı akışını incele. Kullanıcı kimliği ve zorunlu alan erken dönüşleri korunarak kayıt hataları yakalandı.
+- [x] Ana kira sözleşmesi ile Tahliye, Teslim Etme, Teslim Alma ve Demirbaş eklerinin ayrı ayrı PDF yazdırılabildiğini doğrula. Her biri ayrı `Print / PDF` düğmesine bağlı; paket düğmesi seçili ekleri birlikte yazdırıyor.
+- [x] Kayıt ve PDF çıktısı için regresyon testleri, tam test, TypeScript ve production build çalıştır; sorun varsa checkpoint’e kaydet. 120 test dosyası / 349 test, TypeScript ve production build başarılı.
+
+
+## 15. Kayıt sonucu mesajı
+
+- [x] Yerel kira sözleşmesi kayıt işlemi başarıyla tamamlandığında açıkça `Kayıt edilmiştir.` mesajı göster; hata durumunda açıklayıcı hata mesajı göster. Kayıt sırasında `Kayıt yapılıyor...`, başarıda `Kayıt edilmiştir.`, hatada neden mesajı gösteriliyor.
+- [x] Kayıt sonucu mesajı için regresyon testi yaz ve tam doğrulama zincirini çalıştır. Kaynak regresyon testi eklendi; tam test, TypeScript ve production build başarılı.
