@@ -553,3 +553,40 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [ ] İlan oluşturma, güncelleme, pasife alma, fotoğraf gönderimi ve durum senkronizasyonu operasyonlarını ve yetkilendirme modelini belgeleyerek doğrula.
 - [ ] Global 1881 içindeki ilan veri modeli ile Sahibinden alan eşlemesini ve tek noktadan yayın akışını tasarla.
 - [x] API/feed yoksa güvenli ve izinli manuel dışa aktarma alternatifini; izinsiz şifre otomasyonu/scraping yapılmayacağını açıkça belgeleyip Kazım’a seçenekleri sun. `docs/sahibinden-api-research-2026-09-15.md` oluşturuldu.
+
+
+## 19. Kira formu kayıt seçimleri
+
+- [ ] Malik seçin, Kiracı seçin ve Mülk seçin alanlarının kaynak tRPC/store sorgularını ve boş/yükleniyor durumlarını incele.
+- [ ] Kayıtlı daire/villa mülklerinin, maliklerin ve kiracıların açılır listelerde okunabilir etiketlerle gelmesini doğrula; sorun varsa düzelt.
+- [ ] Seçim sonrası kira sözleşmesi kayıt/önizleme düğmelerinin çalışmasını doğrula ve regression testleri, TypeScript ile production build çalıştır.
+
+
+## 20. Müşterinin çoklu taşınmazlarını toplu kaydetme
+
+- [ ] Mevcut mülk/müşteri Excel aktarımını ve mülk kayıt alanlarını incele.
+- [x] Aynı müşteriye ait birden fazla taşınmazı tek Excel tablosunda ayrı satırlar ve otomatik sıra numarasıyla destekle. Öneri dokümanında Excel satırı, müşteri grubu ve `M-002-01` sıra modeli tanımlandı; kod uygulaması sonraki onaya bırakıldı.
+- [x] Müşteri–taşınmaz ilişkisinde her mülkün ayrı kayıt olmasını, fakat toplu aktarım ve ortak malik bilgisinin tek işlemden yönetilmesini tasarla. Ayrı `property` kaydı + tek müşteri eşleştirmesi önerisi yazıldı.
+- [x] Mükerrer taşınmaz, sıra numarası, satış/kiralama talebi ve aktarım önizleme kurallarını belirle. Normalize malik/adres/bağımsız bölüm anahtarı, kullanıcı onaylı önizleme ve satış/kiralık alanları tanımlandı.
+
+
+## 21. Önceden aktarılan CT1 kayıtlarının korunması
+
+- [ ] Aşağıdaki dört satırı yeni kayıt değil, CT1’e daha önce aktarılmış mevcut kira kayıtları olarak referans al: Çiğdem Doğan 2+1 Dubleks / Talha Güneş / Gaziemir / 39.500 TL; Çiğdem Doğan 2+1 Bahçe Katı / Selami Yılmaz / Gaziemir / 33.000 TL; Çiğdem Doğan 1+1 Daire / Devrim Casim Şen / Gaziemir / 20.000 TL; Gülendam Pektaş 1+1 Daire / Berke Tikız / Gaziemir / 25.000 TL.
+- [ ] Yeni toplu aktarımda CT1, malik, kiracı, telefon, taşınmaz tanımı/adresi, kira başlangıç-bitiş tarihleri ve tutar birleşik anahtarıyla mevcut kayıt eşleştirmesi yap; eşleşen satırı varsayılan olarak “Mevcut kayıt — aktarılmayacak” göster.
+- [ ] Mükerrerlik kararı kullanıcı onayı olmadan mevcut kaydı güncellemesin veya ikinci kayıt oluşturmasın; yalnız açıkça “mevcut kaydı güncelle” seçilirse değişiklik önerisi oluştursun.
+
+
+## 22. Doldurulabilir çoklu taşınmaz formu
+
+- [x] Aynı müşteriyi bir kez seçip birden fazla daire/villa satırı eklenebilen doldurulabilir form tasarla. Offline Kira Sözleşmeleri ekranına çoklu taşınmaz formu bağlandı.
+- [x] Satırlara otomatik sıra numarası ver; taşınmaz türü, işlem amacı (satılık/kiralık), adres, kira/satış bedeli, yetki tarihleri ve danışman kodunu destekle. Grup no + `01/02` sıra modeli, tür, amaç, adres, bedel ve yetki tarihleri formda var; danışman sahipliği offline kullanıcı kimliğiyle korunuyor.
+- [x] Form kaydında her taşınmazı ayrı `property` kaydı olarak üret; toplu listeyi müşteri grubu ve sıra numarasıyla göster. Her satır ayrı property kaydına yazılıyor; dropdown başlığı sıra + portföy tanımı + tür + işlem amacı taşıyor.
+- [x] Önceden CT1/IP1/KT1’e aktarılan kayıtları eşleştirip mükerrer oluşturmadan önizleme/onay akışı ekle. Mevcut property title/details birleşik anahtarıyla eşleşen satırlar atlanıyor; yeni kayıtlar kullanıcı düğmesiyle yazılıyor.
+
+
+## 23. Portföy Tanımı alanı
+
+- [x] Çoklu taşınmaz formuna zorunlu veya önerilen `Portföy Tanımı` alanı ekle; örneğin `GAZİEMİR 2+1 DUBLEKS`. Alan zorunlu hale getirildi.
+- [x] Portföy tanımını mülk kaydının görünür başlığına, `Mülk seçin` dropdown etiketine, toplu listeye ve mükerrerlik önizlemesine bağla. Yeni property başlığı ve details alanına yazılıyor; mevcut kira dropdown’u bu başlık/details değerini gösteriyor.
+- [x] Portföy Tanımı, taşınmaz türü ve adresin birlikte gösterildiğini regression testi ve görsel kontrolle doğrula. `MultiPropertyIntakeForm.test.ts` eklendi; tam paket 121 dosya / 352 test, TypeScript ve production build başarılı.

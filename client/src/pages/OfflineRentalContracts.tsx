@@ -12,6 +12,7 @@ import RentalAppendixDocument, {
 } from "@/components/RentalAppendixDocument";
 import RentalFixturesEditor from "@/components/RentalFixturesEditor";
 import OfflineOfficeFlowPanel from "@/components/OfflineOfficeFlowPanel";
+import MultiPropertyIntakeForm from "@/components/MultiPropertyIntakeForm";
 import DocumentPrintPreview from "@/components/DocumentPrintPreview";
 import TurkishDateInput from "@/components/TurkishDateInput";
 import UrlaLocationField from "@/components/UrlaLocationField";
@@ -433,6 +434,7 @@ export default function OfflineRentalContracts() {
         </div>
       </section>
       <div className="mx-auto max-w-[1440px] space-y-6">
+        <MultiPropertyIntakeForm records={records} access={contractAccess} onRefresh={refresh} />
         <div className="offline-operation-grid print:block">
           <div className="offline-operation-main">
             <Card className="rounded-2xl border-[#e5e8e3] bg-white/85 print:hidden">
