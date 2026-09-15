@@ -236,8 +236,8 @@ button:active { transform: scale(.98); }
   .print-preview-controls button { width: 100%; }
 }
 @media print {
-  body * { visibility: hidden !important; }
-  .records-print-preview, .records-print-preview *, .contracts-print-preview, .contracts-print-preview * { visibility: visible !important; }
+  body:has(.records-print-preview) *, body:has(.contracts-print-preview) * { visibility: hidden !important; }
+  body:has(.records-print-preview) .records-print-preview, body:has(.records-print-preview) .records-print-preview *, body:has(.contracts-print-preview) .contracts-print-preview, body:has(.contracts-print-preview) .contracts-print-preview * { visibility: visible !important; }
   .records-print-preview, .contracts-print-preview { position: absolute !important; inset: 0 !important; overflow: visible !important; padding: 0 !important; background: #fff !important; }
   .records-print-paper, .contracts-print-paper { max-width: none !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
   .print-preview-controls { display: none !important; }

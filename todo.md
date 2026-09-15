@@ -682,4 +682,4 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 - [x] Müşteri PDF düğmesinin popup engeli veya yazdırma zamanlaması nedeniyle tepkisiz kalmasını düzelt. Popup bağımlılığı kaldırıldı; aynı sayfa içinde yazdırma önizlemesi açılıyor.
 - [x] PDF yazdırma önizlemesinin düğme tıklamasıyla açıldığını; boş liste ve filtreli liste durumlarını test et. Önizleme kontrolleri ve boş sonuç tablosu kaynak regresyon sözleşmesiyle korundu.
-- [x] TypeScript, production build, görsel doğrulama ve checkpoint tamamla. 125 test dosyası / 363 test, TypeScript ve production build başarılı; müşteri ve sözleşme PDF akışları için print CSS eklendi.
+- [x] TypeScript, production build, görsel doğrulama ve checkpoint tamamla. 125 test dosyası / 363 test, TypeScript ve production build başarılı; müşteri ve sözleşme PDF akışları için print CSS eklendi. Print CSS yalnız aktif önizleme varken devreye giriyor; diğer ekranların yazdırma akışı korunuyor.

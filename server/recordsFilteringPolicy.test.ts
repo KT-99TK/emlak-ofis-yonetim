@@ -48,5 +48,7 @@ describe("central record filtering policy", () => {
     const css = read("client/src/index.css");
     expect(css).toContain(".records-print-preview");
     expect(css).toContain(".print-preview-controls");
+    expect(css).toContain("body:has(.records-print-preview)");
+    expect(css).not.toContain("@media print {\n  body * { visibility: hidden !important; }");
   });
 });
