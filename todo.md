@@ -677,3 +677,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Boş `consultantCode` değerinin müşteriler API’sine gönderilmesini engelle; boş değer filtre yok anlamına gelsin. Frontend artık boş inputta `undefined` gönderiyor; server da boş stringi savunmalı biçimde filtre yok sayıyor.
 - [x] Contracts, properties ve ledger liste inputlarında da boş danışman kodunu güvenle `undefined` olarak normalize et. Dört liste router’ında `z.preprocess` normalizasyonu kullanılıyor.
 - [x] Boş filtre, geçerli `KT1/IP1/CT1` filtresi ve müşteri ekranı açılışı için regresyon testi, TypeScript, build ve checkpoint doğrulaması yap. 125 test dosyası / 363 test, TypeScript, production build ve `/clients?from_webdev=1` görsel kontrolü başarılı.
+
+## 2026-09-15 — PDF düğmesi yazdırma akışı
+
+- [x] Müşteri PDF düğmesinin popup engeli veya yazdırma zamanlaması nedeniyle tepkisiz kalmasını düzelt. Popup bağımlılığı kaldırıldı; aynı sayfa içinde yazdırma önizlemesi açılıyor.
+- [x] PDF yazdırma önizlemesinin düğme tıklamasıyla açıldığını; boş liste ve filtreli liste durumlarını test et. Önizleme kontrolleri ve boş sonuç tablosu kaynak regresyon sözleşmesiyle korundu.
+- [x] TypeScript, production build, görsel doğrulama ve checkpoint tamamla. 125 test dosyası / 363 test, TypeScript ve production build başarılı; müşteri ve sözleşme PDF akışları için print CSS eklendi.

@@ -42,5 +42,11 @@ describe("central record filtering policy", () => {
     expect(contracts).toContain("Filtreler:");
     expect(records).toContain("clientListInput");
     expect(records).toContain("recordFilters.consultantCode ? { consultantCode: recordFilters.consultantCode } : undefined");
+    expect(records).toContain("setPrintPreviewHtml");
+    expect(records).toContain("records-print-preview");
+    expect(records).not.toContain("window.open(\"\", \"_blank\"");
+    const css = read("client/src/index.css");
+    expect(css).toContain(".records-print-preview");
+    expect(css).toContain(".print-preview-controls");
   });
 });
