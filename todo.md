@@ -605,3 +605,19 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Çoklu mülk formundaki Excel’e aktar ve PDF liste düğmelerinin arayüz yerleşimini görsel olarak kontrol et. Düğmeler toplu kaydet düğmesinin yanında, kayıt sayısı durum satırıyla yerleşiyor; örnek rapor önizlemesi doğrulandı.
 - [x] Sıra no, Portföy Tanımı, taşınmaz türü, işlem amacı, adres, bedel, yetki ve danışman sütunlarını içeren örnek rapor çıktısı üretip kontrol et. Dört mevcut CT1 kaydıyla A4 yatay örnek PDF üretildi ve görsel kontrol edildi.
 - [x] Önizleme ve örnek dosyaları Kazım’a teslim et; çıktıların gerçek kayıtlardan üretildiğini ve sahte kayıt eklenmediğini belirt.
+
+
+## 26. Müşteri numarası ve kurumsal giriş akışı
+
+- [x] Mevcut müşteri kayıtlarında kısa müşteri numarası/ID olup olmadığını ve ad/telefon aramasını doğrula. Eski durumda kullanıcıya dönük kısa numara yoktu; `referenceNo` alanı ve 34 mevcut numara eklendi.
+- [x] Müşteri numarası veya müşteri adı arandığında müşteriye bağlı mülk, kira, satış, yetki ve sözleşme kayıtlarını tek sonuç grubunda gösterecek filtre modelini tasarla. İlk fazda Müşteriler ekranında numara/ad araması ve müşteri numarası görünürlüğü uygulandı; bağlı kayıt dosyası ekranı sonraki genişletme olarak ayrıldı.
+- [x] Açılışta kullanıcı adı + şifre ekranı, geçici parola ve ilk girişte parola değiştirme akışının web/offline sürümlerdeki davranışını doğrula. Web akışı `LocalLoginGate`; offline sürüm ayrı yerel çalışma alanı akışı kullanıyor.
+- [x] Kurumsal back-office kapsam şemasına uygun giriş sonrası rol/kapsam ekranı ve müşteri arama görsel önerisini hazırla. Dashboard login sonrası role-safe kapsam akışı korunuyor; müşteri arama alanı `Müşteri no veya ad ara` olarak eklendi.
+
+
+## 27. Web login ve müşteri numarası başlangıcı
+
+- [x] Web açılışında kullanıcı adı/parola kapısı, geçici parola değişimi, rol ve kapsam kontrolünü tek kullanıcı yolunda doğrula. `LocalLoginGate` uzun login adını normalize ediyor, geçici parola sonrası değişimi zorunlu kılıyor; `DashboardLayout` login sonrası kapsamlı çalışma alanına geçiriyor.
+- [x] KT001, IP001 ve CT001 danışman kapsamındaki mevcut müşterileri tespit edip kayıtları silmeden otomatik kısa müşteri numarası üret. 34 mevcut müşteri kaydı korunarak `KT001-0001`–`KT001-0009`, `IP001-0001`–`IP001-0006`, `CT001-0001`–`CT001-0019` numaraları verildi.
+- [x] Müşteri numarasını isim, telefon ve danışman koduyla mükerrerliksiz eşleştir; müşteri aramasında numara ve ad ile bağlı kayıtları gösterecek temel modeli hazırla. `referenceNo` unique alanı, yeni müşteri otomatik numarası ve Müşteriler ekranında numara/ad araması eklendi.
+- [x] Üç kullanıcıyla web login, rol/kapsam ve müşteri numarası testlerini çalıştır; TypeScript, tam test ve build sonuçlarını kaydet. Login/customer regression testleri eklendi; 123 test dosyası / 356 test, TypeScript ve production build başarılı; dev server restart sonrası temiz başladı.

@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, lte, like, ne, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { createHash } from "node:crypto";
 import {
@@ -1517,6 +1517,34 @@ export async function markReminderRun(userId: number, runKey: string) {
     .where(eq(reminderPreferences.userId, userId));
   return true;
 }
+function customerPrefix(consultantCode: string | null | undefined, assignedUserId: number) {
+  const compact = (consultantCode ?? `USR${assignedUserId}`).replace(/[^a-z0-9]/gi, "").toUpperCase();
+  const match = compact.match(/^([A-Z]+)(\d+)$/);
+  if (match) return `${match[1]}${match[2].padStart(3, "0")}`;
+  return compact.slice(0, 6) || `USR${assignedUserId}`;
+}
+
+async function nextClientReferenceNo(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
+  assignedUserId: number
+) {
+  const profile = await db
+    .select({ consultantCode: userProfiles.consultantCode })
+    .from(userProfiles)
+    .where(eq(userProfiles.userId, assignedUserId))
+    .limit(1);
+  const prefix = customerPrefix(profile[0]?.consultantCode, assignedUserId);
+  const existing = await db
+    .select({ referenceNo: clients.referenceNo })
+    .from(clients)
+    .where(and(eq(clients.assignedUserId, assignedUserId), like(clients.referenceNo, `${prefix}-%`)));
+  const maxSequence = existing.reduce((max, row) => {
+    const value = Number(row.referenceNo?.split("-").at(-1));
+    return Number.isFinite(value) ? Math.max(max, value) : max;
+  }, 0);
+  return `${prefix}-${String(maxSequence + 1).padStart(4, "0")}`;
+}
+
 export async function createClient(input: {
   name: string;
   assignedUserId: number;
@@ -1524,9 +1552,10 @@ export async function createClient(input: {
   const db = await getDb();
   if (!db) return null;
   await assertCentralOnlineStartAllowsRecord();
+  const referenceNo = await nextClientReferenceNo(db, input.assignedUserId);
   const result = await db
     .insert(clients)
-    .values({ name: input.name, assignedUserId: input.assignedUserId });
+    .values({ referenceNo, name: input.name, assignedUserId: input.assignedUserId });
   return Number(result[0].insertId);
 }
 export async function createProperty(input: {
@@ -2213,9 +2242,11 @@ export async function importActiveRentalSummaries(
         .limit(1)
     )[0];
     if (!client) {
+      const referenceNo = await nextClientReferenceNo(db, row.assignedUserId);
       const result = await db
         .insert(clients)
         .values({
+          referenceNo,
           name: row.clientName,
           phone: maskPhone(row.clientPhone),
           assignedUserId: row.assignedUserId,

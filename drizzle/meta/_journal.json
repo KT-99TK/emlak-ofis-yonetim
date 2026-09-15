@@ -288,6 +288,13 @@
       "when": 1789154206038,
       "tag": "0040_complex_doomsday",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1789495570469,
+      "tag": "0041_ambitious_lenny_balinger",
+      "breakpoints": true
     }
   ]
 }

@@ -91,6 +91,7 @@ export const consultantAgreementProfiles = mysqlTable("consultantAgreementProfil
 
 export const clients = mysqlTable("clients", {
   id: int("id").autoincrement().primaryKey(),
+  referenceNo: varchar("referenceNo", { length: 40 }).unique(),
   type: mysqlEnum("type", ["individual", "company"])
     .default("individual")
     .notNull(),
