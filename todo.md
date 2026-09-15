@@ -683,3 +683,15 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Müşteri PDF düğmesinin popup engeli veya yazdırma zamanlaması nedeniyle tepkisiz kalmasını düzelt. Popup bağımlılığı kaldırıldı; aynı sayfa içinde yazdırma önizlemesi açılıyor.
 - [x] PDF yazdırma önizlemesinin düğme tıklamasıyla açıldığını; boş liste ve filtreli liste durumlarını test et. Önizleme kontrolleri ve boş sonuç tablosu kaynak regresyon sözleşmesiyle korundu.
 - [x] TypeScript, production build, görsel doğrulama ve checkpoint tamamla. 125 test dosyası / 363 test, TypeScript ve production build başarılı; müşteri ve sözleşme PDF akışları için print CSS eklendi. Print CSS yalnız aktif önizleme varken devreye giriyor; diğer ekranların yazdırma akışı korunuyor.
+
+## 2026-09-15 — PDF önizlemesi kullanıcı ekranında görünmüyor
+
+- [ ] Müşteri ekranında PDF düğmesine basıldıktan sonra normal liste yerine önizleme katmanının görünmesini gerçek render akışıyla doğrula.
+- [ ] Canlı önizleme görünmüyorsa PDF akışını kullanıcı tıklamasında güvenilir çalışan indirilebilir/yazdırılabilir çıktı olarak düzelt.
+- [ ] Gerçek kullanıcı akışı, TypeScript, production build ve checkpoint doğrulamasını tamamla.
+
+## 2026-09-15 — Yanlış ct1 test müşteri kaydı
+
+- [x] `ct1` adlı müşteri kaydının ilişkilerini ve oluşturulma izini kontrol et. Kayıt `id=60001`, `0035`, 15.09.2026 20:10:57’de oluşturulmuş; property, contract, document, ledger, obligation, rental, task, transfer ve vault ilişkisi yoktu.
+- [x] İlişkisiz olduğu doğrulanırsa yanlış test kaydını sil; merkezi numara serisini geriye dönük yeniden numaralandırma. `ct1 / 0035` silindi; kalan 34 kayıt ve `0001–0034` merkezi seri korundu.
+- [x] Silme sonrası müşteri listesi, danışman eşleşmesi, duplicate kontrolü ve test/build/checkpoint doğrulamasını yap. Silme sonrası toplam müşteri 34, maksimum merkezi no 0034, duplicate merkezi no 0.
