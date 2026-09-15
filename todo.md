@@ -621,3 +621,11 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] KT001, IP001 ve CT001 danışman kapsamındaki mevcut müşterileri tespit edip kayıtları silmeden otomatik kısa müşteri numarası üret. 34 mevcut müşteri kaydı korunarak `KT001-0001`–`KT001-0009`, `IP001-0001`–`IP001-0006`, `CT001-0001`–`CT001-0019` numaraları verildi.
 - [x] Müşteri numarasını isim, telefon ve danışman koduyla mükerrerliksiz eşleştir; müşteri aramasında numara ve ad ile bağlı kayıtları gösterecek temel modeli hazırla. `referenceNo` unique alanı, yeni müşteri otomatik numarası ve Müşteriler ekranında numara/ad araması eklendi.
 - [x] Üç kullanıcıyla web login, rol/kapsam ve müşteri numarası testlerini çalıştır; TypeScript, tam test ve build sonuçlarını kaydet. Login/customer regression testleri eklendi; 123 test dosyası / 356 test, TypeScript ve production build başarılı; dev server restart sonrası temiz başladı.
+
+
+## 28. Müşteri Dosyası ve danışman bazlı müşteri numarası
+
+- [x] `KT001-0035` biçimindeki müşteri numarasının danışman öneki + dört haneli sıra kuralını açıkça belgeleyip yeni müşteri ve toplu aktarım akışlarında koru. Mevcut numara formatı `KT001-0001` gibi dört haneli sıra kullanır; `KT001-0035` aynı kuralın 35. müşteri örneğidir.
+- [x] Müşteri Dosyası sorgusunda seçilen müşteriye bağlı mülk/portföy, kira, satış, yetki, sözleşme ve tahsilat kayıtlarını kapsam filtreleriyle tek sonuçta getir. Protected `clients.file` endpoint’i portföy, aktif kira, sözleşme, yükümlülük ve ledger kayıtlarını kapsam içinde topluyor.
+- [x] Müşteriler ekranında numara/ad arama sonucuna Müşteri Dosyası açma düğmesi ve bağlı kayıt bölümleri ekle. Her müşteri satırında `Müşteri Dosyası` düğmesi ve bölümlü modal görünümü eklendi.
+- [x] Müşteri Dosyası erişimini KT1/IP1/CT1 rol ve danışman kapsamlarıyla test et; hassas alanları mevcut gerekçeli açma kuralıyla koru. Sorgu aynı `getCentralAccessScope` ve masked sensitive field yaklaşımını kullanıyor; 124 test dosyası / 359 test ve TypeScript başarılı.

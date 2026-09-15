@@ -16,6 +16,7 @@ import {
   configureFreshOnlineStart,
   createBrokerGuidanceNote,
   createClient,
+  getClientFile,
   createContract,
   revealContractSensitive,
   createContractDocument,
@@ -731,6 +732,18 @@ export const appRouter = router({
         scope.officeRole
       );
     }),
+    file: protectedProcedure
+      .input(z.object({ clientId: z.number().int().positive() }))
+      .query(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+        return getClientFile(
+          input.clientId,
+          ctx.user.id,
+          scope.isManager,
+          scope.permittedUserIds,
+          scope.officeRole
+        );
+      }),
     create: protectedProcedure
       .input(z.object({ name: z.string().min(2) }))
       .mutation(async ({ ctx, input }) => {

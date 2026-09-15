@@ -970,6 +970,60 @@ export async function listClients(
   }));
 }
 
+export async function getClientFile(
+  clientId: number,
+  userId: number,
+  isManager: boolean,
+  permittedUserIds?: number[],
+  officeRole?: CentralAccessScope["officeRole"]
+) {
+  const db = await getDb();
+  if (!db) return null;
+  const scopedIds = permittedUserIds ?? [userId];
+  const clientRows = await db
+    .select()
+    .from(clients)
+    .where(
+      and(
+        eq(clients.id, clientId),
+        isManager
+          ? undefined
+          : scopedIds.length
+            ? inArray(clients.assignedUserId, scopedIds)
+            : sql`1 = 0`
+      )
+    )
+    .limit(1);
+  const client = clientRows[0];
+  if (!client) return null;
+  const scoped = <T extends { assignedUserId: any }>(table: T) =>
+    isManager
+      ? undefined
+      : scopedIds.length
+        ? inArray(table.assignedUserId, scopedIds)
+        : sql`1 = 0`;
+  const [ownedProperties, relatedContracts, rentals, obligations, ledger] = await Promise.all([
+    db.select().from(properties).where(and(eq(properties.ownerClientId, clientId), scoped(properties))).orderBy(desc(properties.createdAt)),
+    db.select().from(contracts).where(and(eq(contracts.clientId, clientId), scoped(contracts))).orderBy(desc(contracts.updatedAt)),
+    db.select().from(activeRentalSummaries).where(and(eq(activeRentalSummaries.clientId, clientId), scoped(activeRentalSummaries))).orderBy(desc(activeRentalSummaries.updatedAt)),
+    db.select().from(rentalObligations).where(and(eq(rentalObligations.clientId, clientId), scoped(rentalObligations))).orderBy(desc(rentalObligations.updatedAt)),
+    db.select().from(ledgerEntries).where(and(eq(ledgerEntries.clientId, clientId), scoped(ledgerEntries))).orderBy(desc(ledgerEntries.createdAt)),
+  ]);
+  return {
+    client: {
+      ...client,
+      identityOrTaxNo: maskIdentityOrTaxNo(client.identityOrTaxNo),
+      phone: maskPhone(client.phone),
+      canRevealSensitive: isManager || (officeRole === "consultant" && client.assignedUserId === userId),
+    },
+    properties: ownedProperties,
+    contracts: relatedContracts.map(row => ({ ...row, details: protectContractDetails(row.details ?? undefined).maskedDetails ?? null })),
+    activeRentals: rentals,
+    obligations,
+    ledger,
+  };
+}
+
 async function saveSensitiveFields(
   db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
   entityType: string,
