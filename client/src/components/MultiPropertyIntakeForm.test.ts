@@ -18,4 +18,13 @@ describe("MultiPropertyIntakeForm", () => {
     expect(source).toContain("mevcut kayıt mükerrerlik nedeniyle atlandı");
     expect(source).toContain("Mülk satırı ekle");
   });
+
+  it("mülk listesini gerçek XLSX ve A4 yatay PDF yazdırma akışına bağlar", () => {
+    expect(source).toContain("write-excel-file/browser");
+    expect(source).toContain("Excel’e aktar");
+    expect(source).toContain("PDF liste");
+    expect(source).toContain("@page{size:A4 landscape");
+    expect(source).toContain("downloadBlob(blob");
+    expect(source).toContain("Mülk Portföy Listesi");
+  });
 });

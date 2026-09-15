@@ -590,3 +590,18 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Çoklu taşınmaz formuna zorunlu veya önerilen `Portföy Tanımı` alanı ekle; örneğin `GAZİEMİR 2+1 DUBLEKS`. Alan zorunlu hale getirildi.
 - [x] Portföy tanımını mülk kaydının görünür başlığına, `Mülk seçin` dropdown etiketine, toplu listeye ve mükerrerlik önizlemesine bağla. Yeni property başlığı ve details alanına yazılıyor; mevcut kira dropdown’u bu başlık/details değerini gösteriyor.
 - [x] Portföy Tanımı, taşınmaz türü ve adresin birlikte gösterildiğini regression testi ve görsel kontrolle doğrula. `MultiPropertyIntakeForm.test.ts` eklendi; tam paket 121 dosya / 352 test, TypeScript ve production build başarılı.
+
+
+## 24. Çoklu mülk dışa aktarma
+
+- [x] Çoklu mülk kayıtlarını otomatik sıra numarasıyla tek listede hazırlayan veri görünümünü oluştur. Kayıtlar sıra no, Portföy Tanımı, tür, amaç, adres, malik, bedel, yetki ve danışman alanlarıyla hazırlanıyor.
+- [x] Kayıtlı mülkleri Türkçe başlıklarla Excel dosyasına aktaran düğme ekle; dosya adını müşteri/danışman ve tarihle güvenli üret. `Excel’e aktar` gerçek `.xlsx` oluşturuyor; tarihli güvenli dosya adı kullanıyor.
+- [x] Aynı listeyi A4 yatay PDF olarak yazdıran/dışa aktaran düğme ekle; sıra no, portföy tanımı, tür, işlem amacı, adres, bedel, yetki tarihleri ve danışman kodunu göster. `PDF liste` düğmesi A4 yatay yazdırma penceresi açıyor.
+- [x] CT1/IP1/KT1 mevcut kayıtlarının mükerrer satır oluşturmadan listelenmesini, testleri ve build’i doğrula. Mevcut kayıtlar tek listede görünür; toplu kayıt akışı mükerrerleri atlar; 121 test dosyası / 353 test, TypeScript ve production build başarılı.
+
+
+## 25. Dışa aktarma arayüzü ve örnek rapor
+
+- [x] Çoklu mülk formundaki Excel’e aktar ve PDF liste düğmelerinin arayüz yerleşimini görsel olarak kontrol et. Düğmeler toplu kaydet düğmesinin yanında, kayıt sayısı durum satırıyla yerleşiyor; örnek rapor önizlemesi doğrulandı.
+- [x] Sıra no, Portföy Tanımı, taşınmaz türü, işlem amacı, adres, bedel, yetki ve danışman sütunlarını içeren örnek rapor çıktısı üretip kontrol et. Dört mevcut CT1 kaydıyla A4 yatay örnek PDF üretildi ve görsel kontrol edildi.
+- [x] Önizleme ve örnek dosyaları Kazım’a teslim et; çıktıların gerçek kayıtlardan üretildiğini ve sahte kayıt eklenmediğini belirt.
