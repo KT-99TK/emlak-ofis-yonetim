@@ -98,7 +98,7 @@ import {
   assertContractPreparationComplete,
 } from "./db";
 import { storagePut } from "./storage";
-import { getEurTryReferenceRate } from "./exchangeRates";
+import { getDailyExchangeRates } from "./exchangeRates";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { changeLocalPassword, createLocalConsultantAccount, loginLocalUser, logoutLocalUser, resetLocalConsultantPassword } from "./localAuth";
@@ -891,7 +891,7 @@ export const appRouter = router({
       .mutation(({ ctx, input }) => cancelPersonalTask({ ...input, userId: ctx.user.id })),
   }),
   exchangeRates: router({
-    eurTry: protectedProcedure.query(() => getEurTryReferenceRate()),
+    daily: protectedProcedure.query(() => getDailyExchangeRates()),
   }),
   reminders: router({
     schedule: protectedProcedure.mutation(async () => {

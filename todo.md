@@ -529,3 +529,11 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 - [x] Yerel kira sözleşmesi kayıt işlemi başarıyla tamamlandığında açıkça `Kayıt edilmiştir.` mesajı göster; hata durumunda açıklayıcı hata mesajı göster. Kayıt sırasında `Kayıt yapılıyor...`, başarıda `Kayıt edilmiştir.`, hatada neden mesajı gösteriliyor.
 - [x] Kayıt sonucu mesajı için regresyon testi yaz ve tam doğrulama zincirini çalıştır. Kaynak regresyon testi eklendi; tam test, TypeScript ve production build başarılı.
+
+
+## 16. Günlük kurların TCMB’ye taşınması
+
+- [x] TCMB’nin resmî `today.xml` kaynağındaki USD/TRY ve EUR/TRY alanlarını doğrula; kaynak ve tarih bilgisini koru. Resmî XML kaynağı, 15:30 gösterge tarihi, ForexBuying ve ForexSelling alanları doğrulandı.
+- [x] ECB yardımcısını TCMB tabanlı EUR/TRY ve USD/TRY kur sağlayıcısıyla değiştir; 15 dakikalık cache ve hata durumunu koru. TCMB `today.xml`, EUR/USD alış-satış alanları, tarih dönüşümü ve hata durumları uygulandı.
+- [x] Dashboard kur kartını EUR / USD / TRY değerlerini ve TCMB referans bilgisini gösterecek şekilde güncelle. Kartta EUR/TRY ve USD/TRY alış-satış değerleri, tarih ve TCMB referans etiketi görünür.
+- [x] Kur parser/provider ve dashboard davranışı için regresyon testleri, tam test, TypeScript ve production build çalıştır; checkpoint al. 120 test dosyası / 350 test, TypeScript ve production build başarılı; dashboard görsel kontrolü tamamlandı.

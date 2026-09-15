@@ -39,7 +39,7 @@ vi.mock("@/lib/trpc", () => ({
     ledger: { list: { useQuery: () => query([{ id: 21, entryType: "receivable", status: "pending" }]) } },
     activeRentals: { serviceTasks: { list: { useQuery: () => query([]) } } },
     personalTasks: { list: { useQuery: () => query([]) }, create: { useMutation: mutation }, update: { useMutation: mutation }, cancel: { useMutation: mutation } },
-    exchangeRates: { eurTry: { useQuery: () => query({ rate: 56.3329, rateDate: "2026-09-11", source: "ECB", sourceUrl: "https://data-api.ecb.europa.eu", isReferenceRate: true }) } },
+    exchangeRates: { daily: { useQuery: () => query({ rateDate: "2026-09-15", source: "TCMB", sourceUrl: "https://www.tcmb.gov.tr/kurlar/today.xml", isReferenceRate: true, rates: { EUR: { buying: 56.0284, selling: 56.1294 }, USD: { buying: 48.5343, selling: 48.6218 } } }) } },
     brokerGuidanceNotes: { list: { useQuery: () => query([]) }, create: { useMutation: mutation }, resolve: { useMutation: mutation } },
   },
 }));
