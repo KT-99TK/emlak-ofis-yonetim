@@ -537,3 +537,19 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] ECB yardımcısını TCMB tabanlı EUR/TRY ve USD/TRY kur sağlayıcısıyla değiştir; 15 dakikalık cache ve hata durumunu koru. TCMB `today.xml`, EUR/USD alış-satış alanları, tarih dönüşümü ve hata durumları uygulandı.
 - [x] Dashboard kur kartını EUR / USD / TRY değerlerini ve TCMB referans bilgisini gösterecek şekilde güncelle. Kartta EUR/TRY ve USD/TRY alış-satış değerleri, tarih ve TCMB referans etiketi görünür.
 - [x] Kur parser/provider ve dashboard davranışı için regresyon testleri, tam test, TypeScript ve production build çalıştır; checkpoint al. 120 test dosyası / 350 test, TypeScript ve production build başarılı; dashboard görsel kontrolü tamamlandı.
+
+
+## 17. Gayrimenkul hesaplama araçları
+
+- [x] Yeniden değerleme, rayiç/kıymet takdiri ve vergi hesaplama ihtiyaçlarını ayrı kullanım senaryoları olarak sınıflandır. Bu konu ayrı bir sonraki faz olarak bırakıldı; mevcut öncelik ilan entegrasyonu.
+- [x] GİB, HMB/Resmî Gazete, belediye ve diğer resmî kaynakların API/veri erişimi ile kullanım koşullarını doğrula; üçüncü taraf siteleri izinsiz kazıma varsayımıyla kullanma. GİB ve resmî kaynaklar incelendi; izinsiz scraping yapılmaması kararlaştırıldı.
+- [x] Hesaplama araçları için en az iki uygulanabilir yaklaşımı karşılaştır: manuel parametreli hesaplayıcı ve resmî API/veri bağlantılı modül. Manuel parametreli hesaplayıcı ve resmî veri bağlantılı modül seçenekleri karşılaştırıldı.
+- [x] İlk faz için kapsam, uyarılar, kaynak/tarih gösterimi ve kullanıcıdan gerekli taşınmaz bilgilerini belirle. Kaynak/tarih görünürlüğü ve kullanıcı girdisi gerekliliği belirlendi; uygulama geliştirmesi sonraki onaya bırakıldı.
+
+
+## 18. Sahibinden ilan entegrasyonu
+
+- [x] Sahibinden’in Global 1881 için sunduğu resmî API, kurumsal XML feed veya yetkili entegrasyon yöntemini doğrula. Resmî API ile veri transferi ve dosya oluşturma yöntemleri, aktif kurumsal mağaza/yetki belgesi/EİDS/API sözleşmesi koşullarıyla doğrulandı; Global 1881’e doğru veri yönü Sahibinden’den teyit bekliyor.
+- [ ] İlan oluşturma, güncelleme, pasife alma, fotoğraf gönderimi ve durum senkronizasyonu operasyonlarını ve yetkilendirme modelini belgeleyerek doğrula.
+- [ ] Global 1881 içindeki ilan veri modeli ile Sahibinden alan eşlemesini ve tek noktadan yayın akışını tasarla.
+- [x] API/feed yoksa güvenli ve izinli manuel dışa aktarma alternatifini; izinsiz şifre otomasyonu/scraping yapılmayacağını açıkça belgeleyip Kazım’a seçenekleri sun. `docs/sahibinden-api-research-2026-09-15.md` oluşturuldu.
