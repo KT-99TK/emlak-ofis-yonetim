@@ -100,6 +100,16 @@ export function PersonalTaskPanel({ onOpenPath }: PersonalTaskPanelProps) {
   const tasksQuery = trpc.personalTasks.list.useQuery(undefined, {
     retry: false,
   });
+  const [taskLoadingTimedOut, setTaskLoadingTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (!tasksQuery.isLoading) {
+      setTaskLoadingTimedOut(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setTaskLoadingTimedOut(true), 10000);
+    return () => window.clearTimeout(timer);
+  }, [tasksQuery.isLoading]);
   const createTask = trpc.personalTasks.create.useMutation({
     onSuccess: () => {
       void tasksQuery.refetch();
@@ -265,13 +275,13 @@ export function PersonalTaskPanel({ onOpenPath }: PersonalTaskPanelProps) {
             </div>
           )}
 
-          {tasksQuery.isLoading ? (
+          {tasksQuery.isLoading && !taskLoadingTimedOut ? (
             <p className="rounded-xl bg-[#f7f7f4] px-4 py-5 text-center text-xs text-[#87938f]" role="status">
               Kişisel plan yükleniyor…
             </p>
-          ) : tasksQuery.isError ? (
+          ) : tasksQuery.isError || taskLoadingTimedOut ? (
             <div className="rounded-xl border border-[#ead6d0] bg-[#fff8f6] px-4 py-4 text-xs text-[#a85745]" role="alert">
-              Kişisel plan alınamadı. Merkezi bağlantıyı kontrol edip tekrar deneyin.
+              {taskLoadingTimedOut && !tasksQuery.isError ? "Kişisel plan yanıtı beklenenden uzun sürdü; görevler gösterilemedi." : "Kişisel plan alınamadı. Merkezi bağlantıyı kontrol edip tekrar deneyin."}
               <Button type="button" variant="ghost" onClick={() => void tasksQuery.refetch()} className="mt-2 h-8 px-2 text-xs text-[#a85745]">
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Tekrar dene
               </Button>
