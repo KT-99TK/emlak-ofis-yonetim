@@ -1,6 +1,7 @@
 import { RefreshCw, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { formatTurkishDate } from "@/lib/turkishDate";
 
@@ -12,7 +13,17 @@ export function ExchangeRateCard() {
     retry: false,
     staleTime: 15 * 60 * 1000,
   });
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
   const data = rateQuery.data;
+
+  useEffect(() => {
+    if (!rateQuery.isLoading) {
+      setLoadingTimedOut(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setLoadingTimedOut(true), 10000);
+    return () => window.clearTimeout(timer);
+  }, [rateQuery.isLoading]);
 
   return (
     <Card className="rounded-2xl border-[#e5e8e3] bg-white/90 shadow-[0_10px_30px_rgba(26,46,42,.04)]">
@@ -30,11 +41,11 @@ export function ExchangeRateCard() {
         </span>
       </CardHeader>
       <CardContent className="p-5 pt-2 md:p-6 md:pt-2">
-        {rateQuery.isLoading ? (
+        {rateQuery.isLoading && !loadingTimedOut ? (
           <p className="py-6 text-xs text-[#87938f]" role="status">Kur bilgisi yükleniyor…</p>
-        ) : rateQuery.isError || !data ? (
+        ) : rateQuery.isError || loadingTimedOut || !data ? (
           <div className="rounded-xl border border-[#ead6d0] bg-[#fff8f6] px-3 py-3 text-xs text-[#a85745]" role="alert">
-            Kur bilgisi şu anda TCMB’den alınamadı.
+            {loadingTimedOut && !rateQuery.isError ? "TCMB yanıtı beklenenden uzun sürdü. Kur bilgisi gösterilemedi." : "Kur bilgisi şu anda TCMB’den alınamadı."}
             <Button type="button" variant="ghost" onClick={() => void rateQuery.refetch()} className="mt-1 h-8 px-1.5 text-xs text-[#a85745]">
               <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Tekrar dene
             </Button>

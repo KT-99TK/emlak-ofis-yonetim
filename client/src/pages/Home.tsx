@@ -123,6 +123,7 @@ export default function Home() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const [showCriticalFlowPopup, setShowCriticalFlowPopup] = useState(false);
+  const [summaryWaitExceeded, setSummaryWaitExceeded] = useState(false);
   const [brokerGuidanceNotice, setBrokerGuidanceNotice] = useState("");
   const isDashboard = location === "/";
   const summaryQuery = trpc.dashboard.summary.useQuery(undefined, {
@@ -193,6 +194,14 @@ export default function Home() {
     );
   }, [criticalFlowObligations.length, preferenceUserId, user?.role]);
   const summary = summaryQuery.data;
+  useEffect(() => {
+    if (!summaryQuery.isLoading) {
+      setSummaryWaitExceeded(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSummaryWaitExceeded(true), 10000);
+    return () => window.clearTimeout(timer);
+  }, [summaryQuery.isLoading]);
   const onlineStart = onlineStartQuery.data;
   const onlineStartPending =
     !onlineStart || new Date() < new Date(onlineStart.effectiveAt);
@@ -202,8 +211,8 @@ export default function Home() {
   const dashboardSummary = centralOperationsLocked ? undefined : summary;
   const unavailableNote = centralOperationsLocked
     ? "Başlangıç bekliyor"
-    : summaryQuery.isError
-      ? "Bağlantı bekliyor"
+    : summaryQuery.isError || summaryWaitExceeded
+      ? "Yenileme gerekli"
       : "Merkezi veri";
   const liveStats = [
     {
@@ -332,7 +341,7 @@ export default function Home() {
           ))}
         </section>
 
-        {summaryQuery.isLoading && (
+        {summaryQuery.isLoading && !summaryWaitExceeded && (
           <div
             className="mb-4 rounded-xl border border-[#e7dfc9] bg-[#fffaf0] px-4 py-3 text-xs text-[#8d6f3f]"
             role="status"
@@ -340,14 +349,13 @@ export default function Home() {
             Merkezi ofis verileri yükleniyor…
           </div>
         )}
-        {summaryQuery.isError && (
+        {(summaryQuery.isError || summaryWaitExceeded) && (
           <div
-            className="mb-4 rounded-xl border border-[#ead6d0] bg-[#fff8f6] px-4 py-3 text-xs text-[#a85745]"
+            className="mb-4 flex flex-col gap-2 rounded-xl border border-[#ead6d0] bg-[#fff8f6] px-4 py-3 text-xs text-[#a85745] sm:flex-row sm:items-center sm:justify-between"
             role="alert"
           >
-            Merkezi veri bağlantısı şu anda kullanılamıyor. Tahmini veya örnek
-            toplam gösterilmez; işlemler kaydedilmeden önce bağlantıyı kontrol
-            edin.
+            <span>{summaryWaitExceeded && !summaryQuery.isError ? "Merkezi veri yanıtı beklenenden uzun sürdü; örnek toplam gösterilmiyor." : "Merkezi veri bağlantısı şu anda kullanılamıyor. Tahmini veya örnek toplam gösterilmez."}</span>
+            <Button type="button" variant="outline" onClick={() => void summaryQuery.refetch()} className="h-8 shrink-0 border-[#d6a59b] bg-white text-xs text-[#a85745]">Tekrar dene</Button>
           </div>
         )}
         {isDashboard && (
