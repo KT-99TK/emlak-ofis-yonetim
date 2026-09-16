@@ -181,6 +181,8 @@ button:active { transform: scale(.98); }
 .rental-selected-appendices-heading { display: none; }
 .rental-trace-unassigned .rental-advisor-trace { display: none; }
 .rental-advisor-trace { margin-top: 10px; font-size: 9px; color: #8c9692; text-align: right; letter-spacing: .01em; }
+.authority-contract-document table td { text-align: center; vertical-align: middle; }
+.authority-contract-document table th { vertical-align: middle; }
 @media (min-width: 1280px) {
   .offline-operation-grid { grid-template-columns: minmax(0, 1fr) minmax(248px, 280px); align-items: start; }
   .offline-operation-aside { position: sticky; top: 1.25rem; }

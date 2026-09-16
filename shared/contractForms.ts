@@ -391,14 +391,29 @@ export const SALE_CLOSING_PREPARATION_CHECKS = [
   { key: "payment_evidence_planned", label: "Havale dekontları ile nakit teslim belgesinin alınması ve saklanması planlandı.", required: true },
 ] as const;
 
-export type PreparationCheckKey = (typeof SALE_CLOSING_PREPARATION_CHECKS)[number]["key"];
+export const LAND_SHARE_PREPARATION_CHECKS = [
+  { key: "parties_verified", label: "Arsa sahibi, vekili ve yüklenici bilgileri kimlik ve yetki belgeleriyle doğrulandı.", required: true },
+  { key: "title_deed_and_parcel_verified", label: "Tapu, ada/parsel, takyidat ve taşınmazın hukuki durumu kontrol edildi.", required: true },
+  { key: "share_distribution_checked", label: "Arsa payı, bağımsız bölüm paylaşımı ve proje dağılım tablosu kontrol edildi.", required: true },
+  { key: "technical_specification_checked", label: "Teknik şartname, malzeme silüetleri ve boş bırakılmaması gereken alanlar kontrol edildi.", required: true },
+  { key: "permits_and_deadlines_checked", label: "Ruhsat, resmî başvuru, yer teslimi ve inşaat takvimi süreleri kontrol edildi.", required: true },
+  { key: "financial_terms_checked", label: "Gecikme bedeli, teminat, mali yükümlülük ve ödeme şartları kontrol edildi.", required: true },
+  { key: "power_of_attorney_checked", label: "Vekâletname ve temsil yetkisi kontrol edildi; vekâlet yoksa bu durum teyit edildi.", required: true },
+  { key: "attachments_and_signatures_checked", label: "Teknik şartname ve gerekli ek belgeler ile imza yetkileri kontrol edildi.", required: true },
+] as const;
 
-export function preparationChecksComplete(checks: Record<string, boolean>) {
-  return SALE_CLOSING_PREPARATION_CHECKS.every(check => checks[check.key] === true);
+export type PreparationCheckKey = (typeof SALE_CLOSING_PREPARATION_CHECKS | typeof LAND_SHARE_PREPARATION_CHECKS)[number]["key"];
+
+export function preparationChecksForFormType(formType: ContractFormType) {
+  return formType === "land_share" ? LAND_SHARE_PREPARATION_CHECKS : SALE_CLOSING_PREPARATION_CHECKS;
 }
 
-export function normalizePreparationChecks(checks: Record<string, unknown>) {
+export function preparationChecksComplete(checks: Record<string, boolean>, formType: ContractFormType = "sale_closing") {
+  return preparationChecksForFormType(formType).every(check => checks[check.key] === true);
+}
+
+export function normalizePreparationChecks(checks: Record<string, unknown>, formType: ContractFormType = "sale_closing") {
   return Object.fromEntries(
-    SALE_CLOSING_PREPARATION_CHECKS.map(check => [check.key, checks[check.key] === true])
+    preparationChecksForFormType(formType).map(check => [check.key, checks[check.key] === true])
   ) as Record<PreparationCheckKey, boolean>;
 }

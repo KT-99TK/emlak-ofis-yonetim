@@ -67,6 +67,8 @@ import {
   normalizePreparationChecks,
   preparationChecksComplete,
   SALE_CLOSING_PREPARATION_CHECKS,
+  LAND_SHARE_PREPARATION_CHECKS,
+  preparationChecksForFormType,
   LAND_SHARE_ATTACHMENT_DEFINITIONS,
   getMissingRequiredContractFormAttachments,
   type ContractFormClauseDraft,
@@ -3083,15 +3085,16 @@ export async function approvePortfolioRightsTransfer(id: number, actorUserId: nu
 }
 
 export async function getContractPreparationChecks(input: { draftKey: string; formType: ContractFormType }) {
-  const defaults = Object.fromEntries(SALE_CLOSING_PREPARATION_CHECKS.map(check => [check.key, false]));
+  const definitions = preparationChecksForFormType(input.formType);
+  const defaults = Object.fromEntries(definitions.map(check => [check.key, false]));
   const db = await getDb();
-  if (!db) return { draftKey: input.draftKey, formType: input.formType, checks: defaults, completed: false, checkDefinitions: SALE_CLOSING_PREPARATION_CHECKS };
+  if (!db) return { draftKey: input.draftKey, formType: input.formType, checks: defaults, completed: false, checkDefinitions: definitions };
   const rows = await db.select().from(contractPreparationChecks).where(eq(contractPreparationChecks.draftKey, input.draftKey)).limit(1);
-  if (!rows[0]) return { draftKey: input.draftKey, formType: input.formType, checks: defaults, completed: false, checkDefinitions: SALE_CLOSING_PREPARATION_CHECKS };
+  if (!rows[0]) return { draftKey: input.draftKey, formType: input.formType, checks: defaults, completed: false, checkDefinitions: definitions };
   let parsed: Record<string, unknown> = {};
   try { parsed = JSON.parse(rows[0].checklistJson) as Record<string, unknown>; } catch { parsed = {}; }
-  const checks = normalizePreparationChecks(parsed);
-  return { draftKey: input.draftKey, formType: rows[0].formType, checks, completed: Boolean(rows[0].completed), checkDefinitions: SALE_CLOSING_PREPARATION_CHECKS, updatedAt: rows[0].updatedAt };
+  const checks = normalizePreparationChecks(parsed, input.formType);
+  return { draftKey: input.draftKey, formType: rows[0].formType, checks, completed: Boolean(rows[0].completed), checkDefinitions: definitions, updatedAt: rows[0].updatedAt };
 }
 
 export async function saveContractPreparationChecks(input: {
@@ -3102,8 +3105,9 @@ export async function saveContractPreparationChecks(input: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Merkezi veri tabanına erişilemiyor.");
-  const checks = normalizePreparationChecks(input.checks);
-  const completed = preparationChecksComplete(checks);
+  const definitions = preparationChecksForFormType(input.formType);
+  const checks = normalizePreparationChecks(input.checks, input.formType);
+  const completed = preparationChecksComplete(checks, input.formType);
   const checklistJson = JSON.stringify(checks);
   const existing = await db.select({ id: contractPreparationChecks.id }).from(contractPreparationChecks).where(eq(contractPreparationChecks.draftKey, input.draftKey)).limit(1);
   if (existing[0]) {
@@ -3115,18 +3119,15 @@ export async function saveContractPreparationChecks(input: {
     actorUserId: input.actorUserId,
     action: "contract_preparation_checklist_saved",
     entityType: "contractPreparationChecks",
-    summary: `${input.formType} hazırlık kontrolü kaydedildi: ${Object.values(checks).filter(Boolean).length}/${SALE_CLOSING_PREPARATION_CHECKS.length} tamamlandı; taslak ${input.draftKey}.`,
+    summary: `${input.formType} hazırlık kontrolü kaydedildi: ${Object.values(checks).filter(Boolean).length}/${definitions.length} tamamlandı; taslak ${input.draftKey}.`,
   });
-  return { draftKey: input.draftKey, formType: input.formType, checks, completed, checkDefinitions: SALE_CLOSING_PREPARATION_CHECKS };
+  return { draftKey: input.draftKey, formType: input.formType, checks, completed, checkDefinitions: definitions };
 }
 
 export async function assertContractPreparationComplete(input: { draftKey: string; formType: ContractFormType; actorUserId: number }) {
-  if (input.formType !== "sale_closing") {
-    return { draftKey: input.draftKey, formType: input.formType, checks: {}, completed: true, checkDefinitions: [] };
-  }
   const current = await getContractPreparationChecks(input);
   if (!current.completed) {
-    throw new Error("Protokol oluşturulmadan önce kırmızı hazırlık kontrol listesindeki tüm maddeler işaretlenmelidir.");
+    throw new Error("Sözleşme tamamlanmadan önce son kayıt adımındaki hazırlık kontrol listesinin tüm maddeleri işaretlenmelidir.");
   }
   await getDb().then(db => db?.insert(auditLogs).values({ actorUserId: input.actorUserId, action: "contract_preparation_checklist_completed", entityType: "contractPreparationChecks", summary: `${input.formType} hazırlık kontrolü tamamlandı: taslak ${input.draftKey}.` }));
   return current;

@@ -800,3 +800,13 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Sözleşme yazdırma/PDF çıktısını gerçek A4 portrait akışına göre ortala; üç sayfalık gereksiz taşma ve kötü sayfa ortalamasını düzelt.
 - [x] Maddeler, taraf bilgileri ve imza alanını örnek sözleşmedeki dengeli yerleşime göre düzenle.
 - [ ] Sözleşme formu, müşteri recall, maskeleme, telefon/tarih, PDF sayfa sayısı ve mobil görünüm için testleri güncelle.
+
+## 2026-09-16 — Kat karşılığı sözleşmesi kontrol adımı düzeltmesi
+- [x] Ön kontrol listesini sözleşme formunun başından kaldır; tüm sözleşme alanları doldurulduktan sonra son kayıt/onay adımında göster.
+- [x] Kontrol listesindeki her maddeyi danışmanın ayrı ayrı işaretleyebileceği, çalışır checkbox alanlarına bağla.
+- [x] Tüm maddeler işaretlenmeden sözleşmenin tamamlanmasına izin verme; eksik maddeleri açıkça göster.
+- [x] Kontrol listesinin kim tarafından, ne zaman ve hangi maddelerle tamamlandığını audit kaydında koru; manager incelemesine görünür yap.
+- [x] Protokol/sözleşme kayıt düğmesi metnini kontrol listesi onayını açıkça belirtecek şekilde düzenle.
+- [x] Kat karşılığı sözleşme kontrol akışı için frontend/server regresyon testleri ekle.
+- [x] Sözleşme belgesi tablolarındaki doldurulmuş değerleri yatay ve dikey olarak ortala; A4 PDF çıktısında okunabilirliği doğrula.
+- [x] Kontrol listesi son adımı, sözleşme kaydı, PDF ve mobil görünümü masaüstü/mobil testlerle doğrula.

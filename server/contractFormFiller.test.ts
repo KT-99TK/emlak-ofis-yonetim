@@ -25,8 +25,12 @@ describe("Kat Karşılığı gerçek form ekranı", () => {
     expect(page).toContain("Yeni müşteri veya sahte kayıt oluşturulmaz");
   });
 
-  it("does not force Kat Karşılığı through the sales preparation checklist", () => {
-    expect(db).toContain('if (input.formType !== "sale_closing")');
-    expect(db).toContain("checkDefinitions: []");
+  it("shows Kat Karşılığı checks at the final save step and uses form-specific definitions", () => {
+    expect(page).toContain("Sözleşmeyi kaydetmeden önce kontrol edin");
+    expect(page).toContain("preparation.data?.checkDefinitions");
+    expect(page).toContain("Kontrol edildi — taslak formu kaydet");
+    expect(db).toContain("preparationChecksForFormType(input.formType)");
+    expect(db).toContain("preparationChecksComplete(checks, input.formType)");
+    expect(db).not.toContain('if (input.formType !== "sale_closing")');
   });
 });
