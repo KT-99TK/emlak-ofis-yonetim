@@ -634,7 +634,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 - [x] Sözleşme, portföy ve ledger listelerinde varsayılan aktif görünümü; pasif/arşiv dahil filtresini uygula. Contracts ve Records ekranlarında varsayılan aktif seçimi ve backend status kapsamı bağlandı.
 - [x] Danışmanların yalnız kendi atanmış müşteri ve kayıtlarını görmesini; broker manager’ın danışman kodu ile ofis geneli filtrelemesini uygula. Server-side permittedUserIds kapsamı korundu; manager için consultantCode filtresi eklendi.
-- [ ] Broker Manager finans performansında tarih, danışman ve durum filtreleri ile toplamları uygula.
+- [x] Broker Manager finans performansında tarih, danışman ve durum filtreleri ile toplamları uygula. Online komisyon listesinde server-side tarih aralığı, manager danışman kodu ve durum filtreleri; net hizmet bedeli, tahsil edilen, kalan ve Global 1881 payı toplamları eklendi.
 - [x] Filtrelenmiş listeleri PDF olarak, filtre özetiyle dışa aktar. XLSX bilinçli olarak sonraki aşamaya bırakıldı.
 - [x] Filtreleme ve mahremiyet için regresyon testleri, TypeScript ve production build doğrulaması yap. 125 test dosyası / 362 test başarılı; TypeScript ve production build başarılı. Görsel polish daraltılmış kapsam dışında bırakıldı.
 
@@ -642,7 +642,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 - [x] Elzem kapsam: aktif varsayılanı, pasif/arşiv filtresi, danışman mahremiyeti ve broker manager’ın tam ofis görünürlüğü.
 - [ ] Ertelenen kapsam: XLSX filtre özeti ve dışa aktarma senkronizasyonu.
-- [ ] Ertelenen kapsam: ayrıntılı manager finans performansında tarih/danışman/durum toplamları ve raporlama polish’i.
+- [x] Ertelenen kapsam: ayrıntılı manager finans performansında tarih/danışman/durum toplamları ve raporlama polish’i. Temel filtre ve toplam kartları tamamlandı; XLSX/ileri rapor polish’i ayrı kapsam olarak korunuyor.
 
 ## PDF çıktısı kapsam güncellemesi — 2026-09-15
 

@@ -925,10 +925,17 @@ export const appRouter = router({
     }),
   }),
   commissions: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
-      return listCentralCommissionTransactions(ctx.user.id, scope.isManager, scope.permittedUserIds);
-    }),
+    list: protectedProcedure
+      .input(z.object({
+        from: z.coerce.date().optional(),
+        to: z.coerce.date().optional(),
+        consultantCode: z.preprocess(value => typeof value === "string" && value.trim() === "" ? undefined : value, z.string().trim().min(2).max(40).optional()),
+        status: z.enum(["declared", "managerVerified", "partiallySettled", "settled", "cancelled"]).optional(),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(ctx.user.id, isManager(ctx.user));
+        return listCentralCommissionTransactions(ctx.user.id, scope.isManager, scope.permittedUserIds, input ?? {});
+      }),
     create: protectedProcedure.input(z.object({
       transactionNo: z.string().min(2).max(80),
       contractId: z.number().int().positive().optional(),

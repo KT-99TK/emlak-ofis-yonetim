@@ -2967,12 +2967,23 @@ export async function createCentralCommissionTransaction(input: {
   return { id: transactionId, transactionNo: input.transactionNo.trim(), buyerClientId: input.buyerClientId ?? null, sellerClientId: input.sellerClientId ?? null, collectionNote: input.collectionNote?.trim() || null, netServiceFee: netServiceFee.toFixed(2), discountAmount: discountAmount.toFixed(2), vatAmount: vatAmount.toFixed(2), collectedAmount: "0.00", consultantShare: consultantShare.toFixed(2), global1881Share: global1881Share.toFixed(2), externalOfficeShare: externalOfficeShare.toFixed(2), externalOfficeRole: input.externalOfficeRole ?? "none", portfolioOwnerType: input.portfolioOwnerType ?? "consultant", originatingConsultantPayout: originatingConsultantPayout.toFixed(2), fulfillingConsultantPayout: fulfillingConsultantPayout.toFixed(2), rightsOfficePayout: rightsOfficePayout.toFixed(2), corporateOfficePaysConsultant: input.corporateOfficePaysConsultant !== false, status: "declared" as const, participants: participantRows };
 }
 
-export async function listCentralCommissionTransactions(actorUserId: number, isManager: boolean, permittedUserIds: number[]) {
+export type CentralCommissionListFilters = {
+  from?: Date;
+  to?: Date;
+  consultantCode?: string;
+  status?: "declared" | "managerVerified" | "partiallySettled" | "settled" | "cancelled";
+};
+
+export async function listCentralCommissionTransactions(actorUserId: number, isManager: boolean, permittedUserIds: number[], filters: CentralCommissionListFilters = {}) {
   const db = await getDb();
   if (!db) return [];
   const transactions = await db.select().from(commissionTransactions).orderBy(desc(commissionTransactions.createdAt));
   const allParticipants = await db.select().from(commissionParticipants);
-  const visible = isManager ? transactions : transactions.filter((transaction) => allParticipants.some((participant) => participant.commissionTransactionId === transaction.id && participant.participantType === "consultant" && participant.consultantUserId !== null && (participant.consultantUserId === actorUserId || permittedUserIds.includes(participant.consultantUserId))));
+  const visible = (isManager ? transactions : transactions.filter((transaction) => allParticipants.some((participant) => participant.commissionTransactionId === transaction.id && participant.participantType === "consultant" && participant.consultantUserId !== null && (participant.consultantUserId === actorUserId || permittedUserIds.includes(participant.consultantUserId)))))
+    .filter(transaction => !filters.from || transaction.createdAt >= filters.from)
+    .filter(transaction => !filters.to || transaction.createdAt <= filters.to)
+    .filter(transaction => !filters.status || transaction.status === filters.status)
+    .filter(transaction => !filters.consultantCode || allParticipants.some(participant => participant.commissionTransactionId === transaction.id && participant.participantType === "consultant" && participant.participantCode.toLocaleUpperCase("tr-TR") === filters.consultantCode?.toLocaleUpperCase("tr-TR")));
   return visible.map((transaction) => ({ ...transaction, participants: allParticipants.filter((participant) => participant.commissionTransactionId === transaction.id) }));
 }
 
