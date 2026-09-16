@@ -16,8 +16,8 @@ describe("kodlu sözleşme numarası politikası", () => {
 
   it("sözleşme ekranının otomatik öneri, kodsuz kayıt engeli ve numara aramasını korur", () => {
     expect(pageSource).toContain("trpc.contracts.nextNumber.useQuery()");
-    expect(pageSource).toContain("Sıradaki kullanılabilir numara otomatik önerildi.");
-    expect(pageSource).toContain("Bu hesap için danışman kodu tanımlanmadan yeni sözleşme kaydı açılamaz.");
+    expect(pageSource).toContain("Müşteri kütüğünden kayıt seçin; sözleşmeye ait bilgileri kısa formdan tamamlayın.");
+    expect(pageSource).toContain("Danışman kodu tanımlanmadan sözleşme kaydı açılamaz.");
     expect(pageSource).toContain("Sözleşme no veya başlıkla ara: IP1-001");
     expect(readFileSync(new URL("../client/src/pages/Team.tsx", import.meta.url), "utf8")).toContain("const validCode = isConsultantCode(code)");
     expect(pageSource).toContain("window.print()");

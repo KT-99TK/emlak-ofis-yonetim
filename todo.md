@@ -759,4 +759,44 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] IP1 ve CT1 mevcut credential, force-change ve lock durumunu oku. Her ikisi de scrypt hash, mustChangePassword=1, usedAt NULL, expiry aktif ve lock yok durumundaydı.
 - [x] Minimum 8 karakter, büyük harf, küçük harf ve rakam politikasını kod/testlerde uygula; KT1’in mevcut parolasını değiştirme.
 - [x] IP1 ve CT1 için ayrı bilinen 8 karakterlik kalıcı parolalarla doğrudan scrypt reset yap; mustChangePassword=0 ve aktif session iptali uygula. Readback başarılı.
-- [ ] Üç hesabı readback, test/build ve checkpoint ile doğrula. Readback ve test/build başarılı; checkpoint bu değişikliklerin ardından kaydedilecek.
+- [x] Üç hesabı readback, test/build ve checkpoint ile doğrula. Readback, tam test/build ve `f54e58f3` checkpoint’i başarılı.
+
+## 2026-09-16 — CT1 hassas bilgi erişim dialogu
+
+- [x] Hassas bilgi dialogunun X ve Vazgeç düğmelerini CT1 hesabında çalışır hale getir. Günlük telefon akışında dialog kaldırıldığı için bu eski kapsam superseded edildi.
+- [x] Gerekçe girildikten sonra Tam değeri aç akışını ortak endpoint ve yetki kontrolüyle çalışır hale getir; telefon/T.C.-vergi etiketi ile gerçek değer ayrımını düzelt. Telefon için gereksiz bulundu ve kaldırıldı; T.C./VKN maskesi server tarafında korunuyor.
+- [x] CT1 için ortak dialog regresyonu, telefon görünümü, TypeScript/build ve checkpoint doğrulaması yap. Dialog yerine doğrudan telefon görünümü için ortak regresyon eklendi; 125 test / 366 test, TypeScript ve production build başarılı.
+
+## 2026-09-16 — Sade danışman müşteri listesi
+
+- [ ] Danışman filtresi seçildiğinde müşteri adı, merkezi no, sorumlu danışman, telefon, e-posta, durum ve portföy özetini aynı kartta göster.
+- [x] Telefon için gerekçe dialogu ve ek açma adımını günlük danışman listesi akışından kaldır; danışman kendi müşterisinin telefonunu doğrudan görsün, broker manager ofis kapsamını görsün. Server listClients/getClientFile artık maskesiz telefonu yalnız server-side yetki kapsamındaki sonuçlarda döndürüyor.
+- [ ] Müşteri PDF’sini aynı operasyon kolonlarıyla üret; T.C./vergi no ve kimlik kopyasını günlük listeye ekleme.
+- [ ] Yetki, test, build, responsive görünüm ve checkpoint doğrulamasını tamamla.
+
+## 2026-09-16 — Sade mahremiyet modeli
+
+- [x] Server tarafında danışmanın yalnız kendi müşterilerini, broker manager’ın tüm ofisi görme sınırını koru. permittedUserIds ve manager consultantCode kapsamı korunuyor.
+- [x] Telefon için gerekçe, 30 saniyelik açma ve “Tam değeri aç” akışını günlük müşteri listesinden kaldır.
+- [ ] Danışman kendi müşterisinin telefon, e-posta, merkezi no, sorumlu kodu, durum ve portföy özetini tek kartta görsün; diğer danışmanların müşterileri hiç listelenmesin. Telefon/e-posta/merkezi no/sorumlu kodu/durum tek kartta; portföy özeti sonraki küçük UI adımı olarak açık.
+- [x] Kimlik/T.C.-vergi numarası ve kopyalarını normal liste/PDF’ye ekleme; müşteri mahremiyeti ve fiziksel dosya yaklaşımını koru. identityOrTaxNo maskesi ve normal PDF kapsamı korunuyor.
+- [ ] Ortak PDF, yetki testleri, responsive görünüm, TypeScript, build ve checkpoint doğrulamasını tamamla.
+
+## 2026-09-16 — Müşteri kütüğü ve sözleşme recall modeli
+
+- [ ] Müşteri kütüğünü tek ana kayıt ekranı yap; merkezi müşteri numarası ve danışman ataması ana kaynak olsun.
+- [ ] Sözleşme ekranında mevcut müşteriyi merkezi no/ad ile çağır; yeni müşteri için kısa kayıt açıp kütüğe bağla.
+- [ ] Sözleşme verisinden müşteri kütüğüne aktarımda açık onay ve duplicate kontrolü kullan; sessiz otomatik overwrite yapma.
+- [ ] E-devlet/T.C. numarasını sözleşme çıktısında açık göster; listelerde başlangıç ve son rakamlar görünür, ara rakamlar `*` ile maskeli olsun.
+- [ ] T.C./VKN alanını normal müşteri listesi aramasına ve günlük PDF listesine dahil etme; sözleşme yetkisi ve audit kapsamını koru.
+- [ ] Recall, hızlı yeni müşteri kaydı, maskeleme, yetki, PDF, test/build ve responsive doğrulamasını tamamla.
+
+## 2026-09-16 — Sözleşme ekranı ve çıktı düzeni
+
+- [x] Sözleşme kayıt formunu tüm sayfayı kaplayan uzun panel yerine kompakt, bölümlenebilir müşteri/sözleşme/çıktı akışına dönüştür.
+- [ ] Sözleşme ekranındaki telefon alanlarında ortak telefon biçimlendirme ve doğrulama kuralını çalıştır.
+- [ ] Sözleşme ekranındaki tarih alanlarını ortak GG.AA.YYYY giriş/gösterim ve doğrulama kuralına bağla.
+- [x] Sözleşme müşteri alanlarını müşteri kütüğünden recall et; sözleşmede TCKN etiketini `TCKN:` olarak açık göster.
+- [x] Sözleşme yazdırma/PDF çıktısını gerçek A4 portrait akışına göre ortala; üç sayfalık gereksiz taşma ve kötü sayfa ortalamasını düzelt.
+- [x] Maddeler, taraf bilgileri ve imza alanını örnek sözleşmedeki dengeli yerleşime göre düzenle.
+- [ ] Sözleşme formu, müşteri recall, maskeleme, telefon/tarih, PDF sayfa sayısı ve mobil görünüm için testleri güncelle.

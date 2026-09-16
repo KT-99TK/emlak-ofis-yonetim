@@ -201,6 +201,10 @@ button:active { transform: scale(.98); }
   .authority-print-document { padding: 0 !important; min-height: auto !important; font-size: var(--authority-print-font-size) !important; line-height: 1.62 !important; }
   .authority-contract-document { width: auto !important; max-width: none !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
   .authority-document-section, .authority-document-conditions, .authority-document-signatures { break-inside: avoid-page; }
+  .authority-print-document { --authority-print-font-size: 10.2pt; }
+  .authority-contract-document { padding: 0 5mm !important; }
+  .authority-document-title { margin-top: 2mm; }
+  .authority-document-conditions li { margin-bottom: 2.4mm; line-height: 1.5; }
   .authority-document-seal-image { opacity: 1; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .rental-contract-document .authority-document-rule { margin-top: 2mm; }
   .rental-advisor-trace { color: #7b817e; }
@@ -221,7 +225,7 @@ button:active { transform: scale(.98); }
 }
 
 .records-print-preview, .contracts-print-preview { position: fixed; inset: 0; z-index: 80; overflow: auto; background: #f2f5f2; padding: 2rem; color: #24322f; }
-.records-print-paper, .contracts-print-paper { max-width: 1100px; margin: 1.5rem auto; padding: 2rem; background: #fff; box-shadow: 0 18px 45px rgba(25, 48, 41, .16); }
+.records-print-paper, .contracts-print-paper { width: min(210mm, 100%); min-height: 297mm; box-sizing: border-box; max-width: 1100px; margin: 1.5rem auto; padding: 16mm 14mm 18mm; background: #fff; box-shadow: 0 18px 45px rgba(25, 48, 41, .16); }
 .records-print-paper h1, .contracts-print-paper h1 { margin: 0 0 .4rem; font-family: Georgia, serif; font-size: 1.45rem; color: #173e39; }
 .records-print-paper p, .contracts-print-paper p { color: #64736e; font-size: .78rem; }
 .records-print-paper table, .contracts-print-paper table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .78rem; }
@@ -239,7 +243,7 @@ button:active { transform: scale(.98); }
   body:has(.records-print-preview) *, body:has(.contracts-print-preview) * { visibility: hidden !important; }
   body:has(.records-print-preview) .records-print-preview, body:has(.records-print-preview) .records-print-preview *, body:has(.contracts-print-preview) .contracts-print-preview, body:has(.contracts-print-preview) .contracts-print-preview * { visibility: visible !important; }
   .records-print-preview, .contracts-print-preview { position: absolute !important; inset: 0 !important; overflow: visible !important; padding: 0 !important; background: #fff !important; }
-  .records-print-paper, .contracts-print-paper { max-width: none !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
+  .records-print-paper, .contracts-print-paper { width: auto !important; min-height: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
   .print-preview-controls { display: none !important; }
   .records-print-paper table, .contracts-print-paper table { font-size: 9pt; }
   .records-print-paper th, .records-print-paper td, .contracts-print-paper th, .contracts-print-paper td { padding: 4pt; }

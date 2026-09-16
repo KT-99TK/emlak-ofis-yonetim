@@ -29,6 +29,16 @@ describe("central record filtering policy", () => {
     expect(dialog).toContain("text-[#5f6d68] text-sm");
   });
 
+  it("shows assigned customer phone directly without a sensitive-info dialog", () => {
+    const db = read("server/db.ts");
+    const records = read("client/src/pages/Records.tsx");
+    expect(db).toContain("phone: row.client.phone");
+    expect(db).toContain("phone: client.phone");
+    expect(records).toContain('Telefon: {item.phone || "Kayıtlı değil"}');
+    expect(records).not.toContain("Gerekçeyle aç");
+    expect(records).not.toContain("Hassas bilgi erişimi");
+  });
+
   it("shows an explicit active/passive filter in the central records UI", () => {
     const records = read("client/src/pages/Records.tsx");
     const contracts = read("client/src/pages/Contracts.tsx");

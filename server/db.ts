@@ -979,10 +979,8 @@ export async function listClients(
     ...row.client,
     consultantCode: row.consultantCode,
     identityOrTaxNo: maskIdentityOrTaxNo(row.client.identityOrTaxNo),
-    phone: maskPhone(row.client.phone),
-    canRevealSensitive:
-      isManager ||
-      (officeRole === "consultant" && row.client.assignedUserId === userId),
+    phone: row.client.phone,
+    canRevealSensitive: false,
   }));
 }
 
@@ -1032,8 +1030,8 @@ export async function getClientFile(
       ...client,
       consultantCode: clientRow.consultantCode,
       identityOrTaxNo: maskIdentityOrTaxNo(client.identityOrTaxNo),
-      phone: maskPhone(client.phone),
-      canRevealSensitive: isManager || (officeRole === "consultant" && client.assignedUserId === userId),
+      phone: client.phone,
+      canRevealSensitive: false,
     },
     properties: ownedProperties,
     contracts: relatedContracts.map(row => ({ ...row, details: protectContractDetails(row.details ?? undefined).maskedDetails ?? null })),

@@ -54,7 +54,7 @@ export default function AuthorityContractDocument({ details, contractNo, fontSiz
       <section className="authority-document-section">
         <h3>TAŞINMAZ MALİKİ (MÜŞTERİ) BİLGİLERİ</h3>
         <table><tbody>
-          <Row firstLabel="Adı Soyadı / Unvanı" firstValue={normalized.ownerName} secondLabel="T.C. Kimlik No / VKN" secondValue={normalized.ownerIdentity} />
+          <Row firstLabel="Adı Soyadı / Unvanı" firstValue={normalized.ownerName} secondLabel="TCKN:" secondValue={normalized.ownerIdentity} />
           <Row firstLabel="Adresi" firstValue={normalized.ownerAddress} secondLabel="Telefon" secondValue={normalized.ownerPhone} />
         </tbody></table>
       </section>
