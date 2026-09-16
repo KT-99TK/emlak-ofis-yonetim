@@ -2293,22 +2293,24 @@ export async function importActiveRentalSummaries(
     throw new Error("Aktarılacak geçerli aktif kira satırı bulunamadı.");
   await assertCentralOnlineStartAllowsRecord();
   const fingerprints = new Set<string>();
+  const skipped: string[] = [];
+  const rowsToImport: ActiveRentalImportRow[] = [];
   for (const row of rows) {
     const fingerprint = importFingerprint(row);
-    if (fingerprints.has(fingerprint))
-      throw new Error(
-        `${row.clientName} için aynı taşınmaz satırı dosya içinde mükerrer.`
-      );
+    if (fingerprints.has(fingerprint)) {
+      skipped.push(`${row.clientName} · ${row.propertyLocation}: dosya içinde mükerrer`);
+      continue;
+    }
     fingerprints.add(fingerprint);
     const existingFingerprint = await db
       .select({ id: activeRentalSummaries.id })
       .from(activeRentalSummaries)
       .where(eq(activeRentalSummaries.importFingerprint, fingerprint))
       .limit(1);
-    if (existingFingerprint.length)
-      throw new Error(
-        `${row.clientName} için aynı aktif kira özeti daha önce aktarılmış.`
-      );
+    if (existingFingerprint.length) {
+      skipped.push(`${row.clientName} · ${row.propertyLocation}: mevcut kayıt`);
+      continue;
+    }
     const existingClient = await db
       .select({
         id: clients.id,
@@ -2332,10 +2334,11 @@ export async function importActiveRentalSummaries(
       throw new Error(
         `${row.clientName} müşteri telefonu mevcut kayıtla uyuşmuyor; aktarım durduruldu.`
       );
+    rowsToImport.push(row);
   }
   let createdClients = 0;
   let imported = 0;
-  for (const row of rows) {
+  for (const row of rowsToImport) {
     let client = (
       await db
         .select({ id: clients.id, phone: clients.phone })
@@ -2402,9 +2405,9 @@ export async function importActiveRentalSummaries(
       actorUserId: importedByUserId,
       action: "active_rental_summaries_imported",
       entityType: "activeRentalSummaries",
-      summary: `${imported} aktif kira özeti ve ${createdClients} müşteri kartı broker manager onayıyla aktarıldı.`,
+      summary: `${imported} aktif kira özeti ve ${createdClients} müşteri kartı broker manager onayıyla aktarıldı; ${skipped.length} satır mükerrer olduğu için atlandı.`,
     });
-  return { imported, createdClients };
+  return { imported, createdClients, skipped };
 }
 
 export async function saveActiveRentalIncreaseReference(input: {

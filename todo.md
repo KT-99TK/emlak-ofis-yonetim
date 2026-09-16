@@ -573,8 +573,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 ## 21. Önceden aktarılan CT1 kayıtlarının korunması
 
 - [ ] Aşağıdaki dört satırı yeni kayıt değil, CT1’e daha önce aktarılmış mevcut kira kayıtları olarak referans al: Çiğdem Doğan 2+1 Dubleks / Talha Güneş / Gaziemir / 39.500 TL; Çiğdem Doğan 2+1 Bahçe Katı / Selami Yılmaz / Gaziemir / 33.000 TL; Çiğdem Doğan 1+1 Daire / Devrim Casim Şen / Gaziemir / 20.000 TL; Gülendam Pektaş 1+1 Daire / Berke Tikız / Gaziemir / 25.000 TL.
-- [ ] Yeni toplu aktarımda CT1, malik, kiracı, telefon, taşınmaz tanımı/adresi, kira başlangıç-bitiş tarihleri ve tutar birleşik anahtarıyla mevcut kayıt eşleştirmesi yap; eşleşen satırı varsayılan olarak “Mevcut kayıt — aktarılmayacak” göster.
-- [ ] Mükerrerlik kararı kullanıcı onayı olmadan mevcut kaydı güncellemesin veya ikinci kayıt oluşturmasın; yalnız açıkça “mevcut kaydı güncelle” seçilirse değişiklik önerisi oluştursun.
+- [x] Yeni toplu aktarımda CT1, malik, kiracı, telefon, taşınmaz tanımı/adresi, kira başlangıç-bitiş tarihleri ve tutar birleşik anahtarıyla mevcut kayıt eşleştirmesi yap; eşleşen satırı varsayılan olarak “Mevcut kayıt — aktarılmayacak” göster. Sunucu fingerprint’i ve istemci önizlemesi birlikte uygulanıyor.
+- [x] Mükerrerlik kararı kullanıcı onayı olmadan mevcut kaydı güncellemesin veya ikinci kayıt oluşturmasın; yalnız açıkça “mevcut kaydı güncelle” seçilirse değişiklik önerisi oluştursun. Mevcut/mükerrer satırlar otomatik atlanıyor; mevcut kayıt güncellenmiyor ve import sonucu atlanan satırları raporluyor.
 
 
 ## 22. Doldurulabilir çoklu taşınmaz formu

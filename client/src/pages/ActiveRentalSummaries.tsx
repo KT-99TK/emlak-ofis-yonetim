@@ -68,6 +68,28 @@ function header(value: unknown) {
 function key(value: string) {
   return value.toLocaleLowerCase("tr-TR").replace(/\s+/g, " ");
 }
+function importRowKey(row: {
+  clientName: string;
+  tenantName: string;
+  contractDate: Date | string;
+  propertyLocation: string;
+  unitInfo: string;
+  authorityCode?: string | null;
+  assignedUserId: number;
+}) {
+  const contractDate = row.contractDate instanceof Date
+    ? row.contractDate.toISOString().slice(0, 10)
+    : String(row.contractDate).slice(0, 10);
+  return [
+    key(row.clientName),
+    key(row.tenantName),
+    contractDate,
+    key(row.propertyLocation),
+    key(row.unitInfo),
+    key(row.authorityCode ?? ""),
+    row.assignedUserId,
+  ].join("|");
+}
 function emptyRow(row: unknown[]) {
   return row.every(cell => !clean(cell));
 }
@@ -526,6 +548,12 @@ export default function ActiveRentalSummaries() {
     shareMutation.isPending ||
     startRelettingMutation.isPending ||
     saveTaxProfileMutation.isPending;
+  const existingImportKeys = useMemo(
+    () => new Set((summaries.data ?? []).map(item => importRowKey(item))),
+    [summaries.data]
+  );
+  const duplicateImportRows = parsed?.rows.filter(row => existingImportKeys.has(importRowKey(row))) ?? [];
+  const importableRows = parsed?.rows.filter(row => !existingImportKeys.has(importRowKey(row))) ?? [];
   const readWorkbook = async (file?: File) => {
     if (!file) return;
     setMessage("");
@@ -613,7 +641,7 @@ export default function ActiveRentalSummaries() {
                     {parsed.fileName}
                   </p>
                   <span className="text-xs font-semibold text-[#587069]">
-                    {parsed.rows.length} geçerli satır
+                    {parsed.rows.length} geçerli satır · {importableRows.length} yeni · {duplicateImportRows.length} mevcut/mükerrer
                   </span>
                 </div>
                 {parsed.errors.length > 0 && (
@@ -640,6 +668,7 @@ export default function ActiveRentalSummaries() {
                             <th className="px-2 py-2">Kiracı</th>
                             <th className="px-2 py-2">Kira</th>
                             <th className="px-2 py-2">Danışman</th>
+                            <th className="px-2 py-2">Aktarım durumu</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -662,6 +691,13 @@ export default function ActiveRentalSummaries() {
                               <td className="px-2 py-2">
                                 {row.consultantCode}
                               </td>
+                              <td className="px-2 py-2">
+                                {existingImportKeys.has(importRowKey(row)) ? (
+                                  <span className="font-semibold text-[#9a6e38]">Mevcut kayıt — aktarılmayacak</span>
+                                ) : (
+                                  <span className="font-semibold text-[#2e6f5f]">Yeni kayıt — aktarılacak</span>
+                                )}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -669,13 +705,15 @@ export default function ActiveRentalSummaries() {
                     </div>
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                       <p className="text-xs text-[#687771]">
-                        Aşağıdaki onay veritabanına kayıt yazar.
+                        {duplicateImportRows.length > 0
+                          ? `${duplicateImportRows.length} mevcut/mükerrer satır aktarılmayacak; yalnız ${importableRows.length} yeni satır kayıt edilir.`
+                          : "Aşağıdaki onay veritabanına kayıt yazar."}
                       </p>
                       <Button
                         type="button"
-                        disabled={busy || parsed.errors.length > 0}
+                        disabled={busy || parsed.errors.length > 0 || importableRows.length === 0}
                         onClick={() =>
-                          importMutation.mutate({ rows: parsed.rows })
+                          importMutation.mutate({ rows: importableRows })
                         }
                       >
                         {busy ? (
