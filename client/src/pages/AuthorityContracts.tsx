@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileSignature, Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import AuthorityContractDocument from "@/components/AuthorityContractDocument";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { authorityContractTitle, emptyAuthorityDetails, normalizeAuthorityDetails, normalizeAuthorityField, type AuthorityContractDetails } from "@/lib/authorityContract";
+import { authorityContractTitle, emptyAuthorityDetails, formatWholeCurrencyInput, normalizeAuthorityDetails, normalizeAuthorityField, toInternationalPhone, type AuthorityContractDetails } from "@/lib/authorityContract";
+import { formatContractPhoneInput } from "@/lib/contractFormFormatting";
 
 const partyFields: Array<[keyof AuthorityContractDetails, string]> = [
   ["ownerName", "Malik adı / unvanı"],
@@ -36,6 +37,7 @@ export default function AuthorityContracts() {
   const { user } = useAuth();
   const clients = trpc.clients.list.useQuery();
   const properties = trpc.properties.list.useQuery();
+  const nextNumber = trpc.contracts.nextNumber.useQuery();
   const utils = trpc.useUtils();
   const create = trpc.contracts.create.useMutation({ onSuccess: () => utils.contracts.list.invalidate() });
   const [details, setDetails] = useState<AuthorityContractDetails>(() => emptyAuthorityDetails());
@@ -43,12 +45,24 @@ export default function AuthorityContracts() {
   const [propertyId, setPropertyId] = useState("");
   const [contractNo, setContractNo] = useState("");
   const [saved, setSaved] = useState(false);
+  const [validationMessage, setValidationMessage] = useState("");
   const selectedClient = clients.data?.find((item) => String(item.id) === clientId);
   const selectedProperty = properties.data?.find((item) => String(item.id) === propertyId);
 
+  useEffect(() => {
+    const suggestion = nextNumber.data?.nextContractNo;
+    if (suggestion && (!contractNo || contractNo.startsWith("YET-"))) setContractNo(suggestion);
+  }, [contractNo, nextNumber.data?.nextContractNo]);
+
   const update = (key: keyof AuthorityContractDetails, value: string) => {
     setSaved(false);
-    setDetails((current) => ({ ...current, [key]: normalizeAuthorityField(key, value) }));
+    setValidationMessage("");
+    const nextValue = key === "ownerPhone" || key === "consultantPhone" || key === "officePhone"
+      ? formatContractPhoneInput(value)
+      : key === "price" || key === "serviceFeeAmount"
+        ? formatWholeCurrencyInput(value)
+        : normalizeAuthorityField(key, value);
+    setDetails((current) => ({ ...current, [key]: nextValue }));
   };
 
   const chooseClient = (value: string) => {
@@ -59,7 +73,7 @@ export default function AuthorityContracts() {
         ...current,
         ownerName: normalizeAuthorityField("ownerName", client.name),
         ownerIdentity: client.identityOrTaxNo ?? "",
-        ownerPhone: client.phone ?? "",
+        ownerPhone: toInternationalPhone(client.phone ?? ""),
         ownerAddress: normalizeAuthorityField("ownerAddress", client.address ?? ""),
       }));
     }
@@ -82,7 +96,15 @@ export default function AuthorityContracts() {
 
   const submit = () => {
     const normalized = normalizeAuthorityDetails(details);
-    if (!contractNo.trim() || !normalized.ownerName.trim() || !normalized.propertyAddress.trim()) return;
+    if (!contractNo.trim() || !normalized.ownerName.trim() || !normalized.propertyAddress.trim()) {
+      setValidationMessage("Kayıt için sözleşme numarası, malik ve taşınmaz adresi zorunludur.");
+      return;
+    }
+    if (!nextNumber.data?.consultantCode) {
+      setValidationMessage("Bu kullanıcı için danışman kodu tanımlı olmadığı için sözleşme kaydı açılamıyor.");
+      return;
+    }
+    setValidationMessage("");
     create.mutate({
       contractNo: contractNo.trim(),
       type: "authority",
@@ -92,8 +114,13 @@ export default function AuthorityContracts() {
       clientId: clientId ? Number(clientId) : undefined,
       propertyId: propertyId ? Number(propertyId) : undefined,
       details: JSON.stringify({ template: "claude-authority-v1", ...normalized }),
+    }, {
+      onSuccess: () => setSaved(true),
+      onError: (error) => {
+        setSaved(false);
+        setValidationMessage(error.message || "Kayıt oluşturulamadı; sözleşme numarasını kontrol edin.");
+      },
     });
-    setSaved(true);
   };
 
   return (
@@ -122,7 +149,7 @@ export default function AuthorityContracts() {
                   <SelectContent><SelectItem value="rent">Kiralama yetki sözleşmesi</SelectItem><SelectItem value="sale">Satış yetki sözleşmesi</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Kayıt numarası</label><Input value={contractNo} onChange={(event) => setContractNo(event.target.value)} placeholder="YET-2026-001" /></div>
+              <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Kayıt numarası</label><Input value={contractNo} onChange={(event) => setContractNo(event.target.value)} placeholder="KT1-001" /><p className="mt-1 text-[10px] text-[#718079]">Danışman koduna göre otomatik önerilir: {nextNumber.data?.consultantCode ?? "kod bekleniyor"}</p></div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -157,7 +184,7 @@ export default function AuthorityContracts() {
             <div className="flex flex-wrap items-center gap-3">
               <Button onClick={submit} disabled={create.isPending || !contractNo.trim() || !details.ownerName.trim() || !details.propertyAddress.trim()} className="rounded-xl bg-[#173e39] hover:bg-[#20554e]"><Save className="mr-2 h-4 w-4" />{create.isPending ? "Kaydediliyor…" : "Yetki sözleşmesi taslağı oluştur"}</Button>
               {saved && <span className="text-xs font-medium text-[#3f7668]">Taslak kayda gönderildi.</span>}
-              {create.isError && <span role="alert" className="text-xs text-[#a85745]">Kayıt oluşturulamadı; kayıt numarasını kontrol edin.</span>}
+              {(create.isError || validationMessage) && <span role="alert" className="text-xs text-[#a85745]">{validationMessage || create.error?.message || "Kayıt oluşturulamadı; kayıt numarasını kontrol edin."}</span>}
             </div>
           </CardContent>
         </Card>

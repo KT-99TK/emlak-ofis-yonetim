@@ -63,7 +63,7 @@ function parseNumericValue(raw: string) {
   const compact = raw.trim().replace(/\s/g, "");
   const value = compact.includes(",")
     ? compact.replace(/\./g, "").replace(",", ".")
-    : compact.split(".").length > 2
+    : /^\d{1,3}(?:\.\d{3})+$/.test(compact)
       ? compact.replace(/\./g, "")
       : compact;
   return Math.max(0, Number(value) || 0);
@@ -116,12 +116,21 @@ export function normalizeAuthorityField(key: keyof AuthorityContractDetails, val
 export function toInternationalPhone(value: string) {
   const digits = value.replace(/\D/g, "");
   if (!digits) return "";
-  if (value.trim().startsWith("+")) return `+${digits}`;
-  if (digits.startsWith("0090") && digits.length === 14) return `+${digits.slice(2)}`;
-  if (digits.startsWith("90") && digits.length === 12) return `+${digits}`;
-  if (digits.startsWith("0") && digits.length === 11) return `+90${digits.slice(1)}`;
-  if (digits.startsWith("5") && digits.length === 10) return `+90${digits}`;
-  return `+${digits}`;
+  const international = value.trim().startsWith("+")
+    ? digits
+    : digits.startsWith("0090") && digits.length === 14
+      ? digits.slice(2)
+      : digits.startsWith("90") && digits.length === 12
+        ? digits
+        : digits.startsWith("0") && digits.length === 11
+          ? `90${digits.slice(1)}`
+          : digits.startsWith("5") && digits.length === 10
+            ? `90${digits}`
+            : digits;
+  if (international.length === 12 && international.startsWith("90")) {
+    return `+90 ${international.slice(2, 5)} ${international.slice(5, 8)} ${international.slice(8, 10)} ${international.slice(10, 12)}`;
+  }
+  return `+${international}`;
 }
 
 export function consultantInitials(name: string) {

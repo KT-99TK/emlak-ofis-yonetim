@@ -51,13 +51,15 @@ describe("authority contract template", () => {
     expect(consultantInitials("ayşe yılmaz")).toBe("AY");
     expect(nextAuthorityContractNo(["YET-2026-AY-001", "YET-2026-AY-004"], "Ayşe Yılmaz", "2026-08-23")).toBe("YET-2026-AY-005");
     expect(toTurkishTitleCase("ayşe yıldız-şahin")).toBe("Ayşe Yıldız-Şahin");
-    expect(toInternationalPhone("0532 123 45 67")).toBe("+905321234567");
+    expect(toInternationalPhone("0532 123 45 67")).toBe("+90 532 123 45 67");
   });
 
   it("calculates amount and service fee from Turkish or plain decimal input", () => {
     expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), mode: "sale", price: "1.250.000,50", serviceFeeRate: "2" })).toMatchObject({ contractAmount: 1250001, serviceFeeAmount: 25000 });
     expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), mode: "sale", price: "2500.50", serviceFeeAmount: "125.25" })).toMatchObject({ contractAmount: 2501, serviceFeeAmount: 125 });
     expect(formatWholeCurrencyInput("1250000")).toBe("1.250.000");
+    expect(formatWholeCurrencyInput("75000")).toBe("75.000");
+    expect(calculateAuthoritySummary({ ...emptyAuthorityDetails(), mode: "rent", price: "75.000" }).contractAmount).toBe(75000);
   });
 
   it("includes the complete ten-item supplied conditions as a versioned snapshot", () => {
