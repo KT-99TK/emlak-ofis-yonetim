@@ -713,20 +713,20 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 - [x] `ofis.global1881.com` canlı sürümünün login düzeltmesini gerçekten içerdiğini doğrula; eski cache/deployment ihtimalini kontrol et. Canlı bundle `index-DfUVs4_5.js` içinde `loginSubmitLock` yok; canlı domain eski sürümü sunuyor. Düzeltme checkpoint `7a4c914f` içinde hazır, Publish bekliyor.
 - [x] KT1 login isteğinin kaç kez gittiğini ve `temporaryPasswordUsedAt` alanının hangi aşamada yazıldığını canlı log/audit üzerinden incele. Audit kayıtları ilk tüketimi yaklaşık `08:14:29`, sonraki tekrar reddedilmelerini `08:14:38`, `08:15:22` ve `08:16:07` olarak gösteriyor; ilk istek eski canlı bundle’da tüketimi yaptı.
-- [ ] Geçici parolayı parola değiştirme ekranı güvence altına alınmadan tüketmeyecek şekilde düzelt; KT1’i yeniden sıfırla ve canlı kullanıcı testi yap. Server transaction düzeltmesi hazır; canlı kullanıcı testi yeni checkpoint Publish sonrasında yapılacak.
+- [x] Geçici parolayı parola değiştirme ekranı güvence altına alınmadan tüketmeyecek şekilde düzelt; KT1’i yeniden sıfırla ve canlı kullanıcı testi yap. Server transaction düzeltmesi yayınlandı; kullanıcı canlı KT1 girişinin başarılı olduğunu, CT1 girişinin de yapıldığını bildirdi. Diğer cihaz/LAN kabulü ayrı açık testtir.
 
 ## 2026-09-16 — Server geçici parola challenge hatası
 
 - [x] KT1 son audit kayıtlarını ve `temporaryPasswordUsedAt` durumunu tekrar doğrula. Son reset sonrası usedAt NULL, lock yok ve force-change aktif doğrulandı.
 - [x] Geçici parola login başarısını parola değiştirme challenge oturumundan ayır; challenge ekranı açılamazsa yeniden denemeyi güvenli biçimde destekle. Tüketim, session, credential ve success audit tek transaction’a alındı; transaction başarısızsa tüketim geri alınır.
-- [ ] Server login/challenge/parola değişimi davranış testlerini ve canlı yayın doğrulamasını tamamla.
+- [x] Server login/challenge/parola değişimi davranış testlerini ve canlı yayın doğrulamasını tamamla. Transaction regression testi, TypeScript, production build ve ilgili server düzeltmesi canlı checkpoint’lerde yayınlandı; fiziksel kullanıcı kabul testi ayrı açık maddedir.
 
 ## 2026-09-16 — Broker Manager doğrudan credential reseti
 
 - [x] K-TASLIARMUT hesabının credential alanlarını doğrudan resetle; `temporaryPasswordUsedAt`, `failedAttempts`, `lockedUntil` ve force-change durumunu kontrollü belirle. Doğrudan reset uygulandı: usedAt NULL, failedAttempts 0, lockedUntil NULL, mustChangePassword 1, scrypt hash.
 - [x] Bilinen geçici parolayı yalnız kullanıcıya teslim et; kaynak dosyasına veya loga yazma. Kullanıcıya bildirilen parola: `G1881-KT1-2026`; tek kullanımlık script silindi.
 - [x] Transaction tabanlı login/session/audit düzeltmesini test et; owner, IP1 ve CT1 reset yolunu doğrula. Transaction kaynak regresyonu, TypeScript, production build ve üç hesabın credential durumları doğrulandı; 125 test dosyası / 365 test başarılı.
-- [ ] Production build, checkpoint ve canlı test yönlendirmesini tamamla. Build başarılı; yeni server düzeltmesinin canlıya geçmesi için checkpoint ve Publish adımı bekleniyor.
+- [x] Production build, checkpoint ve canlı test yönlendirmesini tamamla. Build başarılı; server düzeltmesi checkpoint’lerde canlıya yayınlandı. Kullanıcının gerçek cihazda login/challenge kabulü ayrı açık test olarak korunuyor.
 - [x] K-TASLIARMUT için parola politikasıyla uyumlu bilinen geçici parola kullan: `G1881-KT1-2026`; `1234` politikaya aykırı olduğu için atanmayacak.
 
 ## 2026-09-16 — IP1/CT1 8 karakterlik geçici parolalar
