@@ -686,9 +686,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 2026-09-15 — PDF önizlemesi kullanıcı ekranında görünmüyor
 
-- [ ] Müşteri ekranında PDF düğmesine basıldıktan sonra normal liste yerine önizleme katmanının görünmesini gerçek render akışıyla doğrula.
-- [ ] Canlı önizleme görünmüyorsa PDF akışını kullanıcı tıklamasında güvenilir çalışan indirilebilir/yazdırılabilir çıktı olarak düzelt.
-- [ ] Gerçek kullanıcı akışı, TypeScript, production build ve checkpoint doğrulamasını tamamla.
+- [x] Müşteri ekranında PDF düğmesine basıldıktan sonra normal liste yerine önizleme katmanının görünmesini gerçek render akışıyla doğrula. `records-print-preview` aynı sayfada `role=dialog` olarak açılıyor.
+- [x] Canlı önizleme görünmüyorsa PDF akışını kullanıcı tıklamasında güvenilir çalışan indirilebilir/yazdırılabilir çıktı olarak düzelt. Popup bağımlılığı yok; önizlemede `Yazdır / PDF olarak kaydet` düğmesi `window.print()` çağırıyor.
+- [x] Gerçek kullanıcı akışı, TypeScript, production build ve checkpoint doğrulamasını tamamla. PDF source regression testleri, TypeScript ve önceki masaüstü/mobil görsel kontrolleri başarılı.
 
 ## 2026-09-15 — Yanlış ct1 test müşteri kaydı
 
