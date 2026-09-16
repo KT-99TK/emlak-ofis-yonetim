@@ -794,8 +794,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 ## 2026-09-16 — Sözleşme ekranı ve çıktı düzeni
 
 - [x] Sözleşme kayıt formunu tüm sayfayı kaplayan uzun panel yerine kompakt, bölümlenebilir müşteri/sözleşme/çıktı akışına dönüştür.
-- [ ] Sözleşme ekranındaki telefon alanlarında ortak telefon biçimlendirme ve doğrulama kuralını çalıştır.
-- [ ] Sözleşme ekranındaki tarih alanlarını ortak GG.AA.YYYY giriş/gösterim ve doğrulama kuralına bağla.
+- [x] Sözleşme ekranındaki telefon alanlarında ortak telefon biçimlendirme ve doğrulama kuralını çalıştır. Dinamik telefon alanları artık `+90 5XX XXX XX XX` biçimine geçiyor.
+- [x] Sözleşme ekranındaki tarih alanlarını ortak GG.AA.YYYY giriş/gösterim ve doğrulama kuralına bağla. Tarih alanları TurkishDateInput bileşenine bağlandı.
 - [x] Sözleşme müşteri alanlarını müşteri kütüğünden recall et; sözleşmede TCKN etiketini `TCKN:` olarak açık göster.
 - [x] Sözleşme yazdırma/PDF çıktısını gerçek A4 portrait akışına göre ortala; üç sayfalık gereksiz taşma ve kötü sayfa ortalamasını düzelt.
 - [x] Maddeler, taraf bilgileri ve imza alanını örnek sözleşmedeki dengeli yerleşime göre düzenle.

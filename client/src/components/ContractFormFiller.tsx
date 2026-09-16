@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import TurkishDateInput from "@/components/TurkishDateInput";
+import { formatContractPhoneInput } from "@/lib/contractFormFormatting";
 import { trpc } from "@/lib/trpc";
 import { getMissingRequiredContractFormFields, isTechnicalContractFormField, resolveContractFormPlaceholders } from "@/../../shared/contractForms";
 
@@ -41,6 +43,11 @@ function parseOptions(optionsJson?: string | null) {
   } catch {
     return [] as string[];
   }
+}
+
+function isPhoneField(field: FillerField) {
+  const searchable = `${field.fieldKey} ${field.label}`.toLocaleLowerCase("tr-TR");
+  return /(telefon|phone|cep|gsm|iletişim)/i.test(searchable);
 }
 
 export function ContractFormFiller({ bundle, preview }: { bundle: FillerBundle; preview?: FillerPreview | null }) {
@@ -88,7 +95,9 @@ export function ContractFormFiller({ bundle, preview }: { bundle: FillerBundle; 
     if (field.fieldType === "checkbox") return <div className={shell}><label className="flex items-center gap-2 text-sm text-[#34433f]"><Checkbox checked={Boolean(value)} onCheckedChange={(checked) => updateValue(field.fieldKey, checked === true)} />{field.label}{field.required ? " *" : ""}</label></div>;
     if (field.fieldType === "multiline") return <div className={shell}>{label}<Textarea value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="min-h-24 bg-white" /></div>;
     if (field.fieldType === "select") return <div className={shell}>{label}<select value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"><option value="">Seçiniz</option>{parseOptions(field.optionsJson).map((option) => <option key={option} value={option}>{option}</option>)}</select></div>;
-    return <div className={shell}>{label}<Input type={field.fieldType === "date" ? "date" : field.fieldType === "number" || field.fieldType === "currency" ? "number" : "text"} value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="bg-white" /></div>;
+    if (field.fieldType === "date") return <div className={shell}>{label}<TurkishDateInput value={fieldValueForInput(value)} onValueChange={(nextValue) => updateValue(field.fieldKey, nextValue)} aria-label={field.label} /></div>;
+    if (isPhoneField(field)) return <div className={shell}>{label}<Input type="tel" inputMode="tel" value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, formatContractPhoneInput(event.target.value))} placeholder="+90 5XX XXX XX XX" className="bg-white" /></div>;
+    return <div className={shell}>{label}<Input type={field.fieldType === "number" || field.fieldType === "currency" ? "number" : "text"} value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="bg-white" /></div>;
   };
 
   const saveDraft = () => {
