@@ -824,3 +824,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Ortak belge standardı için regression testleri, build ve masaüstü/mobil/PDF görsel doğrulaması yap.
 
 - [x] Çoklu mülk portföy PDF dışa aktarımını popup yerine ortak uygulama içi A4 önizlemeye bağla; Excel dışa aktarımını ve otomatik dosya adını koru. Regression testi, TypeScript ve production build başarılı.
+
+## 2026-09-16 — CT1 danışman ekranı kabulü
+- [x] CT1/C-TERCAN hesabıyla çekilen gerçek ekran görüntülerini broker manager görünümünden ayrı değerlendirme; kontrol listesi, müşteri kapsamı, telefon/TCKN maskelemesi ve sözleşme ilerleme akışını danışman rolüyle eşleştir. Kaynak erişim kuralları CT1 danışman sahipliğiyle doğrulandı; farklı danışman kayıtları maskeli ve yetki dışı.
+- [x] CT1 danışman kapsamı için ilgili regression testlerini, TypeScript/build ve gerçek ekran kabul notunu güncelle. 5 erişim + 2 müşteri recall testi, TypeScript/build ve `docs/ct1-consultant-acceptance-2026-09-16.md` tamamlandı; gerçek cihazda son kullanıcı kabulü ayrı açık kaldı.
+- [x] CT1 yetki sözleşmesi müşteri seçimi, müşteri kütüğündeki yapılandırılmış telefon/TCKN/adres bilgilerini forma doldursun; TCKN sözleşmede açık, listelerde maskeli kalsın ve recall regression testi eklensin. Offline müşteri formuna yapılandırılmış telefon/TCKN alanları, yetki sözleşmesi recallı, legacy düz metin uyumluluğu ve 7 test eklendi; TypeScript/build başarılı.
