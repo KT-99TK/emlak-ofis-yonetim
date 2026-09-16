@@ -16,6 +16,12 @@ describe("customer reference numbers and search", () => {
     expect(source).toContain("Merkezi müşteri no");
     expect(source).toContain("Sorumlu danışman");
     expect(source).toContain("search.trim() || \"yok\"");
+    expect(source).toContain("portfolioSummary?.total");
+    expect(source).toContain("portfolioSummary?.active");
+    expect(source).toContain("portfolioSummary.titles.join");
+    expect(source).toContain("<th>Portföy özeti</th>");
+    expect(source).not.toContain("<th>TCKN");
+    expect(source).not.toContain("<th>VKN");
   });
 
   it("keeps TCKN/VKN out of normal customer lists and daily PDF headings", () => {

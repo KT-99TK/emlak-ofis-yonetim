@@ -769,18 +769,18 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 2026-09-16 — Sade danışman müşteri listesi
 
-- [ ] Danışman filtresi seçildiğinde müşteri adı, merkezi no, sorumlu danışman, telefon, e-posta, durum ve portföy özetini aynı kartta göster.
+- [x] Danışman filtresi seçildiğinde müşteri adı, merkezi no, sorumlu danışman, telefon, e-posta, durum ve portföy özetini aynı kartta göster. Portföy toplamı, aktif sayısı ve en fazla iki portföy tanımı kartta gösteriliyor.
 - [x] Telefon için gerekçe dialogu ve ek açma adımını günlük danışman listesi akışından kaldır; danışman kendi müşterisinin telefonunu doğrudan görsün, broker manager ofis kapsamını görsün. Server listClients/getClientFile artık maskesiz telefonu yalnız server-side yetki kapsamındaki sonuçlarda döndürüyor.
-- [ ] Müşteri PDF’sini aynı operasyon kolonlarıyla üret; T.C./vergi no ve kimlik kopyasını günlük listeye ekleme.
-- [ ] Yetki, test, build, responsive görünüm ve checkpoint doğrulamasını tamamla.
+- [x] Müşteri PDF’sini aynı operasyon kolonlarıyla üret; T.C./vergi no ve kimlik kopyasını günlük listeye ekleme. Portföy özeti kolonu eklendi; kimlik kolonları dışarıda tutuldu.
+- [x] Yetki, test, build, responsive görünüm ve checkpoint doğrulamasını tamamla. Server kapsamı, 8 müşteri/privacy testi, TypeScript, production build ve 1280×720/375×812 görsel kontrolleri tamamlandı.
 
 ## 2026-09-16 — Sade mahremiyet modeli
 
 - [x] Server tarafında danışmanın yalnız kendi müşterilerini, broker manager’ın tüm ofisi görme sınırını koru. permittedUserIds ve manager consultantCode kapsamı korunuyor.
 - [x] Telefon için gerekçe, 30 saniyelik açma ve “Tam değeri aç” akışını günlük müşteri listesinden kaldır.
-- [ ] Danışman kendi müşterisinin telefon, e-posta, merkezi no, sorumlu kodu, durum ve portföy özetini tek kartta görsün; diğer danışmanların müşterileri hiç listelenmesin. Telefon/e-posta/merkezi no/sorumlu kodu/durum tek kartta; portföy özeti sonraki küçük UI adımı olarak açık.
+- [x] Danışman kendi müşterisinin telefon, e-posta, merkezi no, sorumlu kodu, durum ve portföy özetini tek kartta görsün; diğer danışmanların müşterileri hiç listelenmesin. Server kapsamı ve tek kart özeti birlikte doğrulandı.
 - [x] Kimlik/T.C.-vergi numarası ve kopyalarını normal liste/PDF’ye ekleme; müşteri mahremiyeti ve fiziksel dosya yaklaşımını koru. identityOrTaxNo maskesi ve normal PDF kapsamı korunuyor.
-- [ ] Ortak PDF, yetki testleri, responsive görünüm, TypeScript, build ve checkpoint doğrulamasını tamamla.
+- [x] Ortak PDF, yetki testleri, responsive görünüm, TypeScript, build ve checkpoint doğrulamasını tamamla. Müşteri PDF’si portföy özetini içeriyor; TCKN/VKN kolonları dışarıda, test/build ve masaüstü/mobil kontrolleri tamamlandı.
 
 ## 2026-09-16 — Müşteri kütüğü ve sözleşme recall modeli
 

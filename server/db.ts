@@ -977,13 +977,43 @@ export async function listClients(
         : undefined
     ))
     .orderBy(desc(clients.updatedAt));
-  return rows.map(row => ({
-    ...row.client,
-    consultantCode: row.consultantCode,
-    identityOrTaxNo: maskIdentityOrTaxNo(row.client.identityOrTaxNo),
-    phone: row.client.phone,
-    canRevealSensitive: false,
-  }));
+  if (!rows.length) return [];
+  const clientIds = rows.map(({ client }) => client.id);
+  const propertyRows = await db
+    .select({ ownerClientId: properties.ownerClientId, status: properties.status, title: properties.title })
+    .from(properties)
+    .where(and(
+      inArray(properties.ownerClientId, clientIds),
+      isManager
+        ? undefined
+        : scopedIds.length
+          ? inArray(properties.assignedUserId, scopedIds)
+          : sql`1 = 0`
+    ));
+  const portfolioByClient = new Map<number, { total: number; active: number; titles: string[] }>();
+  for (const property of propertyRows) {
+    if (!property.ownerClientId) continue;
+    const summary = portfolioByClient.get(property.ownerClientId) ?? { total: 0, active: 0, titles: [] };
+    summary.total += 1;
+    if (property.status !== "closed") summary.active += 1;
+    if (summary.titles.length < 2) summary.titles.push(property.title);
+    portfolioByClient.set(property.ownerClientId, summary);
+  }
+  return rows.map(row => {
+    const portfolio = portfolioByClient.get(row.client.id) ?? { total: 0, active: 0, titles: [] };
+    return {
+      ...row.client,
+      consultantCode: row.consultantCode,
+      identityOrTaxNo: maskIdentityOrTaxNo(row.client.identityOrTaxNo),
+      phone: row.client.phone,
+      portfolioSummary: {
+        total: portfolio.total,
+        active: portfolio.active,
+        titles: portfolio.titles,
+      },
+      canRevealSensitive: false,
+    };
+  });
 }
 
 export async function getClientFile(
