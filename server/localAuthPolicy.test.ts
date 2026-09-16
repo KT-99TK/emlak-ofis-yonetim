@@ -7,6 +7,7 @@ describe("local consultant onboarding policy", () => {
   const source = readFileSync(resolve(process.cwd(), "server/localAuth.ts"), "utf8");
   const routerSource = readFileSync(resolve(process.cwd(), "server/routers.ts"), "utf8");
   const uiSource = readFileSync(resolve(process.cwd(), "client/src/pages/Team.tsx"), "utf8");
+  const loginGateSource = readFileSync(resolve(process.cwd(), "client/src/components/LocalLoginGate.tsx"), "utf8");
 
   it("enforces the password strength policy", () => {
     expect(() => assertLocalPasswordPolicy("short")).toThrow();
@@ -37,6 +38,12 @@ describe("local consultant onboarding policy", () => {
     expect(routerSource).toContain("auth: router");
     expect(routerSource).toContain("localLogin: publicProcedure");
     expect(routerSource).toContain("changeLocalPassword: protectedProcedure");
+  });
+
+  it("prevents duplicate temporary-password login requests in the login gate", () => {
+    expect(loginGateSource).toContain("loginSubmitLock");
+    expect(loginGateSource).toContain("onSettled: () => { loginSubmitLock.current = false; }");
+    expect(loginGateSource).toContain('type="button"');
   });
 
   it("exposes manager-only onboarding and temporary-password handling in Team", () => {

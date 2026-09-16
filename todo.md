@@ -702,3 +702,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Üç hesap için yeni geçici parola oluştur ve yalnız ilgili hesapların hash’lerini güncelle. Scrypt hashleri güncellendi; plaintext parola proje dosyasında tutulmadı.
 - [x] İlk girişte parola değiştirme zorunluluğunu koru; parola değerlerini proje dosyalarına veya loglara yazma. Üç hesapta `mustChangePassword=1`, kullanılma tarihi NULL ve 24 saatlik süre aktif.
 - [x] Giriş akışını doğrula ve kullanıcıya yeni giriş bilgilerini güvenli biçimde teslim et. Hesap satırları ve login adları doğrulandı; tam Vitest 125 dosya / 363 test, TypeScript ve production build başarılı.
+
+## 2026-09-16 — Geçici parola ilk giriş akışı
+
+- [x] `temporaryPasswordUsedAt` işaretleme sırasını ve login UI çift istek riskini incele. İlk doğrulamada tüketilen geçici parolanın ikinci login isteğiyle reddedilmesi analiz edildi; UI’ye tek tıklama kilidi eklendi.
+- [x] KT1 hesabını yeni geçici parola ile sıfırla; parola değiştirme ekranına tek başarılı girişte geçişi düzelt. KT1 yeni geçici parolası oluşturuldu; `LocalLoginGate` login mutation’ı çift isteğe karşı kilitlendi ve butonlar `type=button` yapıldı.
+- [x] Geçici parolanın ikinci kullanımını reddeden güvenlik davranışını koruyarak login/parola değişimi testlerini çalıştır. KT1’de `temporaryPasswordUsedAt=NULL`, `mustChangePassword=1`, scrypt hash doğrulandı; tam Vitest 125 dosya / 364 test, TypeScript ve production build başarılı.
