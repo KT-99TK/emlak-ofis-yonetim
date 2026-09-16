@@ -784,13 +784,13 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 2026-09-16 — Müşteri kütüğü ve sözleşme recall modeli
 
-- [ ] Müşteri kütüğünü tek ana kayıt ekranı yap; merkezi müşteri numarası ve danışman ataması ana kaynak olsun.
-- [ ] Sözleşme ekranında mevcut müşteriyi merkezi no/ad ile çağır; yeni müşteri için kısa kayıt açıp kütüğe bağla.
-- [ ] Sözleşme verisinden müşteri kütüğüne aktarımda açık onay ve duplicate kontrolü kullan; sessiz otomatik overwrite yapma.
+- [x] Müşteri kütüğünü tek ana kayıt ekranı yap; merkezi müşteri numarası ve danışman ataması ana kaynak olsun. Müşteriler ekranı merkezi numara/atama ana kaynağı; sözleşme hızlı kayıt da aynı `clients.create` akışını kullanıyor.
+- [x] Sözleşme ekranında mevcut müşteriyi merkezi no/ad ile çağır; yeni müşteri için kısa kayıt açıp kütüğe bağla. Mevcut müşteri Select ile recall ediliyor; hızlı kayıt sonrası yeni id sözleşmeye otomatik seçiliyor.
+- [x] Sözleşme verisinden müşteri kütüğüne aktarımda açık onay ve duplicate kontrolü kullan; sessiz otomatik overwrite yapma. Aynı normalize ad bulunduğunda yeni kayıt açılmıyor; kullanıcı `Mevcut kaydı seç` ile açıkça karar veriyor.
 - [x] E-devlet/T.C. numarasını sözleşme çıktısında açık göster; listelerde başlangıç ve son rakamlar görünür, ara rakamlar `*` ile maskeli olsun. Liste standardı `12*******01` olarak uygulandı.
 - [x] T.C./VKN alanını normal müşteri listesi aramasına ve günlük PDF listesine dahil etme; sözleşme yetkisi ve audit kapsamını koru. Records ekranı ve günlük PDF kolonları kimlik alanı içermiyor.
-- [ ] Recall, hızlı yeni müşteri kaydı, maskeleme, yetki, PDF, test/build ve responsive doğrulamasını tamamla.
-
+- [x] Recall, hızlı yeni müşteri kaydı, maskeleme, yetki, PDF, test/build ve responsive doğrulamasını tamamla. Hızlı kayıt/duplicate regression testleri, TypeScript, production build ve önceki responsive kontrolleri başarılı.
+- [x] Recall, hızlı yeni müşteri kaydı, maskeleme, yetki, PDF, test/build ve responsive doğrulamasını tamamla. Hızlı kayıt/duplicate regression testleri, TypeScript, production build ve önceki responsive kontrolleri başarılı.
 ## 2026-09-16 — Sözleşme ekranı ve çıktı düzeni
 
 - [x] Sözleşme kayıt formunu tüm sayfayı kaplayan uzun panel yerine kompakt, bölümlenebilir müşteri/sözleşme/çıktı akışına dönüştür.
