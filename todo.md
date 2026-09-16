@@ -641,7 +641,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 ## Kapsam daraltma kararı — 2026-09-15
 
 - [x] Elzem kapsam: aktif varsayılanı, pasif/arşiv filtresi, danışman mahremiyeti ve broker manager’ın tam ofis görünürlüğü.
-- [ ] Ertelenen kapsam: XLSX filtre özeti ve dışa aktarma senkronizasyonu.
+- [x] Ertelenen kapsam: XLSX filtre özeti ve dışa aktarma senkronizasyonu. Records ekranında müşteri/portföy/ledger için mevcut filtreli görünür satırlar Excel çalışma sayfası olarak indiriliyor; normal liste mahremiyeti korunuyor.
 - [x] Ertelenen kapsam: ayrıntılı manager finans performansında tarih/danışman/durum toplamları ve raporlama polish’i. Temel filtre ve toplam kartları tamamlandı; XLSX/ileri rapor polish’i ayrı kapsam olarak korunuyor.
 
 ## PDF çıktısı kapsam güncellemesi — 2026-09-15
