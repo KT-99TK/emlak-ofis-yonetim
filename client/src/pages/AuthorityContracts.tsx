@@ -33,6 +33,25 @@ const officeFields: Array<[keyof AuthorityContractDetails, string]> = [
   ["officeAddress", "Ofis adresi"],
 ];
 
+const DEFAULT_OFFICE_DETAILS: Pick<AuthorityContractDetails, "officeName" | "officeAuthorizationNo" | "officePhone" | "officeAddress"> = {
+  officeName: "Global 1881 Gayrimenkul",
+  officeAuthorizationNo: "3500211",
+  officePhone: "+90 534 975 05 82",
+  officeAddress: "HACI İSA MAHALLESİ 75. YIL CUMHURİYET CADDESİ NO:5/38 URLA",
+};
+
+const CONSULTANT_DEFAULTS: Record<string, Partial<Pick<AuthorityContractDetails, "consultantName" | "consultantPhone" | "consultantCode" | "consultantTitle">>> = {
+  KT1: { consultantName: "KAZIM TAŞLIARMUT", consultantPhone: "+90 541 935 29 59", consultantCode: "3500211/001", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  IP1: { consultantName: "İBRAHİM PARİN", consultantCode: "3500211/002", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  CT1: { consultantName: "CAHİT TERCAN", consultantPhone: "+90 503 304 21 55", consultantCode: "3500211/003", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+};
+
+const consultantDefaultsFor = (value?: string) => {
+  const normalized = (value ?? "").trim().toUpperCase();
+  const shortCode = normalized.match(/(?:^|\/)(KT1|IP1|CT1)$/)?.[1] ?? normalized;
+  return CONSULTANT_DEFAULTS[shortCode] ?? {};
+};
+
 export default function AuthorityContracts() {
   const { user } = useAuth();
   const clients = trpc.clients.list.useQuery();
@@ -40,7 +59,7 @@ export default function AuthorityContracts() {
   const nextNumber = trpc.contracts.nextNumber.useQuery();
   const utils = trpc.useUtils();
   const create = trpc.contracts.create.useMutation({ onSuccess: () => utils.contracts.list.invalidate() });
-  const [details, setDetails] = useState<AuthorityContractDetails>(() => emptyAuthorityDetails());
+  const [details, setDetails] = useState<AuthorityContractDetails>(() => ({ ...emptyAuthorityDetails(), ...DEFAULT_OFFICE_DETAILS }));
   const [clientId, setClientId] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [contractNo, setContractNo] = useState("");
@@ -52,7 +71,9 @@ export default function AuthorityContracts() {
   useEffect(() => {
     const suggestion = nextNumber.data?.nextContractNo;
     if (suggestion && (!contractNo || contractNo.startsWith("YET-"))) setContractNo(suggestion);
-  }, [contractNo, nextNumber.data?.nextContractNo]);
+    const consultant = { ...consultantDefaultsFor(nextNumber.data?.consultantCode ?? undefined), consultantName: user?.name || consultantDefaultsFor(nextNumber.data?.consultantCode ?? undefined).consultantName || "" };
+    setDetails((current) => ({ ...current, ...consultant, officeName: current.officeName || DEFAULT_OFFICE_DETAILS.officeName, officeAuthorizationNo: current.officeAuthorizationNo || DEFAULT_OFFICE_DETAILS.officeAuthorizationNo, officePhone: current.officePhone || DEFAULT_OFFICE_DETAILS.officePhone, officeAddress: current.officeAddress || DEFAULT_OFFICE_DETAILS.officeAddress }));
+  }, [contractNo, nextNumber.data?.nextContractNo, nextNumber.data?.consultantCode, user?.name]);
 
   const update = (key: keyof AuthorityContractDetails, value: string) => {
     setSaved(false);

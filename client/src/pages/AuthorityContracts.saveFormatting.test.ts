@@ -21,4 +21,12 @@ describe("online authority contract save and formatting contract", () => {
     expect(source).toContain("formatWholeCurrencyInput(value)");
     expect(source).toContain("toInternationalPhone(client.phone ?? \"\")");
   });
+
+  it("provides office and consultant defaults without removing editable inputs", () => {
+    expect(source).toContain('officeAuthorizationNo: "3500211"');
+    expect(source).toContain('officePhone: "+90 534 975 05 82"');
+    expect(source).toContain("CONSULTANT_DEFAULTS");
+    expect(source).toContain("consultantDefaultsFor");
+    expect(source).toContain("setDetails((current)");
+  });
 });
