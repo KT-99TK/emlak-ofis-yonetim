@@ -564,7 +564,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 20. Müşterinin çoklu taşınmazlarını toplu kaydetme
 
-- [ ] Mevcut mülk/müşteri Excel aktarımını ve mülk kayıt alanlarını incele.
+- [x] Mevcut mülk/müşteri Excel aktarımını ve mülk kayıt alanlarını incele. MultiPropertyIntakeForm’da müşteri seçimi, grup/sıra numarası, portföy tanımı, tür, amaç, adres, bedel ve yetki tarihleri mevcut; Excel/PDF dışa aktarım ve mükerrer atlama akışı doğrulandı.
 - [x] Aynı müşteriye ait birden fazla taşınmazı tek Excel tablosunda ayrı satırlar ve otomatik sıra numarasıyla destekle. Öneri dokümanında Excel satırı, müşteri grubu ve `M-002-01` sıra modeli tanımlandı; kod uygulaması sonraki onaya bırakıldı.
 - [x] Müşteri–taşınmaz ilişkisinde her mülkün ayrı kayıt olmasını, fakat toplu aktarım ve ortak malik bilgisinin tek işlemden yönetilmesini tasarla. Ayrı `property` kaydı + tek müşteri eşleştirmesi önerisi yazıldı.
 - [x] Mükerrer taşınmaz, sıra numarası, satış/kiralama talebi ve aktarım önizleme kurallarını belirle. Normalize malik/adres/bağımsız bölüm anahtarı, kullanıcı onaylı önizleme ve satış/kiralık alanları tanımlandı.
@@ -572,7 +572,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 21. Önceden aktarılan CT1 kayıtlarının korunması
 
-- [ ] Aşağıdaki dört satırı yeni kayıt değil, CT1’e daha önce aktarılmış mevcut kira kayıtları olarak referans al: Çiğdem Doğan 2+1 Dubleks / Talha Güneş / Gaziemir / 39.500 TL; Çiğdem Doğan 2+1 Bahçe Katı / Selami Yılmaz / Gaziemir / 33.000 TL; Çiğdem Doğan 1+1 Daire / Devrim Casim Şen / Gaziemir / 20.000 TL; Gülendam Pektaş 1+1 Daire / Berke Tikız / Gaziemir / 25.000 TL.
+- [x] Aşağıdaki dört satırı yeni kayıt değil, CT1’e daha önce aktarılmış mevcut kira kayıtları olarak referans al: Çiğdem Doğan 2+1 Dubleks / Talha Güneş / Gaziemir / 39.500 TL; Çiğdem Doğan 2+1 Bahçe Katı / Selami Yılmaz / Gaziemir / 33.000 TL; Çiğdem Doğan 1+1 Daire / Devrim Casim Şen / Gaziemir / 20.000 TL; Gülendam Pektaş 1+1 Daire / Berke Tikız / Gaziemir / 25.000 TL. Veritabanı okuma sorgusunda dört kayıt da mevcut bulundu; eşleştirme fingerprint’iyle korunuyor.
 - [x] Yeni toplu aktarımda CT1, malik, kiracı, telefon, taşınmaz tanımı/adresi, kira başlangıç-bitiş tarihleri ve tutar birleşik anahtarıyla mevcut kayıt eşleştirmesi yap; eşleşen satırı varsayılan olarak “Mevcut kayıt — aktarılmayacak” göster. Sunucu fingerprint’i ve istemci önizlemesi birlikte uygulanıyor.
 - [x] Mükerrerlik kararı kullanıcı onayı olmadan mevcut kaydı güncellemesin veya ikinci kayıt oluşturmasın; yalnız açıkça “mevcut kaydı güncelle” seçilirse değişiklik önerisi oluştursun. Mevcut/mükerrer satırlar otomatik atlanıyor; mevcut kayıt güncellenmiyor ve import sonucu atlanan satırları raporluyor.
 
@@ -822,3 +822,5 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Tüm belge tablolarında başlık/değer hizası, dikey ortalama, hücre iç boşluğu ve imza alanı standardını uygula.
 - [x] Uzun sözleşme, teknik şartname ve teslim eklerinde sayfa taşması ile portrait/landscape istisnalarını belge türüne göre doğrula.
 - [x] Ortak belge standardı için regression testleri, build ve masaüstü/mobil/PDF görsel doğrulaması yap.
+
+- [x] Çoklu mülk portföy PDF dışa aktarımını popup yerine ortak uygulama içi A4 önizlemeye bağla; Excel dışa aktarımını ve otomatik dosya adını koru. Regression testi, TypeScript ve production build başarılı.

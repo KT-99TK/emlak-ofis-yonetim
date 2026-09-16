@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { canViewFullOfflineContract, type OfflineContractAccessContext } from "@/lib/offlineContractAccess";
 import writeXlsxFile from "write-excel-file/browser";
 import { getUserId, saveOfflineRecord, type OfflineRecord } from "@/lib/offlineStore";
+import DocumentPrintPreview from "@/components/DocumentPrintPreview";
 
 export type MultiPropertyIntakeFormProps = {
   records: OfflineRecord[];
@@ -37,6 +38,7 @@ export default function MultiPropertyIntakeForm({ records, access, onRefresh }: 
   const [rows, setRows] = useState<PropertyRow[]>([emptyRow()]);
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const userId = getUserId();
   const clients = records.filter(record => record.entity === "client" && canViewFullOfflineContract(record, access));
   const properties = records.filter(record => record.entity === "property" && canViewFullOfflineContract(record, access));
@@ -89,15 +91,11 @@ export default function MultiPropertyIntakeForm({ records, access, onRefresh }: 
     setMessage(`${exportRows.length} mülk Excel dosyası olarak dışa aktarıldı.`);
   };
   const printPdf = () => {
-    if (!exportRows.length) { setMessage("PDF olarak çıkarılacak kayıtlı mülk bulunmuyor."); return; }
-    const popup = window.open("", "_blank", "width=1200,height=800");
-    if (!popup) { setMessage("PDF penceresi açılamadı. Tarayıcı açılır pencere iznini kontrol edin."); return; }
-    const rows = exportRows.map(row => `<tr><td>${row.sequence}</td><td>${row.portfolioDescription}</td><td>${row.type}</td><td>${row.purpose}</td><td>${row.address}</td><td>${row.owner}</td><td>${row.price}</td><td>${row.authority}</td><td>${row.consultant}</td></tr>`).join("");
-    popup.document.write(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Global1881 Mülk Portföy Listesi</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;color:#24322f;font-size:9px}h1{font-size:18px;margin:0 0 4px}p{color:#64736e;margin:0 0 12px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #b8c5bf;padding:5px;vertical-align:top;text-align:left}th{background:#eaf1ed;font-size:9px}tr:nth-child(even){background:#f8faf8}</style></head><body><h1>GLOBAL 1881 — MÜLK PORTFÖY LİSTESİ</h1><p>Oluşturulma tarihi: ${new Date().toLocaleDateString("tr-TR")} · Kayıt sayısı: ${exportRows.length}</p><table><thead><tr><th>Sıra No</th><th>Portföy Tanımı</th><th>Tür</th><th>İşlem Amacı</th><th>Açık Adres</th><th>Malik / Müşteri</th><th>Bedel</th><th>Yetki Tarihleri</th><th>Danışman</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
-    popup.document.close();
-    popup.focus();
-    window.setTimeout(() => popup.print(), 300);
-    setMessage("Mülk listesi yazdırma penceresinde açıldı; buradan PDF olarak kaydedebilirsiniz.");
+    if (!exportRows.length) {
+      setMessage("PDF olarak çıkarılacak kayıtlı mülk bulunmuyor.");
+      return;
+    }
+    setPrintPreviewOpen(true);
   };
 
   const save = async () => {
@@ -138,7 +136,26 @@ export default function MultiPropertyIntakeForm({ records, access, onRefresh }: 
       </div>
       {client && existingForClient.length > 0 && <p className="rounded-lg bg-[#fff8e8] px-3 py-2 text-xs text-[#8d6630]">Bu müşteri/grup için {existingForClient.length} mevcut mülk bulundu. Aynı satırlar mükerrer olarak atlanır.</p>}
       <div className="space-y-3">{rows.map((row, index) => <div key={row.id} className="rounded-xl border border-[#e5e8e3] bg-[#fbfdfb] p-3"><div className="mb-2 flex items-center justify-between gap-2"><p className="text-xs font-semibold text-[#173e39]">Mülk {index + 1}</p>{rows.length > 1 && <Button type="button" variant="ghost" size="icon" onClick={() => removeRow(row.id)} aria-label={`Mülk ${index + 1} satırını kaldır`}><Trash2 className="h-4 w-4 text-[#a14f3f]" /></Button>}</div><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"><Select value={row.type} onValueChange={value => setRow(row.id, { type: value as PropertyRow["type"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["Daire", "Villa", "İşyeri", "Arsa"].map(value => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select><Select value={row.purpose} onValueChange={value => setRow(row.id, { purpose: value as PropertyRow["purpose"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["Satılık", "Kiralık", "Satılık/Kiralık"].map(value => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select><Input value={row.portfolioDescription} onChange={event => setRow(row.id, { portfolioDescription: event.target.value })} placeholder="Portföy tanımı * · GAZİEMİR 2+1 DUBLEKS" /><Input value={row.title} onChange={event => setRow(row.id, { title: event.target.value })} placeholder="Mülk kısa adı / blok-daire" /><Input value={row.price} onChange={event => setRow(row.id, { price: numberValue(event.target.value) })} placeholder="Fiyat / kira" inputMode="numeric" /><Input className="sm:col-span-2 lg:col-span-4" value={row.address} onChange={event => setRow(row.id, { address: event.target.value })} placeholder="Açık adres *" /><Input type="date" value={row.authorityStart} onChange={event => setRow(row.id, { authorityStart: event.target.value })} aria-label={`Mülk ${index + 1} yetki başlangıç tarihi`} /><Input type="date" value={row.authorityEnd} onChange={event => setRow(row.id, { authorityEnd: event.target.value })} aria-label={`Mülk ${index + 1} yetki bitiş tarihi`} /></div></div>)}</div>
-      <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" onClick={addRow}><Plus className="mr-2 h-4 w-4" /> Mülk satırı ekle</Button><Button type="button" onClick={() => void save()} disabled={saving} className="bg-[#173e39] hover:bg-[#20554e]"><Save className="mr-2 h-4 w-4" />{saving ? "Kaydediliyor…" : "Mülkleri toplu kaydet"}</Button><Button type="button" variant="outline" onClick={() => void exportExcel()} disabled={!exportRows.length || saving}><FileSpreadsheet className="mr-2 h-4 w-4" /> Excel’e aktar</Button><Button type="button" variant="outline" onClick={printPdf} disabled={!exportRows.length || saving}><Printer className="mr-2 h-4 w-4" /> PDF liste</Button></div><div className="flex items-center gap-2 rounded-lg bg-[#f7fbf8] px-3 py-2 text-xs text-[#5e716a]"><Download className="h-3.5 w-3.5" />{exportRows.length ? `${exportRows.length} kayıt dışa aktarmaya hazır.` : "Önce mülk kaydı oluşturun; sonra Excel veya PDF olarak dışa aktarın."}</div>
+      <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" onClick={addRow}><Plus className="mr-2 h-4 w-4" /> Mülk satırı ekle</Button><Button type="button" onClick={() => void save()} disabled={saving} className="bg-[#173e39] hover:bg-[#20554e]"><Save className="mr-2 h-4 w-4" />{saving ? "Kaydediliyor…" : "Mülkleri toplu kaydet"}</Button><Button type="button" variant="outline" onClick={() => void exportExcel()} disabled={!exportRows.length || saving}><FileSpreadsheet className="mr-2 h-4 w-4" /> Excel’e aktar</Button><Button type="button" variant="outline" onClick={printPdf} disabled={!exportRows.length || saving}><Printer className="mr-2 h-4 w-4" /> PDF liste</Button></div>      <div className="flex items-center gap-2 rounded-lg bg-[#f7fbf8] px-3 py-2 text-xs text-[#5e716a]"><Download className="h-3.5 w-3.5" />{exportRows.length ? `${exportRows.length} kayıt dışa aktarmaya hazır.` : "Önce mülk kaydı oluşturun; sonra Excel veya PDF olarak dışa aktarın."}</div>
+      <DocumentPrintPreview
+        open={printPreviewOpen}
+        onOpenChange={setPrintPreviewOpen}
+        title="Mülk portföy listesi"
+        subtitle="Filtrelenmiş kayıtlar A4 yatay düzende yazdırılmadan önce burada incelenir."
+        fileName={`Global1881-Mulk-Portfoy-Listesi-${new Date().toISOString().slice(0, 10)}.pdf`}
+        onPrint={() => window.print()}
+      >
+        <article className="authority-print-document property-portfolio-print-document bg-white p-6 text-[#24322f]">
+          <div className="mb-4 border-b-2 border-[#173e39] pb-3">
+            <h1 className="font-serif text-2xl text-[#173e39]">GLOBAL 1881 — MÜLK PORTFÖY LİSTESİ</h1>
+            <p className="mt-1 text-xs text-[#64736e]">Oluşturulma tarihi: {new Date().toLocaleDateString("tr-TR")} · Kayıt sayısı: {exportRows.length}</p>
+          </div>
+          <table className="w-full border-collapse text-[9px]">
+            <thead><tr className="bg-[#eaf1ed]">{["Sıra No", "Portföy Tanımı", "Tür", "İşlem Amacı", "Açık Adres", "Malik / Müşteri", "Bedel", "Yetki Tarihleri", "Danışman"].map(label => <th key={label} className="border border-[#b8c5bf] p-1.5 text-left font-semibold">{label}</th>)}</tr></thead>
+            <tbody>{exportRows.map(row => <tr key={`${row.sequence}-${row.address}`}><td className="border border-[#b8c5bf] p-1.5">{row.sequence}</td><td className="border border-[#b8c5bf] p-1.5">{row.portfolioDescription}</td><td className="border border-[#b8c5bf] p-1.5">{row.type}</td><td className="border border-[#b8c5bf] p-1.5">{row.purpose}</td><td className="border border-[#b8c5bf] p-1.5">{row.address}</td><td className="border border-[#b8c5bf] p-1.5">{row.owner}</td><td className="border border-[#b8c5bf] p-1.5">{row.price}</td><td className="border border-[#b8c5bf] p-1.5">{row.authority}</td><td className="border border-[#b8c5bf] p-1.5">{row.consultant}</td></tr>)}</tbody>
+          </table>
+        </article>
+      </DocumentPrintPreview>
     </CardContent>
   </Card>;
 }
