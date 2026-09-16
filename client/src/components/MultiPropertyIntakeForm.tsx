@@ -112,7 +112,7 @@ export default function MultiPropertyIntakeForm({ records, access, onRefresh }: 
         const row = rows[index];
         const sequence = `${groupNo.trim()}-${String(index + 1).padStart(2, "0")}`;
         const title = `${sequence} · ${normalize(row.portfolioDescription)} · ${normalize(row.type)} · ${normalize(row.purpose)}`;
-        const details = `${normalize(row.address)} | PORTFÖY: ${normalize(row.portfolioDescription)} | TANIM: ${normalize(row.title)} | MALİK: ${normalize(client.title)} | BEDEL: ${row.price || "BELİRTİLMEDİ"} | YETKİ: ${row.authorityStart || ""}–${row.authorityEnd || ""}`;
+        const details = `${normalize(row.address)} | PORTFÖY: ${normalize(row.portfolioDescription)} | TANIM: ${normalize(row.title)} | MALİK: ${normalize(client.title)} | MÜŞTERİ_ID: ${client.id} | BEDEL: ${row.price || "BELİRTİLMEDİ"} | YETKİ: ${row.authorityStart || ""}–${row.authorityEnd || ""}`;
         const key = normalize(`${title}|${details}`);
         if (existingKeys.has(key)) { skipped++; continue; }
         await saveOfflineRecord({ entity: "property", title, details, status: "active" });
