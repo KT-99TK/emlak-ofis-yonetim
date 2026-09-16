@@ -11,6 +11,8 @@ describe("local consultant onboarding policy", () => {
 
   it("enforces the password strength policy", () => {
     expect(() => assertLocalPasswordPolicy("short")).toThrow();
+    expect(() => assertLocalPasswordPolicy("Aa1bcdef")).not.toThrow();
+    expect(() => assertLocalPasswordPolicy("abcdefgh")).toThrow();
     expect(() => assertLocalPasswordPolicy("StrongPassword1")).not.toThrow();
   });
 

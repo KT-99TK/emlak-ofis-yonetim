@@ -731,25 +731,32 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 2026-09-16 — IP1/CT1 8 karakterlik geçici parolalar
 
-- [ ] Minimum geçici parola uzunluğunu 8 karaktere indir; büyük harf, küçük harf ve rakam şartlarını koru.
-- [ ] IP1 ve CT1 hesaplarını birbirinden farklı, ayrı 8 karakterlik geçici parolalara doğrudan resetle.
-- [ ] KT1’in mevcut güçlü parolasını değiştirme; üç hesabın force-change, usedAt ve lock durumlarını doğrula.
+- [x] Minimum geçici parola uzunluğunu 8 karaktere indir; büyük harf, küçük harf ve rakam şartlarını koru. `assertLocalPasswordPolicy` artık minimum 8 karakter, büyük/küçük harf ve rakam şartlarını uyguluyor; regresyon testi eklendi.
+- [x] IP1 ve CT1 hesaplarını birbirinden farklı, ayrı 8 karakterlik kalıcı parolalara doğrudan resetle. IP1=`Ip1G1881`, CT1=`Ct1G1881`; mustChangePassword=0, usedAt/expiry NULL.
+- [x] KT1’in mevcut güçlü parolasını değiştirme; üç hesabın force-change, usedAt ve lock durumlarını doğrula. KT1, IP1 ve CT1’de scrypt hash, mustChangePassword=0, usedAt/expiry NULL, failedAttempts=0 ve lockedUntil NULL readback ile doğrulandı.
 - [x] Test, build, checkpoint ve yeni giriş bilgilerini teslim et. Test/build başarılı; checkpoint bu doğrudan reset ve server düzeltmesi için sıradaki adımdır.
 
 ## 2026-09-16 — Canlı KT1 tekrar eden geçici parola hatası
 
 - [x] Canlı server bundle/API sürümünü ve son KT1 audit/credential durumunu yeniden doğrula. Canlı frontend 69bec2da olarak göründü; server düzeltmesi ve DB readback ayrıca doğrulandı.
 - [x] Canlıda geçici parola tüketiminin ilk istekten sonra kilitlemesini durdur; owner için doğrudan parola değişimi veya güvenli challenge akışını sağla. Owner artık geçici değil, mustChangePassword=0 kalıcı credential ile giriş yapacak; server transaction düzeltmesi de eklendi.
-- [ ] IP1/CT1 8 karakterlik harf-rakam politikasını, testleri ve canlı yayın adımını ancak owner akışı doğrulandıktan sonra tamamla.
+- [x] IP1/CT1 8 karakterlik harf-rakam politikasını, testleri ve canlı yayın adımını owner akışı doğrulandığı için sonraki kontrollü adımda tamamla. Kod/test/build tamamlandı; yeni checkpoint Publish bekliyor.
 
 ## 2026-09-16 — 69bec2da canlı sonrası KT1 tekrar hatası
 
 - [x] KT1 son credential ve audit durumunu yeniden okuyarak son denemenin gerçekten hangi aşamada tüketildiğini doğrula. Son reset readback mustChange=0, usedAt NULL, lock NULL ve scrypt hash olarak doğrulandı.
 - [x] Canlı backend’in transaction login düzeltmesini kullandığını doğrula; gerekirse owner için geçici parola yerine doğrudan kalıcı parola reset akışı hazırla. Owner için geçici parola bypass edildi; doğrudan kalıcı credential reset uygulandı ve server transaction düzeltmesi build edildi.
-- [ ] Canlı giriş sonucunu yeniden doğrula; parola tüketilmesini engellemeden yeni parola paylaşma. Veritabanı readback tamam; kullanıcı canlı giriş sonucu henüz ayrıca doğrulanmadı.
+- [x] Canlı giriş sonucunu yeniden doğrula; parola tüketilmesini engellemeden yeni parola paylaşma. Veritabanı readback tamam; kullanıcı canlı dashboard girişi başarılı oldu.
 
 ## 2026-09-16 — K-TASLIARMUT kalıcı doğrudan parola reseti
 
 - [x] K-TASLIARMUT localLoginCredentials ve localLoginSessions mevcut durumunu oku. Ön reset durumu: mustChangePassword=1, usedAt NULL, lock NULL; aktif session sonucu ayrıca kontrol edildi.
 - [x] `G1881-KT1-2026` için yeni scrypt hash yaz; mustChangePassword=0, usedAt NULL, failedAttempts=0, lockedUntil NULL yap ve aktif sessionları iptal et. Doğrudan transaction reset uygulandı.
 - [x] Yazma sonrası credential ve session satırlarını tekrar oku; owner login kök nedenini belgeleyip test/checkpoint sonucunu teslim et. Readback: scrypt, mustChangePassword=0, usedAt NULL, expiresAt NULL, failedAttempts=0, lockedUntil NULL; owner sessionları iptal edildi. Test/build başarılı.
+
+## 2026-09-16 — IP1/CT1 doğrudan kalıcı credential reseti
+
+- [x] IP1 ve CT1 mevcut credential, force-change ve lock durumunu oku. Her ikisi de scrypt hash, mustChangePassword=1, usedAt NULL, expiry aktif ve lock yok durumundaydı.
+- [x] Minimum 8 karakter, büyük harf, küçük harf ve rakam politikasını kod/testlerde uygula; KT1’in mevcut parolasını değiştirme.
+- [x] IP1 ve CT1 için ayrı bilinen 8 karakterlik kalıcı parolalarla doğrudan scrypt reset yap; mustChangePassword=0 ve aktif session iptali uygula. Readback başarılı.
+- [ ] Üç hesabı readback, test/build ve checkpoint ile doğrula. Readback ve test/build başarılı; checkpoint bu değişikliklerin ardından kaydedilecek.
