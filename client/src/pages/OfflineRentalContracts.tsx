@@ -47,6 +47,7 @@ import {
   searchOfflineContractLookups,
 } from "@/lib/offlineContractLookup";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
+import { decodeOfflineClientDetails } from "@/lib/offlineClientDetails";
 import { formatIban } from "@/lib/textFormatting";
 import { formatTurkishDate } from "@/lib/turkishDate";
 import {
@@ -220,17 +221,22 @@ export default function OfflineRentalContracts() {
   const fillPerson = (id: string, kind: "owner" | "tenant") => {
     const record = people.find(item => item.id === id);
     if (!record) return;
+    const clientDetails = decodeOfflineClientDetails(record.details);
     if (kind === "owner")
       setDetails(current => ({
         ...current,
         ownerName: normalizeRentalField("ownerName", record.title),
-        ownerAddress: normalizeRentalField("ownerAddress", record.details || current.ownerAddress),
+        ownerIdentity: normalizeRentalField("ownerIdentity", clientDetails.identity || current.ownerIdentity),
+        ownerPhone: normalizeRentalField("ownerPhone", clientDetails.phone || current.ownerPhone),
+        ownerAddress: normalizeRentalField("ownerAddress", clientDetails.address || record.details || current.ownerAddress),
       }));
     else
       setDetails(current => ({
         ...current,
         tenantName: normalizeRentalField("tenantName", record.title),
-        tenantAddress: normalizeRentalField("tenantAddress", record.details || current.tenantAddress),
+        tenantIdentity: normalizeRentalField("tenantIdentity", clientDetails.identity || current.tenantIdentity),
+        tenantPhone: normalizeRentalField("tenantPhone", clientDetails.phone || current.tenantPhone),
+        tenantAddress: normalizeRentalField("tenantAddress", clientDetails.address || record.details || current.tenantAddress),
       }));
     if (kind === "owner") setOwnerRecordId(id);
     else setTenantRecordId(id);
@@ -244,7 +250,7 @@ export default function OfflineRentalContracts() {
         ...current,
         propertyAddress: normalizeRentalField(
           "propertyAddress",
-          record.details ? `${record.title} · ${record.details}` : record.title
+          record.details ? `${record.title} · ${decodeOfflineClientDetails(record.details).address || record.details}` : record.title
         ),
       }));
   };

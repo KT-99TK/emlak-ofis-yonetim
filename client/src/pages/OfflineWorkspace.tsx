@@ -63,13 +63,16 @@ export default function OfflineWorkspace() {
 
   const authorizedRecords = records.filter((record) => canViewFullOfflineContract(record, contractAccess));
   const visibleRecords = authorizedRecords.filter((record) => reportFilter === "all" ? true : reportFilter === "evacuationUpcoming" ? isUpcomingEvacuation(record) : record.entity === reportFilter);
-  const presentedVisibleRecords = visibleRecords.map((record) => maskUnauthorizedOfficeRecord(record, contractAccess));
+  const presentedVisibleRecords = visibleRecords.map((record) => {
+    const masked = maskUnauthorizedOfficeRecord(record, contractAccess);
+    return masked === record ? { ...record, details: presentOfflineRecord(record).summary } : masked;
+  });
   const upcomingEvacuations = authorizedRecords.filter(isUpcomingEvacuation).sort((a, b) => new Date(a.noticeDate ?? a.dueDate ?? 0).getTime() - new Date(b.noticeDate ?? b.dueDate ?? 0).getTime());
   const evacuationCount = authorizedRecords.filter((record) => record.entity === "evacuation").length;
   const pendingApprovalCount = authorizedRecords.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "pending").length;
   const approvedCount = authorizedRecords.filter((record) => record.entity === "ownerApproval" && record.approvalDecision === "approved").length;
 
-  const refresh = async () => setRecords((await listOfflineRecords()).map((record) => ({ ...record, details: presentOfflineRecord(record).summary })));
+  const refresh = async () => setRecords(await listOfflineRecords());
 
   useEffect(() => { if (isDesktop) void refresh(); }, [isDesktop]);
 
