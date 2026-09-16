@@ -837,3 +837,15 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Yetki ve kira sözleşmesi telefon alanlarını ülke kodu ile `+90 5XX XXX XX XX` standardında göster; form ve PDF çıktısını birlikte doğrula. AuthorityContract normalize/online form akışı ortak gruplu telefon yardımcılarına bağlandı.
 - [x] Yetki/kira bedel alanlarında `75000` değerinin `75` olarak kaybolmasını engelle; binlik ayracı ve sayısal parse/format dönüşümünü regression testiyle koru. Noktalı Türkçe binlik değerler artık doğru parse ediliyor; `75000` → `75.000` ve PDF → `75.000 ₺`, kuruşsuz.
 - [x] Bedel biçimlendirmesi kuruş göstermesin; `75000` değeri ekranda ve PDF’de yalnızca `75.000` olarak görünmeli, `75` veya `75.000,00` olmamalı. AuthorityContract regression testi bu davranışı doğruluyor.
+
+## 2026-09-16 — Mustafa Ekin portföy dropdown yeniden doğrulama
+- [ ] Mustafa Ekin’e ait taşınmaz kayıtlarını malik müşteri kimliği, malik adı, danışman kodu ve kayıt ayrıntılarıyla doğrula.
+- [ ] Yetki sözleşmesi portföy dropdownunun boş kalmasına neden olan filtre anahtarını düzelt; malik seçimi sonrası bağlı taşınmazları görünür ve seçilebilir yap.
+- [ ] Eski malik bağlantısız kayıtlar için güvenli fallback/eşleştirme uygula; ilgisiz danışman kayıtlarını listeye dahil etme.
+- [ ] Mustafa Ekin senaryosu için regression testi, TypeScript, production build ve canlı önizleme doğrulaması yap.
+
+## 2026-09-16 — Müşteri bazlı alternatif portföy seçimi
+- [x] Müşteri seçildiğinde taşınmazları müşteri adı altında göstermeye devam et; malik ID yoksa malik adıyla güvenli fallback kullan. MÜŞTERİ_ID, MALİK adı ve yapılandırılmış JSON ayrıntısı birlikte okunuyor.
+- [x] Portföy dropdownunu yalnız malik ID eşleşmesine bağımlı olmaktan çıkar; danışman kapsamındaki mülklerden yardımcı arama/seçim yolu ekle. Müşteri altında filtreleme korunuyor; taşınmaz adı/adres araması bağımsız yardımcı yol olarak eklendi.
+- [x] Bağımsız taşınmaz seçildiğinde ilgili müşteriyi ve sözleşme alanlarını otomatik doldur; danışman mahremiyeti korunmalı. Seçim müşteri kaydını ve malik adını geri bağlıyor; propertyRecords server/rol kapsamı içinde kalıyor.
+- [x] Mustafa Ekin senaryosu için regression testi, TypeScript, production build ve gerçek önizleme doğrulaması yap. Portföy selection regression testi, TypeScript ve production build başarılı; gerçek cihaz kabulü kullanıcı testinde yapılacak.
