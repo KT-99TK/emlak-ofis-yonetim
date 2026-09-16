@@ -20,6 +20,13 @@ describe("local consultant onboarding policy", () => {
     expect(isTemporaryPasswordReusable(0, new Date())).toBe(false);
   });
 
+  it("commits temporary-password consumption together with session creation", () => {
+    expect(source).toContain("await db.transaction(async tx =>");
+    expect(source).toContain("await tx.insert(localLoginSessions)");
+    expect(source).toContain("await tx.insert(auditLogs)");
+    expect(source).toContain("throw new Error(tempReuseMessage)");
+  });
+
   it("stores only a scrypt password hash and expires temporary passwords", () => {
     expect(source).toContain("scrypt$");
     expect(source).toContain("temporaryPasswordExpiresAt");

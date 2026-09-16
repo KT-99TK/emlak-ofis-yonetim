@@ -146,17 +146,29 @@ export async function loginLocalUser(input: { loginName: string; password: strin
     await writeLocalAudit(db, row.user.id, attempts >= MAX_FAILED_ATTEMPTS ? "local_login_locked" : "local_login_failed", row.user.id, `Yerel parola doğrulaması başarısız; deneme=${attempts}.`);
     throw new Error("Login adı veya parola hatalı.");
   }
-  if (row.credentials.mustChangePassword) {
-    const consumed = await db.update(localLoginCredentials).set({ temporaryPasswordUsedAt: new Date() }).where(and(eq(localLoginCredentials.userId, row.user.id), isNull(localLoginCredentials.temporaryPasswordUsedAt)));
-    if (!(consumed as { affectedRows?: number }).affectedRows) {
-      await writeLocalAudit(db, row.user.id, "local_login_temp_reused", row.user.id, "Tek kullanımlık geçici parola eşzamanlı tekrar kullanımda reddedildi.");
-      throw new Error("Geçici parola daha önce kullanıldı; broker managerdan yeni geçici parola isteyin.");
-    }
-  }
   const token = randomBytes(32).toString("base64url");
-  await db.insert(localLoginSessions).values({ tokenHash: hashToken(token), userId: row.user.id, expiresAt: new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000) });
-  await db.update(localLoginCredentials).set({ failedAttempts: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(localLoginCredentials.userId, row.user.id));
-  await writeLocalAudit(db, row.user.id, "local_login_success", row.user.id, `Yerel login başarılı; ilk_giriş=${Boolean(row.credentials.mustChangePassword)}.`);
+  const sessionExpiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
+  const tempReuseMessage = "Geçici parola daha önce kullanıldı; broker managerdan yeni geçici parola isteyin.";
+  if (row.credentials.mustChangePassword) {
+    try {
+      await db.transaction(async tx => {
+        const consumed = await tx.update(localLoginCredentials).set({ temporaryPasswordUsedAt: new Date() }).where(and(eq(localLoginCredentials.userId, row.user.id), isNull(localLoginCredentials.temporaryPasswordUsedAt)));
+        if (!(consumed as { affectedRows?: number }).affectedRows) throw new Error(tempReuseMessage);
+        await tx.insert(localLoginSessions).values({ tokenHash: hashToken(token), userId: row.user.id, expiresAt: sessionExpiresAt });
+        await tx.update(localLoginCredentials).set({ failedAttempts: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(localLoginCredentials.userId, row.user.id));
+        await tx.insert(auditLogs).values({ actorUserId: row.user.id, action: "local_login_success", entityType: "local_auth", entityId: row.user.id, summary: "Yerel login başarılı; ilk_giriş=true." });
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === tempReuseMessage) {
+        await writeLocalAudit(db, row.user.id, "local_login_temp_reused", row.user.id, "Tek kullanımlık geçici parola eşzamanlı tekrar kullanımda reddedildi.");
+      }
+      throw error;
+    }
+  } else {
+    await db.insert(localLoginSessions).values({ tokenHash: hashToken(token), userId: row.user.id, expiresAt: sessionExpiresAt });
+    await db.update(localLoginCredentials).set({ failedAttempts: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(localLoginCredentials.userId, row.user.id));
+    await writeLocalAudit(db, row.user.id, "local_login_success", row.user.id, "Yerel login başarılı; ilk_giriş=false.");
+  }
   setLocalSessionCookie(input.res, token);
   return { userId: row.user.id, loginName: row.credentials.loginName, mustChangePassword: Boolean(row.credentials.mustChangePassword) };
 }
