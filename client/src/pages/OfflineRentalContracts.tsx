@@ -129,6 +129,7 @@ export default function OfflineRentalContracts() {
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [recordsLoading, setRecordsLoading] = useState(true);
   const userId = getUserId();
   const contractAccess = {
     userId,
@@ -168,7 +169,14 @@ export default function OfflineRentalContracts() {
     option => details.appendixSelection[option.kind]
   ).length;
 
-  const refresh = async () => setRecords(await listOfflineRecords());
+  const refresh = async () => {
+    setRecordsLoading(true);
+    try {
+      setRecords(await listOfflineRecords());
+    } finally {
+      setRecordsLoading(false);
+    }
+  };
   useEffect(() => {
     void refresh();
   }, []);
@@ -537,61 +545,61 @@ export default function OfflineRentalContracts() {
                     <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
                       Kiraya veren kaydı
                     </label>
-                    <Select
-                      value={ownerRecordId}
-                      onValueChange={id => fillPerson(id, "owner")}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Malik seçin" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {people.map(item => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <Select
+                        value={ownerRecordId}
+                        onValueChange={id => fillPerson(id, "owner")}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Malik seçin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {recordsLoading ? <SelectItem value="__loading-owner" disabled>Kayıtlar yükleniyor…</SelectItem> : people.length ? people.map(item => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.title}
+                            </SelectItem>
+                          )) : <SelectItem value="__empty-owner" disabled>Malik kaydı bulunamadı</SelectItem>}
+                        </SelectContent>
+                      </Select>
                   </div>
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
                       Kiracı kaydı
                     </label>
-                    <Select
-                      value={tenantRecordId}
-                      onValueChange={id => fillPerson(id, "tenant")}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Kiracı seçin" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {people.map(item => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <Select
+                        value={tenantRecordId}
+                        onValueChange={id => fillPerson(id, "tenant")}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Kiracı seçin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {recordsLoading ? <SelectItem value="__loading-tenant" disabled>Kayıtlar yükleniyor…</SelectItem> : people.length ? people.map(item => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.title}
+                            </SelectItem>
+                          )) : <SelectItem value="__empty-tenant" disabled>Kiracı kaydı bulunamadı</SelectItem>}
+                        </SelectContent>
+                      </Select>
                   </div>
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">
                       Portföy kaydı
                     </label>
-                    <Select
-                      value={propertyRecordId}
-                      onValueChange={fillProperty}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Mülk seçin" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {properties.map(item => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <Select
+                        value={propertyRecordId}
+                        onValueChange={fillProperty}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Mülk seçin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {recordsLoading ? <SelectItem value="__loading-property" disabled>Kayıtlar yükleniyor…</SelectItem> : properties.length ? properties.map(item => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.title}
+                            </SelectItem>
+                          )) : <SelectItem value="__empty-property" disabled>Mülk kaydı bulunamadı</SelectItem>}
+                        </SelectContent>
+                      </Select>
                   </div>
                 </div>
                 <section>

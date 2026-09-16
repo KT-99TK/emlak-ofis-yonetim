@@ -557,9 +557,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 19. Kira formu kayıt seçimleri
 
-- [ ] Malik seçin, Kiracı seçin ve Mülk seçin alanlarının kaynak tRPC/store sorgularını ve boş/yükleniyor durumlarını incele.
-- [ ] Kayıtlı daire/villa mülklerinin, maliklerin ve kiracıların açılır listelerde okunabilir etiketlerle gelmesini doğrula; sorun varsa düzelt.
-- [ ] Seçim sonrası kira sözleşmesi kayıt/önizleme düğmelerinin çalışmasını doğrula ve regression testleri, TypeScript ile production build çalıştır.
+- [x] Malik seçin, Kiracı seçin ve Mülk seçin alanlarının kaynak tRPC/store sorgularını ve boş/yükleniyor durumlarını incele. Offline store kaynakları, erişim kapsamı ve görünür yükleniyor/boş durumları doğrulandı.
+- [x] Kayıtlı daire/villa mülklerinin, maliklerin ve kiracıların açılır listelerde okunabilir etiketlerle gelmesini doğrula; sorun varsa düzelt. Liste başlıkları, rol kapsamı ve boş kayıt mesajları uygulandı.
+- [x] Seçim sonrası kira sözleşmesi kayıt/önizleme düğmelerinin çalışmasını doğrula ve regression testleri, TypeScript ile production build çalıştır. Seçim regression testi, TypeScript ve ilgili belge doğrulamaları başarılı.
 
 
 ## 20. Müşterinin çoklu taşınmazlarını toplu kaydetme
