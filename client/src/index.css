@@ -48,7 +48,7 @@ button:active { transform: scale(.98); }
 ::selection { background: #d6ba7b55; color: #173e39; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 
-.authority-print-document { --authority-print-font-size: 11pt; --document-ink: #173e39; --document-gold: #b48b42; --document-paper: #fffefd; --document-mist: #edf3ef; font-size: var(--authority-print-font-size); line-height: 1.58; }
+.authority-print-document { --authority-print-font-size: 11pt; --document-ink: #173e39; --document-gold: #b48b42; --document-paper: #fffefd; --document-mist: #edf3ef; box-sizing: border-box; font-size: var(--authority-print-font-size); line-height: 1.58; }
 .authority-print-running-header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #d8d0bc; margin-bottom: 1.3rem; padding-bottom: .55rem; color: #7d6439; font-family: 'DM Sans', sans-serif; font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; }
 .authority-print-body { white-space: pre-wrap; overflow-wrap: anywhere; }
 .authority-print-running-footer { border-top: 1px solid #d8d0bc; margin-top: 1.5rem; padding-top: .55rem; color: #7b817e; font-family: 'DM Sans', sans-serif; font-size: 8pt; }
@@ -91,9 +91,11 @@ button:active { transform: scale(.98); }
 .authority-document-section, .authority-document-conditions { margin-top: 4.5mm; break-inside: avoid; }
 .authority-document-section h3, .authority-document-conditions h3 { position: relative; margin: 0 0 1.6mm; padding: 1.6mm 2.8mm 1.5mm 4.2mm; border-left: 2.2mm solid var(--document-gold); background: linear-gradient(90deg, #e7f0ec, #f8faf8); color: var(--document-ink); font-family: 'DM Sans', sans-serif; font-size: 9.6pt; font-weight: 750; letter-spacing: .045em; }
 .authority-contract-document table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 8.8pt; }
-.authority-contract-document th, .authority-contract-document td { border: 1px solid #aebbb4; padding: 1.85mm 2.4mm; text-align: left; vertical-align: top; line-height: 1.4; }
+.authority-contract-document th, .authority-contract-document td { border: 1px solid #aebbb4; padding: 1.85mm 2.4mm; text-align: left; vertical-align: middle; line-height: 1.4; }
 .authority-contract-document th { width: 19%; background: #f1f5f2; color: #294940; font-weight: 700; }
 .authority-contract-document td { width: 31%; color: #202b28; }
+.authority-contract-document .authority-document-section > table td { text-align: center; }
+.rental-fixture-table td:nth-child(2), .rental-fixture-table td:nth-child(4) { text-align: left !important; }
 .authority-document-conditions ol { margin: 3.5mm 0 0; padding-left: 8.5mm; list-style: decimal outside !important; }
 .authority-document-conditions li { display: list-item !important; margin: 0 0 3.1mm; padding-left: 1.4mm; list-style-type: decimal !important; text-align: justify; line-height: 1.62; }
 .authority-document-conditions li::marker { color: var(--document-gold); font-weight: 700; }
@@ -181,7 +183,6 @@ button:active { transform: scale(.98); }
 .rental-selected-appendices-heading { display: none; }
 .rental-trace-unassigned .rental-advisor-trace { display: none; }
 .rental-advisor-trace { margin-top: 10px; font-size: 9px; color: #8c9692; text-align: right; letter-spacing: .01em; }
-.authority-contract-document table td { text-align: center; vertical-align: middle; }
 .authority-contract-document table th { vertical-align: middle; }
 @media (min-width: 1280px) {
   .offline-operation-grid { grid-template-columns: minmax(0, 1fr) minmax(248px, 280px); align-items: start; }
@@ -193,7 +194,7 @@ button:active { transform: scale(.98); }
 }
 
 @media print {
-  @page { size: A4 portrait; margin: 12mm 12mm 16mm; }
+  @page { size: A4 portrait; margin: 20mm 20mm 22mm; }
   body { background: #fff !important; }
   body * { visibility: hidden !important; }
   .authority-print-shell, .authority-print-shell * { visibility: visible !important; }
@@ -202,13 +203,15 @@ button:active { transform: scale(.98); }
   .authority-print-shell, .authority-print-shell > div, .authority-print-shell article { border: 0 !important; box-shadow: none !important; background: #fff !important; border-radius: 0 !important; }
   .authority-print-document { padding: 0 !important; min-height: auto !important; font-size: var(--authority-print-font-size) !important; line-height: 1.62 !important; }
   .authority-contract-document { width: auto !important; max-width: none !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
-  .authority-document-section, .authority-document-conditions, .authority-document-signatures { break-inside: avoid-page; }
+  .authority-document-section, .authority-document-signatures { break-inside: avoid-page; }
+  .authority-document-conditions { break-inside: auto; }
+  .authority-contract-document table tr { break-inside: avoid; }
   .authority-print-document { --authority-print-font-size: 10.2pt; }
-  .authority-contract-document { padding: 0 5mm !important; }
-  .authority-document-title { margin-top: 2mm; }
-  .authority-document-conditions li { margin-bottom: 2.4mm; line-height: 1.5; }
+  .authority-contract-document { padding: 0 2mm !important; }
+  .authority-document-title { margin-top: 0; margin-bottom: 4mm; }
+  .authority-document-conditions li { margin-bottom: 2.4mm; line-height: 1.5; break-inside: avoid; }
   .authority-document-seal-image { opacity: 1; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .rental-contract-document .authority-document-rule { margin-top: 2mm; }
+  .rental-contract-document .authority-document-rule { margin-top: 0; margin-bottom: 3mm; }
   .rental-advisor-trace { color: #7b817e; }
   .rental-appendix-document { display: block !important; }
   .rental-print-contract .rental-appendix-document { display: none !important; }
@@ -218,6 +221,7 @@ button:active { transform: scale(.98); }
   .authority-print-shell .grid > .rounded-2xl, .authority-print-shell .rounded-2xl { break-inside: avoid-page; }
   .offline-operation-aside { display: none !important; }
   .authority-contract-document table { font-size: calc(var(--authority-print-font-size) - 1pt) !important; }
+  .authority-contract-document .authority-document-section > table td { text-align: center !important; vertical-align: middle !important; }
   .rental-fixture-table { font-size: calc(var(--authority-print-font-size) - 1.2pt) !important; }
   .authority-document-conditions ol { list-style: decimal outside !important; }
   .authority-document-conditions li { display: list-item !important; list-style-type: decimal !important; }

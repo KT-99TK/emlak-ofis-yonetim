@@ -810,3 +810,15 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Kat karşılığı sözleşme kontrol akışı için frontend/server regresyon testleri ekle.
 - [x] Sözleşme belgesi tablolarındaki doldurulmuş değerleri yatay ve dikey olarak ortala; A4 PDF çıktısında okunabilirliği doğrula.
 - [x] Kontrol listesi son adımı, sözleşme kaydı, PDF ve mobil görünümü masaüstü/mobil testlerle doğrula.
+
+## 2026-09-16 — Yetki sözleşmesi Word benzeri sayfa marjı
+- [x] Yetki sözleşmesi A4 yazdırma marjlarını üst/alt/sağ/sol yaklaşık 2,54 cm olacak şekilde eşitle.
+- [x] Başlık, alt bilgi, tablo ve imza alanlarının güvenli sayfa boşluklarını optimize et; gereksiz üç sayfa taşmasını önle.
+- [x] Yetki sözleşmesi PDF sayfa sayısını ve masaüstü/mobil görünümü doğrula.
+
+## 2026-09-16 — Tüm belge türleri için ortak A4 standardı
+- [x] Kira, yetki, satış, kat karşılığı, teknik şartname ve teslim eklerinin belge bileşenlerini ortak yazdırma sınıfları açısından envanterle.
+- [x] Tüm A4 belgeleri için Word’e yakın ortak marj, yazı boyutu, satır aralığı, başlık, alt bilgi ve güvenli alan standardı oluştur.
+- [x] Tüm belge tablolarında başlık/değer hizası, dikey ortalama, hücre iç boşluğu ve imza alanı standardını uygula.
+- [x] Uzun sözleşme, teknik şartname ve teslim eklerinde sayfa taşması ile portrait/landscape istisnalarını belge türüne göre doğrula.
+- [x] Ortak belge standardı için regression testleri, build ve masaüstü/mobil/PDF görsel doğrulaması yap.
