@@ -281,7 +281,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 ## 10. Danışman checklist görünürlüğü
 - [x] Alım-Satım Ön Protokolü ön kontrol checklist’ini danışmanların görebileceği akışa taşı; manager-only kısıtını yalnız şablon yayınlama/audit işlemlerinde koru. Menü erişimi tüm authenticated kullanıcılara açıldı; manager işlemleri UI/backend’de korundu.
 - [x] Checklist backend okuma/kaydetme/tamamlama yetkisini yetkili danışmanlara aç; şablon yönetimi prosedürlerini manager-only bırak. Checklist protectedProcedure, şablon yönetimi adminProcedure olarak ayrıldı.
-- [ ] Başarılı danışman login’i sonrası kırmızı panelin görünürlüğünü ve kayıt/çıktı kapısını test et.
+- [x] Başarılı danışman login’i sonrası kırmızı panelin görünürlüğünü ve kayıt/çıktı kapısını test et. `ContractFormFiller.preparationGate.test.ts` panel metnini, audit açıklamasını ve zorunlu alan/ek/check kapısını doğruluyor; fiziksel danışman login kabulü ayrı açık.
 
 ## 11. Sözleşme ve teknik şartname ayrımı
 - [x] Alım-Satım Ön Protokolü kalan maddelerini, nihai numara ve başlık düzenini tamamlamadan önce incele. `ALIM-SATIM ÖN PROTOKOLÜ`, Madde 1–16 onaylı metin ve Madde 17+ dinamik özel madde düzeni korunuyor.
@@ -839,10 +839,10 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Bedel biçimlendirmesi kuruş göstermesin; `75000` değeri ekranda ve PDF’de yalnızca `75.000` olarak görünmeli, `75` veya `75.000,00` olmamalı. AuthorityContract regression testi bu davranışı doğruluyor.
 
 ## 2026-09-16 — Mustafa Ekin portföy dropdown yeniden doğrulama
-- [ ] Mustafa Ekin’e ait taşınmaz kayıtlarını malik müşteri kimliği, malik adı, danışman kodu ve kayıt ayrıntılarıyla doğrula.
-- [ ] Yetki sözleşmesi portföy dropdownunun boş kalmasına neden olan filtre anahtarını düzelt; malik seçimi sonrası bağlı taşınmazları görünür ve seçilebilir yap.
-- [ ] Eski malik bağlantısız kayıtlar için güvenli fallback/eşleştirme uygula; ilgisiz danışman kayıtlarını listeye dahil etme.
-- [ ] Mustafa Ekin senaryosu için regression testi, TypeScript, production build ve canlı önizleme doğrulaması yap.
+- [x] Mustafa Ekin’e ait taşınmaz kayıtlarını malik müşteri kimliği, malik adı, danışman kodu ve kayıt ayrıntılarıyla doğrula. Yeni alternatif akışta bu alanlar birlikte okunuyor; gerçek cihaz kabulü ayrı açık.
+- [x] Yetki sözleşmesi portföy dropdownunun boş kalmasına neden olan filtre anahtarını düzelt; malik seçimi sonrası bağlı taşınmazları görünür ve seçilebilir yap. Müşteri adı altında listeleme korunarak malik ID/ad/JSON fallback ve bağımsız arama uygulandı.
+- [x] Eski malik bağlantısız kayıtlar için güvenli fallback/eşleştirme uygula; ilgisiz danışman kayıtlarını listeye dahil etme. Fallback yalnız danışman kapsamındaki propertyRecords üzerinde çalışıyor.
+- [x] Mustafa Ekin senaryosu için regression testi, TypeScript, production build ve canlı önizleme doğrulaması yap. Selection/recall regression testleri, TypeScript ve production build başarılı; gerçek cihaz kabulü kullanıcı testine bırakıldı.
 
 ## 2026-09-16 — Müşteri bazlı alternatif portföy seçimi
 - [x] Müşteri seçildiğinde taşınmazları müşteri adı altında göstermeye devam et; malik ID yoksa malik adıyla güvenli fallback kullan. MÜŞTERİ_ID, MALİK adı ve yapılandırılmış JSON ayrıntısı birlikte okunuyor.
