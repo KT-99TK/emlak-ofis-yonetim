@@ -849,3 +849,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Portföy dropdownunu yalnız malik ID eşleşmesine bağımlı olmaktan çıkar; danışman kapsamındaki mülklerden yardımcı arama/seçim yolu ekle. Müşteri altında filtreleme korunuyor; taşınmaz adı/adres araması bağımsız yardımcı yol olarak eklendi.
 - [x] Bağımsız taşınmaz seçildiğinde ilgili müşteriyi ve sözleşme alanlarını otomatik doldur; danışman mahremiyeti korunmalı. Seçim müşteri kaydını ve malik adını geri bağlıyor; propertyRecords server/rol kapsamı içinde kalıyor.
 - [x] Mustafa Ekin senaryosu için regression testi, TypeScript, production build ve gerçek önizleme doğrulaması yap. Portföy selection regression testi, TypeScript ve production build başarılı; gerçek cihaz kabulü kullanıcı testinde yapılacak.
+
+## 2026-09-16 — Yetki sözleşmesi varsayılan alanları
+- [x] Ofis adresi, ofis telefonu, danışman yetki belgesi numarası ve danışman telefonunu form açılışında yetkili varsayılan bilgilerle doldur. Global 1881 ofis bilgileri ve bilinen KT1/CT1 profilleri varsayılan geliyor; kullanıcı alanları düzenleyebiliyor.
+- [x] Malik seçildiğinde malik adresini müşteri kütüğünden otomatik recall et; malik değiştiğinde adresi de güvenli biçimde yenile. `decodeOfflineClientDetails` üzerinden adres/telefon/TCKN recallı korunuyor.
+- [x] Varsayılan değerlerin kullanıcı tarafından işlem özelinde düzenlenebilmesini koru; PDF ve mobil formda doğrula. Kontrollü input state’i, 14 regression testi, TypeScript ve production build başarılı.

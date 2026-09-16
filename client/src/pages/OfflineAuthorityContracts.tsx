@@ -44,6 +44,23 @@ const requiredLabels: Partial<Record<keyof AuthorityContractDetails, string>> = 
   ownerName: "Malik adı / unvanı", ownerIdentity: "TCKN / VKN", ownerPhone: "Malik telefonu", ownerAddress: "Malik adresi", propertyAddress: "Taşınmaz açık adresi", propertyType: "Taşınmaz niteliği", price: "Sözleşmeye esas bedel", contractDate: "Sözleşme tarihi", consultantName: "Danışman adı", consultantPhone: "Danışman telefonu", consultantCode: "Danışman kodu", officeName: "Ofis unvanı", officeAuthorizationNo: "Ofis yetki belgesi no", officePhone: "Ofis telefonu", officeAddress: "Ofis adresi",
 };
 
+const DEFAULT_OFFICE_DETAILS: Pick<AuthorityContractDetails, "officeName" | "officeAuthorizationNo" | "officePhone" | "officeAddress"> = {
+  officeName: "Global 1881 Gayrimenkul",
+  officeAuthorizationNo: "3500211",
+  officePhone: "+90 534 975 05 82",
+  officeAddress: "HACI İSA MAHALLESİ 75. YIL CUMHURİYET CADDESİ NO:5/38 URLA",
+};
+
+const DEFAULT_CONSULTANTS: Record<string, Partial<Pick<AuthorityContractDetails, "consultantName" | "consultantCode" | "consultantPhone" | "consultantTitle">>> = {
+  "K-TASLIARMUT": { consultantName: "KAZIM TAŞLIARMUT", consultantCode: "3500211/001", consultantPhone: "+90 541 935 29 59", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  "I-PARIN": { consultantName: "İBRAHİM PARİN", consultantCode: "3500211/002", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  "C-TERCAN": { consultantName: "CAHİT TERCAN", consultantCode: "3500211/003", consultantPhone: "+90 503 304 21 55", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+};
+
+function defaultAuthorityDetails(userId: string) {
+  return normalizeAuthorityDetails({ ...emptyAuthorityDetails(), ...DEFAULT_OFFICE_DETAILS, ...(DEFAULT_CONSULTANTS[userId.trim().toUpperCase()] ?? {}) });
+}
+
 type AuthoritySnapshot = Partial<AuthorityContractDetails> & { schema?: string; contractNo?: string };
 type SaveVisualState = "idle" | "invalid" | "saved";
 
@@ -58,8 +75,9 @@ function existingAuthorityNumbers(records: OfflineRecord[]) {
 }
 
 export default function OfflineAuthorityContracts() {
+  const userId = getUserId();
   const [records, setRecords] = useState<OfflineRecord[]>([]);
-  const [details, setDetails] = useState<AuthorityContractDetails>(() => emptyAuthorityDetails());
+  const [details, setDetails] = useState<AuthorityContractDetails>(() => defaultAuthorityDetails(userId));
   const [clientRecordId, setClientRecordId] = useState("");
   const [propertyRecordId, setPropertyRecordId] = useState("");
   const [propertySearch, setPropertySearch] = useState("");
@@ -70,7 +88,6 @@ export default function OfflineAuthorityContracts() {
   const [saveAttempted, setSaveAttempted] = useState(false);
   const [saveVisualState, setSaveVisualState] = useState<SaveVisualState>("idle");
   const [message, setMessage] = useState("");
-  const userId = getUserId();
   const contractAccess = { userId, role: getOfflineAccessRole(), managerSessionActive: isLocalManagerSessionActive(), assistantAssignedUserIds: getOfflineAssistantAssignedUserIds() } as const;
   const canEnterSensitive =
     contractAccess.managerSessionActive || contractAccess.role === "consultant";
