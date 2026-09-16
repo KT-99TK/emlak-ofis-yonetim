@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const homeSource = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
 const rateSource = readFileSync(new URL("./ExchangeRateCard.tsx", import.meta.url), "utf8");
+const taskSource = readFileSync(new URL("./PersonalTaskPanel.tsx", import.meta.url), "utf8");
 
 describe("dashboard loading fallbacks", () => {
   it("does not leave central summary loading without a retry path", () => {
@@ -16,6 +17,12 @@ describe("dashboard loading fallbacks", () => {
     expect(rateSource).toContain("loadingTimedOut");
     expect(rateSource).toContain("Kur bilgisi gösterilemedi");
     expect(rateSource).toContain("rateQuery.refetch()");
+  });
+
+  it("does not leave the personal plan loading forever", () => {
+    expect(taskSource).toContain("taskLoadingTimedOut");
+    expect(taskSource).toContain("Kişisel plan yanıtı beklenenden uzun sürdü");
+    expect(taskSource).toContain("tasksQuery.refetch()");
   });
 });
 
