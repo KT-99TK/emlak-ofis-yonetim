@@ -63,10 +63,15 @@ export function maskPhone(value: string | null | undefined) {
 }
 
 export function maskIdentityOrTaxNo(value: string | null | undefined) {
-  if ((value ?? "").includes("•")) return value ?? null;
-  const digits = (value ?? "").replace(/\D/g, "");
+  const raw = value ?? "";
+  if (raw.includes("*") || raw.includes("•")) return raw || null;
+  const digits = raw.replace(/\D/g, "");
   if (!digits) return null;
-  return `••••••••${digits.slice(-Math.min(4, digits.length))}`;
+  if (digits.length <= 4) return "*".repeat(digits.length);
+  const prefixLength = digits.length >= 10 ? 2 : 1;
+  const suffixLength = 2;
+  const hiddenLength = Math.max(1, digits.length - prefixLength - suffixLength);
+  return `${digits.slice(0, prefixLength)}${"*".repeat(hiddenLength)}${digits.slice(-suffixLength)}`;
 }
 
 export function containsSensitiveValue(value: string) {

@@ -18,6 +18,13 @@ describe("customer reference numbers and search", () => {
     expect(source).toContain("search.trim() || \"yok\"");
   });
 
+  it("keeps TCKN/VKN out of normal customer lists and daily PDF headings", () => {
+    const source = readFileSync(new URL("./Records.tsx", import.meta.url), "utf8");
+    expect(source).not.toContain("identityOrTaxNo");
+    expect(source).not.toContain(">TCKN<");
+    expect(source).not.toContain(">VKN<");
+  });
+
   it("generates office-wide references with a four-digit sequence", () => {
     const source = readFileSync(new URL("../../../server/db.ts", import.meta.url), "utf8");
     expect(source).toContain("nextClientReferenceNo");

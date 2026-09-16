@@ -787,8 +787,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [ ] Müşteri kütüğünü tek ana kayıt ekranı yap; merkezi müşteri numarası ve danışman ataması ana kaynak olsun.
 - [ ] Sözleşme ekranında mevcut müşteriyi merkezi no/ad ile çağır; yeni müşteri için kısa kayıt açıp kütüğe bağla.
 - [ ] Sözleşme verisinden müşteri kütüğüne aktarımda açık onay ve duplicate kontrolü kullan; sessiz otomatik overwrite yapma.
-- [ ] E-devlet/T.C. numarasını sözleşme çıktısında açık göster; listelerde başlangıç ve son rakamlar görünür, ara rakamlar `*` ile maskeli olsun.
-- [ ] T.C./VKN alanını normal müşteri listesi aramasına ve günlük PDF listesine dahil etme; sözleşme yetkisi ve audit kapsamını koru.
+- [x] E-devlet/T.C. numarasını sözleşme çıktısında açık göster; listelerde başlangıç ve son rakamlar görünür, ara rakamlar `*` ile maskeli olsun. Liste standardı `12*******01` olarak uygulandı.
+- [x] T.C./VKN alanını normal müşteri listesi aramasına ve günlük PDF listesine dahil etme; sözleşme yetkisi ve audit kapsamını koru. Records ekranı ve günlük PDF kolonları kimlik alanı içermiyor.
 - [ ] Recall, hızlı yeni müşteri kaydı, maskeleme, yetki, PDF, test/build ve responsive doğrulamasını tamamla.
 
 ## 2026-09-16 — Sözleşme ekranı ve çıktı düzeni
@@ -799,7 +799,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Sözleşme müşteri alanlarını müşteri kütüğünden recall et; sözleşmede TCKN etiketini `TCKN:` olarak açık göster.
 - [x] Sözleşme yazdırma/PDF çıktısını gerçek A4 portrait akışına göre ortala; üç sayfalık gereksiz taşma ve kötü sayfa ortalamasını düzelt.
 - [x] Maddeler, taraf bilgileri ve imza alanını örnek sözleşmedeki dengeli yerleşime göre düzenle.
-- [ ] Sözleşme formu, müşteri recall, maskeleme, telefon/tarih, PDF sayfa sayısı ve mobil görünüm için testleri güncelle.
+- [x] Sözleşme formu, müşteri recall, maskeleme, telefon/tarih, PDF sayfa sayısı ve mobil görünüm için testleri güncelle. İlgili source/privacy/form/PDF testleri, TypeScript, build ve görsel kontroller başarılı.
 
 ## 2026-09-16 — Kat karşılığı sözleşmesi kontrol adımı düzeltmesi
 - [x] Ön kontrol listesini sözleşme formunun başından kaldır; tüm sözleşme alanları doldurulduktan sonra son kayıt/onay adımında göster.

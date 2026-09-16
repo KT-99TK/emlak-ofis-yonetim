@@ -12,7 +12,7 @@ import { canRevealSensitiveForScope } from "./db";
 describe("hassas veri mahremiyeti", () => {
   it("telefon ve kimlik değerlerini varsayılan yanıtta maskeler", () => {
     expect(maskPhone("0532 123 45 67")).toBe("05•• ••• •• 67");
-    expect(maskIdentityOrTaxNo("12345678901")).toBe("••••••••8901");
+    expect(maskIdentityOrTaxNo("12345678901")).toBe("12*******01");
   });
 
   it("yeni sözleşme ayrıntılarında ham değer yerine maskeyi bırakır", () => {
@@ -22,7 +22,7 @@ describe("hassas veri mahremiyeti", () => {
     expect(result.maskedDetails).not.toContain(rawPhone);
     expect(result.maskedDetails).not.toContain(rawIdentity);
     expect(result.maskedDetails).toContain("05•• ••• •• 67");
-    expect(result.maskedDetails).toContain("••••••••8901");
+    expect(result.maskedDetails).toContain("12*******01");
     expect(result.sensitiveFields).toEqual([
       { fieldPath: "ownerPhone", value: rawPhone },
       { fieldPath: "tenantIdentity", value: rawIdentity },
