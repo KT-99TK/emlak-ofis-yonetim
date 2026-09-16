@@ -409,17 +409,17 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] IBAN temel değerini boşluklardan arındırıp korurken görüntüleme değerini ülke kodu dahil dörderli gruplara ayır; geçersiz karakterleri kabul etme veya açık uyarı göster. Temel değer normalize ediliyor; görünüm `TR12 3456 7890 ...` biçiminde dörderli gruplara ayrılıyor.
 - [x] IBAN biçimlendirme ile Türkçe büyük harf normalizasyonunu kira/yetki form regression ve görsel kontrolleriyle doğrula. Test ve A4/önizleme görsel kontrolleri tamamlandı; checkpoint `66465732` ile yayımlandı.
 
-- [ ] GitHub hesabı `KT-99TK` ile projeyi bağla ve `global1881-emlak` adında private repository oluştur.
-- [ ] Client, server, shared, drizzle schema/migrations, package/config/test/docs kaynaklarını repository’ye gönder; secret, `.env`, token ve anahtarları dışarıda bırak.
-- [ ] GitHub repository görünürlüğünü, dosya kapsamını ve gönderilen dosya sayısını doğrula; repository URL’sini kullanıcıya teslim et.
+- [x] GitHub hesabı `KT-99TK` ile projeyi bağla ve `global1881-emlak` adında private repository oluştur. Doğru mevcut hedef `KT-99TK/emlak-ofis-yonetim` olarak doğrulandı; eski ad hedef dışı bırakıldı.
+- [x] Client, server, shared, drizzle schema/migrations, package/config/test/docs kaynaklarını repository’ye gönder; secret, `.env`, token ve anahtarları dışarıda bırak. GitHub main ağacı 537 dosya; secret/.env dosya adı taramasında eşleşme yok.
+- [x] GitHub repository görünürlüğünü, dosya kapsamını ve gönderilen dosya sayısını doğrula; repository URL’sini kullanıcıya teslim et. Private, main, 537 dosya; URL: https://github.com/KT-99TK/emlak-ofis-yonetim
 
-- [ ] GitHub Connector’ın KT-99TK hesabında kurulu görünmesine rağmen Settings → GitHub ekranında Connect döngüsünü teşhis et.
-- [ ] OAuth bağlantısı repository owner/name/visibility kartına ulaşırsa `global1881-emlak` private repository export’unu tamamla; ulaşmazsa destek aktarımı için hata durumunu belgeleyip kullanıcıya kalan tek adımı bildir.
-- [ ] GitHub export sonrası repository URL’sini, private görünürlüğünü, secret/.env dışlamasını ve gönderilen dosya sayısını doğrula.
+- [x] GitHub Connector’ın KT-99TK hesabında kurulu görünmesine rağmen Settings → GitHub ekranında Connect döngüsünü teşhis et. Eski `global1881-emlak` hedefi yerine doğru `emlak-ofis-yonetim` deposu kullanıldığı doğrulandı.
+- [x] OAuth bağlantısı repository owner/name/visibility kartına ulaşırsa `global1881-emlak` private repository export’unu tamamla; ulaşmazsa destek aktarımı için hata durumunu belgeleyip kullanıcıya kalan tek adımı bildir. Eski hedef adı yanlış olduğundan 404 veriyordu; doğru mevcut depo bağımsız GitHub API kontrolüyle doğrulandı.
+- [x] GitHub export sonrası repository URL’sini, private görünürlüğünü, secret/.env dışlamasını ve gönderilen dosya sayısını doğrula. URL, private/main, 537 dosya ve secret/.env dosya adı taraması doğrulandı.
 
-- [ ] GitHub App `KT-99TK` hesabında kurulu ve full permissions olmasına rağmen Manus proje binding’i owner/name/visibility kartına ilerlemiyor; Connect döngüsünü platform bug’ı olarak eskale et.
-- [ ] `KT-99TK/global1881-emlak` hedefini private repository olarak, Connect düğmesini yeniden denemeden, yalnızca desteklenen iç export yolu veya insan teknik destek üzerinden tamamla.
-- [ ] GitHub export tamamlanırsa source kapsamı, secret/.env dışlaması, private görünürlük ve dosya sayısını doğrula; tamamlanamazsa kullanıcıya açık teknik blokaj ve destek referansı ver.
+- [x] GitHub App `KT-99TK` hesabında kurulu ve full permissions olmasına rağmen Manus proje binding’i owner/name/visibility kartına ilerlemiyor; Connect döngüsünü platform bug’ı olarak eskale et. Proje artık doğru repository’ye bağlı/aktarılmış görünüyor; eski hedef adı kaynaklı döngü kapatıldı.
+- [x] `KT-99TK/global1881-emlak` hedefini private repository olarak, Connect düğmesini yeniden denemeden, yalnızca desteklenen iç export yolu veya insan teknik destek üzerinden tamamla. Doğru hedefin `KT-99TK/emlak-ofis-yonetim` olduğu doğrulandı; Connect düğmesi yeniden denenmedi.
+- [x] GitHub export tamamlanırsa source kapsamı, secret/.env dışlaması, private görünürlük ve dosya sayısını doğrula; tamamlanamazsa kullanıcıya açık teknik blokaj ve destek referansı ver. Export/backup doğrulandı: private main, 537 dosya, 286 commit ve secret/.env dosya adı eşleşmesi yok.
 
 - [x] Checkpoint yedekleri ile resmî Manus Task Data Backup kapsamını ayır ve kullanıcıya hangi yedeğin alındığını açıkça belgeleyen not hazırla. Ayrım `docs/backup-and-archive-guide.md` içinde belgelendi.
 - [x] Hassas secret, parola, token ve müşteri verilerini arşive taşımadan teknik kararlar/görüşme özeti için okunabilir proje arşivi hazırla. `docs/backup-and-archive-guide.md` oluşturuldu; tam sohbet dışa aktarımı olmadığı açıkça belirtiliyor.
@@ -854,3 +854,13 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Ofis adresi, ofis telefonu, danışman yetki belgesi numarası ve danışman telefonunu form açılışında yetkili varsayılan bilgilerle doldur. Offline ve web yetki ekranlarında Global 1881 ofis bilgileri, otomatik danışman kodu ve bilinen KT1/CT1 profilleri varsayılan geliyor; kullanıcı alanları düzenleyebiliyor.
 - [x] Malik seçildiğinde malik adresini müşteri kütüğünden otomatik recall et; malik değiştiğinde adresi de güvenli biçimde yenile. `decodeOfflineClientDetails` üzerinden adres/telefon/TCKN recallı korunuyor.
 - [x] Varsayılan değerlerin kullanıcı tarafından işlem özelinde düzenlenebilmesini koru; PDF ve mobil formda doğrula. Kontrollü input state’i, 14 regression testi, TypeScript ve production build başarılı.
+
+## 2026-09-16 — GitHub yedek ve senkronizasyon kontrolü
+- [x] Doğru repository hedefini `KT-99TK/emlak-ofis-yonetim` olarak koru; `global1881-emlak` adını hedef olarak kullanma.
+- [x] GitHub deposunun private görünürlüğünü, `main` dalını, kaynak kapsamını ve yeni commit senkronizasyonunu düzenli kontrol et. Mevcut kontrol: private/main, 537 dosya, son push 2026-09-16 17:38 UTC ve 286 commit.
+- [x] Manus ile GitHub arasında değişiklik yapmadan önce ana kaynak tarafını netleştir; önemli checkpoint sonrası karşı tarafta commit oluştuğunu doğrula. Ana kaynak Manus proje çalışma kopyası; checkpoint sonrası GitHub commit kontrolü uygulanıyor.
+- [x] Kullanıcının bildirdiği 254 commit ve depo kapsamını bağımsız kontrol sonucu ile güncelle; doğrulanamayan bilgileri kesinleşmiş kabul etme. Bağımsız GitHub API sonucu 286 commit ve 537 dosya; 254 sayısı eski ekran bilgisi olarak düzeltildi.
+
+## 2026-09-16 — GitHub doğrulama sonucu
+- [x] `KT-99TK/emlak-ofis-yonetim` private main deposunda secret, `.env`, token veya anahtar bulunmadığını kontrol et. GitHub tree taramasında eşleşen dosya adı bulunmadı; private-key/token marker taramasında eşleşme yok; tek hardcoded-secret regex eşleşmesi `server/privacy.test.ts` içindeki açıkça test-only JWT değeridir. Repository private, main ve 286 commit/537 dosya olarak doğrulandı.
+- [x] Doğrulanan GitHub deposunu eksik işler listesinden çıkar; yalnız checkpoint sonrası senkronizasyon kontrolünü koru. Doğru hedef `KT-99TK/emlak-ofis-yonetim`; son push ve commit kontrolü tamamlandı.
