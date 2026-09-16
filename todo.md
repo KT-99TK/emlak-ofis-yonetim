@@ -695,3 +695,10 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] `ct1` adlı müşteri kaydının ilişkilerini ve oluşturulma izini kontrol et. Kayıt `id=60001`, `0035`, 15.09.2026 20:10:57’de oluşturulmuş; property, contract, document, ledger, obligation, rental, task, transfer ve vault ilişkisi yoktu.
 - [x] İlişkisiz olduğu doğrulanırsa yanlış test kaydını sil; merkezi numara serisini geriye dönük yeniden numaralandırma. `ct1 / 0035` silindi; kalan 34 kayıt ve `0001–0034` merkezi seri korundu.
 - [x] Silme sonrası müşteri listesi, danışman eşleşmesi, duplicate kontrolü ve test/build/checkpoint doğrulamasını yap. Silme sonrası toplam müşteri 34, maksimum merkezi no 0034, duplicate merkezi no 0.
+
+## 2026-09-16 — KT1/IP1/CT1 geçici parola sıfırlaması
+
+- [x] KT1, IP1 ve CT1 yerel hesap adlarını doğrula. Hesaplar: K-TASLIARMUT, I-PARIN, C-TERCAN.
+- [x] Üç hesap için yeni geçici parola oluştur ve yalnız ilgili hesapların hash’lerini güncelle. Scrypt hashleri güncellendi; plaintext parola proje dosyasında tutulmadı.
+- [x] İlk girişte parola değiştirme zorunluluğunu koru; parola değerlerini proje dosyalarına veya loglara yazma. Üç hesapta `mustChangePassword=1`, kullanılma tarihi NULL ve 24 saatlik süre aktif.
+- [x] Giriş akışını doğrula ve kullanıcıya yeni giriş bilgilerini güvenli biçimde teslim et. Hesap satırları ve login adları doğrulandı; tam Vitest 125 dosya / 363 test, TypeScript ve production build başarılı.
