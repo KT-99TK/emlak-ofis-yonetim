@@ -24,7 +24,8 @@ describe("local consultant onboarding policy", () => {
     expect(source).toContain("await db.transaction(async tx =>");
     expect(source).toContain("await tx.insert(localLoginSessions)");
     expect(source).toContain("await tx.insert(auditLogs)");
-    expect(source).toContain("throw new Error(tempReuseMessage)");
+    expect(source).toContain("Geçici parola, zorunlu parola değişimi tamamlanana kadar yeniden giriş için kullanılabilir.");
+    expect(source).not.toContain("if (isTemporaryPasswordReusable(row.credentials.mustChangePassword, row.credentials.temporaryPasswordUsedAt))");
   });
 
   it("stores only a scrypt password hash and expires temporary passwords", () => {

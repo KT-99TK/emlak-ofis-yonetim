@@ -7,3 +7,7 @@ Canlı sayfa yerel danışman giriş ekranını gösteriyor: `K-TASLIARMUT` benz
 Bir sonraki kontrol: canlı frontend’in gerçekten `loginSubmitLock` düzeltmesini içerip içermediğini network/console veya yayınlanan asset içeriği üzerinden doğrulamak; ardından server tarafında temporaryPasswordUsedAt tüketimini güvenli akışa bağlamak.
 
 Tarayıcı console kontrolü canlı sayfanın `https://ofis.global1881.com/assets/index-DfUVs4_5.js` ve `index-CEyyOQof.css` asset’lerini yüklediğini gösterdi. Bu, canlıda checkpoint’teki son bundle’ın kullanılıp kullanılmadığını asset içeriği üzerinden doğrudan karşılaştırmayı mümkün kılıyor.
+
+08:48 canlı kontrolü: `ofis.global1881.com` hâlâ `assets/index-YhskIwao.js` bundle’ını sunuyor. Bu canlı deployment, 69bec2da checkpoint’inde bulunan server transaction düzeltmesinden önceki sürüm; 69bec2da Publish edilmeden KT1 geçici parola akışı eski server davranışını sürdürecek.
+
+08:57 otomatik yayın kontrolü: `ofis.global1881.com` hâlâ `assets/index-YhskIwao.js` bundle’ını sunuyor; otomatik Publish sonrasında canlı asset hash değişmedi. Bu nedenle 69bec2da’daki server transaction düzeltmesinin canlıya geçişi henüz doğrulanamadı.

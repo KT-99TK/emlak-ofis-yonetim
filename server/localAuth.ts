@@ -33,8 +33,8 @@ async function verifyPassword(password: string, encoded: string) {
 }
 
 export function assertLocalPasswordPolicy(password: string) {
-  if (password.length < 12 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
-    throw new Error("Parola en az 12 karakter, bir büyük harf, bir küçük harf ve bir rakam içermelidir.");
+  if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+    throw new Error("Parola en az 8 karakter, bir büyük harf, bir küçük harf ve bir rakam içermelidir.");
   }
 }
 
@@ -130,10 +130,9 @@ export async function loginLocalUser(input: { loginName: string; password: strin
     await writeLocalAudit(db, row.user.id, "local_login_locked", row.user.id, "Kilitli yerel hesaba giriş denemesi reddedildi.");
     throw new Error("Hesap geçici olarak kilitlendi; daha sonra tekrar deneyin.");
   }
-  if (isTemporaryPasswordReusable(row.credentials.mustChangePassword, row.credentials.temporaryPasswordUsedAt)) {
-    await writeLocalAudit(db, row.user.id, "local_login_temp_reused", row.user.id, "Tek kullanımlık geçici parola tekrar kullanıldı.");
-    throw new Error("Geçici parola daha önce kullanıldı; broker managerdan yeni geçici parola isteyin.");
-  }
+  // Geçici parola, zorunlu parola değişimi tamamlanana kadar yeniden giriş için kullanılabilir.
+  // Bu, ilk başarılı doğrulamada session yanıtı kaybolduğunda kullanıcının kilitlenmesini önler.
+  // Süre dolumu ve mustChangePassword zorunluluğu güvenlik sınırı olarak korunur.
   if (row.credentials.mustChangePassword && row.credentials.temporaryPasswordExpiresAt && row.credentials.temporaryPasswordExpiresAt <= new Date()) {
     await writeLocalAudit(db, row.user.id, "local_login_temp_expired", row.user.id, "Süresi dolan geçici parola reddedildi.");
     throw new Error("Geçici parolanın süresi doldu; broker managerdan yeni geçici parola isteyin.");
@@ -148,22 +147,13 @@ export async function loginLocalUser(input: { loginName: string; password: strin
   }
   const token = randomBytes(32).toString("base64url");
   const sessionExpiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
-  const tempReuseMessage = "Geçici parola daha önce kullanıldı; broker managerdan yeni geçici parola isteyin.";
   if (row.credentials.mustChangePassword) {
-    try {
-      await db.transaction(async tx => {
-        const consumed = await tx.update(localLoginCredentials).set({ temporaryPasswordUsedAt: new Date() }).where(and(eq(localLoginCredentials.userId, row.user.id), isNull(localLoginCredentials.temporaryPasswordUsedAt)));
-        if (!(consumed as { affectedRows?: number }).affectedRows) throw new Error(tempReuseMessage);
-        await tx.insert(localLoginSessions).values({ tokenHash: hashToken(token), userId: row.user.id, expiresAt: sessionExpiresAt });
-        await tx.update(localLoginCredentials).set({ failedAttempts: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(localLoginCredentials.userId, row.user.id));
-        await tx.insert(auditLogs).values({ actorUserId: row.user.id, action: "local_login_success", entityType: "local_auth", entityId: row.user.id, summary: "Yerel login başarılı; ilk_giriş=true." });
-      });
-    } catch (error) {
-      if (error instanceof Error && error.message === tempReuseMessage) {
-        await writeLocalAudit(db, row.user.id, "local_login_temp_reused", row.user.id, "Tek kullanımlık geçici parola eşzamanlı tekrar kullanımda reddedildi.");
-      }
-      throw error;
-    }
+    await db.transaction(async tx => {
+      await tx.update(localLoginCredentials).set({ temporaryPasswordUsedAt: new Date() }).where(and(eq(localLoginCredentials.userId, row.user.id), isNull(localLoginCredentials.temporaryPasswordUsedAt)));
+      await tx.insert(localLoginSessions).values({ tokenHash: hashToken(token), userId: row.user.id, expiresAt: sessionExpiresAt });
+      await tx.update(localLoginCredentials).set({ failedAttempts: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(localLoginCredentials.userId, row.user.id));
+      await tx.insert(auditLogs).values({ actorUserId: row.user.id, action: "local_login_success", entityType: "local_auth", entityId: row.user.id, summary: "Yerel login başarılı; ilk_giriş=true." });
+    });
   } else {
     await db.insert(localLoginSessions).values({ tokenHash: hashToken(token), userId: row.user.id, expiresAt: sessionExpiresAt });
     await db.update(localLoginCredentials).set({ failedAttempts: 0, lockedUntil: null, lastLoginAt: new Date() }).where(eq(localLoginCredentials.userId, row.user.id));

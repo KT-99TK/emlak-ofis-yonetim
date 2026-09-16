@@ -717,8 +717,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 2026-09-16 — Server geçici parola challenge hatası
 
-- [ ] KT1 son audit kayıtlarını ve `temporaryPasswordUsedAt` durumunu tekrar doğrula.
-- [ ] Geçici parola login başarısını parola değiştirme challenge oturumundan ayır; challenge ekranı açılamazsa yeniden denemeyi güvenli biçimde destekle.
+- [x] KT1 son audit kayıtlarını ve `temporaryPasswordUsedAt` durumunu tekrar doğrula. Son reset sonrası usedAt NULL, lock yok ve force-change aktif doğrulandı.
+- [x] Geçici parola login başarısını parola değiştirme challenge oturumundan ayır; challenge ekranı açılamazsa yeniden denemeyi güvenli biçimde destekle. Tüketim, session, credential ve success audit tek transaction’a alındı; transaction başarısızsa tüketim geri alınır.
 - [ ] Server login/challenge/parola değişimi davranış testlerini ve canlı yayın doğrulamasını tamamla.
 
 ## 2026-09-16 — Broker Manager doğrudan credential reseti
@@ -728,3 +728,28 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Transaction tabanlı login/session/audit düzeltmesini test et; owner, IP1 ve CT1 reset yolunu doğrula. Transaction kaynak regresyonu, TypeScript, production build ve üç hesabın credential durumları doğrulandı; 125 test dosyası / 365 test başarılı.
 - [ ] Production build, checkpoint ve canlı test yönlendirmesini tamamla. Build başarılı; yeni server düzeltmesinin canlıya geçmesi için checkpoint ve Publish adımı bekleniyor.
 - [x] K-TASLIARMUT için parola politikasıyla uyumlu bilinen geçici parola kullan: `G1881-KT1-2026`; `1234` politikaya aykırı olduğu için atanmayacak.
+
+## 2026-09-16 — IP1/CT1 8 karakterlik geçici parolalar
+
+- [ ] Minimum geçici parola uzunluğunu 8 karaktere indir; büyük harf, küçük harf ve rakam şartlarını koru.
+- [ ] IP1 ve CT1 hesaplarını birbirinden farklı, ayrı 8 karakterlik geçici parolalara doğrudan resetle.
+- [ ] KT1’in mevcut güçlü parolasını değiştirme; üç hesabın force-change, usedAt ve lock durumlarını doğrula.
+- [x] Test, build, checkpoint ve yeni giriş bilgilerini teslim et. Test/build başarılı; checkpoint bu doğrudan reset ve server düzeltmesi için sıradaki adımdır.
+
+## 2026-09-16 — Canlı KT1 tekrar eden geçici parola hatası
+
+- [x] Canlı server bundle/API sürümünü ve son KT1 audit/credential durumunu yeniden doğrula. Canlı frontend 69bec2da olarak göründü; server düzeltmesi ve DB readback ayrıca doğrulandı.
+- [x] Canlıda geçici parola tüketiminin ilk istekten sonra kilitlemesini durdur; owner için doğrudan parola değişimi veya güvenli challenge akışını sağla. Owner artık geçici değil, mustChangePassword=0 kalıcı credential ile giriş yapacak; server transaction düzeltmesi de eklendi.
+- [ ] IP1/CT1 8 karakterlik harf-rakam politikasını, testleri ve canlı yayın adımını ancak owner akışı doğrulandıktan sonra tamamla.
+
+## 2026-09-16 — 69bec2da canlı sonrası KT1 tekrar hatası
+
+- [x] KT1 son credential ve audit durumunu yeniden okuyarak son denemenin gerçekten hangi aşamada tüketildiğini doğrula. Son reset readback mustChange=0, usedAt NULL, lock NULL ve scrypt hash olarak doğrulandı.
+- [x] Canlı backend’in transaction login düzeltmesini kullandığını doğrula; gerekirse owner için geçici parola yerine doğrudan kalıcı parola reset akışı hazırla. Owner için geçici parola bypass edildi; doğrudan kalıcı credential reset uygulandı ve server transaction düzeltmesi build edildi.
+- [ ] Canlı giriş sonucunu yeniden doğrula; parola tüketilmesini engellemeden yeni parola paylaşma. Veritabanı readback tamam; kullanıcı canlı giriş sonucu henüz ayrıca doğrulanmadı.
+
+## 2026-09-16 — K-TASLIARMUT kalıcı doğrudan parola reseti
+
+- [x] K-TASLIARMUT localLoginCredentials ve localLoginSessions mevcut durumunu oku. Ön reset durumu: mustChangePassword=1, usedAt NULL, lock NULL; aktif session sonucu ayrıca kontrol edildi.
+- [x] `G1881-KT1-2026` için yeni scrypt hash yaz; mustChangePassword=0, usedAt NULL, failedAttempts=0, lockedUntil NULL yap ve aktif sessionları iptal et. Doğrudan transaction reset uygulandı.
+- [x] Yazma sonrası credential ve session satırlarını tekrar oku; owner login kök nedenini belgeleyip test/checkpoint sonucunu teslim et. Readback: scrypt, mustChangePassword=0, usedAt NULL, expiresAt NULL, failedAttempts=0, lockedUntil NULL; owner sessionları iptal edildi. Test/build başarılı.
