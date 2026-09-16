@@ -71,9 +71,12 @@ export default function AuthorityContracts() {
   useEffect(() => {
     const suggestion = nextNumber.data?.nextContractNo;
     if (suggestion && (!contractNo || contractNo.startsWith("YET-"))) setContractNo(suggestion);
+  }, [contractNo, nextNumber.data?.nextContractNo]);
+
+  useEffect(() => {
     const consultant = { ...consultantDefaultsFor(nextNumber.data?.consultantCode ?? undefined), consultantName: user?.name || consultantDefaultsFor(nextNumber.data?.consultantCode ?? undefined).consultantName || "" };
     setDetails((current) => ({ ...current, ...consultant, officeName: current.officeName || DEFAULT_OFFICE_DETAILS.officeName, officeAuthorizationNo: current.officeAuthorizationNo || DEFAULT_OFFICE_DETAILS.officeAuthorizationNo, officePhone: current.officePhone || DEFAULT_OFFICE_DETAILS.officePhone, officeAddress: current.officeAddress || DEFAULT_OFFICE_DETAILS.officeAddress }));
-  }, [contractNo, nextNumber.data?.nextContractNo, nextNumber.data?.consultantCode, user?.name]);
+  }, [nextNumber.data?.consultantCode, user?.name]);
 
   const update = (key: keyof AuthorityContractDetails, value: string) => {
     setSaved(false);
