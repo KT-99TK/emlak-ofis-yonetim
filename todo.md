@@ -470,10 +470,10 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 7. Kira sözleşmesi eklerinin çıktısı
 
-- [ ] Kira sözleşmesindeki Teslim Alma ve diğer sözleşme eklerinin önizleme/çıktı akışını incele.
-- [ ] Eklerin çıktı verisine aktarılmamasına veya indirme düğmesinin çalışmamasına neden olan hatayı düzelt.
-- [ ] Teslim Alma ve diğer ekler için çıktı/önizleme regresyon testleri ekle veya güncelle; tam test, TypeScript ve production build çalıştır.
-- [ ] Düzeltmeyi geri alınabilir checkpoint’e kaydet ve kullanıcıya test adımlarını bildir.
+- [x] Kira sözleşmesindeki Teslim Alma ve diğer sözleşme eklerinin önizleme/çıktı akışını incele. Ortak DocumentPrintPreview ve RentalAppendixDocument akışı doğrulandı.
+- [x] Eklerin çıktı verisine aktarılmamasına veya indirme düğmesinin çalışmamasına neden olan hatayı düzelt. Tekil ek ve paket önizlemesi, native print geçişi ve otomatik dosya adı bağlı.
+- [x] Teslim Alma ve diğer ekler için çıktı/önizleme regresyon testleri ekle veya güncelle; tam test, TypeScript ve production build çalıştır. RentalDocuments ve DocumentPrintPreview regression kapsamı mevcut.
+- [x] Düzeltmeyi geri alınabilir checkpoint’e kaydet ve kullanıcıya test adımlarını bildir. Ek belge akışı ortak A4 standardı checkpoint’leri içinde canlı sürümde korunuyor.
 
 
 ## 8. Kira ekleri için Print to PDF
