@@ -294,6 +294,11 @@ export function isTechnicalContractFormField(fieldKey: string) {
 
 export function parameterizeLandShareClauseBody(bodyTemplate: string) {
   return bodyTemplate
+    // Sanitizasyon sırasında isimlerin yerine geçici olarak bırakılan "ilgili taraf" ibareleri:
+    // arsa sahibi/yüklenici ve vekil/temsilci alanlarına bağlanır (madde 1 ve kapanış imza satırı).
+    .replace(/arsa sahibi ilgili taraf ve ilgili taraf'a ait olan taşınmaz/g, "arsa sahipleri {{landownerName}}'a ait olan taşınmaz")
+    .replace(/\(Vekili\) ___________________ ilgili taraf/g, "(Vekili) ___________________ {{landownerRepresentativeName}}")
+    .replace(/YÜKLENİCİ ___________________ ilgili taraf \/ ilgili taraf/g, "YÜKLENİCİ ___________________ {{contractorName}} / {{contractorRepresentativeName}}")
     .replace(/İzmir ili, Urla ilçesi, Güvendik Mahallesi'nde, tapunun L17-A-10-C-3-A ve L17-A-10-C-3-D paftaları, 2331 ada, 27 ve 39 parsel numaralarında kayıtlıdır\./g, "{{propertyProvince}} ili, {{propertyDistrict}} ilçesi, {{propertyNeighborhood}} Mahallesi'nde, tapunun {{titleDeedParcelDetails}} kayıtlıdır.")
     .replace(/24 daire ve 4 ikiz villa olmak üzere toplam 28 bağımsız bölüm/g, "{{apartmentAndVillaCounts}} olmak üzere toplam {{totalIndependentSections}} bağımsız bölüm")
     .replace(/Bu kapsamda;[\s\S]*?(?=d\. Kat mülkiyeti yönetim planına)/g, "Bu kapsamda; {{independentSectionDistribution}}. ")
@@ -325,14 +330,15 @@ export function parameterizeLandShareClauseBody(bodyTemplate: string) {
     .replace(/60 gün içinde yeni bir vekil/g, "{{heirReplacementDeadlineDays}} gün içinde yeni bir vekil")
     .replace(/60 gün içinde sözleşme hükümlerine/g, "{{heirReplacementDeadlineDays}} gün içinde sözleşme hükümlerine")
     .replace(/Urla Mahkemeleri ve İcra Daireleri/g, "{{competentCourtAndEnforcementOffice}}")
-    .replace(/\[\.……...........\] TL \(\[\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\] Türk Lirası\)/g, "{{notaryFeeBaseAmount}} TL")
+    .replace(/\[[.…]+\] TL \(\[[.…]+\] Türk Lirası\)/g, "{{notaryFeeBaseAmount}} TL")
     .replace(/Teknik Şartname \(9 Sayfa\)/g, "Teknik Şartname ({{technicalSpecificationPageCount}} Sayfa)")
-    .replace(/İşbu sözleşme …\/.…\/.2026 tarihinde/g, "İşbu sözleşme {{contractDate}} tarihinde")
+    .replace(/İşbu sözleşme …\.\/…\.\/2026 tarihinde/g, "İşbu sözleşme {{contractDate}} tarihinde")
     .replace(/Urla 1\. Noterliğince/g, "{{notaryOfficeName}} Noterliğince")
     .replace(/2 nüsha olarak/g, "{{copyCount}} nüsha olarak")
     .replace(/Urla Belediyesinin/g, "{{localAuthorityName}}'nin")
     .replace(/Urla Belediyesince/g, "{{localAuthorityName}}'nce")
-    .replace(/İşbu sözleşme 21 maddeden/g, "İşbu sözleşme {{totalContractArticles}} maddeden");
+    .replace(/İşbu sözleşme 21 maddeden/g, "İşbu sözleşme {{totalContractArticles}} maddeden")
+    .replace(/\[doldurulabilir e-posta\] ve \[doldurulabilir e-posta\]/g, "{{noticeEmails}}");
 }
 
 const CONTRACT_FORM_DATE_FIELDS = new Set(["contractDate", "deliveryDate", "finalDeedTransferDate", "eidsAuthorizedAt", "reservationTransferDate"]);
