@@ -11,6 +11,8 @@ import TurkishDateInput from "@/components/TurkishDateInput";
 import DocumentPrintPreview from "@/components/DocumentPrintPreview";
 import SaleClosingContractDocument from "@/components/SaleClosingContractDocument";
 import { formatContractPhoneInput } from "@/lib/contractFormFormatting";
+import { formatWholeCurrencyInput } from "@/lib/authorityContract";
+import { isUppercaseTextField, toTurkishUpperCase } from "@/lib/textFormatting";
 import { trpc } from "@/lib/trpc";
 import { getMissingRequiredContractFormFields, isTechnicalContractFormField, resolveContractFormPlaceholders } from "@/../../shared/contractForms";
 
@@ -88,7 +90,8 @@ export function ContractFormFiller({ bundle, preview }: { bundle: FillerBundle; 
   });
 
   const updateValue = (fieldKey: string, value: unknown) => {
-    setFieldValues((current) => ({ ...current, [fieldKey]: value }));
+    const nextValue = typeof value === "string" && isUppercaseTextField(fieldKey) ? toTurkishUpperCase(value) : value;
+    setFieldValues((current) => ({ ...current, [fieldKey]: nextValue }));
     setStatusMessage(null);
   };
 
@@ -103,7 +106,8 @@ export function ContractFormFiller({ bundle, preview }: { bundle: FillerBundle; 
     if (field.fieldType === "select") return <div className={shell}>{label}<select value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"><option value="">Seçiniz</option>{parseOptions(field.optionsJson).map((option) => <option key={option} value={option}>{option}</option>)}</select></div>;
     if (field.fieldType === "date") return <div className={shell}>{label}<TurkishDateInput value={fieldValueForInput(value)} onValueChange={(nextValue) => updateValue(field.fieldKey, nextValue)} aria-label={field.label} /></div>;
     if (isPhoneField(field)) return <div className={shell}>{label}<Input type="tel" inputMode="tel" value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, formatContractPhoneInput(event.target.value))} placeholder="+90 5XX XXX XX XX" className="bg-white" /></div>;
-    return <div className={shell}>{label}<Input type={field.fieldType === "number" || field.fieldType === "currency" ? "number" : "text"} value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="bg-white" /></div>;
+    if (field.fieldType === "currency") return <div className={shell}>{label}<Input inputMode="numeric" value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, formatWholeCurrencyInput(event.target.value))} placeholder="Örn. 1.250.000 (kuruşsuz, TL)" className="bg-white" /></div>;
+    return <div className={shell}>{label}<Input type={field.fieldType === "number" ? "number" : "text"} value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="bg-white" /></div>;
   };
 
   const saveDraft = () => {

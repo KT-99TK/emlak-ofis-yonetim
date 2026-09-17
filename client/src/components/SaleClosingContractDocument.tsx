@@ -1,6 +1,7 @@
 import React from "react";
 import { formatContractFormDate, getSaleClosingArticleNumbering } from "@/../../shared/contractForms";
 import { resolveAuthoritySealSrc } from "@/components/AuthorityContractDocument";
+import { formatIban, isUppercaseTextField, toTurkishUpperCase } from "@/lib/textFormatting";
 
 type SaleClosingClause = {
   id: number;
@@ -27,10 +28,32 @@ const value = (raw: unknown) => {
 };
 
 const raw = (fieldValues: Record<string, unknown>, key: string) => String(fieldValues[key] ?? "").trim();
+
+// Alan değeri gösterilirken: isim/adres alanları Türkçe büyük harfe taşınır (isUppercaseTextField
+// ile ContractFormFiller.tsx'teki yazım anında normalizasyonla aynı liste), böylece eski taslaklarda
+// küçük harf girilmiş olsa bile çıktıda tutarlı büyük harf görünür.
+const fieldText = (fieldValues: Record<string, unknown>, key: string) => {
+  const text = raw(fieldValues, key);
+  if (!text) return "................................";
+  return isUppercaseTextField(key) ? toTurkishUpperCase(text) : text;
+};
+
+// Kuruş kabul etmeyen, Türkçe binlik ayırıcıyla (nokta) biçimlendirilmiş tutar. Girdi zaten
+// ContractFormFiller'da bu şekilde formatlanıyor; burada rakam dışı karakterleri temizleyip
+// yeniden biçimlendirmek, elle yapıştırılan veya eski taslaklardaki değerleri de düzeltir.
 const money = (fieldValues: Record<string, unknown>, key: string) => {
   const text = raw(fieldValues, key);
-  return text ? `${text} TL` : "................ TL";
+  if (!text) return "................ TL";
+  const digits = text.replace(/\D/g, "");
+  if (!digits) return `${text} TL`;
+  return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Number(digits))} TL`;
 };
+
+const ibanText = (fieldValues: Record<string, unknown>, key: string) => {
+  const text = raw(fieldValues, key);
+  return text ? formatIban(text) : "................................";
+};
+
 const field = (fieldValues: Record<string, unknown>, key: string) => formatContractFormDate(key, fieldValues[key]);
 const isChecked = (fieldValues: Record<string, unknown>, key: string) => {
   const v = fieldValues[key];
@@ -54,16 +77,17 @@ function Row({ firstLabel, firstValue, secondLabel, secondValue }: { firstLabel:
 function buildSaleClosingApprovedArticles(fieldValues: Record<string, unknown>, officeName: string): string[] {
   const hasSecondSeller = isChecked(fieldValues, "hasSecondSeller");
   const isFullDeclaration = raw(fieldValues, "declaredValueMode").startsWith("Gerçek satış bedelinin tamamı");
-  const sellerShare = raw(fieldValues, "sellerShareAmount") || raw(fieldValues, "salePrice");
+  const sellerShareRaw = raw(fieldValues, "sellerShareAmount") || raw(fieldValues, "salePrice");
+  const sellerShare = sellerShareRaw ? money({ sellerShare: sellerShareRaw }, "sellerShare") : "................ TL";
   const articles: string[] = [];
 
   articles.push(
-    `SATICI ${value(fieldValues.sellerName)}, hissedarı olduğu yukarıda tapu bilgileri belirtilen gayrimenkulü, ${sellerShare ? `${sellerShare} TL` : "................ TL"} bedelle Alıcı'ya satmayı kabul etmektedir.`
+    `SATICI ${fieldText(fieldValues, "sellerName")}, hissedarı olduğu yukarıda tapu bilgileri belirtilen gayrimenkulü, ${sellerShare} bedelle Alıcı'ya satmayı kabul etmektedir.`
   );
 
   if (hasSecondSeller) {
     articles.push(
-      `SATICI ${value(fieldValues.seller2Name)}, hissedarı olduğu yukarıda tapu bilgileri belirtilen gayrimenkulü, ${money(fieldValues, "seller2ShareAmount")} bedelle Alıcı'ya satmayı kabul etmektedir.`
+      `SATICI ${fieldText(fieldValues, "seller2Name")}, hissedarı olduğu yukarıda tapu bilgileri belirtilen gayrimenkulü, ${money(fieldValues, "seller2ShareAmount")} bedelle Alıcı'ya satmayı kabul etmektedir.`
     );
   }
 
@@ -73,9 +97,9 @@ function buildSaleClosingApprovedArticles(fieldValues: Record<string, unknown>, 
 
   const kaporaCumlesi = `Alıcı'dan bu satışa mahsuben ${money(fieldValues, "reservationAmount")} kapora bedeli ${hasSecondSeller ? "satıcıların banka hesaplarına" : "satıcının banka hesabına"} ${field(fieldValues, "reservationTransferDate") || "................"} tarihinde transfer edilecektir. Tapu satış işlemleri en geç ${field(fieldValues, "finalDeedTransferDate") || "................"} tarihine kadar yapılacaktır.`;
   const bakiyeBaslik = isFullDeclaration ? "Satış bedelinin kalan bakiyesi" : "Resmi satış bedeline ait bakiye tutarlar";
-  const bakiyeCumlesi = `${bakiyeBaslik} tapu devir günü ${value(fieldValues.sellerName)} IBAN: ${value(fieldValues.sellerIban)} hesabına ${money(fieldValues, "sellerBalanceAmount")}${hasSecondSeller ? `, ${value(fieldValues.seller2Name)} IBAN NO: ${value(fieldValues.seller2Iban)} hesabına ${money(fieldValues, "seller2BalanceAmount")}` : ""} transfer edilecektir.`;
+  const bakiyeCumlesi = `${bakiyeBaslik} tapu devir günü ${fieldText(fieldValues, "sellerName")} IBAN: ${ibanText(fieldValues, "sellerIban")} hesabına ${money(fieldValues, "sellerBalanceAmount")}${hasSecondSeller ? `, ${fieldText(fieldValues, "seller2Name")} IBAN NO: ${ibanText(fieldValues, "seller2Iban")} hesabına ${money(fieldValues, "seller2BalanceAmount")}` : ""} transfer edilecektir.`;
   articles.push(kaporaCumlesi + " " + bakiyeCumlesi + (!isFullDeclaration
-    ? ` Gerçek satış bedeline ait bakiye tutarları tapu günü ${value(fieldValues.sellerName)}'e ${money(fieldValues, "sellerCashBalanceAmount")}${hasSecondSeller ? `, ${value(fieldValues.seller2Name)}'ye ${money(fieldValues, "seller2CashBalanceAmount")}` : ""} elden nakit ödenecektir.`
+    ? ` Gerçek satış bedeline ait bakiye tutarları tapu günü ${fieldText(fieldValues, "sellerName")}'e ${money(fieldValues, "sellerCashBalanceAmount")}${hasSecondSeller ? `, ${fieldText(fieldValues, "seller2Name")}'ye ${money(fieldValues, "seller2CashBalanceAmount")}` : ""} elden nakit ödenecektir.`
     : ""));
 
   const beyanCumlesi = isFullDeclaration
@@ -88,7 +112,7 @@ function buildSaleClosingApprovedArticles(fieldValues: Record<string, unknown>, 
   );
 
   articles.push(
-    `Tapu devri ile ilgili işlemler en geç ${field(fieldValues, "finalDeedTransferDate") || "................"} tarihine kadar, alım, satım devir işlemleri ${value(fieldValues.titleDeedOfficeName)} Tapu Müdürlüğü'nde yapılacaktır.`
+    `Tapu devri ile ilgili işlemler en geç ${field(fieldValues, "finalDeedTransferDate") || "................"} tarihine kadar, alım, satım devir işlemleri ${fieldText(fieldValues, "titleDeedOfficeName")} Tapu Müdürlüğü'nde yapılacaktır.`
   );
 
   articles.push(
@@ -163,24 +187,24 @@ export default function SaleClosingContractDocument({
       <section className="authority-document-section">
         <h3>TARAFLAR</h3>
         <table><tbody>
-          <Row firstLabel="Satıcı" firstValue={String(fieldValues.sellerName ?? "")} secondLabel="Satıcı TCKN" secondValue={String(fieldValues.sellerTckn ?? "")} />
-          {hasSecondSeller && <Row firstLabel="2. Satıcı" firstValue={String(fieldValues.seller2Name ?? "")} secondLabel="2. Satıcı TCKN" secondValue={String(fieldValues.seller2Tckn ?? "")} />}
-          <Row firstLabel="Alıcı" firstValue={String(fieldValues.buyerName ?? "")} secondLabel="Alıcı TCKN" secondValue={String(fieldValues.buyerTckn ?? "")} />
+          <Row firstLabel="Satıcı" firstValue={fieldText(fieldValues, "sellerName")} secondLabel="Satıcı TCKN" secondValue={String(fieldValues.sellerTckn ?? "")} />
+          {hasSecondSeller && <Row firstLabel="2. Satıcı" firstValue={fieldText(fieldValues, "seller2Name")} secondLabel="2. Satıcı TCKN" secondValue={String(fieldValues.seller2Tckn ?? "")} />}
+          <Row firstLabel="Alıcı" firstValue={fieldText(fieldValues, "buyerName")} secondLabel="Alıcı TCKN" secondValue={String(fieldValues.buyerTckn ?? "")} />
         </tbody></table>
       </section>
 
       <section className="authority-document-section">
         <h3>TAŞINMAZ VE BEDEL BİLGİLERİ</h3>
         <table><tbody>
-          <Row firstLabel="Taşınmaz Adresi" firstValue={String(fieldValues.propertyAddress ?? "")} />
-          <Row firstLabel="Tapu ve Bağımsız Bölüm Bilgileri" firstValue={String(fieldValues.titleDeedInfo ?? "")} />
-          <Row firstLabel="Satış Bedeli (Toplam)" firstValue={String(fieldValues.salePrice ?? "")} secondLabel="Son Tapu Devir Tarihi" secondValue={field(fieldValues, "finalDeedTransferDate")} />
-          <Row firstLabel="Kapora Tutarı" firstValue={String(fieldValues.reservationAmount ?? "")} secondLabel="Kapora Ödeme Şekli" secondValue={String(fieldValues.reservationPaymentMethod ?? "")} />
+          <Row firstLabel="Taşınmaz Adresi" firstValue={fieldText(fieldValues, "propertyAddress")} />
+          <Row firstLabel="Tapu ve Bağımsız Bölüm Bilgileri" firstValue={fieldText(fieldValues, "titleDeedInfo")} />
+          <Row firstLabel="Satış Bedeli (Toplam)" firstValue={money(fieldValues, "salePrice")} secondLabel="Son Tapu Devir Tarihi" secondValue={field(fieldValues, "finalDeedTransferDate")} />
+          <Row firstLabel="Kapora Tutarı" firstValue={money(fieldValues, "reservationAmount")} secondLabel="Kapora Ödeme Şekli" secondValue={String(fieldValues.reservationPaymentMethod ?? "")} />
           {String(fieldValues.reservationPaymentMethod ?? "").startsWith("Nakit") && (
             <Row firstLabel="Kapora Transfer Tarihi" firstValue={field(fieldValues, "reservationTransferDate")} secondLabel="Nakit Teslim Belge No" secondValue={String(fieldValues.reservationCashReceiptNo ?? "")} />
           )}
-          <Row firstLabel="Tapuya Beyan Şekli" firstValue={String(fieldValues.declaredValueMode ?? "")} secondLabel="Tapuya Beyan Edilecek Bedel" secondValue={String(fieldValues.declaredTapuValue ?? "")} />
-          <Row firstLabel="Cayma Bedeli" firstValue={String(fieldValues.agreedWithdrawalFee ?? "")} />
+          <Row firstLabel="Tapuya Beyan Şekli" firstValue={String(fieldValues.declaredValueMode ?? "")} secondLabel="Tapuya Beyan Edilecek Bedel" secondValue={money(fieldValues, "declaredTapuValue")} />
+          <Row firstLabel="Cayma Bedeli" firstValue={money(fieldValues, "agreedWithdrawalFee")} />
         </tbody></table>
       </section>
 
@@ -213,10 +237,10 @@ export default function SaleClosingContractDocument({
       </section>
 
       <section className="authority-document-signatures authority-party-signature-boxes">
-        <div className="authority-party-signature-box"><p>SATICI</p><strong>{value(fieldValues.sellerName)}</strong><span>İmza</span></div>
-        {hasSecondSeller && <div className="authority-party-signature-box"><p>2. SATICI</p><strong>{value(fieldValues.seller2Name)}</strong><span>İmza</span></div>}
-        <div className="authority-party-signature-box"><p>ALICI</p><strong>{value(fieldValues.buyerName)}</strong><span>İmza</span></div>
-        <div className="authority-party-signature-box"><p>EMLAK KOMİSYONCUSU</p><strong>{value(fieldValues.brokerSignatoryName)}</strong><small>{value(fieldValues.brokerSignatoryTckn)}</small><span>İmza</span></div>
+        <div className="authority-party-signature-box"><p>SATICI</p><strong>{fieldText(fieldValues, "sellerName")}</strong><span>İmza</span></div>
+        {hasSecondSeller && <div className="authority-party-signature-box"><p>2. SATICI</p><strong>{fieldText(fieldValues, "seller2Name")}</strong><span>İmza</span></div>}
+        <div className="authority-party-signature-box"><p>ALICI</p><strong>{fieldText(fieldValues, "buyerName")}</strong><span>İmza</span></div>
+        <div className="authority-party-signature-box"><p>EMLAK KOMİSYONCUSU</p><strong>{fieldText(fieldValues, "brokerSignatoryName")}</strong><small>{value(String(fieldValues.brokerSignatoryTckn ?? ""))}</small><span>İmza</span></div>
       </section>
     </article>
   );

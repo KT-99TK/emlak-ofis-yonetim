@@ -36,5 +36,11 @@ export function isUppercaseTextField(key: string) {
     "eidsAuthorizedBy",
     "floorAndView",
     "condition",
+    "sellerName",
+    "seller2Name",
+    "buyerName",
+    "titleDeedOfficeName",
+    "brokerSignatoryName",
+    "titleDeedInfo",
   ].includes(key);
 }
