@@ -32,20 +32,39 @@ import { normalizeOfflineHash, offlineNavigationItems } from "@/lib/offlineNavig
 import GlobalBrandLockup from "@/components/GlobalBrandLockup";
 import LocalLoginGate from "@/components/LocalLoginGate";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Genel Bakış", path: "/" },
-  { icon: FileSignature, label: "Yetki Sözleşmeleri", path: "/authority-contracts" },
-  { icon: FileSignature, label: "Kira Sözleşmeleri", path: "/contracts" },
-  { icon: FileSignature, label: "Satış ve Kat Karşılığı Formları", path: "/contract-form-templates" },
-  { icon: FileSignature, label: "Kat Karşılığı Danışmanlık Sözleşmesi", path: "/consultancy-agreements" },
-  { icon: UserRound, label: "Müşteriler", path: "/clients" },
-  { icon: FolderKanban, label: "Portföy", path: "/properties" },
-  { icon: Banknote, label: "Ön Muhasebe", path: "/accounting" },
-  { icon: CalendarClock, label: "Kira & Vergi Vadeleri", path: "/obligations" },
-  { icon: Users, label: "Ekip Yönetimi", path: "/team" },
-  { icon: Cloud, label: "Online Başlangıç", path: "/online-start", managerOnly: true },
-  { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit" },
-  { icon: Archive, label: "Proje Yedekleri", path: "/backups" },
+// Menü sırası kullanım sıklığını takip eder: günlük açılan sayfalar en üstte,
+// evrak/finans/ofis işleri kendi grubunda. Bkz. "Menü yapısı ve sayfa düzeni
+// önerisi" prototipi (grup adları ve sıralama oradan alınmıştır).
+const MENU_GROUP_ORDER = [
+  "Günlük",
+  "Portföy & Müşteri",
+  "Sözleşmeler",
+  "Finans",
+  "Ofis",
+] as const;
+
+type MenuItem = {
+  icon: typeof LayoutDashboard;
+  label: string;
+  path: string;
+  group: (typeof MENU_GROUP_ORDER)[number];
+  managerOnly?: boolean;
+};
+
+const menuItems: MenuItem[] = [
+  { icon: LayoutDashboard, label: "Genel Bakış", path: "/", group: "Günlük" },
+  { icon: FolderKanban, label: "Portföy", path: "/properties", group: "Portföy & Müşteri" },
+  { icon: UserRound, label: "Müşteriler", path: "/clients", group: "Portföy & Müşteri" },
+  { icon: FileSignature, label: "Yetki Sözleşmeleri", path: "/authority-contracts", group: "Sözleşmeler" },
+  { icon: FileSignature, label: "Kira Sözleşmeleri", path: "/contracts", group: "Sözleşmeler" },
+  { icon: FileSignature, label: "Satış ve Kat Karşılığı Formları", path: "/contract-form-templates", group: "Sözleşmeler" },
+  { icon: FileSignature, label: "Kat Karşılığı Danışmanlık Sözleşmesi", path: "/consultancy-agreements", group: "Sözleşmeler" },
+  { icon: CalendarClock, label: "Kira & Vergi Vadeleri", path: "/obligations", group: "Finans" },
+  { icon: Banknote, label: "Ön Muhasebe", path: "/accounting", group: "Finans" },
+  { icon: Users, label: "Ekip Yönetimi", path: "/team", group: "Ofis" },
+  { icon: Cloud, label: "Online Başlangıç", path: "/online-start", managerOnly: true, group: "Ofis" },
+  { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit", group: "Ofis" },
+  { icon: Archive, label: "Proje Yedekleri", path: "/backups", group: "Ofis" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -231,30 +250,43 @@ function DashboardLayoutContent({
                 </SidebarMenu>
               </>
             ) : (
-              <SidebarMenu className="px-2 py-1">
-                {visibleMenuItems.map(item => {
-                const isActive = isDesktop ? currentOfflineHash === item.path : location === item.path;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => {
-                        if (isDesktop) window.location.hash = item.path.slice(1);
-                        else setLocation(item.path);
-                      }}
-                      tooltip={item.label}
-                      className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
-                    >
-                      <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
-                      <item.icon
-                        className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`}
-                      />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-              </SidebarMenu>
+              <>
+                {MENU_GROUP_ORDER.map(group => {
+                  const groupItems = (visibleMenuItems as MenuItem[]).filter(item => item.group === group);
+                  if (groupItems.length === 0) return null;
+                  return (
+                    <div key={group}>
+                      <div className="px-5 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#78958b] group-data-[collapsible=icon]:sr-only first:pt-2">
+                        {group}
+                      </div>
+                      <SidebarMenu aria-label={`Menü: ${group}`} className="px-2 py-1">
+                        {groupItems.map(item => {
+                          const isActive = isDesktop ? currentOfflineHash === item.path : location === item.path;
+                          return (
+                            <SidebarMenuItem key={item.path}>
+                              <SidebarMenuButton
+                                isActive={isActive}
+                                onClick={() => {
+                                  if (isDesktop) window.location.hash = item.path.slice(1);
+                                  else setLocation(item.path);
+                                }}
+                                tooltip={item.label}
+                                className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                              >
+                                <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                                <item.icon
+                                  className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`}
+                                />
+                                <span>{item.label}</span>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </div>
+                  );
+                })}
+              </>
             )}
           </SidebarContent>
 

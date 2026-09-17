@@ -8,7 +8,7 @@ import { formatTurkishDate } from "@/lib/turkishDate";
 const formatRate = (value: number) =>
   value.toLocaleString("tr-TR", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
 
-export function ExchangeRateCard() {
+export function ExchangeRateCard({ variant = "card" }: { variant?: "card" | "compact" } = {}) {
   const rateQuery = trpc.exchangeRates.daily.useQuery(undefined, {
     retry: false,
     staleTime: 15 * 60 * 1000,
@@ -24,6 +24,36 @@ export function ExchangeRateCard() {
     const timer = window.setTimeout(() => setLoadingTimedOut(true), 10000);
     return () => window.clearTimeout(timer);
   }, [rateQuery.isLoading]);
+
+  if (variant === "compact") {
+    return (
+      <div className="flex flex-wrap items-center gap-2" aria-label="Döviz kurları">
+        {rateQuery.isLoading && !loadingTimedOut ? (
+          <span className="text-[11px] text-[#87938f]" role="status">Kur bilgisi yükleniyor…</span>
+        ) : rateQuery.isError || loadingTimedOut || !data ? (
+          <Button type="button" variant="ghost" onClick={() => void rateQuery.refetch()} className="h-8 px-2 text-[11px] text-[#a85745]">
+            <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Kur bilgisi alınamadı · tekrar dene
+          </Button>
+        ) : (
+          <>
+            {(["EUR", "USD"] as const).map(currency => (
+              <span
+                key={currency}
+                className="flex items-baseline gap-1.5 rounded-lg border border-[#e5e8e3] bg-white px-2.5 py-1.5"
+                title={`Alış ${formatRate(data.rates[currency].buying)} · Satış ${formatRate(data.rates[currency].selling)}`}
+              >
+                <span className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#87938f]">{currency}</span>
+                <span className="font-serif text-sm font-medium text-[#20312e]">{formatRate(data.rates[currency].buying)}</span>
+              </span>
+            ))}
+            <span className="rounded-lg bg-[#f5fbf8] px-2.5 py-1.5 text-[10px] font-semibold text-[#2b786e]">
+              TCMB {formatTurkishDate(data.rateDate)}
+            </span>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Card className="rounded-2xl border-[#e5e8e3] bg-white/90 shadow-[0_10px_30px_rgba(26,46,42,.04)]">

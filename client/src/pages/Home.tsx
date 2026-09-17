@@ -52,23 +52,57 @@ import {
 import { formatTurkishDate } from "@/lib/turkishDate";
 import { getRentalServiceTaskSummary } from "@/lib/rentalServiceTaskOverview";
 
-const activity = [
-  {
-    title: "Kira sözleşmesi incelemeye gönderildi",
-    meta: "KRS-2026-014 · Urla / İzmir",
-    tone: "gold",
-  },
-  {
-    title: "Satış yetki sözleşmesi imzalandı",
-    meta: "YTS-2026-008 · 1881 Portföy",
-    tone: "green",
-  },
-  {
-    title: "Tahsilat planı güncellendi",
-    meta: "SLS-2026-021 · 425.000 ₺",
-    tone: "blue",
-  },
-];
+const CONTRACT_TYPE_LABEL: Record<string, string> = {
+  rental: "Kira sözleşmesi",
+  sale: "Satış sözleşmesi",
+  authority: "Yetki sözleşmesi",
+};
+
+const LEDGER_TYPE_LABEL: Record<string, string> = {
+  income: "Tahsilat kaydı",
+  expense: "Ödeme kaydı",
+  receivable: "Alacak kaydı",
+  payable: "Borç kaydı",
+};
+
+type RecentContractRow = {
+  id: number;
+  contractNo: string;
+  type: string;
+  title: string;
+  updatedAt: string | Date;
+};
+
+type RecentLedgerRow = {
+  id: number;
+  entryType: string;
+  description: string;
+  amount: string | number;
+  createdAt: string | Date;
+};
+
+function buildRecentActivity(
+  recentContracts: RecentContractRow[] | undefined,
+  recentLedger: RecentLedgerRow[] | undefined
+) {
+  const contractItems = (recentContracts ?? []).map(item => ({
+    key: `contract-${item.id}`,
+    title: `${CONTRACT_TYPE_LABEL[item.type] ?? "Sözleşme"} güncellendi`,
+    meta: `${item.contractNo} · ${item.title}`,
+    tone: "green" as const,
+    date: new Date(item.updatedAt),
+  }));
+  const ledgerItems = (recentLedger ?? []).map(item => ({
+    key: `ledger-${item.id}`,
+    title: LEDGER_TYPE_LABEL[item.entryType] ?? "Finans hareketi",
+    meta: `${item.description} · ₺ ${Number(item.amount).toLocaleString("tr-TR")}`,
+    tone: "blue" as const,
+    date: new Date(item.createdAt),
+  }));
+  return [...contractItems, ...ledgerItems]
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .slice(0, 5);
+}
 
 const modules = [
   {
@@ -103,6 +137,65 @@ const modules = [
 
 function formatRole(role?: string) {
   return role === "admin" ? "Broker Manager" : "Consultant";
+}
+
+type TeamBreakdownMember = {
+  userId: number;
+  teamName: string;
+  contracts: number;
+  netCashFlow: number;
+};
+
+function TeamTodayCard({
+  teamBreakdown,
+}: {
+  teamBreakdown: TeamBreakdownMember[] | undefined;
+}) {
+  return (
+    <Card className="rounded-2xl border-[#e5e8e3] bg-white/80 shadow-[0_10px_30px_rgba(26,46,42,.04)]">
+      <CardHeader className="p-5 pb-3">
+        <CardTitle className="font-serif text-lg font-medium">
+          Ekip bugün
+        </CardTitle>
+        <p className="mt-1 text-[11px] text-[#85918d]">
+          Danışman başına sözleşme sayısı ve net nakit akışı
+        </p>
+      </CardHeader>
+      <CardContent className="p-5 pt-2">
+        {teamBreakdown?.length ? (
+          <div className="divide-y divide-[#edf0ec]">
+            {teamBreakdown.map(member => (
+              <div key={member.userId} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#dce8e4] text-[11px] font-bold text-[#1c675c]">
+                  {member.teamName?.charAt(0).toUpperCase() || "K"}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-semibold text-[#34433f]">
+                    Kullanıcı #{member.userId}
+                  </span>
+                  <span className="block text-[10.5px] text-[#87938f]">
+                    {member.contracts} sözleşme · {member.teamName}
+                  </span>
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className="block font-serif text-sm font-semibold text-[#173e39]">
+                    ₺{member.netCashFlow.toLocaleString("tr-TR")}
+                  </span>
+                  <span className="block text-[9.5px] uppercase tracking-[0.08em] text-[#9aa6a1]">
+                    net akış
+                  </span>
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl bg-[#f7f7f4] px-4 py-6 text-center text-xs text-[#87938f]">
+            Henüz aktif ekip kaydı bulunmuyor.
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 export function buildOfficeFlowData(input: {
@@ -170,6 +263,10 @@ export default function Home() {
     ledgerEntries: ledgerQuery.data ?? [],
   });
   const dueObligations = officeFlowData.openObligations.slice(0, 3);
+  const recentActivity = useMemo(
+    () => buildRecentActivity(summaryQuery.data?.recentContracts, summaryQuery.data?.recentLedger),
+    [summaryQuery.data]
+  );
   const criticalFlowObligations = useMemo(
     () => selectCriticalDashboardFlowObligations(officeFlowData.openObligations),
     [officeFlowData.openObligations]
@@ -265,27 +362,30 @@ export default function Home() {
                 : "Sözleşmeden tahsilata, ofisinizin kritik işlerini tek ve güvenli bir merkezden yönetin."}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge
-              variant="outline"
-              className="border-[#d8ddd8] bg-white/70 px-3 py-2 text-[11px] font-medium text-[#64716e]"
-            >
-              <ShieldCheck className="mr-2 h-3.5 w-3.5 text-[#2b786e]" />{" "}
-              Güvenli çalışma alanı
-            </Badge>
-            <UserGuideDialog onOpenPath={path => setLocation(path)} />
-            <Button
-              disabled={centralOperationsLocked}
-              onClick={() => setLocation("/contracts")}
-              className="h-10 rounded-xl bg-[#173e39] px-4 text-xs font-semibold shadow-[0_8px_20px_rgba(23,62,57,.16)] hover:bg-[#20554e] disabled:cursor-not-allowed disabled:bg-[#829893]"
-              title={
-                centralOperationsLocked
-                  ? "Merkezi online başlangıç tarihi bekleniyor"
-                  : undefined
-              }
-            >
-              <Plus className="mr-2 h-4 w-4" /> Yeni kayıt
-            </Button>
+          <div className="flex flex-col items-end gap-2">
+            {isDashboard && <ExchangeRateCard variant="compact" />}
+            <div className="flex items-center gap-3">
+              <Badge
+                variant="outline"
+                className="border-[#d8ddd8] bg-white/70 px-3 py-2 text-[11px] font-medium text-[#64716e]"
+              >
+                <ShieldCheck className="mr-2 h-3.5 w-3.5 text-[#2b786e]" />{" "}
+                Güvenli çalışma alanı
+              </Badge>
+              <UserGuideDialog onOpenPath={path => setLocation(path)} />
+              <Button
+                disabled={centralOperationsLocked}
+                onClick={() => setLocation("/contracts")}
+                className="h-10 rounded-xl bg-[#173e39] px-4 text-xs font-semibold shadow-[0_8px_20px_rgba(23,62,57,.16)] hover:bg-[#20554e] disabled:cursor-not-allowed disabled:bg-[#829893]"
+                title={
+                  centralOperationsLocked
+                    ? "Merkezi online başlangıç tarihi bekleniyor"
+                    : undefined
+                }
+              >
+                <Plus className="mr-2 h-4 w-4" /> Yeni kayıt
+              </Button>
+            </div>
           </div>
         </header>
 
@@ -362,7 +462,9 @@ export default function Home() {
           <>
             <section className="mb-6 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
               <PersonalTaskPanel onOpenPath={path => setLocation(path)} />
-              <ExchangeRateCard />
+              {user?.role === "admin" ? (
+                <TeamTodayCard teamBreakdown={summary?.teamBreakdown} />
+              ) : null}
             </section>
             <RoleSuggestionCard isManager={user?.role === "admin"} onOpenPath={path => setLocation(path)} />
             <div className="mt-6">
@@ -407,11 +509,11 @@ export default function Home() {
             </div>
           )}
 
-        {location === "/team" && user?.role === "admin" && (
+        {isDashboard && user?.role === "admin" && (
           <Card className="mb-6 rounded-2xl border-[#e5e8e3] bg-white/80 shadow-[0_10px_30px_rgba(26,46,42,.04)]">
             <CardHeader className="p-6 pb-3">
               <CardTitle className="font-serif text-xl font-medium">
-                Ekip performans özeti
+                Ekip · sözleşme ve nakit akışı detayı
               </CardTitle>
               <p className="mt-1 text-xs text-[#85918d]">
                 Danışman bazında sözleşme, tahsilat, ödeme ve net nakit akışı
@@ -621,25 +723,31 @@ export default function Home() {
             </CardHeader>
             <CardContent className="p-6 pt-2">
               <div className="space-y-1">
-                {activity.map(item => (
-                  <div
-                    key={item.title}
-                    className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-[#fbfcfa]"
-                  >
-                    <span
-                      className={`h-2 w-2 rounded-full ${item.tone === "gold" ? "bg-[#bd975d]" : item.tone === "green" ? "bg-[#2b786e]" : "bg-[#7c83b0]"}`}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-[#34433f]">
-                        {item.title}
-                      </p>
-                      <p className="mt-1 truncate text-[10px] text-[#87938f]">
-                        {item.meta}
-                      </p>
+                {recentActivity.length ? (
+                  recentActivity.map(item => (
+                    <div
+                      key={item.key}
+                      className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-[#fbfcfa]"
+                    >
+                      <span
+                        className={`h-2 w-2 rounded-full ${item.tone === "green" ? "bg-[#2b786e]" : "bg-[#7c83b0]"}`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-[#34433f]">
+                          {item.title}
+                        </p>
+                        <p className="mt-1 truncate text-[10px] text-[#87938f]">
+                          {item.meta}
+                        </p>
+                      </div>
+                      <CheckCircle2 className="h-4 w-4 text-[#abc4bb]" />
                     </div>
-                    <CheckCircle2 className="h-4 w-4 text-[#abc4bb]" />
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="p-3 text-xs text-[#87938f]">
+                    Henüz kayıtlı hareket yok.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
