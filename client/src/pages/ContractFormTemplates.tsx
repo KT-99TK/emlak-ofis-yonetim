@@ -11,7 +11,11 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import ContractFormFiller from "@/components/ContractFormFiller";
 
-const typeLabels = { sale_closing: "Alım-Satım Ön Protokolü", land_share: "Kat Karşılığı" } as const;
+// "land_share" etiketi bilerek "Kat Karşılığı İnşaat Sözleşmesi" olarak uzun tutulur: aynı
+// "Kat Karşılığı" kısaltması, arsa sahibi/yüklenici arasındaki bu inşaat sözleşmesinden tamamen
+// farklı bir belge olan "Kat Karşılığı Danışmanlık Hizmet Sözleşmesi" (bkz. ConsultancyAssignmentDocument.tsx)
+// için de kullanılıyor; kısaltma iki belgeyi karıştırmaya çok açık olduğundan burada kısaltılmaz.
+const typeLabels = { sale_closing: "Alım-Satım Ön Protokolü", land_share: "Kat Karşılığı İnşaat Sözleşmesi (arsa sahibi–yüklenici)" } as const;
 const partyLabels = { shared: "Ortak", seller: "Satıcı", buyer: "Alıcı", landowner: "Arsa sahibi", contractor: "Yüklenici" } as const;
 const attachmentStatusLabels = { missing: "Eksik", draft: "Taslak", ready: "Hazır", archived: "Arşiv" } as const;
 
@@ -75,7 +79,7 @@ export default function ContractFormTemplates() {
     </header>
     <div className="grid gap-6 xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.2fr)]">
       {canManageTemplates && <Card className="rounded-2xl border-[#e5e8e3] bg-white/80"><CardHeader><CardTitle className="font-serif text-xl">Yeni taslak şablon</CardTitle></CardHeader><CardContent className="space-y-4">
-        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Form türü</label><Select value={formType} onValueChange={(value) => setFormType(value as typeof formType)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale_closing">Alım-Satım Ön Protokolü</SelectItem><SelectItem value="land_share">Kat Karşılığı</SelectItem></SelectContent></Select></div>
+        <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Form türü</label><Select value={formType} onValueChange={(value) => setFormType(value as typeof formType)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale_closing">{typeLabels.sale_closing}</SelectItem><SelectItem value="land_share">{typeLabels.land_share}</SelectItem></SelectContent></Select></div>
         <div><label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Şablon başlığı</label><Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Örn. Alım-Satım Ön Protokolü v1" /></div>
         <Button className="w-full rounded-xl bg-[#173e39] hover:bg-[#20554e]" disabled={title.trim().length < 3 || createTemplate.isPending} onClick={submitTemplate}><Plus className="mr-2 h-4 w-4" /> Taslak şablon oluştur</Button>
         {createTemplate.error && <p role="alert" className="text-xs text-[#a85745]">{createTemplate.error.message}</p>}
