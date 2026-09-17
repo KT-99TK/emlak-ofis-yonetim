@@ -78,6 +78,9 @@ export function normalizeClauseDraft(input: ContractFormClauseDraft) {
   };
 }
 
+// İzmir Emlakçılar Odası'nın onaylı Alım-Satım Ön Protokolü metnindeki sabit madde sayısı.
+// Bu sayı iki satıcılı (hisseli/miras) senaryoyu esas alır — tek satıcıda 2. satıcı maddesi
+// çıktıda hiç görünmediği için sabit madde sayısı fiilen 1 azalır (bkz. getSaleClosingArticleNumbering).
 export const SALE_CLOSING_APPROVED_ARTICLE_COUNT = 16;
 
 export function activeClausesForOutput<T extends { status: string; bodyTemplate: string; sortOrder: number }>(clauses: T[]) {
@@ -86,9 +89,10 @@ export function activeClausesForOutput<T extends { status: string; bodyTemplate:
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export function getSaleClosingArticleNumbering(activeOptionalClauseCount: number) {
+export function getSaleClosingArticleNumbering(activeOptionalClauseCount: number, hasSecondSeller: boolean = true) {
   const safeCount = Math.max(0, Math.trunc(activeOptionalClauseCount));
-  const firstOptionalArticleNumber = SALE_CLOSING_APPROVED_ARTICLE_COUNT + 1;
+  const baseArticleCount = hasSecondSeller ? SALE_CLOSING_APPROVED_ARTICLE_COUNT : SALE_CLOSING_APPROVED_ARTICLE_COUNT - 1;
+  const firstOptionalArticleNumber = baseArticleCount + 1;
   const jurisdictionArticleNumber = firstOptionalArticleNumber + safeCount;
   const finalArticleNumber = jurisdictionArticleNumber + 1;
   return {
@@ -117,14 +121,32 @@ const COMMON_FORM_FIELDS = [
 
 const SALE_CLOSING_FIELDS = [
   { fieldKey: "sellerName", label: "Satıcı adı veya unvanı", fieldType: "text" as const, partyScope: "seller" as const, required: true, sortOrder: 30 },
+  { fieldKey: "sellerTckn", label: "Satıcı TCKN", fieldType: "text" as const, partyScope: "seller" as const, required: false, sortOrder: 31 },
+  { fieldKey: "sellerIban", label: "Satıcı IBAN", fieldType: "text" as const, partyScope: "seller" as const, required: false, sortOrder: 32 },
+  { fieldKey: "hasSecondSeller", label: "İkinci satıcı var mı? (hisseli/miras satış)", fieldType: "checkbox" as const, partyScope: "seller" as const, required: false, sortOrder: 33 },
+  { fieldKey: "seller2Name", label: "2. satıcı adı veya unvanı", fieldType: "text" as const, partyScope: "seller" as const, required: false, sortOrder: 34 },
+  { fieldKey: "seller2Tckn", label: "2. satıcı TCKN", fieldType: "text" as const, partyScope: "seller" as const, required: false, sortOrder: 35 },
+  { fieldKey: "seller2Iban", label: "2. satıcı IBAN", fieldType: "text" as const, partyScope: "seller" as const, required: false, sortOrder: 36 },
+  { fieldKey: "sellerShareAmount", label: "Satıcı payına düşen satış bedeli", fieldType: "currency" as const, partyScope: "seller" as const, required: false, sortOrder: 37 },
+  { fieldKey: "seller2ShareAmount", label: "2. satıcı payına düşen satış bedeli", fieldType: "currency" as const, partyScope: "seller" as const, required: false, sortOrder: 38 },
   { fieldKey: "buyerName", label: "Alıcı adı veya unvanı", fieldType: "text" as const, partyScope: "buyer" as const, required: true, sortOrder: 40 },
-  { fieldKey: "salePrice", label: "Satış bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 70 },
+  { fieldKey: "buyerTckn", label: "Alıcı TCKN", fieldType: "text" as const, partyScope: "buyer" as const, required: false, sortOrder: 41 },
+  { fieldKey: "salePrice", label: "Satış bedeli (toplam)", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 70 },
   { fieldKey: "reservationAmount", label: "Kapora tutarı", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 71 },
   { fieldKey: "reservationPaymentMethod", label: "Kapora ödeme şekli", fieldType: "select" as const, partyScope: "shared" as const, optionsJson: JSON.stringify(["Satıcı IBAN'ına havale", "Nakit — ofis teslim alır (istisna)"]), required: true, sortOrder: 71.5 },
   { fieldKey: "reservationTransferDate", label: "Kapora transfer tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: false, sortOrder: 71.7 },
   { fieldKey: "reservationCashReceiptNo", label: "Nakit teslim belge no (istisna hâlinde)", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 71.8 },
+  { fieldKey: "declaredValueMode", label: "Tapuya beyan şekli", fieldType: "select" as const, partyScope: "shared" as const, optionsJson: JSON.stringify(["Gerçek satış bedelinin tamamı beyan edilecek", "Bedel farklı beyan edilecek (resmi/gerçek ayrı)"]), required: true, sortOrder: 73 },
+  { fieldKey: "declaredTapuValue", label: "Tapuya beyan edilecek bedel", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 74 },
+  { fieldKey: "sellerBalanceAmount", label: "Satıcı — tapu günü hesabına geçecek bakiye", fieldType: "currency" as const, partyScope: "seller" as const, required: false, sortOrder: 75 },
+  { fieldKey: "seller2BalanceAmount", label: "2. satıcı — tapu günü hesabına geçecek bakiye", fieldType: "currency" as const, partyScope: "seller" as const, required: false, sortOrder: 76 },
+  { fieldKey: "sellerCashBalanceAmount", label: "Satıcıya elden ödenecek nakit fark (varsa)", fieldType: "currency" as const, partyScope: "seller" as const, required: false, sortOrder: 77 },
+  { fieldKey: "seller2CashBalanceAmount", label: "2. satıcıya elden ödenecek nakit fark (varsa)", fieldType: "currency" as const, partyScope: "seller" as const, required: false, sortOrder: 78 },
+  { fieldKey: "titleDeedOfficeName", label: "Tapu Müdürlüğü", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 93 },
   { fieldKey: "finalDeedTransferDate", label: "Son tapu devir tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: true, sortOrder: 92 },
   { fieldKey: "agreedWithdrawalFee", label: "Cayma bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 94 },
+  { fieldKey: "brokerSignatoryName", label: "Sözleşmeyi imzalayan emlak danışmanı", fieldType: "text" as const, partyScope: "shared" as const, required: true, sortOrder: 120 },
+  { fieldKey: "brokerSignatoryTckn", label: "Danışman TCKN", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 121 },
 ] as const;
 
 export const TECHNICAL_FORM_FIELD_KEYS = [
