@@ -43,8 +43,9 @@ main .workspace-content-frame > .min-h-screen > .overflow-x-auto { border-radius
 }
 @media (min-width: 1536px) { .workspace-content-frame { max-width: 1120px; } }
 @media screen and (min-width: 1024px) { .workspace-content-frame:has(.authority-print-shell) { max-width: none; } }
-button, a { transition: transform 160ms cubic-bezier(.23,1,.32,1), background-color 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+button, a { transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease; }
 button:active { transform: scale(.98); }
+a:not([aria-disabled="true"]):not([data-no-hover]):hover { color: #2C6B55; }
 ::selection { background: #d6ba7b55; color: #173e39; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 
