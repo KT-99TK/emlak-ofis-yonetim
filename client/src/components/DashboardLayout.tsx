@@ -61,10 +61,10 @@ const menuItems: MenuItem[] = [
   { icon: FileSignature, label: "Kat Karşılığı Danışmanlık Sözleşmesi", path: "/consultancy-agreements", group: "Sözleşmeler" },
   { icon: CalendarClock, label: "Kira & Vergi Vadeleri", path: "/obligations", group: "Finans" },
   { icon: Banknote, label: "Ön Muhasebe", path: "/accounting", group: "Finans" },
-  { icon: Users, label: "Ekip Yönetimi", path: "/team", group: "Ofis" },
+  { icon: Users, label: "Ekip Yönetimi", path: "/team", managerOnly: true, group: "Ofis" },
   { icon: Cloud, label: "Online Başlangıç", path: "/online-start", managerOnly: true, group: "Ofis" },
-  { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit", group: "Ofis" },
-  { icon: Archive, label: "Proje Yedekleri", path: "/backups", group: "Ofis" },
+  { icon: ShieldCheck, label: "Denetim Kayıtları", path: "/audit", managerOnly: true, group: "Ofis" },
+  { icon: Archive, label: "Proje Yedekleri", path: "/backups", managerOnly: true, group: "Ofis" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

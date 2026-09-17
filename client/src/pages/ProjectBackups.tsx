@@ -1,6 +1,7 @@
 import { Archive, CheckCircle2, FileText, ShieldCheck } from "lucide-react";
 import { BackupArchiveCard } from "@/components/BackupArchiveCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const includedItems = [
   "Uygulama kaynak kodu ve yapılandırma dosyaları",
@@ -16,6 +17,22 @@ const excludedItems = [
 ];
 
 export default function ProjectBackups() {
+  const { user } = useAuth();
+  if (user?.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-[#f7f7f4] px-5 py-12 md:px-10">
+        <Card className="mx-auto max-w-xl rounded-2xl border-[#ead6d0] bg-[#fff8f6]">
+          <CardContent className="p-8 text-center">
+            <ShieldCheck className="mx-auto mb-3 h-7 w-7 text-[#a85745]" />
+            <h1 className="font-serif text-2xl text-[#34433f]">Manager yetkisi gerekli</h1>
+            <p className="mt-2 text-sm text-[#87938f]">
+              Proje yedekleri yalnızca broker manager hesaplarına görünür.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   return (
     <main className="min-h-full bg-[#f7faf7] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-6">
