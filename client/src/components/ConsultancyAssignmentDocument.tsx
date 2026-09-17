@@ -161,6 +161,19 @@ export default function ConsultancyAssignmentDocument({
               <li>Bono, devir tamamlanıncaya kadar Danışman tarafından üçüncü kişilere {normalized.bonoCiroRule === "free" ? "serbestçe ciro edilebilir" : "ciro edilmez/devredilmez"}.</li>
             </ol>
           </section>
+          <section className="authority-document-conditions">
+            <h3>BONO DOLDURULDUKTAN SONRA YAPILACAK İŞLEMLER</h3>
+            <ol>
+              <li>İmza kontrolü: Keşidecinin (ve tüzel kişi ise aval verenin) imzasının bizzat ve ıslak olarak atıldığını kontrol edin; kaşe tek başına yeterli değildir.</li>
+              <li>Eksiksizlik kontrolü: Yukarıdaki zorunlu bilgiler tablosundaki tüm alanların okunaklı ve eksiksiz dolduğunu, kazıntı/silinti bulunmadığını kontrol edin; hata varsa senedi iptal edip yenisini düzenleyin.</li>
+              <li>Kopyalama: İmzalı bononun taranmış/fotokopi bir örneğini hem Danışman hem İş Sahibi kendi dosyasında saklasın; asıl (ıslak imzalı) nüsha yalnızca lehtarda (Danışmanda) kalır.</li>
+              <li>Güvenli saklama: Asıl nüshayı kasa veya kilitli evrak dolabı gibi güvenli bir yerde saklayın; asıl senet olmadan tahsil ve icra takibi yapmak güçleşir.</li>
+              <li>Vade takibi: Vade tarihini bir hatırlatma/takvim kaydına ekleyin; devir süreci (madde 3.3) vadeden önce tamamlanacaksa bu adım bilgi amaçlıdır.</li>
+              <li>İade ve teyit: Bağımsız Bölümün Danışman adına tescili ve teslimiyle birlikte bonoyu derhâl İş Sahibine iade edin ve iadeyi yazılı olarak (imzalı tutanak veya yazılı teyit ile) belgeleyin; bu belge ileride "borç ödendi" ispatı olarak saklanmalıdır.</li>
+              <li>Gecikme hâlinde: Devir süresinde gerçekleşmez ve bedel nakden talep edilirse (Hizmet Sözleşmesi madde 5), bonoyu tahsil veya icra sürecinde kullanmadan önce mutlaka bir avukata danışın; kambiyo senetlerine özgü haciz yoluyla takip, ibraz ve başvuru süreleri bakımından özel süre sınırlamalarına tabidir.</li>
+              <li>Vergi/muhasebe: Damga vergisi istisnası ve muhasebe kaydı gerekip gerekmediğini mali müşavirinizle teyit edin.</li>
+            </ol>
+          </section>
           <section className="authority-document-signatures authority-party-signature-boxes">
             <div className="authority-party-signature-box"><p>İŞ SAHİBİ (KEŞİDECİ)</p><strong>{value(normalized.jobOwnerName)}</strong><span>Kaşe ve İmza</span></div>
             <div className="authority-party-signature-box"><p>DANIŞMAN (LEHTAR)</p><strong>{value(normalized.consultantName)}</strong><span>İmza</span></div>
