@@ -15,7 +15,7 @@ import ContractFormFiller from "@/components/ContractFormFiller";
 // "Kat Karşılığı" kısaltması, arsa sahibi/yüklenici arasındaki bu inşaat sözleşmesinden tamamen
 // farklı bir belge olan "Kat Karşılığı Danışmanlık Hizmet Sözleşmesi" (bkz. ConsultancyAssignmentDocument.tsx)
 // için de kullanılıyor; kısaltma iki belgeyi karıştırmaya çok açık olduğundan burada kısaltılmaz.
-const typeLabels = { sale_closing: "Alım-Satım Ön Protokolü", land_share: "Kat Karşılığı İnşaat Sözleşmesi (arsa sahibi–yüklenici)" } as const;
+const typeLabels = { sale_closing: "Alım-Satım Ön Protokolü", land_share: "Kat Karşılığı İnşaat Sözleşmesi" } as const;
 const partyLabels = { shared: "Ortak", seller: "Satıcı", buyer: "Alıcı", landowner: "Arsa sahibi", contractor: "Yüklenici" } as const;
 const attachmentStatusLabels = { missing: "Eksik", draft: "Taslak", ready: "Hazır", archived: "Arşiv" } as const;
 
