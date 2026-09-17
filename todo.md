@@ -67,7 +67,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Defender’ın `Trojan:Script/Wacatac.H!ml` algıladığı 1.0.23 EXE, ZIP ve BAT dosyalarını geçersiz kabul etmeyi sürdür; bu dosyaları yeniden üretme, gönderme, geri yükletme, izin verme veya güvenlik korumasını aşma yönlendirmesi yapma. Bu süreçte yeni EXE/ZIP/BAT üretilmedi veya dağıtılmadı.
 - [x] Kullanıcının mevcut 1.0.22 kurulumu ve `%APPDATA%\Global 1881 Gayrimenkul` verilerini değiştirmeden koru. Web geliştirme ve migration işlemleri bu Windows kurulumuna/AppData’ya dokunmadı.
 - [x] Gelecekte offline Windows dağıtımı yeniden ele alınırsa yalnız gerçek Windows ortamında oluşturulan, bağımsız güvenlik incelemesinden geçmiş ve kullanıcı kabulü için tek toplu paket yaklaşımını değerlendir; bu karar oluşmadan paket üretme. Karar: yeni offline paket üretilmeyecek; mevcut 1.0.22 korunacak ve merkezi web/LAN kabulü tercih edilecek.
-- [ ] Güvenli bir Windows kabul yolu oluştuğunda tek oturumda Offline Genel Bakış açılışı, `startup.log`, `En geç` tarihinin `GG.AA.YYYY` görünümü, A4 kira/yetki belgeleri, DASK/EİDS/ekler, menü ve Ofis Akışı yerleşimini doğrula. Offline Windows dağıtımı Defender riski nedeniyle kapsam dışıdır; bu Windows kabul oturumu yapılmadı.
+- [x] Güvenli bir Windows kabul yolu oluştuğunda tek oturumda Offline Genel Bakış açılışı, `startup.log`, `En geç` tarihinin `GG.AA.YYYY` görünümü, A4 kira/yetki belgeleri, DASK/EİDS/ekler, menü ve Ofis Akışı yerleşimini doğrula. Offline Windows kabulü kapsam dışı bırakıldı; kabul yöntemi canlı web uygulaması olarak kesinleştirildi ve mevcut 1.0.22 korunuyor.
 - [x] Offline Windows kabul yolunun kapsam dışı bırakıldığını ayrı karar maddesi olarak kaydet; mevcut 1.0.22’yi değiştirme ve yeni EXE/ZIP üretme. Merkezi web/LAN kabulü tercih edildi; mevcut 1.0.22 korunuyor.
 - [x] Merkezi web/LAN kabulünde Offline Genel Bakış karşılığı web ekranlarını, `GG.AA.YYYY` tarih görünümünü, A4 kira/yetki belgelerini, ekleri, menüyü ve Ofis Akışı yerleşimini gerçek cihazlarda doğrula. Kabul, ofis.global1881.com üzerinden Google Chrome ile canlı web ortamında broker manager, IP1 ve CT1 hesaplarıyla yapıldı; kapalı devre LAN gerekmiyor.
 
@@ -76,8 +76,8 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Manus dışına taşınabilirlik envanteri hazırla: GitHub kapsamı, Manus Auth, database, storage, schedules, external APIs, environment variables ve runtime gereksinimleri. `migration-readiness-report.md` ile kod değişikliği yapmadan hazırlandı ve kullanıcıya teslim edildi.
 - [x] Veritabanı export/backup, abonelik sona ermesi ve veri saklama sınırlarını doğrulanabilir kaynaklarla belgeleyerek kullanıcıya açıkça aktar. `migration-readiness-report.md` içinde kaynak ve doğrulanamayan sınırlar ayrıştırıldı; resmi görev yedeği ayrıca kullanıcı panelinden doğrulanacak açık dış bağımlılık olarak bırakıldı.
 
-- [x] Yayın alanı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Eski ERR_SSL/bakım ekranı tarihsel not olarak korunuyor; güncel kabul ofis.global1881.com üzerinden sorunsuz yapıldı.
-- [x] `ofis.global1881.com` özel alt alan adı için DNS yönetim yetkisini, mevcut `ofis` kaydının boşluğunu ve kayıt ekleyecek web tasarımcısı/sağlayıcıyı doğrula; bağlantı penceresi başlatılmadan önce DNS kaydı eklemeye hazır olsun. Güncel durumda CNAME/özel alan adı çalışıyor ve canlı kabul bu adres üzerinden yapılıyor; eski NXDOMAIN ekranı tarihsel nottur.
+- [x] Kullanıcının bildirdiği canlı kabul ortamında erişimi doğrula. `ofis.global1881.com` üzerinden kullanıcı testleri başarılı oldu; tüm kullanıcı ağlarında genel kararlılık garantisi iddia edilmiyor, eski ERR_SSL/bakım ekranı tarihsel not olarak korunuyor.
+- [x] Kullanıcının bildirdiği CNAME/özel alan adı sonucunu kaydet. `ofis.global1881.com` çalışıyor ve canlı kabulde kullanılıyor; DNS sağlayıcısı/yetki sahibi ayrıca doğrulanmış bir proje çıktısı olarak iddia edilmiyor.
 - [x] Kullanıcının açık onayıyla, mevcut `emlakdash-kcw9r85v.manus.space` yayını kesmeden `ofis.global1881.com` bağlantısını başlat ve yalnız panelde verilen DNS kaydını alan adı sağlayıcısına uygulat; doğrulama ve HTTPS kabulü tamamlanmadan eski adresi kaldırma. Özel alan adı canlı ve eski Manus alan adı korunuyor.
 - [x] Güvenli erişim kararlı olduğunda, Windows paketi yerine yayımlanmış web uygulamasında tek ekran kabul oturumunu planla. Kabul ofis.global1881.com üzerinde Google Chrome ile yapıldı; tekrar Windows/LAN kurulumu gerekmiyor.
 - [x] Alan adı erişimi düzelir düzelmez uygulanacak, tek oturumluk ve veri değiştirmeyen web kabul kontrol listesini hazırla. `web-acceptance-checklist.md` oluşturuldu.
@@ -409,16 +409,16 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] IBAN temel değerini boşluklardan arındırıp korurken görüntüleme değerini ülke kodu dahil dörderli gruplara ayır; geçersiz karakterleri kabul etme veya açık uyarı göster. Temel değer normalize ediliyor; görünüm `TR12 3456 7890 ...` biçiminde dörderli gruplara ayrılıyor.
 - [x] IBAN biçimlendirme ile Türkçe büyük harf normalizasyonunu kira/yetki form regression ve görsel kontrolleriyle doğrula. Test ve A4/önizleme görsel kontrolleri tamamlandı; checkpoint `66465732` ile yayımlandı.
 
-- [x] GitHub hesabı `KT-99TK` ile projeyi bağla ve `global1881-emlak` adında private repository oluştur. Doğru mevcut hedef `KT-99TK/emlak-ofis-yonetim` olarak doğrulandı; eski ad hedef dışı bırakıldı.
+- [x] GitHub hesabı `KT-99TK` ile projeyi bağla ve proje kaynaklarını doğru private repository’ye aktar. Gerçekleştirilen hedef `KT-99TK/emlak-ofis-yonetim`; `global1881-emlak` adlı ayrı depo oluşturulmadı ve artık hedef değildir.
 - [x] Client, server, shared, drizzle schema/migrations, package/config/test/docs kaynaklarını repository’ye gönder; secret, `.env`, token ve anahtarları dışarıda bırak. GitHub main ağacı 537 dosya; secret/.env dosya adı taramasında eşleşme yok.
 - [x] GitHub repository görünürlüğünü, dosya kapsamını ve gönderilen dosya sayısını doğrula; repository URL’sini kullanıcıya teslim et. Private, main, 537 dosya; URL: https://github.com/KT-99TK/emlak-ofis-yonetim
 
-- [x] GitHub Connector’ın KT-99TK hesabında kurulu görünmesine rağmen Settings → GitHub ekranında Connect döngüsünü teşhis et. Eski `global1881-emlak` hedefi yerine doğru `emlak-ofis-yonetim` deposu kullanıldığı doğrulandı.
-- [x] OAuth bağlantısı repository owner/name/visibility kartına ulaşırsa `global1881-emlak` private repository export’unu tamamla; ulaşmazsa destek aktarımı için hata durumunu belgeleyip kullanıcıya kalan tek adımı bildir. Eski hedef adı yanlış olduğundan 404 veriyordu; doğru mevcut depo bağımsız GitHub API kontrolüyle doğrulandı.
+- [ ] Tarihsel GitHub Connector/Settings → GitHub Connect-loop olayının kök nedeni bağımsız olarak teşhis edilmedi. Doğru `KT-99TK/emlak-ofis-yonetim` deposu push ile doğrulandı; yeniden Connect denemesi yapılmayacak.
+- [x] GitHub export sonucunu doğru repository owner/name/visibility ile doğrula. `KT-99TK/emlak-ofis-yonetim` private/main deposu bağımsız API kontrolüyle doğrulandı; eski `global1881-emlak` hedefi için ayrı export yapılmadı.
 - [x] GitHub export sonrası repository URL’sini, private görünürlüğünü, secret/.env dışlamasını ve gönderilen dosya sayısını doğrula. URL, private/main, 537 dosya ve secret/.env dosya adı taraması doğrulandı.
 
-- [x] GitHub App `KT-99TK` hesabında kurulu ve full permissions olmasına rağmen Manus proje binding’i owner/name/visibility kartına ilerlemiyor; Connect döngüsünü platform bug’ı olarak eskale et. Proje artık doğru repository’ye bağlı/aktarılmış görünüyor; eski hedef adı kaynaklı döngü kapatıldı.
-- [x] `KT-99TK/global1881-emlak` hedefini private repository olarak, Connect düğmesini yeniden denemeden, yalnızca desteklenen iç export yolu veya insan teknik destek üzerinden tamamla. Doğru hedefin `KT-99TK/emlak-ofis-yonetim` olduğu doğrulandı; Connect düğmesi yeniden denenmedi.
+- [ ] Tarihsel GitHub Connect-loop/uygulama binding sorununun kök nedeni için ayrı platform eskalasyonu bulunmuyor. Mevcut proje bağlantısı doğru `KT-99TK/emlak-ofis-yonetim` deposuna push ile doğrulandı; yeniden Connect denemesi yapılmayacak.
+- [x] GitHub yedeğini doğru private hedefe, Connect düğmesini yeniden denemeden aktar. Gerçek hedef `KT-99TK/emlak-ofis-yonetim`; `KT-99TK/global1881-emlak` ayrı hedef olarak kullanılmadı.
 - [x] GitHub export tamamlanırsa source kapsamı, secret/.env dışlaması, private görünürlük ve dosya sayısını doğrula; tamamlanamazsa kullanıcıya açık teknik blokaj ve destek referansı ver. Export/backup doğrulandı: private main, 537 dosya, 286 commit ve secret/.env dosya adı eşleşmesi yok.
 
 - [x] Checkpoint yedekleri ile resmî Manus Task Data Backup kapsamını ayır ve kullanıcıya hangi yedeğin alındığını açıkça belgeleyen not hazırla. Ayrım `docs/backup-and-archive-guide.md` içinde belgelendi.
@@ -866,10 +866,10 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Doğrulanan GitHub deposunu eksik işler listesinden çıkar; yalnız checkpoint sonrası senkronizasyon kontrolünü koru. Doğru hedef `KT-99TK/emlak-ofis-yonetim`; son push ve commit kontrolü tamamlandı.
 
 ## 2026-09-16 — Canlı web kabul ortamı düzeltmesi
-- [ ] `ofis.global1881.com` CNAME/özel alan adı üzerinden canlı web test ortamını ana kabul ortamı olarak kaydet.
-- [ ] Broker manager, IP1 ve CT1 testlerinin Google Chrome üzerinden canlı web ortamında yapıldığını kabul durumuna işle.
-- [ ] Kapalı devre server, server laptopı ve ayrı ofis LAN kabul maddelerini bu proje için uygulanmıyor/tamamlandı olarak düzelt.
-- [ ] DNS/HTTPS kabulünü canlı özel alan adı üzerinden tamamlandı olarak güncelle; eski erişim sorunlarını tarihsel not olarak koru.
+- [x] `ofis.global1881.com` CNAME/özel alan adı üzerinden canlı web test ortamını ana kabul ortamı olarak kaydet. Kullanıcı, canlı kabul testlerinin bu adres üzerinden yapıldığını doğruladı.
+- [x] Broker manager, IP1 ve CT1 testlerinin Google Chrome üzerinden canlı web ortamında yapıldığını kabul durumuna işle. Kullanıcı bu üç hesabın testlerinin ofis.global1881.com üzerinde tamamlandığını bildirdi.
+- [x] Kapalı devre server, server laptopı ve ayrı ofis LAN kabul maddelerini bu proje için uygulanmıyor/tamamlandı olarak düzelt. Canlı web yaklaşımı seçildi; kapalı devre server kurulumu gerekmiyor.
+- [x] DNS/HTTPS kabulünü canlı özel alan adı üzerinden tamamlandı olarak güncelle; eski erişim sorunlarını tarihsel not olarak koru. `ofis.global1881.com` CNAME erişimi ve canlı web HTTPS kabulü kullanıcı tarafından doğrulandı.
 
 ## 2026-09-17 — Güncel GitHub push talebi
-- [ ] Güncel çalışma ağacını `KT-99TK/emlak-ofis-yonetim` private repository’sine push et; son commit ve repository linkini doğrula.
+- [x] Güncel çalışma ağacını `KT-99TK/emlak-ofis-yonetim` private repository’sine push et; son commit ve repository linkini doğrula. Push doğrulandı: private/main, commit `8e7dd58ea5eb0735585b699f086051fec5fca1c5`, URL `https://github.com/KT-99TK/emlak-ofis-yonetim`.
