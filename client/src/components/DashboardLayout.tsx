@@ -37,6 +37,7 @@ const menuItems = [
   { icon: FileSignature, label: "Yetki Sözleşmeleri", path: "/authority-contracts" },
   { icon: FileSignature, label: "Kira Sözleşmeleri", path: "/contracts" },
   { icon: FileSignature, label: "Satış ve Kat Karşılığı Formları", path: "/contract-form-templates" },
+  { icon: FileSignature, label: "Kat Karşılığı Danışmanlık Sözleşmesi", path: "/consultancy-agreements" },
   { icon: UserRound, label: "Müşteriler", path: "/clients" },
   { icon: FolderKanban, label: "Portföy", path: "/properties" },
   { icon: Banknote, label: "Ön Muhasebe", path: "/accounting" },

@@ -146,6 +146,7 @@ export default function ConsultancyAssignmentDocument({
       {kind === "bono" && (
         <>
           <p className="authority-document-meta">Bu ek, Danışmanlık Hizmet Sözleşmesinin 4.1. maddesinin ekidir. Bono, aşağıdaki bilgilerle Türk Ticaret Kanunu m. 776 hükümlerine tam uygun şekilde matbu bono kağıdına doldurularak ayrıca imzalanır; bu unsurlardan biri eksik kalırsa senet kambiyo senedi niteliğini kaybedebilir.</p>
+          <p className="authority-document-meta" style={{ fontWeight: 600 }}>ÖNEMLİ: Bu bono, yalnızca yukarıda belirtilen Danışmanlık Hizmet Sözleşmesinin ilgili maddesinde açıkça atıf yapılıp bu sözleşmeye bağlandığında anlam ve geçerlilik kazanır. Danışmanlık Hizmet Sözleşmesine atıfsız, tek başına düzenlenmiş bir bono, teminat amacını ve dayandığı hukuki ilişkiyi ispat açısından zayıflatır; bono her zaman ilgili hizmet sözleşmesiyle birlikte saklanmalı ve ibraz edilmelidir.</p>
           <BonoSampleFacsimile />
           <section className="authority-document-section">
             <h3>BONODA YER ALACAK ZORUNLU BİLGİLER</h3>
@@ -184,6 +185,7 @@ export default function ConsultancyAssignmentDocument({
       {kind === "temlik" && (
         <>
           <p className="authority-document-meta">{value(normalized.contractDate)} tarihli {value(normalized.projectName)} Danışmanlık Hizmet Sözleşmesinin 4.2. maddesinin ekidir ve o sözleşmenin ayrılmaz parçasıdır.</p>
+          <p className="authority-document-meta" style={{ fontWeight: 600 }}>ÖNEMLİ: Bu temlik sözleşmesi, yalnızca yukarıda belirtilen Danışmanlık Hizmet Sözleşmesinin ilgili maddesinde açıkça atıf yapılıp bu sözleşmeye bağlandığında hüküm ifade eder. Danışmanlık Hizmet Sözleşmesine atıfsız, tek başına düzenlenmiş bir temlik sözleşmesi, hangi alacağa ve hangi hukuki ilişkiye dayandığı belirsiz kalacağından anlam ifade etmez; temlik her zaman ilgili hizmet sözleşmesiyle birlikte saklanmalı ve ibraz edilmelidir.</p>
           <section className="authority-document-conditions">
             <ol>
               {buildTemlikArticles(normalized).map((article, index) => (
