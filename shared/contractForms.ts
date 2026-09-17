@@ -119,8 +119,12 @@ const SALE_CLOSING_FIELDS = [
   { fieldKey: "sellerName", label: "Satıcı adı veya unvanı", fieldType: "text" as const, partyScope: "seller" as const, required: true, sortOrder: 30 },
   { fieldKey: "buyerName", label: "Alıcı adı veya unvanı", fieldType: "text" as const, partyScope: "buyer" as const, required: true, sortOrder: 40 },
   { fieldKey: "salePrice", label: "Satış bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 70 },
+  { fieldKey: "reservationAmount", label: "Kapora tutarı", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 71 },
+  { fieldKey: "reservationPaymentMethod", label: "Kapora ödeme şekli", fieldType: "select" as const, partyScope: "shared" as const, optionsJson: JSON.stringify(["Satıcı IBAN'ına havale", "Nakit — ofis teslim alır (istisna)"]), required: true, sortOrder: 71.5 },
+  { fieldKey: "reservationTransferDate", label: "Kapora transfer tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: false, sortOrder: 71.7 },
+  { fieldKey: "reservationCashReceiptNo", label: "Nakit teslim belge no (istisna hâlinde)", fieldType: "text" as const, partyScope: "shared" as const, required: false, sortOrder: 71.8 },
   { fieldKey: "finalDeedTransferDate", label: "Son tapu devir tarihi", fieldType: "date" as const, partyScope: "shared" as const, required: true, sortOrder: 92 },
-  { fieldKey: "agreedWithdrawalFee", label: "Cayma bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: false, sortOrder: 94 },
+  { fieldKey: "agreedWithdrawalFee", label: "Cayma bedeli", fieldType: "currency" as const, partyScope: "shared" as const, required: true, sortOrder: 94 },
 ] as const;
 
 export const TECHNICAL_FORM_FIELD_KEYS = [
@@ -309,7 +313,7 @@ export function parameterizeLandShareClauseBody(bodyTemplate: string) {
     .replace(/İşbu sözleşme 21 maddeden/g, "İşbu sözleşme {{totalContractArticles}} maddeden");
 }
 
-const CONTRACT_FORM_DATE_FIELDS = new Set(["contractDate", "deliveryDate", "finalDeedTransferDate", "eidsAuthorizedAt"]);
+const CONTRACT_FORM_DATE_FIELDS = new Set(["contractDate", "deliveryDate", "finalDeedTransferDate", "eidsAuthorizedAt", "reservationTransferDate"]);
 
 /** Form çıktılarında HTML date input'un ISO değerini Türkçe GG.AA.YYYY görünümüne çevirir. */
 export function formatContractFormDate(fieldKey: string, value: unknown) {
