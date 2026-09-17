@@ -47,7 +47,7 @@ describe("DashboardLayout client viewport navigation", () => {
   it("renders a desktop sidebar at wide width and the mobile navigation header at narrow width", async () => {
     const desktop = await renderAt(1440);
     expect(desktop).toContain("Genel Bakış");
-    expect(desktop).toContain("data-[active=true]:bg-[#173e39]");
+    expect(desktop).toContain("data-[active=true]:bg-[#12302A]");
     expect(desktop).not.toContain("sticky top-0 z-40");
 
     await act(async () => root?.unmount());

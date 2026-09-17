@@ -187,11 +187,11 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-auto min-h-[116px] border-b border-[#315f56] bg-[#173e39] px-2 py-3">
+          <SidebarHeader className="h-auto min-h-[116px] border-b border-[#24463c] bg-[#12302A] px-2 py-3">
             <div className="flex w-full items-center gap-2 transition-all">
               <button
                 onClick={toggleSidebar}
-                className="h-7 w-7 flex items-center justify-center rounded-lg text-[#d7e9df] transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e6c47d] shrink-0"
+                className="h-7 w-7 flex items-center justify-center rounded-lg text-[#d7e9df] transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4622A] shrink-0"
                 aria-label="Toggle navigation"
               >
                 <PanelLeft className="h-4 w-4" />
@@ -215,10 +215,10 @@ function DashboardLayoutContent({
                           isActive={isActive}
                           onClick={() => window.location.hash = item.path.slice(1)}
                           tooltip={item.label}
-                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#12302A] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
                         >
-                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
-                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`} />
+                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#D4622A]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:text-[#2C6B55]"}`} />
                           <span>{item.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -238,10 +238,10 @@ function DashboardLayoutContent({
                           isActive={isActive}
                           onClick={() => window.location.hash = item.path.slice(1)}
                           tooltip={item.label}
-                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#12302A] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
                         >
-                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
-                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`} />
+                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#D4622A]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:text-[#2C6B55]"}`} />
                           <span>{item.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -271,11 +271,11 @@ function DashboardLayoutContent({
                                   else setLocation(item.path);
                                 }}
                                 tooltip={item.label}
-                                className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#173e39] focus-visible:ring-2 focus-visible:ring-[#b99b5a] data-[active=true]:bg-[#173e39] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                                className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#12302A] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
                               >
-                                <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#e6c47d]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                                <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#D4622A]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
                                 <item.icon
-                                  className={`h-4 w-4 transition-colors ${isActive ? "text-[#e6c47d]" : "text-[#729087] group-hover:text-[#2b786e]"}`}
+                                  className={`h-4 w-4 transition-colors ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:text-[#2C6B55]"}`}
                                 />
                                 <span>{item.label}</span>
                               </SidebarMenuButton>

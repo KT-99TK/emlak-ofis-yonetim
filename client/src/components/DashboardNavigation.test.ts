@@ -6,10 +6,10 @@ describe("dashboard navigation color hierarchy", () => {
   it("defines green active states, gold selection accents, soft hover feedback, and visible keyboard focus", () => {
     const layout = readFileSync(resolve(process.cwd(), "client/src/components/DashboardLayout.tsx"), "utf8");
 
-    expect(layout).toContain("data-[active=true]:bg-[#173e39]");
-    expect(layout).toContain("bg-[#e6c47d]");
+    expect(layout).toContain("data-[active=true]:bg-[#12302A]");
+    expect(layout).toContain("bg-[#D4622A]");
     expect(layout).toContain("hover:bg-[#edf5f0]");
-    expect(layout).toContain("focus-visible:ring-[#b99b5a]");
+    expect(layout).toContain("focus-visible:ring-[#D4622A]");
     expect(layout).toContain("Ofis Operasyonları");
     expect(layout).toContain("Kişisel Çalışma Alanı");
     expect(layout).toContain('min-h-[116px]');

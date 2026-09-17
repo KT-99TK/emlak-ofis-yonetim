@@ -12,14 +12,14 @@ export default function GlobalBrandLockup({ className, variant = "default" }: Gl
     <div className={cn(
       "flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-2.5 py-2",
       isOfflineSidebar
-        ? "gap-2.5 border border-white/15 bg-[#123f39] px-2.5 py-3 shadow-[0_12px_24px_rgba(16,62,56,.24)]"
+        ? "gap-2.5 border border-white/15 bg-[#12302A] px-2.5 py-3 shadow-[0_12px_24px_rgba(16,62,56,.24)]"
         : "border border-[#d8e1d9] bg-white/80 shadow-[0_8px_22px_rgba(23,62,57,.07)]",
       className,
     )} aria-label="Global 1881 Gayrimenkul">
       <div className={cn(
         "flex shrink-0 flex-col items-center justify-center rounded-full border-2 border-double text-[#806d46] shadow-[inset_0_0_0_3px_rgba(245,240,221,.9)]",
         isOfflineSidebar
-          ? "h-[62px] w-[62px] border-white/90 bg-[#fffdf6] text-[#173e39] ring-1 ring-[#e6c47d]/70"
+          ? "h-[62px] w-[62px] border-white/90 bg-[#fffdf6] text-[#12302A] ring-1 ring-[#D4622A]/70"
           : "h-14 w-14 border-[#a6946e]/75 bg-[#fffdf6]",
 
       )}>
@@ -29,7 +29,7 @@ export default function GlobalBrandLockup({ className, variant = "default" }: Gl
       </div>
       <div className="min-w-0 leading-none">
         <p className={cn("truncate whitespace-nowrap font-serif font-semibold", isOfflineSidebar ? "text-[17px] tracking-[0.04em] text-[#fffdf6]" : "text-[17px] tracking-[0.07em] text-[#183d37]")}>GLOBAL 1881</p>
-        <p className={cn("mt-1.5 truncate text-[10px] font-semibold uppercase tracking-[0.18em]", isOfflineSidebar ? "text-[#e6c47d]" : "text-[#8d6f3f]")}>Gayrimenkul</p>
+        <p className={cn("mt-1.5 truncate text-[10px] font-semibold uppercase tracking-[0.18em]", isOfflineSidebar ? "text-[#D4622A]" : "text-[#8d6f3f]")}>Gayrimenkul</p>
         <p className={cn("mt-1 truncate text-[9px]", isOfflineSidebar ? "text-[#c5ddd3]" : "text-[#6f817a]")}>Ofis yönetim sistemi</p>
       </div>
     </div>

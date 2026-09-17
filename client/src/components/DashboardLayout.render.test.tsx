@@ -36,8 +36,8 @@ describe("DashboardLayout navigation render", () => {
       expect(html).toContain("Genel Bakış");
       expect(html).toContain("Yetki Sözleşmeleri");
       expect(html).toContain("Kira &amp; Vergi Vadeleri");
-      expect(html).toContain("data-[active=true]:bg-[#173e39]");
-      expect(html).toContain("bg-[#e6c47d]");
+      expect(html).toContain("data-[active=true]:bg-[#12302A]");
+      expect(html).toContain("bg-[#D4622A]");
     });
   });
 });

@@ -178,7 +178,7 @@ function TeamTodayCard({
                   </span>
                 </span>
                 <span className="shrink-0 text-right">
-                  <span className="block font-serif text-sm font-semibold text-[#173e39]">
+                  <span className="block font-serif text-sm font-semibold text-[#12302A]">
                     ₺{member.netCashFlow.toLocaleString("tr-TR")}
                   </span>
                   <span className="block text-[9.5px] uppercase tracking-[0.08em] text-[#9aa6a1]">
@@ -189,7 +189,7 @@ function TeamTodayCard({
             ))}
           </div>
         ) : (
-          <div className="rounded-xl bg-[#f7f7f4] px-4 py-6 text-center text-xs text-[#87938f]">
+          <div className="rounded-xl bg-[#FAF7F1] px-4 py-6 text-center text-xs text-[#87938f]">
             Henüz aktif ekip kaydı bulunmuyor.
           </div>
         )}
@@ -345,7 +345,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f7f7f4] text-[#1d2928]">
+    <div className="min-h-screen bg-[#FAF7F1] text-[#1d2928]">
       <div className="mx-auto max-w-[1440px] px-5 py-7 md:px-10 md:py-9">
         <header className="mb-9 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
@@ -376,7 +376,7 @@ export default function Home() {
               <Button
                 disabled={centralOperationsLocked}
                 onClick={() => setLocation("/contracts")}
-                className="h-10 rounded-xl bg-[#173e39] px-4 text-xs font-semibold shadow-[0_8px_20px_rgba(23,62,57,.16)] hover:bg-[#20554e] disabled:cursor-not-allowed disabled:bg-[#829893]"
+                className="h-10 rounded-xl bg-[#12302A] px-4 text-xs font-semibold shadow-[0_8px_20px_rgba(23,62,57,.16)] hover:bg-[#1C4A3F] disabled:cursor-not-allowed disabled:bg-[#829893]"
                 title={
                   centralOperationsLocked
                     ? "Merkezi online başlangıç tarihi bekleniyor"
@@ -549,13 +549,13 @@ export default function Home() {
                       <span className="text-[#a85745]">
                         ₺ {member.payments.toLocaleString("tr-TR")}
                       </span>
-                      <span className="font-semibold text-[#173e39]">
+                      <span className="font-semibold text-[#12302A]">
                         ₺ {member.netCashFlow.toLocaleString("tr-TR")}
                       </span>
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-xl bg-[#f7f7f4] px-4 py-8 text-center text-xs text-[#87938f]">
+                  <div className="rounded-xl bg-[#FAF7F1] px-4 py-8 text-center text-xs text-[#87938f]">
                     Henüz aktif ekip kaydı bulunmuyor.
                   </div>
                 )}
@@ -566,7 +566,7 @@ export default function Home() {
 
         <DashboardFlowGrid
           primary={
-            <Card className="overflow-hidden rounded-2xl border-[#e5e8e3] bg-[#173e39] text-white shadow-[0_16px_38px_rgba(23,62,57,.15)]">
+            <Card className="overflow-hidden rounded-2xl border-[#e5e8e3] bg-[#12302A] text-white shadow-[0_16px_38px_rgba(23,62,57,.15)]">
               <CardContent className="relative p-7 md:p-9">
                 <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full border border-white/10" />
                 <div className="absolute -right-10 -top-14 h-44 w-44 rounded-full border border-[#bd975d]/25" />
@@ -593,7 +593,7 @@ export default function Home() {
                   <div className="mt-8 flex flex-wrap gap-3">
                     <Button
                       onClick={() => setLocation("/team")}
-                      className="rounded-xl bg-[#d6ba7b] px-4 text-xs font-bold text-[#173e39] hover:bg-[#e5ce98]"
+                      className="rounded-xl bg-[#d6ba7b] px-4 text-xs font-bold text-[#12302A] hover:bg-[#e5ce98]"
                     >
                       Ekip özetine git <ArrowUpRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -763,7 +763,7 @@ export default function Home() {
         onOpenChange={setShowCriticalFlowPopup}
       >
         <DialogContent className="max-w-md overflow-hidden border-[#a8ccc2] bg-[#f7fbf9] p-0 shadow-[0_24px_64px_rgba(15,71,63,.25)]">
-          <div className="bg-[#0f473f] px-6 py-5 text-white">
+          <div className="bg-[#12302A] px-6 py-5 text-white">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dcd3]">
               <CalendarClock className="h-3.5 w-3.5 text-[#e6c47d]" /> Kişisel
               takip uyarısı
@@ -812,7 +812,7 @@ export default function Home() {
                 setShowCriticalFlowPopup(false);
                 setLocation("/obligations");
               }}
-              className="rounded-xl bg-[#0f473f] text-xs hover:bg-[#1c6559]"
+              className="rounded-xl bg-[#12302A] text-xs hover:bg-[#1C4A3F]"
             >
               Vadeleri incele <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
             </Button>
