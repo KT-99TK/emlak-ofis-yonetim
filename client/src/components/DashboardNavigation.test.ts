@@ -9,9 +9,6 @@ describe("dashboard navigation color hierarchy", () => {
     expect(layout).toContain("data-[active=true]:bg-[#12302A]");
     expect(layout).toContain("bg-[#D4622A]");
     expect(layout).toContain("hover:bg-[#edf5f0]");
-    expect(layout).toContain("hover:translate-x-0.5");
-    expect(layout).toContain("group-hover:scale-110");
-    expect(layout).toContain("group-hover:w-1.5");
     expect(layout).toContain("focus-visible:ring-[#D4622A]");
     expect(layout).toContain("Ofis Operasyonları");
     expect(layout).toContain("Kişisel Çalışma Alanı");

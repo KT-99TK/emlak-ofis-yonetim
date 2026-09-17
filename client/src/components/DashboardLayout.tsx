@@ -215,10 +215,10 @@ function DashboardLayoutContent({
                           isActive={isActive}
                           onClick={() => window.location.hash = item.path.slice(1)}
                           tooltip={item.label}
-                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all duration-200 ease-out hover:translate-x-0.5 hover:bg-[#edf5f0] hover:text-[#12302A] hover:shadow-[0_6px_16px_rgba(23,62,57,.10)] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#12302A] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
                         >
-                          <span aria-hidden="true" className={`absolute left-0 h-5 rounded-r-full transition-[width,background-color] duration-200 ${isActive ? "w-1 bg-[#D4622A]" : "w-1 bg-transparent group-hover:w-1.5 group-hover:bg-[#D4622A]"}`} />
-                          <item.icon className={`h-4 w-4 transition-[color,transform] duration-200 ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:scale-110 group-hover:text-[#2C6B55]"}`} />
+                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#D4622A]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:text-[#2C6B55]"}`} />
                           <span>{item.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -238,10 +238,10 @@ function DashboardLayoutContent({
                           isActive={isActive}
                           onClick={() => window.location.hash = item.path.slice(1)}
                           tooltip={item.label}
-                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all duration-200 ease-out hover:translate-x-0.5 hover:bg-[#edf5f0] hover:text-[#12302A] hover:shadow-[0_6px_16px_rgba(23,62,57,.10)] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                          className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#12302A] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
                         >
-                          <span aria-hidden="true" className={`absolute left-0 h-5 rounded-r-full transition-[width,background-color] duration-200 ${isActive ? "w-1 bg-[#D4622A]" : "w-1 bg-transparent group-hover:w-1.5 group-hover:bg-[#D4622A]"}`} />
-                          <item.icon className={`h-4 w-4 transition-[color,transform] duration-200 ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:scale-110 group-hover:text-[#2C6B55]"}`} />
+                          <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#D4622A]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
+                          <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:text-[#2C6B55]"}`} />
                           <span>{item.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -271,11 +271,11 @@ function DashboardLayoutContent({
                                   else setLocation(item.path);
                                 }}
                                 tooltip={item.label}
-                                className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all duration-200 ease-out hover:translate-x-0.5 hover:bg-[#edf5f0] hover:text-[#12302A] hover:shadow-[0_6px_16px_rgba(23,62,57,.10)] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
+                                className="group relative h-10 rounded-xl px-3 font-medium text-[#50665f] transition-all hover:bg-[#edf5f0] hover:text-[#12302A] focus-visible:ring-2 focus-visible:ring-[#D4622A] data-[active=true]:bg-[#12302A] data-[active=true]:text-white data-[active=true]:shadow-[0_8px_18px_rgba(23,62,57,.16)]"
                               >
-                                <span aria-hidden="true" className={`absolute left-0 h-5 rounded-r-full transition-[width,background-color] duration-200 ${isActive ? "w-1 bg-[#D4622A]" : "w-1 bg-transparent group-hover:w-1.5 group-hover:bg-[#D4622A]"}`} />
+                                <span aria-hidden="true" className={`absolute left-0 h-5 w-1 rounded-r-full transition-colors ${isActive ? "bg-[#D4622A]" : "bg-transparent group-hover:bg-[#b7d3c8]"}`} />
                                 <item.icon
-                                  className={`h-4 w-4 transition-[color,transform] duration-200 ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:scale-110 group-hover:text-[#2C6B55]"}`}
+                                  className={`h-4 w-4 transition-colors ${isActive ? "text-[#D4622A]" : "text-[#729087] group-hover:text-[#2C6B55]"}`}
                                 />
                                 <span>{item.label}</span>
                               </SidebarMenuButton>
