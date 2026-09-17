@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileSignature, Printer, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,7 +66,15 @@ export default function AuthorityContracts() {
   const [saved, setSaved] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
   const selectedClient = clients.data?.find((item) => String(item.id) === clientId);
-  const selectedProperty = properties.data?.find((item) => String(item.id) === propertyId);
+  const selectedClientFile = trpc.clients.file.useQuery(
+    { clientId: Number(clientId) },
+    { enabled: Boolean(clientId), retry: false }
+  );
+  const propertyOptions = useMemo(() => {
+    const ownedProperties = selectedClientFile.data?.properties ?? [];
+    return ownedProperties.length ? ownedProperties : properties.data ?? [];
+  }, [properties.data, selectedClientFile.data?.properties]);
+  const selectedProperty = propertyOptions.find((item) => String(item.id) === propertyId);
 
   useEffect(() => {
     const suggestion = nextNumber.data?.nextContractNo;
@@ -91,6 +99,7 @@ export default function AuthorityContracts() {
 
   const chooseClient = (value: string) => {
     setClientId(value);
+    setPropertyId("");
     const client = clients.data?.find((item) => String(item.id) === value);
     if (client) {
       setDetails((current) => ({
@@ -99,13 +108,14 @@ export default function AuthorityContracts() {
         ownerIdentity: client.identityOrTaxNo ?? "",
         ownerPhone: toInternationalPhone(client.phone ?? ""),
         ownerAddress: normalizeAuthorityField("ownerAddress", client.address ?? ""),
+        propertyAddress: "",
       }));
     }
   };
 
   const chooseProperty = (value: string) => {
     setPropertyId(value);
-    const property = properties.data?.find((item) => String(item.id) === value);
+    const property = propertyOptions.find((item) => String(item.id) === value);
     if (property) {
       setDetails((current) => ({
         ...current,
@@ -183,7 +193,13 @@ export default function AuthorityContracts() {
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-[#56635f]">Portföy kaydı</label>
-                <Select value={propertyId} onValueChange={chooseProperty}><SelectTrigger><SelectValue placeholder="Taşınmaz seçin" /></SelectTrigger><SelectContent>{(properties.data ?? []).map((item) => <SelectItem key={item.id} value={String(item.id)}>{item.referenceNo} · {item.title}</SelectItem>)}</SelectContent></Select>
+                <Select value={propertyId} onValueChange={chooseProperty} disabled={!clientId || selectedClientFile.isLoading}>
+                  <SelectTrigger><SelectValue placeholder={selectedClientFile.isLoading ? "Taşınmazlar yükleniyor…" : "Taşınmaz seçin"} /></SelectTrigger>
+                  <SelectContent>
+                    {!propertyOptions.length ? <SelectItem value="__no_property" disabled>{clientId ? "Seçilen müşteriye ait taşınmaz bulunamadı" : "Önce malik seçin"}</SelectItem> : propertyOptions.map((item) => <SelectItem key={item.id} value={String(item.id)}>{item.referenceNo} · {item.title}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {selectedClient && <p className="mt-1 text-[10px] text-[#718079]">{selectedClientFile.data?.properties?.length ?? 0} taşınmaz müşteri dosyasından getirildi.</p>}
               </div>
             </div>
 
