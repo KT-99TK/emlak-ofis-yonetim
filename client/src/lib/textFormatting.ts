@@ -42,5 +42,19 @@ export function isUppercaseTextField(key: string) {
     "titleDeedOfficeName",
     "brokerSignatoryName",
     "titleDeedInfo",
+    // Kat Karşılığı İnşaat Sözleşmesi (land_share) taraf/unvan ve yer alanları — Alım-Satım
+    // Protokolü'ndeki sellerName/buyerName ile aynı muameleyi görmesi için eklendi.
+    "landownerName",
+    "landownerRepresentativeName",
+    "contractorName",
+    "contractorRepresentativeName",
+    "projectNameAndLogo",
+    "localAuthorityName",
+    "notaryOfficeName",
+    "executionPlace",
+    "competentCourtAndEnforcementOffice",
+    // İl/ilçe, komşu alan propertyNeighborhood gibi büyük harfle yazılır.
+    "propertyProvince",
+    "propertyDistrict",
   ].includes(key);
 }

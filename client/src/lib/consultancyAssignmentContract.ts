@@ -114,19 +114,26 @@ const annexRef = (label: string) => label.trim() ? ` (${label.trim()})` : "";
 
 const UPPER_KEYS = new Set([
   "jobOwnerName", "jobOwnerAddress", "consultantName", "consultantAddress",
-  "propertyNeighborhood", "landownerNames", "unitDescription", "projectName",
+  "propertyNeighborhood", "propertyProvince", "propertyDistrict", "landownerNames", "unitDescription", "projectName",
   "signPlace", "bonoPaymentPlace", "jobOwnerAvalName",
 ]);
 
+/** `UPPER_KEYS`'e ek olarak `isUppercaseTextField` (rental/yetki/alım-satım ile paylaşılan anahtarlar)
+ * kapsamındaki alanları da büyük harfe çevirir. Tek-alan ve toplu normalize fonksiyonları aynı kuralı
+ * kullanır, aralarında sapma olmaması için bu kontrol tek bir yerde (`isUppercase`) tutulur. */
+function isUppercase(key: string) {
+  return UPPER_KEYS.has(key) || isUppercaseTextField(key);
+}
+
 export function normalizeConsultancyAssignmentField(key: keyof ConsultancyAssignmentDetails, value: string) {
-  return UPPER_KEYS.has(key) || isUppercaseTextField(key) ? toTurkishUpperCase(value) : value;
+  return isUppercase(key) ? toTurkishUpperCase(value) : value;
 }
 
 export function normalizeConsultancyAssignmentDetails(details: ConsultancyAssignmentDetails): ConsultancyAssignmentDetails {
   const next = { ...details };
   for (const key of Object.keys(next) as (keyof ConsultancyAssignmentDetails)[]) {
     const value = next[key];
-    if (typeof value === "string" && UPPER_KEYS.has(key)) {
+    if (typeof value === "string" && isUppercase(key)) {
       (next[key] as string) = toTurkishUpperCase(value);
     }
   }
