@@ -31,6 +31,60 @@ function annexPrefix(label: string) {
   return label.trim() ? `${label.trim().toLocaleUpperCase("tr-TR")} — ` : "";
 }
 
+/**
+ * Doldurulmuş örnek bono görseli. Belirli bir matbu senet kağıdının (marka/kırtasiye) birebir
+ * kopyası DEĞİLDİR — TTK m. 776'daki zorunlu unsurların gerçek bir bonoda nerede ve nasıl
+ * göründüğünü göstermek amacıyla çizilmiş, tamamen kurgusal isim ve tutarlarla doldurulmuş bir
+ * şema/örnektir. Danışmanların "bono nasıl doldurulur" sorusuyla karşılaşmaması için açıklama
+ * metninin hemen altına, zorunlu bilgiler tablosundan önce yerleştirilir.
+ */
+function BonoSampleFacsimile() {
+  return (
+    <figure className="authority-document-section" style={{ margin: "3mm 0" }}>
+      <svg viewBox="0 0 720 300" role="img" aria-label="Doldurulmuş örnek bono görseli" style={{ width: "100%", maxWidth: "640px", height: "auto", display: "block", margin: "0 auto" }}>
+        <rect x="4" y="4" width="712" height="292" fill="#fffdf6" stroke="#7c6a3f" strokeWidth="2" />
+        <rect x="14" y="14" width="692" height="272" fill="none" stroke="#c9b989" strokeWidth="1" />
+        {/* Watermark: bunun gerçek bir kıymetli evrak olmadığını açıkça belirtir */}
+        <text x="360" y="165" textAnchor="middle" fontSize="46" fill="#c9b989" opacity="0.45" transform="rotate(-18 360 165)" fontFamily="Georgia, serif" fontWeight="bold">ÖRNEK — NUMUNE</text>
+
+        <text x="30" y="42" fontSize="12" fill="#3a3226" fontFamily="Georgia, serif">No: 000000</text>
+        <text x="690" y="42" textAnchor="end" fontSize="12" fill="#3a3226" fontFamily="Georgia, serif">Vade Tarihi: 01.06.2027</text>
+        <text x="360" y="40" textAnchor="middle" fontSize="20" fontWeight="bold" letterSpacing="2" fill="#3a3226" fontFamily="Georgia, serif">BONO</text>
+
+        <line x1="30" y1="54" x2="690" y2="54" stroke="#c9b989" strokeWidth="1" />
+
+        <text x="30" y="80" fontSize="12.5" fill="#2a2418" fontFamily="Georgia, serif">
+          Bu bonoya karşılık, bu bononun tarafı olarak, işbu bono karşılığında aşağıda yazılı bedeli, bu bononun
+        </text>
+        <text x="30" y="100" fontSize="12.5" fill="#2a2418" fontFamily="Georgia, serif">
+          hamiline / emrine, kayıtsız ve şartsız olarak ödeyeceğimi taahhüt ederim.
+        </text>
+
+        <rect x="30" y="118" width="330" height="44" fill="#fbf7ea" stroke="#c9b989" />
+        <text x="38" y="132" fontSize="10" fill="#6b5c37" fontFamily="Arial, sans-serif">BEDELİ (rakamla)</text>
+        <text x="38" y="150" fontSize="13" fontWeight="bold" fill="#1c2524" fontFamily="Arial, sans-serif">500.000,00 TL</text>
+
+        <rect x="368" y="118" width="322" height="44" fill="#fbf7ea" stroke="#c9b989" />
+        <text x="376" y="132" fontSize="10" fill="#6b5c37" fontFamily="Arial, sans-serif">YAZIYLA</text>
+        <text x="376" y="150" fontSize="12" fontWeight="bold" fill="#1c2524" fontFamily="Arial, sans-serif">Beşyüzbin Türk Lirası</text>
+
+        <text x="30" y="182" fontSize="11" fill="#2a2418" fontFamily="Arial, sans-serif">Lehtar (kime/kimin emrine ödenecek): <tspan fontWeight="bold">Ahmet ÖRNEK</tspan></text>
+        <text x="30" y="200" fontSize="11" fill="#2a2418" fontFamily="Arial, sans-serif">Ödeme yeri: <tspan fontWeight="bold">İzmir</tspan></text>
+        <text x="30" y="218" fontSize="11" fill="#2a2418" fontFamily="Arial, sans-serif">Düzenleme yeri ve tarihi: <tspan fontWeight="bold">Urla, 17.09.2026</tspan></text>
+
+        <line x1="430" y1="252" x2="690" y2="252" stroke="#3a3226" strokeWidth="1" />
+        <text x="430" y="268" fontSize="10.5" fill="#2a2418" fontFamily="Arial, sans-serif">Keşideci (düzenleyen) adı, unvanı ve imzası</text>
+        <text x="430" y="246" fontSize="12" fontStyle="italic" fill="#1c2524" fontFamily="Georgia, serif">Örnek Yapı A.Ş. — (kaşe/imza)</text>
+      </svg>
+      <figcaption className="authority-document-meta" style={{ textAlign: "center", marginTop: "1.5mm" }}>
+        Yukarıdaki görsel yalnızca örnek amaçlıdır; gerçek bir kıymetli evrak değildir ve isim/tutarlar
+        kurgusaldır. Gerçek bono, matbu senet kağıdına bu düzene benzer şekilde, aşağıdaki zorunlu
+        bilgilerle eksiksiz doldurulup ıslak imza ile düzenlenir.
+      </figcaption>
+    </figure>
+  );
+}
+
 export default function ConsultancyAssignmentDocument({
   kind,
   details,
@@ -92,6 +146,7 @@ export default function ConsultancyAssignmentDocument({
       {kind === "bono" && (
         <>
           <p className="authority-document-meta">Bu ek, Danışmanlık Hizmet Sözleşmesinin 4.1. maddesinin ekidir. Bono, aşağıdaki bilgilerle Türk Ticaret Kanunu m. 776 hükümlerine tam uygun şekilde matbu bono kağıdına doldurularak ayrıca imzalanır; bu unsurlardan biri eksik kalırsa senet kambiyo senedi niteliğini kaybedebilir.</p>
+          <BonoSampleFacsimile />
           <section className="authority-document-section">
             <h3>BONODA YER ALACAK ZORUNLU BİLGİLER</h3>
             <table><tbody>
