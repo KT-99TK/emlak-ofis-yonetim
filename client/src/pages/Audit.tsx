@@ -6,6 +6,63 @@ import { useAuth } from "@/_core/hooks/useAuth";
 export default function Audit() {
   const { user } = useAuth();
   const logs = trpc.audit.list.useQuery(undefined, { enabled: user?.role === "admin", retry: false });
-  if (user?.role !== "admin") return <div className="min-h-screen bg-[#f7f7f4] px-5 py-12 md:px-10"><Card className="mx-auto max-w-xl rounded-2xl border-[#ead6d0] bg-[#fff8f6]"><CardContent className="p-8 text-center"><ShieldCheck className="mx-auto mb-3 h-7 w-7 text-[#a85745]" /><h1 className="font-serif text-2xl text-[#34433f]">Manager yetkisi gerekli</h1><p className="mt-2 text-sm text-[#87938f]">Denetim kayıtları yalnızca broker manager hesaplarına görünür.</p></CardContent></Card></div>;
-  return <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9"><header className="mb-7"><p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]">Güven ve kontrol</p><h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Denetim kayıtları</h1><p className="mt-2 text-sm text-[#70807c]">Kritik sözleşme ve finans hareketlerinin değiştirilemez işlem izi.</p></header><Card className="rounded-2xl border-[#e5e8e3] bg-white/80"><CardHeader><CardTitle className="font-serif text-xl">Son kritik hareketler</CardTitle></CardHeader><CardContent>{logs.isLoading ? <p role="status" className="py-10 text-center text-sm text-[#87938f]">Kayıtlar yükleniyor…</p> : logs.isError ? <p role="alert" className="py-10 text-center text-sm text-[#a85745]">Kayıtlar alınamadı.</p> : !logs.data?.length ? <p className="py-10 text-center text-sm text-[#87938f]">Henüz audit kaydı bulunmuyor.</p> : <div className="space-y-2">{logs.data.map((log) => <div key={log.id} className="rounded-xl border border-[#edf0ec] p-4"><div className="flex items-center justify-between gap-4"><p className="text-sm font-semibold text-[#34433f]">{log.action} · {log.entityType}</p><span className="text-[10px] text-[#87938f]">Kullanıcı #{log.actorUserId}</span></div><p className="mt-1 text-xs text-[#70807c]">{log.summary}</p></div>)}</div>}</CardContent></Card></div>;
+
+  if (user?.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-[#f7f7f4] px-5 py-12 md:px-10">
+        <Card className="mx-auto max-w-xl rounded-2xl border-[#ead6d0] bg-[#fff8f6]">
+          <CardContent className="p-8 text-center">
+            <ShieldCheck className="mx-auto mb-3 h-7 w-7 text-[#a85745]" />
+            <h1 className="font-serif text-2xl text-[#34433f]">Manager yetkisi gerekli</h1>
+            <p className="mt-2 text-sm text-[#87938f]">Denetim kayıtları yalnızca broker manager hesaplarına görünür.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f7f7f4] px-5 py-7 md:px-10 md:py-9">
+      <header className="mb-7">
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#a17b43]">Güven ve kontrol</p>
+        <h1 className="font-serif text-4xl tracking-[-0.04em] text-[#223230]">Denetim kayıtları</h1>
+        <p className="mt-2 text-sm text-[#70807c]">Kritik sözleşme ve finans hareketlerinin değiştirilemez işlem izi.</p>
+      </header>
+
+      <Card className="rounded-2xl border-[#e5e8e3] bg-white/80">
+        <CardHeader>
+          <CardTitle className="font-serif text-xl">Son kritik hareketler</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {logs.isLoading ? (
+            <p role="status" className="py-10 text-center text-sm text-[#87938f]">Kayıtlar yükleniyor…</p>
+          ) : logs.isError ? (
+            <p role="alert" className="py-10 text-center text-sm text-[#a85745]">Kayıtlar alınamadı.</p>
+          ) : !logs.data?.length ? (
+            <p className="py-10 text-center text-sm text-[#87938f]">Henüz audit kaydı bulunmuyor.</p>
+          ) : (
+            <div className="space-y-1.5">
+              {logs.data.map((log) => (
+                <div key={log.id} className="rounded-xl border border-[#edf0ec] px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="truncate text-sm font-semibold text-[#34433f]" title={`${log.action} · ${log.entityType}`}>
+                      {log.action} · {log.entityType}
+                    </p>
+                    <span className="shrink-0 text-xs font-semibold text-[#50665f]">Kullanıcı #{log.actorUserId}</span>
+                  </div>
+                  <p
+                    className="mt-0.5 truncate text-xs text-[#70807c]"
+                    title={log.summary ?? undefined}
+                    aria-label={`Açıklama: ${log.summary ?? "Açıklama yok"}`}
+                  >
+                    {log.summary}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
