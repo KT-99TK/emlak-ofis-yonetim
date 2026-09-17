@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { activeClausesForOutput, contractFormFieldsComplete, formatContractFormDate, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, parameterizeLandShareClauseBody, preparationChecksComplete, renderContractFormOutput, requesterFootnote, resolveContractFormPlaceholders, SALE_CLOSING_PREPARATION_CHECKS } from "./contractForms";
+import { activeClausesForOutput, contractFormFieldsComplete, formatContractFormDate, getDefaultFormFields, getMissingRequiredContractFormAttachments, getMissingRequiredContractFormFields, getSaleClosingArticleNumbering, isTechnicalContractFormField, LAND_SHARE_ATTACHMENT_DEFINITIONS, normalizeClauseDraft, normalizePreparationChecks, numberSaleClosingOptionalClauses, parameterizeLandShareClauseBody, preparationChecksComplete, renderContractFormOutput, requesterFootnote, resolveContractFormPlaceholders, SALE_CLOSING_PREPARATION_CHECKS, TECHNICAL_SPECIFICATION_DEFAULT_TEXT_BY_FIELD_KEY } from "./contractForms";
 import { LAND_SHARE_FIXED_CLAUSES } from "./landShareFixedClauses";
+import { TECHNICAL_SPECIFICATION_FIXED_CLAUSES } from "./technicalSpecificationFixedClauses";
 
 describe("contract form clause model", () => {
   it("contains the 21 agreed land-share articles without source personal data", () => {
@@ -94,12 +95,14 @@ describe("contract form clause model", () => {
     expect(landShareKeys).not.toContain("salePrice");
   });
 
-  it("includes technical silhouette fields and leaves variable financial terms empty by default", () => {
+  it("includes 30 technical silhouette fields (one per Teknik Şartname madde) and leaves variable financial terms empty by default", () => {
     const landShareFields = getDefaultFormFields("land_share");
-    const technicalField = landShareFields.find(field => field.fieldKey === "technical_kitchenEquipment");
+    const technicalFields = landShareFields.filter(field => field.fieldKey.startsWith("technical_madde"));
     const delayPenalty = landShareFields.find(field => field.fieldKey === "delayPenaltyAmount");
-    expect(technicalField).toMatchObject({ fieldType: "multiline", required: true });
-    expect(technicalField?.label).toContain("silüet");
+    expect(technicalFields).toHaveLength(30);
+    expect(technicalFields.every(field => field.fieldType === "multiline" && field.required === false)).toBe(true);
+    // Silüet: danışman boş bıraktığında, notere verilecek nihai madde metni aynen kullanılır.
+    expect(TECHNICAL_SPECIFICATION_DEFAULT_TEXT_BY_FIELD_KEY["technical_madde1"]).toBe(TECHNICAL_SPECIFICATION_FIXED_CLAUSES[0].bodyTemplate);
     expect(delayPenalty).toMatchObject({ fieldType: "currency", required: false });
   });
 
@@ -107,14 +110,14 @@ describe("contract form clause model", () => {
     const fields = [
       { fieldKey: "propertyAddress", label: "Taşınmaz adresi", required: true },
       { fieldKey: "delayPenaltyAmount", label: "Geç teslim bedeli", required: false },
-      { fieldKey: "technical_kitchenEquipment", label: "Mutfak ekipmanı", required: true },
+      { fieldKey: "technical_madde15", label: "Mutfak", required: true },
     ];
-    expect(getMissingRequiredContractFormFields(fields, { propertyAddress: "", technical_kitchenEquipment: "" })).toEqual([
+    expect(getMissingRequiredContractFormFields(fields, { propertyAddress: "", technical_madde15: "" })).toEqual([
       { fieldKey: "propertyAddress", label: "Taşınmaz adresi" },
-      { fieldKey: "technical_kitchenEquipment", label: "Mutfak ekipmanı" },
+      { fieldKey: "technical_madde15", label: "Mutfak" },
     ]);
-    expect(contractFormFieldsComplete(fields, { propertyAddress: "Urla", technical_kitchenEquipment: "Franke veya muadili" })).toBe(true);
-    expect(isTechnicalContractFormField("technical_kitchenEquipment")).toBe(true);
+    expect(contractFormFieldsComplete(fields, { propertyAddress: "Urla", technical_madde15: "Franke veya muadili" })).toBe(true);
+    expect(isTechnicalContractFormField("technical_madde15")).toBe(true);
     expect(isTechnicalContractFormField("delayPenaltyAmount")).toBe(false);
   });
 

@@ -1,3 +1,5 @@
+import { TECHNICAL_SPECIFICATION_FIXED_CLAUSES } from "./technicalSpecificationFixedClauses";
+
 export const CONTRACT_FORM_TYPES = ["sale_closing", "land_share"] as const;
 export type ContractFormType = (typeof CONTRACT_FORM_TYPES)[number];
 
@@ -160,33 +162,23 @@ export const TECHNICAL_FORM_FIELD_KEYS = [
   "technicalControlNotes",
 ] as const;
 
-const TECHNICAL_MATERIAL_FIELDS = [
-  { fieldKey: "technical_foundationAndGroundwork", label: "Temel ve zemin uygulamaları — silüet: B420C/S420 nervürlü demir, C30 grobeton, membran ve pas payı", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 200 },
-  { fieldKey: "technical_waterproofingAndDrainage", label: "Perde beton, bohçalama ve su yalıtımı — silüet: membran, XPS, koruma duvarı ve drenaj", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 201 },
-  { fieldKey: "technical_concreteAndMasonry", label: "Beton, duvar ve dolgu — silüet: C30/C35 beton, dikey-yatay delikli tuğla ve mıcır", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 202 },
-  { fieldKey: "technical_exteriorFacade", label: "Dış cephe, taş/granit ve kaplama — silüet: mekanik kaplama, taş yünü ve buhar kesici", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 203 },
-  { fieldKey: "technical_insulation", label: "Isı ve su yalıtımı — silüet: taş yünü, XPS ve marka/ürün standardı", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 204 },
-  { fieldKey: "technical_plasterAndPaint", label: "Sıva ve boya — silüet: alçı sıva, köşe profili, sıva filesi ve iç cephe boya", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 205 },
-  { fieldKey: "technical_windowsAndGlazing", label: "Doğrama ve cam — silüet: ısı yalıtımlı alüminyum, sineklik, ısıcam ve kaplama", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 206 },
-  { fieldKey: "technical_shutters", label: "Panjurlar — silüet: otomasyon, manuel anahtar, alüminyum panel ve motor", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 207 },
-  { fieldKey: "technical_doorsAndHardware", label: "Kapı, kasa, pervaz ve donanım — silüet: iç kapı, çelik kapı ve kilit sistemi", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 208 },
-  { fieldKey: "technical_cabinetsAndJoinery", label: "Mutfak, banyo, gömme dolap ve vestiyer — silüet: MDF lam/lake, kuvars ve donanım", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 209 },
-  { fieldKey: "technical_floorAndWallFinishes", label: "Taban, duvar ve merdiven kaplamaları — silüet: seramik, mermer ve kaydırmaz yüzey", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 210 },
-  { fieldKey: "technical_kitchenEquipment", label: "Mutfak eviyesi, batarya ve ankastre set — silüet: marka/model veya muadili", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 211 },
-  { fieldKey: "technical_bathroomEquipment", label: "Banyo armatürleri, klozet, duş ve havalandırma — silüet: marka/model veya muadili", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 212 },
-  { fieldKey: "technical_plumbingAndHeating", label: "Sıhhi tesisat, kombi ve yerden ısıtma — silüet: kapasite, boru tipi ve sistem markası", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 213 },
-  { fieldKey: "technical_electricalInstallation", label: "Elektrik tesisatı ve priz planı — silüet: kablo, priz, sigorta, kaçak akım ve topraklama", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 214 },
-  { fieldKey: "technical_communicationInfrastructure", label: "Uydu, internet, telefon ve TV altyapısı — silüet: merkezi sistem, fiber ve Cat6", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 215 },
-  { fieldKey: "technical_automationAndIntercom", label: "Bina otomasyonu, diafon ve güvenlik — silüet: interkom, dedektör, sulama ve panjur kontrolü", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 216 },
-  { fieldKey: "technical_hvacAndCooling", label: "Isıtma, soğutma ve klima — silüet: kapasite, dış ünite konumu ve yerden ısıtma", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 217 },
-  { fieldKey: "technical_waterSupply", label: "Su temini, artezyen, depo ve hidrofor — silüet: şehir suyu, bahçe/havuz suyu ve kullanım sınırı", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 218 },
-  { fieldKey: "technical_landscapeAndGarden", label: "Peyzaj, bahçe ve dış aydınlatma — silüet: toprak, çim, çit, sulama ve LED", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 219 },
-  { fieldKey: "technical_pool", label: "Havuz ve makine dairesi — silüet: beton, yalıtım, seramik, filtrasyon ve klorlama", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 220 },
-  { fieldKey: "technical_roofAndTerrace", label: "Çatı, çatı terası ve kışlık bahçe — silüet: çatı sistemi, yalıtım ve kullanım tahsisi", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 221 },
-  { fieldKey: "technical_officeAppendix", label: "Ofis eklentisi — silüet: A Blok 1 ve 5 için ofis planı, iklimlendirme ve cephe", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 222 },
-  { fieldKey: "technical_facadeApproval", label: "Dış cephe tasarım ve onay süreci — silüet: render, kesit, numune ve yazılı onay", fieldType: "multiline" as const, partyScope: "shared" as const, required: true, sortOrder: 223 },
-  { fieldKey: "technical_warrantyDetails", label: "Ürün ve imalat garanti detayları — silüet: ürün garantisi ve yüklenici giderim süresi", fieldType: "multiline" as const, partyScope: "contractor" as const, required: true, sortOrder: 224 },
-] as const;
+// Teknik Şartname'nin 30 maddesi, notere verilecek sabit metinden (`TECHNICAL_SPECIFICATION_FIXED_CLAUSES`)
+// türetilen 30 ayrı doldurulabilir alandır. Bu alanlar boş bırakıldığında (fieldValues'ta değer yoksa)
+// danışmana o maddenin gerçek/nihai metni "silüet" olarak (soluk, HTML placeholder) gösterilir; danışman
+// bu alana yazmaya başladığında kendi girdiği metin eski silüetin üzerine yazılır ve çıktıda onun yerine
+// geçer — bkz. `TECHNICAL_SPECIFICATION_DEFAULT_TEXT_BY_FIELD_KEY` ve `TechnicalSpecificationDocument.tsx`.
+export const TECHNICAL_MATERIAL_FIELDS = TECHNICAL_SPECIFICATION_FIXED_CLAUSES.map((clause, index) => ({
+  fieldKey: `technical_madde${index + 1}` as const,
+  label: clause.title.replace(/:$/, ""),
+  fieldType: "multiline" as const,
+  partyScope: clause.partyScope,
+  required: false,
+  sortOrder: 200 + index,
+}));
+
+export const TECHNICAL_SPECIFICATION_DEFAULT_TEXT_BY_FIELD_KEY: Record<string, string> = Object.fromEntries(
+  TECHNICAL_MATERIAL_FIELDS.map((field, index) => [field.fieldKey, TECHNICAL_SPECIFICATION_FIXED_CLAUSES[index].bodyTemplate])
+);
 
 const LAND_SHARE_FIELDS = [
   { fieldKey: "landownerName", label: "Arsa sahibi adı veya unvanı", fieldType: "text" as const, partyScope: "landowner" as const, required: true, sortOrder: 30 },

@@ -16,7 +16,7 @@ import { formatContractPhoneInput } from "@/lib/contractFormFormatting";
 import { formatWholeCurrencyInput } from "@/lib/authorityContract";
 import { isUppercaseTextField, toTurkishUpperCase } from "@/lib/textFormatting";
 import { trpc } from "@/lib/trpc";
-import { getMissingRequiredContractFormFields, isTechnicalContractFormField, resolveContractFormPlaceholders } from "@/../../shared/contractForms";
+import { getMissingRequiredContractFormFields, isTechnicalContractFormField, resolveContractFormPlaceholders, TECHNICAL_SPECIFICATION_DEFAULT_TEXT_BY_FIELD_KEY } from "@/../../shared/contractForms";
 
 type FillerField = {
   id: number;
@@ -108,7 +108,11 @@ export function ContractFormFiller({ bundle, preview }: { bundle: FillerBundle; 
     const label = <div className="mb-1.5 flex items-start justify-between gap-2"><label className={`text-xs font-semibold ${missing ? "text-[#9e3e31]" : "text-[#56635f]"}`}>{field.label}{field.required ? " *" : ""}</label>{technical && <Badge variant="outline" className="border-[#b8d4c7] text-[#4b8878]">Teknik</Badge>}</div>;
     const value = fieldValues[field.fieldKey];
     if (field.fieldType === "checkbox") return <div className={shell}><label className="flex items-center gap-2 text-sm text-[#34433f]"><Checkbox checked={Boolean(value)} onCheckedChange={(checked) => updateValue(field.fieldKey, checked === true)} />{field.label}{field.required ? " *" : ""}</label></div>;
-    if (field.fieldType === "multiline") return <div className={shell}>{label}<Textarea value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder="Bu alanı proje mutabakatına göre doldurun" className="min-h-24 bg-white" /></div>;
+    if (field.fieldType === "multiline") {
+      const technicalDefault = TECHNICAL_SPECIFICATION_DEFAULT_TEXT_BY_FIELD_KEY[field.fieldKey];
+      const placeholder = technicalDefault ?? "Bu alanı proje mutabakatına göre doldurun";
+      return <div className={shell}>{label}{technicalDefault && !value && <p className="mb-1 text-[10px] text-[#8b6b3b]">Aşağıda soluk görünen metin, notere verilecek nihai Teknik Şartname'deki maddedir (silüet). Bu projede farklıysa üzerine yazın — yazdığınız metin bu silüetin yerine geçer; boş bırakırsanız çıktıda silüet aynen kullanılır.</p>}<Textarea value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} placeholder={placeholder} className={`min-h-24 bg-white ${technicalDefault ? "placeholder:text-[#8b958f] placeholder:not-italic" : ""}`} /></div>;
+    }
     if (field.fieldType === "select") return <div className={shell}>{label}<select value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, event.target.value)} className="h-9 w-full rounded-md border border-input bg-white px-3 text-sm"><option value="">Seçiniz</option>{parseOptions(field.optionsJson).map((option) => <option key={option} value={option}>{option}</option>)}</select></div>;
     if (field.fieldType === "date") return <div className={shell}>{label}<TurkishDateInput value={fieldValueForInput(value)} onValueChange={(nextValue) => updateValue(field.fieldKey, nextValue)} aria-label={field.label} /></div>;
     if (isPhoneField(field)) return <div className={shell}>{label}<Input type="tel" inputMode="tel" value={fieldValueForInput(value)} onChange={(event) => updateValue(field.fieldKey, formatContractPhoneInput(event.target.value))} placeholder="+90 5XX XXX XX XX" className="bg-white" /></div>;
