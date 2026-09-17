@@ -118,3 +118,6 @@ release/win-unpacked/
 release/*.nsis.7z
 release/builder-*.yml
 release/builder-*.yaml
+manus-17-commits.bundle
+manus-patches.tar.gz
+manus-patches/
