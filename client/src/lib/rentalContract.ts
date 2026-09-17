@@ -3,6 +3,7 @@ import { RENTAL_CONDITIONS_TEMPLATE_VERSION, rentalContractConditions } from "./
 import { formatTurkishDate } from "./turkishDate";
 import { maskIdentityOrTaxNo, maskPhone } from "./privacy";
 import { formatIban, isUppercaseTextField, normalizeIban, toTurkishUpperCase } from "./textFormatting";
+import { formatContractPhoneInput } from "./contractFormFormatting";
 
 export type RentalFixtureItem = { id: string; item: string; quantity: string; condition: string };
 export type RentalAppendixSelection = { evacuation: boolean; handover: boolean; return: boolean; fixtures: boolean };
@@ -102,6 +103,7 @@ export const emptyRentalDetails = (): OfflineRentalDetails => ({
 /** Kira formundaki isim/adres alanlarını Türkçe büyük harfe, IBAN'ı kompakt biçime taşır. */
 export function normalizeRentalField(key: keyof OfflineRentalDetails, value: string) {
   if (key === "iban") return normalizeIban(value);
+  if (key === "ownerPhone" || key === "tenantPhone") return formatContractPhoneInput(value);
   return isUppercaseTextField(String(key)) ? toTurkishUpperCase(value) : value;
 }
 

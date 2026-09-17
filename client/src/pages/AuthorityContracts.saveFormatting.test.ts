@@ -24,7 +24,7 @@ describe("online authority contract save and formatting contract", () => {
 
   it("provides office and consultant defaults without removing editable inputs", () => {
     expect(source).toContain('officeAuthorizationNo: "3500211"');
-    expect(source).toContain('officePhone: "+90 534 975 05 82"');
+    expect(source).toContain('officePhone: "0534 975 05 82"');
     expect(source).toContain("CONSULTANT_DEFAULTS");
     expect(source).toContain("consultantDefaultsFor");
     expect(source).toContain("setDetails((current)");

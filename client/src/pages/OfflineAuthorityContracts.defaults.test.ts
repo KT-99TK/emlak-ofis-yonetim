@@ -6,7 +6,7 @@ const source = readFileSync(new URL("./OfflineAuthorityContracts.tsx", import.me
 describe("offline authority contract defaults", () => {
   it("provides office defaults and known consultant profiles without blocking edits", () => {
     expect(source).toContain('officeAuthorizationNo: "3500211"');
-    expect(source).toContain('officePhone: "+90 534 975 05 82"');
+    expect(source).toContain('officePhone: "0534 975 05 82"');
     expect(source).toContain("DEFAULT_CONSULTANTS");
     expect(source).toContain("defaultAuthorityDetails(userId)");
     expect(source).toContain('placeholder="Ofis adresi *"');

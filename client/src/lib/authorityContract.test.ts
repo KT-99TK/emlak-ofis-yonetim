@@ -51,7 +51,9 @@ describe("authority contract template", () => {
     expect(consultantInitials("ayşe yılmaz")).toBe("AY");
     expect(nextAuthorityContractNo(["YET-2026-AY-001", "YET-2026-AY-004"], "Ayşe Yılmaz", "2026-08-23")).toBe("YET-2026-AY-005");
     expect(toTurkishTitleCase("ayşe yıldız-şahin")).toBe("Ayşe Yıldız-Şahin");
-    expect(toInternationalPhone("0532 123 45 67")).toBe("+90 532 123 45 67");
+    expect(toInternationalPhone("0532 123 45 67")).toBe("0532 123 45 67");
+    expect(toInternationalPhone("+90 532 123 45 67")).toBe("0532 123 45 67");
+    expect(toInternationalPhone("5321234567")).toBe("0532 123 45 67");
   });
 
   it("calculates amount and service fee from Turkish or plain decimal input", () => {

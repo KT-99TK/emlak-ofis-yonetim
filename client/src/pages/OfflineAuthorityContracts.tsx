@@ -21,6 +21,7 @@ import {
   normalizeAuthorityDetails,
   type AuthorityContractDetails,
 } from "@/lib/authorityContract";
+import { formatContractPhoneInput } from "@/lib/contractFormFormatting";
 import { filterOfflineAuthorityDrafts, listOfflineAuthorityDrafts } from "@/lib/authorityDrafts";
 import { canEditOfflineContractEids, canViewFullOfflineContract, getOfflineAccessRole, getOfflineAssistantAssignedUserIds } from "@/lib/offlineContractAccess";
 import { isLocalManagerSessionActive } from "@/lib/offlineManagerAccess";
@@ -47,14 +48,14 @@ const requiredLabels: Partial<Record<keyof AuthorityContractDetails, string>> = 
 const DEFAULT_OFFICE_DETAILS: Pick<AuthorityContractDetails, "officeName" | "officeAuthorizationNo" | "officePhone" | "officeAddress"> = {
   officeName: "Global 1881 Gayrimenkul",
   officeAuthorizationNo: "3500211",
-  officePhone: "+90 534 975 05 82",
+  officePhone: "0534 975 05 82",
   officeAddress: "HACI İSA MAHALLESİ 75. YIL CUMHURİYET CADDESİ NO:5/38 URLA",
 };
 
 const DEFAULT_CONSULTANTS: Record<string, Partial<Pick<AuthorityContractDetails, "consultantName" | "consultantCode" | "consultantPhone" | "consultantTitle">>> = {
-  "K-TASLIARMUT": { consultantName: "KAZIM TAŞLIARMUT", consultantCode: "3500211/001", consultantPhone: "+90 541 935 29 59", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  "K-TASLIARMUT": { consultantName: "KAZIM TAŞLIARMUT", consultantCode: "3500211/001", consultantPhone: "0541 935 29 59", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
   "I-PARIN": { consultantName: "İBRAHİM PARİN", consultantCode: "3500211/002", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
-  "C-TERCAN": { consultantName: "CAHİT TERCAN", consultantCode: "3500211/003", consultantPhone: "+90 503 304 21 55", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  "C-TERCAN": { consultantName: "CAHİT TERCAN", consultantCode: "3500211/003", consultantPhone: "0503 304 21 55", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
 };
 
 function defaultAuthorityDetails(userId: string) {
@@ -129,7 +130,15 @@ export default function OfflineAuthorityContracts() {
   const missingKeys = useMemo(() => (Object.keys(requiredLabels) as Array<keyof AuthorityContractDetails>).filter((key) => (canEnterSensitive || !/(Identity|Phone)/.test(String(key))) && !String(details[key] ?? "").trim()), [canEnterSensitive, details]);
   const missingLabels = missingKeys.map((key) => requiredLabels[key]).filter(Boolean);
 
-  const update = (key: keyof AuthorityContractDetails, value: string) => { const nextValue = key === "eidsAuthorizationNumber" ? value.replace(/\D/g, "") : value; setSaveVisualState("idle"); setDetails((current) => key === "mode" && nextValue === "rent" ? { ...current, mode: "rent", serviceFeeRate: "", serviceFeeAmount: "", vatCollection: "separate" } : ({ ...current, [key]: nextValue })); };
+  const update = (key: keyof AuthorityContractDetails, value: string) => {
+    const nextValue = key === "eidsAuthorizationNumber"
+      ? value.replace(/\D/g, "")
+      : key === "ownerPhone" || key === "consultantPhone" || key === "officePhone"
+        ? formatContractPhoneInput(value)
+        : value;
+    setSaveVisualState("idle");
+    setDetails((current) => key === "mode" && nextValue === "rent" ? { ...current, mode: "rent", serviceFeeRate: "", serviceFeeAmount: "", vatCollection: "separate" } : ({ ...current, [key]: nextValue }));
+  };
   const updateWholeAmount = (key: "price" | "serviceFeeAmount", value: string) => update(key, formatWholeCurrencyInput(value));
   const normalizeForm = () => setDetails((current) => normalizeAuthorityDetails(current));
   const fieldClass = (key: keyof AuthorityContractDetails) => saveAttempted && missingKeys.includes(key) ? "border-[#b34d43] bg-[#fff7f5] focus-visible:ring-[#b34d43]" : "";

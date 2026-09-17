@@ -36,14 +36,14 @@ const officeFields: Array<[keyof AuthorityContractDetails, string]> = [
 const DEFAULT_OFFICE_DETAILS: Pick<AuthorityContractDetails, "officeName" | "officeAuthorizationNo" | "officePhone" | "officeAddress"> = {
   officeName: "Global 1881 Gayrimenkul",
   officeAuthorizationNo: "3500211",
-  officePhone: "+90 534 975 05 82",
+  officePhone: "0534 975 05 82",
   officeAddress: "HACI İSA MAHALLESİ 75. YIL CUMHURİYET CADDESİ NO:5/38 URLA",
 };
 
 const CONSULTANT_DEFAULTS: Record<string, Partial<Pick<AuthorityContractDetails, "consultantName" | "consultantPhone" | "consultantCode" | "consultantTitle">>> = {
-  KT1: { consultantName: "KAZIM TAŞLIARMUT", consultantPhone: "+90 541 935 29 59", consultantCode: "3500211/001", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  KT1: { consultantName: "KAZIM TAŞLIARMUT", consultantPhone: "0541 935 29 59", consultantCode: "3500211/001", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
   IP1: { consultantName: "İBRAHİM PARİN", consultantCode: "3500211/002", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
-  CT1: { consultantName: "CAHİT TERCAN", consultantPhone: "+90 503 304 21 55", consultantCode: "3500211/003", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
+  CT1: { consultantName: "CAHİT TERCAN", consultantPhone: "0503 304 21 55", consultantCode: "3500211/003", consultantTitle: "SORUMLU EMLAK DANIŞMANI" },
 };
 
 const consultantDefaultsFor = (value?: string) => {

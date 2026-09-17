@@ -61,7 +61,7 @@ export default function TechnicalSpecificationDocument({
   fontSize,
   officeName = "Global 1881 Gayrimenkul",
   officeAuthorizationNo = "3500211",
-  officePhone = "+90 534 975 05 82",
+  officePhone = "0534 975 05 82",
   officeAddress = "HACI İSA MAHALLESİ 75. YIL CUMHURİYET CADDESİ NO:5/38 URLA",
 }: TechnicalSpecificationDocumentProps) {
   const [sealFailed, setSealFailed] = React.useState(false);

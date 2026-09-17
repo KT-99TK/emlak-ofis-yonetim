@@ -112,25 +112,29 @@ export function normalizeAuthorityField(key: keyof AuthorityContractDetails, val
   return isUppercaseTextField(String(key)) ? toTurkishUpperCase(value) : value;
 }
 
-/** Türkiye yerel numaralarını E.164 biçimine çevirir; zaten uluslararası olanı korur. */
+/**
+ * Türkiye telefon numaralarını, +90/90/0090 gibi uluslararası ön eki olsun ya da olmasın, yerli
+ * kullanım biçimine ("0532 XXX XX XX") çevirir. Ad, eski adıyla uluslararası (+90) biçim üretiyordu;
+ * ofis içi kullanım için okunması daha kolay yerli biçime geçildi (fonksiyon adı geriye dönük
+ * uyumluluk için korundu).
+ */
 export function toInternationalPhone(value: string) {
   const digits = value.replace(/\D/g, "");
   if (!digits) return "";
-  const international = value.trim().startsWith("+")
-    ? digits
-    : digits.startsWith("0090") && digits.length === 14
-      ? digits.slice(2)
+  const domestic =
+    digits.startsWith("0090") && digits.length === 14
+      ? `0${digits.slice(4)}`
       : digits.startsWith("90") && digits.length === 12
-        ? digits
+        ? `0${digits.slice(2)}`
         : digits.startsWith("0") && digits.length === 11
-          ? `90${digits.slice(1)}`
+          ? digits
           : digits.startsWith("5") && digits.length === 10
-            ? `90${digits}`
+            ? `0${digits}`
             : digits;
-  if (international.length === 12 && international.startsWith("90")) {
-    return `+90 ${international.slice(2, 5)} ${international.slice(5, 8)} ${international.slice(8, 10)} ${international.slice(10, 12)}`;
+  if (domestic.length === 11 && domestic.startsWith("0")) {
+    return `${domestic.slice(0, 4)} ${domestic.slice(4, 7)} ${domestic.slice(7, 9)} ${domestic.slice(9, 11)}`;
   }
-  return `+${international}`;
+  return domestic;
 }
 
 export function consultantInitials(name: string) {
