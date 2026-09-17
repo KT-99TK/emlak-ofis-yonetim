@@ -69,17 +69,17 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 - [x] Gelecekte offline Windows dağıtımı yeniden ele alınırsa yalnız gerçek Windows ortamında oluşturulan, bağımsız güvenlik incelemesinden geçmiş ve kullanıcı kabulü için tek toplu paket yaklaşımını değerlendir; bu karar oluşmadan paket üretme. Karar: yeni offline paket üretilmeyecek; mevcut 1.0.22 korunacak ve merkezi web/LAN kabulü tercih edilecek.
 - [ ] Güvenli bir Windows kabul yolu oluştuğunda tek oturumda Offline Genel Bakış açılışı, `startup.log`, `En geç` tarihinin `GG.AA.YYYY` görünümü, A4 kira/yetki belgeleri, DASK/EİDS/ekler, menü ve Ofis Akışı yerleşimini doğrula. Offline Windows dağıtımı Defender riski nedeniyle kapsam dışıdır; bu Windows kabul oturumu yapılmadı.
 - [x] Offline Windows kabul yolunun kapsam dışı bırakıldığını ayrı karar maddesi olarak kaydet; mevcut 1.0.22’yi değiştirme ve yeni EXE/ZIP üretme. Merkezi web/LAN kabulü tercih edildi; mevcut 1.0.22 korunuyor.
-- [ ] Merkezi web/LAN kabulünde Offline Genel Bakış karşılığı web ekranlarını, `GG.AA.YYYY` tarih görünümünü, A4 kira/yetki belgelerini, ekleri, menüyü ve Ofis Akışı yerleşimini gerçek cihazlarda doğrula.
+- [x] Merkezi web/LAN kabulünde Offline Genel Bakış karşılığı web ekranlarını, `GG.AA.YYYY` tarih görünümünü, A4 kira/yetki belgelerini, ekleri, menüyü ve Ofis Akışı yerleşimini gerçek cihazlarda doğrula. Kabul, ofis.global1881.com üzerinden Google Chrome ile canlı web ortamında broker manager, IP1 ve CT1 hesaplarıyla yapıldı; kapalı devre LAN gerekmiyor.
 
 ## 2. Canlı web erişimi — platform / alan adı takibi
 
 - [x] Manus dışına taşınabilirlik envanteri hazırla: GitHub kapsamı, Manus Auth, database, storage, schedules, external APIs, environment variables ve runtime gereksinimleri. `migration-readiness-report.md` ile kod değişikliği yapmadan hazırlandı ve kullanıcıya teslim edildi.
 - [x] Veritabanı export/backup, abonelik sona ermesi ve veri saklama sınırlarını doğrulanabilir kaynaklarla belgeleyerek kullanıcıya açıkça aktar. `migration-readiness-report.md` içinde kaynak ve doğrulanamayan sınırlar ayrıştırıldı; resmi görev yedeği ayrıca kullanıcı panelinden doğrulanacak açık dış bağımlılık olarak bırakıldı.
 
-- [ ] Yayın alanı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Ubuntu kontrolünde TLS sertifikası geçerli ve giriş sayfası HTTP 200 dönmüştür; bu, kullanıcı ağındaki önceki `ERR_SSL_PROTOCOL_ERROR` ve bakım ekranını tek başına kapatmaz.
-- [ ] `ofis.global1881.com` özel alt alan adı için DNS yönetim yetkisini, mevcut `ofis` kaydının boşluğunu ve kayıt ekleyecek web tasarımcısı/sağlayıcıyı doğrula; bağlantı penceresi başlatılmadan önce DNS kaydı eklemeye hazır olsun. 04.09.2026 mobil Chrome ekranında `DNS_PROBE_FINISHED_NXDOMAIN` doğrulandı; bu, alt alan adı için DNS kaydının henüz oluşturulmadığını gösterir. DNS değişikliği yapılmadı.
-- [ ] Kullanıcının açık onayıyla, mevcut `emlakdash-kcw9r85v.manus.space` yayını kesmeden `ofis.global1881.com` bağlantısını başlat ve yalnız panelde verilen DNS kaydını alan adı sağlayıcısına uygulat; doğrulama ve HTTPS kabulü tamamlanmadan eski adresi kaldırma.
-- [ ] Güvenli erişim kararlı olduğunda, Windows paketi yerine yayımlanmış web uygulamasında tek ekran kabul oturumunu planla. Kullanıcıdan aynı bağlantı testlerini tekrarlamasını isteme.
+- [x] Yayın alanı kullanıcı ağlarında güvenlik uyarısı veya bakım ekranı göstermeden kararlı biçimde erişilebilir olana kadar altyapı durumunu takip et. Eski ERR_SSL/bakım ekranı tarihsel not olarak korunuyor; güncel kabul ofis.global1881.com üzerinden sorunsuz yapıldı.
+- [x] `ofis.global1881.com` özel alt alan adı için DNS yönetim yetkisini, mevcut `ofis` kaydının boşluğunu ve kayıt ekleyecek web tasarımcısı/sağlayıcıyı doğrula; bağlantı penceresi başlatılmadan önce DNS kaydı eklemeye hazır olsun. Güncel durumda CNAME/özel alan adı çalışıyor ve canlı kabul bu adres üzerinden yapılıyor; eski NXDOMAIN ekranı tarihsel nottur.
+- [x] Kullanıcının açık onayıyla, mevcut `emlakdash-kcw9r85v.manus.space` yayını kesmeden `ofis.global1881.com` bağlantısını başlat ve yalnız panelde verilen DNS kaydını alan adı sağlayıcısına uygulat; doğrulama ve HTTPS kabulü tamamlanmadan eski adresi kaldırma. Özel alan adı canlı ve eski Manus alan adı korunuyor.
+- [x] Güvenli erişim kararlı olduğunda, Windows paketi yerine yayımlanmış web uygulamasında tek ekran kabul oturumunu planla. Kabul ofis.global1881.com üzerinde Google Chrome ile yapıldı; tekrar Windows/LAN kurulumu gerekmiyor.
 - [x] Alan adı erişimi düzelir düzelmez uygulanacak, tek oturumluk ve veri değiştirmeyen web kabul kontrol listesini hazırla. `web-acceptance-checklist.md` oluşturuldu.
 - [x] Hesap içi bildirim veya e-posta temelinde Ağustos 2026 hizmet değişikliği kapsamını doğrula; arama sonucu veya bakım ekranından etkilenme/geri yükleme gereğini varsayma. Kullanıcı Manus hesabına giriş yapabildiğini ve özel hizmet değişikliği bildirimi almadığını doğruladı; geri yükleme gereği varsayılmayacak.
 - [x] Manus Destek’in e-posta ilettiği “Yanıtı görüntüle” bağlantısı kullanıcı tarafında içerik açmadığı için destek yanıtını e-posta gövdesinde talep et; yanıt alınmadan yedek/geri yükleme işlemi başlatma. Kullanıcı e-posta yanıt talebini gönderdi.
@@ -106,7 +106,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 4. Fonksiyonel kabulde bekleyen tekil noktalar
 
-- [ ] Kod ve test düzeyinde tamamlanan kira yardımcı tarihi, A4 belgeler/ekler, yedek/merge, rol mahremiyeti, boş online başlangıç ve responsive Ofis Akışı davranışlarını güvenli erişim sağlandığında kullanıcıya görünen gerçek çalışma ortamında toplu kabul et.
+- [x] Kod ve test düzeyinde tamamlanan kira yardımcı tarihi, A4 belgeler/ekler, yedek/merge, rol mahremiyeti, boş online başlangıç ve responsive Ofis Akışı davranışlarını güvenli erişim sağlandığında kullanıcıya görünen gerçek çalışma ortamında toplu kabul et. Canlı web kabulü ofis.global1881.com üzerinden yapıldı.
 - [x] Kimlik/vergi numarası ve telefonun dijital sözleşme ile müşteri kaydından çıkarılıp, bu alanların yalnız fizikî imzalı sözleşmede el yazısıyla tutulması seçeneğini KVKK, sözleşme iş akışı, hizmet takvimi, rol mahremiyeti ve arşiv güvenliği bakımından değerlendir; kullanıcı onayı olmadan alanları silme veya migrasyon yapma. Değerlendirme tamamlandı; tam silme yerine maskeli saklama politikası seçildi.
 - [x] Yeni sözleşmelerde T.C. kimlik/vergi no ve telefonun yalnız imza öncesi belge üretiminde kullanılmasını; fizikî ıslak imzalı nüsha tamamlandı onayı sonrası T.C. bilgisinin geri döndürülemez temizlenmesini ve telefonun silinmesi/maskelemesi kararını rol, audit ve yedek sınırlarıyla tasarla. Mevcut kayıtları veya geçmiş yedekleri değiştirme. Karar, kontrollü maskeli saklama olarak revize edildi ve tasarım belgesine işlendi.
 - [x] Yeni sözleşmelerde T.C. kimlik/vergi no ve telefonun maskeli saklanmasını; telefonun tam değerinin yalnız atanmış danışman ile broker managera, T.C./vergi no tam değerinin yalnız broker managera gerekçeli ve audit kayıtlı gösterilmesini; ofis asistanı ile varsayılan Excel/PDF dışa aktarımlarının tam değerlere erişememesini tasarla. Mevcut kayıtları ve yedekleri değiştirme. `KIMLIK-TELEFON-MINIMUM-VERI-PLANI.md` hedef rol, maskeleme, audit ve dışa aktarım kurallarını içerir.
@@ -304,9 +304,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 
 ## 13. Kullanıcı kabulü bekleyen operasyonel işler
 
-- [ ] Ofiste IP1, KT1 ve CT1 ile LAN bağlantısı, login, rol görünürlüğü ve maskeli veri kabulünü gerçek cihazlarda doğrula.
+- [x] Ofiste IP1, KT1 ve CT1 ile LAN bağlantısı, login, rol görünürlüğü ve maskeli veri kabulünü gerçek cihazlarda doğrula. Testler ofis LAN yerine ofis.global1881.com canlı web ortamında Google Chrome üzerinden yapıldı; ayrı LAN testi bu proje için uygulanmıyor.
 - [x] Kat Karşılığı genel sözleşmesi ve teknik şartname kaynak metinleri sağlandığında ayrı şablon/ek belge olarak aktar; kaynak metinler alındı, 21 madde clause kataloğu ve EK-1–EK-5 metadata akışına bağlandı.
-- [ ] Kullanıcı DNS sağlayıcı bilgilerini ve açık geçiş onayını verdiğinde ofis.global1881.com alan adı bağlantısını başlat ve HTTPS kabulünü yap.
+- [x] Kullanıcı DNS sağlayıcı bilgilerini ve açık geçiş onayını verdiğinde ofis.global1881.com alan adı bağlantısını başlat ve HTTPS kabulünü yap. CNAME/özel alan adı canlı ve HTTPS web kabulü yapıldı.
 - [ ] `global1881.com` mevcut web sitesi altyapısını ve ilan yayınlama kapasitesini doğrula; WordPress/CMS, özel yazılım, hosting ve erişilebilir API/feed seçeneklerini tespit et.
 - [ ] Ofis otomasyonundaki portföy kaydını ilan kaynağı yapacak veri modeli, fotoğraf/medya, açıklama, yayın durumu, slug ve senkronizasyon geçmişi kapsamını tasarla.
 - [ ] `global1881.com` için güvenli ilan oluşturma/güncelleme/arşivleme senkronizasyon yolunu; sahibinden.com için yalnız resmî API/XML/ilan aktarım seçeneği varsa ikinci hedefi doğrula.
@@ -335,7 +335,7 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 ## 16. Global 1881 ofis kabul testi
 
 - [x] Kabul testini veri değiştirmeden başlat; her sonucu uygulama kanıtı, fiziksel cihaz kanıtı veya kullanıcı doğrulaması olarak sınıflandır.
-- [ ] Ana PC LAN IP/port bağlantısını ve iki istemci bağlantısını fiziksel ofis cihazlarında doğrula; uzaktan doğrulanamayan noktaları açık bırak.
+- [x] Ana PC LAN IP/port bağlantısını ve iki istemci bağlantısını fiziksel ofis cihazlarında doğrula; uzaktan doğrulanamayan noktaları açık bırak. Kapalı devre server kurulmadı; canlı web alan adı yeterli olduğu için bu senaryo uygulanmıyor.
 - [x] IP1, KT1 ve CT1 girişlerini, ilk giriş/parola akışını ve rol bazlı menü/record erişimini kod ve regresyon testleriyle kontrol et; gerçek cihaz login kabulü ayrı bekliyor.
 - [x] CT1 danışman profilini, 19 aktif kira kaydını, authority code ve tekrar kayıt durumunu mevcut aktarım kanıtı ve regresyon testiyle kontrol et; fiziksel ekran kabulü ayrı bekliyor.
 - [x] Hassas telefon/T.C./vergi alanlarının maskeli görünümünü ve rol sınırlarını regresyon testleriyle kontrol et; gerçek cihazdaki reveal audit kabulü ayrı bekliyor.
@@ -456,9 +456,9 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 ## 5. Server laptopı için merkezi çalışma hazırlığı
 
 - [x] Mevcut 1.0.22 offline kurulumunun server olarak kullanılıp kullanılamayacağını, web server çalışma modeliyle karıştırmadan doğrula. 1.0.22 IndexedDB kullanan bağımsız Electron/offline modelidir; LAN server değildir ve mevcut proje çalışma ağacında bunu server’a dönüştürecek Electron giriş runtime’ı bulunmuyor.
-- [ ] Defender tarafından daha önce uyarılan imzasız EXE/ZIP/BAT riskini yeniden üretmeden güvenli server dağıtım seçeneğini belirle.
-- [ ] Server laptopı için merkezi uygulama başlatma, LAN bind, port ve firewall adımlarını ayrı ve doğrulanabilir biçimde hazırla.
-- [ ] Server laptopından kendi laptopuna ve IP1/CT1 istemcilerine bağlantıyı gerçek cihazlarda test et; başarısız noktaları kullanıcı kabulüne bırak.
+- [x] Defender tarafından daha önce uyarılan imzasız EXE/ZIP/BAT riskini yeniden üretmeden güvenli server dağıtım seçeneğini belirle. Windows/server paketi yerine yayımlanmış web uygulaması ana çalışma yöntemi olarak seçildi.
+- [x] Server laptopı için merkezi uygulama başlatma, LAN bind, port ve firewall adımlarını ayrı ve doğrulanabilir biçimde hazırla. Kapalı devre server planı iptal edildi; canlı CNAME web ortamı kullanılıyor.
+- [x] Server laptopından kendi laptopuna ve IP1/CT1 istemcilerine bağlantıyı gerçek cihazlarda test et; başarısız noktaları kullanıcı kabulüne bırak. Ayrı server laptopı kullanılmadı; KT1, IP1 ve CT1 canlı web adresinde test edildi.
 
 
 ## 6. Proje Yedekleri menü görünürlüğü
@@ -864,3 +864,12 @@ Bu dosya yalnızca **bugün açık olan ve tekrar etmeyen** işleri içerir.
 ## 2026-09-16 — GitHub doğrulama sonucu
 - [x] `KT-99TK/emlak-ofis-yonetim` private main deposunda secret, `.env`, token veya anahtar bulunmadığını kontrol et. GitHub tree taramasında eşleşen dosya adı bulunmadı; private-key/token marker taramasında eşleşme yok; tek hardcoded-secret regex eşleşmesi `server/privacy.test.ts` içindeki açıkça test-only JWT değeridir. Repository private, main ve 286 commit/537 dosya olarak doğrulandı.
 - [x] Doğrulanan GitHub deposunu eksik işler listesinden çıkar; yalnız checkpoint sonrası senkronizasyon kontrolünü koru. Doğru hedef `KT-99TK/emlak-ofis-yonetim`; son push ve commit kontrolü tamamlandı.
+
+## 2026-09-16 — Canlı web kabul ortamı düzeltmesi
+- [ ] `ofis.global1881.com` CNAME/özel alan adı üzerinden canlı web test ortamını ana kabul ortamı olarak kaydet.
+- [ ] Broker manager, IP1 ve CT1 testlerinin Google Chrome üzerinden canlı web ortamında yapıldığını kabul durumuna işle.
+- [ ] Kapalı devre server, server laptopı ve ayrı ofis LAN kabul maddelerini bu proje için uygulanmıyor/tamamlandı olarak düzelt.
+- [ ] DNS/HTTPS kabulünü canlı özel alan adı üzerinden tamamlandı olarak güncelle; eski erişim sorunlarını tarihsel not olarak koru.
+
+## 2026-09-17 — Güncel GitHub push talebi
+- [ ] Güncel çalışma ağacını `KT-99TK/emlak-ofis-yonetim` private repository’sine push et; son commit ve repository linkini doğrula.
