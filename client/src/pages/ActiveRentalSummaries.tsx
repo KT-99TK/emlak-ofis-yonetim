@@ -311,6 +311,28 @@ function dateText(value: Date | string | null | undefined) {
       }).format(new Date(value))
     : "—";
 }
+function dateKey(value: Date | string | null | undefined) {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+type RentalStatusFilter = "all" | "active" | "endingSoon" | "ended";
+function rentalStatus(value: Date | string | null | undefined): Exclude<RentalStatusFilter, "all"> {
+  if (!value) return "active";
+  const end = value instanceof Date ? new Date(value) : new Date(value);
+  if (Number.isNaN(end.getTime())) return "active";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+  if (end < today) return "ended";
+  const ninetyDays = new Date(today);
+  ninetyDays.setDate(ninetyDays.getDate() + 90);
+  return end <= ninetyDays ? "endingSoon" : "active";
+}
+function rentalStatusLabel(status: Exclude<RentalStatusFilter, "all">) {
+  return status === "ended" ? "Süresi dolmuş" : status === "endingSoon" ? "90 gün içinde bitiyor" : "Devam ediyor";
+}
 function taskLabel(type: string) {
   return type === "rentIncrease"
     ? "Kira artışı"
@@ -380,6 +402,8 @@ export default function ActiveRentalSummaries() {
   });
   const [parsed, setParsed] = useState<ParsedWorkbook | null>(null);
   const [message, setMessage] = useState("");
+  const [rentalStatusFilter, setRentalStatusFilter] = useState<RentalStatusFilter>("all");
+  const [rentalEndDateFilter, setRentalEndDateFilter] = useState("");
   const [taxInputs, setTaxInputs] = useState<Record<number, TaxInput>>({});
   const [taskNotes, setTaskNotes] = useState<Record<number, string>>({});
   const [ownerExitConfirmed, setOwnerExitConfirmed] = useState<
@@ -557,6 +581,13 @@ export default function ActiveRentalSummaries() {
   );
   const duplicateImportRows = parsed?.rows.filter(row => existingImportKeys.has(importRowKey(row))) ?? [];
   const importableRows = parsed?.rows.filter(row => !existingImportKeys.has(importRowKey(row))) ?? [];
+  const filteredSummaries = useMemo(() => {
+    return (summaries.data ?? []).filter(item => {
+      const statusMatches = rentalStatusFilter === "all" || rentalStatus(item.evictionDate) === rentalStatusFilter;
+      const dateMatches = !rentalEndDateFilter || dateKey(item.evictionDate) === rentalEndDateFilter;
+      return statusMatches && dateMatches;
+    });
+  }, [rentalEndDateFilter, rentalStatusFilter, summaries.data]);
   const readWorkbook = async (file?: File) => {
     if (!file) return;
     setMessage("");
@@ -578,7 +609,7 @@ export default function ActiveRentalSummaries() {
   };
 
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
-  const exportRows = (summaries.data ?? []).map(item => ({
+  const exportRows = filteredSummaries.map(item => ({
     clientName: item.clientName ?? "",
     propertyLocation: `${item.propertyLocation}${item.unitInfo && item.unitInfo !== "—" ? ` / ${item.unitInfo}` : ""}`,
     clientPhone: item.clientPhone || "—",
@@ -587,6 +618,7 @@ export default function ActiveRentalSummaries() {
     contractDate: dateText(item.contractDate),
     rentIncreaseDate: dateText(item.rentIncreaseDate ?? item.contractDate),
     evictionDate: item.evictionDate ? dateText(item.evictionDate) : "",
+    rentalStatus: rentalStatusLabel(rentalStatus(item.evictionDate)),
     monthlyRent: money(item.monthlyRent),
     neighborhood: item.neighborhood,
     consultantCode: item.consultantCode ?? "—",
@@ -600,6 +632,7 @@ export default function ActiveRentalSummaries() {
     "Sözleşme tarihi",
     "Kira artış tarihi (boşsa sözleşme tarihi)",
     "Tahliye tarihi (opsiyonel)",
+    "Kira durumu",
     "Güncel aylık kira",
     "Mahalle",
     "Danışman kodu",
@@ -614,6 +647,7 @@ export default function ActiveRentalSummaries() {
       row.contractDate,
       row.rentIncreaseDate,
       row.evictionDate,
+      row.rentalStatus,
       row.monthlyRent,
       row.neighborhood,
       row.consultantCode,
@@ -1225,6 +1259,33 @@ export default function ActiveRentalSummaries() {
             </Button>
           </span>
         </summary>
+        <div className="mt-4 grid gap-3 rounded-xl border border-[#dce8df] bg-[#f8fbf8] p-3 md:grid-cols-[minmax(0,1fr)_190px_190px]">
+          <label className="block text-xs font-semibold text-[#50665f]">
+            Kira durumu
+            <select
+              value={rentalStatusFilter}
+              onChange={event => setRentalStatusFilter(event.target.value as RentalStatusFilter)}
+              className="mt-1.5 h-9 w-full rounded-md border border-[#d4e0d9] bg-white px-3 text-sm font-normal text-[#34433f]"
+            >
+              <option value="all">Tüm durumlar</option>
+              <option value="active">Devam ediyor</option>
+              <option value="endingSoon">90 gün içinde bitiyor</option>
+              <option value="ended">Süresi dolmuş</option>
+            </select>
+          </label>
+          <label className="block text-xs font-semibold text-[#50665f]">
+            Kira bitiş tarihi
+            <input
+              type="date"
+              value={rentalEndDateFilter}
+              onChange={event => setRentalEndDateFilter(event.target.value)}
+              className="mt-1.5 h-9 w-full rounded-md border border-[#d4e0d9] bg-white px-3 text-sm font-normal text-[#34433f]"
+            />
+          </label>
+          <div className="flex items-end text-xs text-[#70807c]">
+            <span>{(rentalStatusFilter !== "all" || rentalEndDateFilter) ? `${filteredSummaries.length} kayıt gösteriliyor.` : "Tüm kayıtlar gösteriliyor."}</span>
+          </div>
+        </div>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[950px] text-sm">
             <thead className="border-b text-left text-xs uppercase tracking-wide text-[#718079]">
@@ -1233,13 +1294,15 @@ export default function ActiveRentalSummaries() {
                 <th className="px-3 py-3">Taşınmaz</th>
                 <th className="px-3 py-3">Kira</th>
                 <th className="px-3 py-3">Sözleşme</th>
+                <th className="px-3 py-3">Bitiş / durum</th>
                 <th className="px-3 py-3">Danışman</th>
                 <th className="px-3 py-3">İletişim</th>
               </tr>
             </thead>
             <tbody>
-              {summaries.data?.map(item => {
+              {filteredSummaries.map(item => {
                 const isRevealed = revealedPhones?.summaryId === item.id;
+                const status = rentalStatus(item.evictionDate);
                 return <tr key={item.id} className="border-b border-[#edf1ed]">
                   <td className="px-3 py-3">
                     <div className="font-medium text-[#173e39]">
@@ -1260,6 +1323,10 @@ export default function ActiveRentalSummaries() {
                   </td>
                   <td className="px-3 py-3">{money(item.monthlyRent)}</td>
                   <td className="px-3 py-3">{dateText(item.contractDate)}</td>
+                  <td className="px-3 py-3 text-xs">
+                    <div>{item.evictionDate ? dateText(item.evictionDate) : "Bitiş tarihi yok"}</div>
+                    <span className={status === "ended" ? "font-semibold text-[#a85745]" : status === "endingSoon" ? "font-semibold text-[#9b7840]" : "font-semibold text-[#3f7668]"}>{rentalStatusLabel(status)}</span>
+                  </td>
                   <td className="px-3 py-3">{item.consultantCode ?? "—"}</td>
                   <td className="px-3 py-3 text-xs text-[#718079]">
                     <div>Malik: {isRevealed ? revealedPhones?.clientPhone || "—" : item.clientPhone || "—"}</div>
@@ -1270,9 +1337,9 @@ export default function ActiveRentalSummaries() {
               })}
             </tbody>
           </table>
-          {!summaries.data?.length && (
+          {!filteredSummaries.length && (
             <p className="py-6 text-center text-sm text-[#718079]">
-              Rolünüzde görünür aktif kira özeti bulunmuyor.
+              {summaries.data?.length ? "Seçtiğiniz filtrelerle eşleşen kira kaydı bulunmuyor." : "Rolünüzde görünür aktif kira özeti bulunmuyor."}
             </p>
           )}
         </div>
@@ -1311,7 +1378,7 @@ export default function ActiveRentalSummaries() {
               </tr>
             </thead>
             <tbody>
-              {exportRows.map((row, index) => (
+                {exportRows.map((row, index) => (
                 <tr key={`${row.clientName}-${row.propertyLocation}-${index}`}>
                   <td className="border border-[#b8c5bf] p-1.5">{row.clientName}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.propertyLocation}</td>
@@ -1321,6 +1388,7 @@ export default function ActiveRentalSummaries() {
                   <td className="border border-[#b8c5bf] p-1.5">{row.contractDate}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.rentIncreaseDate}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.evictionDate}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.rentalStatus}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.monthlyRent}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.neighborhood}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.consultantCode}</td>
