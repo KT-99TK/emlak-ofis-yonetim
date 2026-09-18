@@ -1000,6 +1000,14 @@ export async function listClients(
           ? inArray(properties.assignedUserId, scopedIds)
           : sql`1 = 0`
     ));
+  const contractRows = await db
+    .select({ clientId: contracts.clientId })
+    .from(contracts)
+    .where(inArray(contracts.clientId, clientIds));
+  const contractCountByClient = new Map<number, number>();
+  for (const contract of contractRows) {
+    if (contract.clientId) contractCountByClient.set(contract.clientId, (contractCountByClient.get(contract.clientId) ?? 0) + 1);
+  }
   const portfolioByClient = new Map<number, { total: number; active: number; titles: string[] }>();
   for (const property of propertyRows) {
     if (!property.ownerClientId) continue;
@@ -1021,6 +1029,7 @@ export async function listClients(
         active: portfolio.active,
         titles: portfolio.titles,
       },
+      contractCount: contractCountByClient.get(row.client.id) ?? 0,
       canRevealSensitive: false,
     };
   });

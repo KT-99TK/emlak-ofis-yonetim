@@ -11,6 +11,10 @@ describe("admin-only record deletion", () => {
     expect(router).toMatch(/properties:\s*router[\s\S]*delete:\s*adminProcedure/);
     expect(records).toContain('user?.role === "admin"');
     expect(records).toContain("Kalıcı olarak sil");
+    expect(records).toContain("selectedIds");
+    expect(records).toContain("Seçilenleri kalıcı olarak sil");
+    expect(records).toContain("portfolioCount");
+    expect(records).toContain("contractCount");
     expect(db).toContain("export async function deleteClient");
     expect(db).toContain("export async function deleteProperty");
     expect(db).toContain("client_deleted_cascade");
