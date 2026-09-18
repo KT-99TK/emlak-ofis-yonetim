@@ -1292,7 +1292,7 @@ export default function ActiveRentalSummaries() {
           </div>
         </div>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[950px] text-sm">
+          <table className="w-full min-w-max table-auto text-sm">
             <thead className="border-b text-left text-xs uppercase tracking-wide text-[#718079]">
               <tr>
                 <th className="px-3 py-3">Malik / kiracı</th>
@@ -1309,11 +1309,11 @@ export default function ActiveRentalSummaries() {
                 const isRevealed = revealedPhones?.summaryId === item.id;
                 const status = rentalStatus(item.evictionDate);
                 return <tr key={item.id} className="border-b border-[#edf1ed]">
-                  <td className="px-3 py-3">
-                    <div className="font-medium text-[#173e39]">
+                  <td className="whitespace-nowrap px-3 py-3">
+                    <div className="whitespace-nowrap font-medium text-[#173e39]">
                       {toTurkishUpperCase(item.clientName ?? "")}
                     </div>
-                    <div className="text-xs text-[#718079]">
+                    <div className="whitespace-nowrap text-xs text-[#718079]">
                       {toTurkishUpperCase(item.tenantName ?? "")}
                     </div>
                   </td>

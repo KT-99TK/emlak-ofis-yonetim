@@ -15,5 +15,7 @@ describe("active rental table filters", () => {
     expect(source).toContain("Kira bitiş tarihi");
     expect(source).toContain("Kira durumu");
     expect(source).toContain("row.rentalStatus");
+    expect(source).toContain("w-full min-w-max table-auto");
+    expect(source).toContain("whitespace-nowrap font-medium text-[#173e39]");
   });
 });
