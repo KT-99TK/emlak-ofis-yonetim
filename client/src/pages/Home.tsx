@@ -313,6 +313,13 @@ export default function Home() {
       : "Merkezi veri";
   const liveStats = [
     {
+      label: "Aktif sözleşmeler",
+      value: dashboardSummary ? String(dashboardSummary.contracts) : "—",
+      note: dashboardSummary ? "Merkezi kayıt" : unavailableNote,
+      icon: FileSignature,
+      color: "text-[#173e39]",
+    },
+    {
       label: "Aktif kiralamalar",
       value: dashboardSummary ? String(dashboardSummary.activeRentals) : "—",
       note: dashboardSummary ? "Merkezi kayıt" : unavailableNote,
@@ -415,7 +422,7 @@ export default function Home() {
           </div>
         )}
 
-        <section className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {liveStats.map(stat => (
             <Card
               key={stat.label}
