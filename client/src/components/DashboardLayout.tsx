@@ -53,8 +53,8 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Genel Bakış", path: "/", group: "Günlük" },
-  { icon: FolderKanban, label: "Portföy", path: "/properties", group: "Portföy & Müşteri" },
   { icon: UserRound, label: "Müşteriler", path: "/clients", group: "Portföy & Müşteri" },
+  { icon: FolderKanban, label: "Portföy", path: "/properties", group: "Portföy & Müşteri" },
   { icon: KeyRound, label: "Aktif Kiralamalar", path: "/active-rentals", group: "Portföy & Müşteri" },
   { icon: FileSignature, label: "Yetki Sözleşmeleri", path: "/authority-contracts", group: "Sözleşmeler" },
   { icon: FileSignature, label: "Kira Sözleşmeleri", path: "/contracts", group: "Sözleşmeler" },
