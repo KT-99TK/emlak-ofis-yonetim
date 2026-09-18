@@ -1655,6 +1655,9 @@ async function nextClientReferenceNo(
 export async function createClient(input: {
   name: string;
   assignedUserId: number;
+  phone?: string;
+  email?: string;
+  address?: string;
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -1662,8 +1665,44 @@ export async function createClient(input: {
   const referenceNo = await nextClientReferenceNo(db);
   const result = await db
     .insert(clients)
-    .values({ referenceNo, name: input.name, assignedUserId: input.assignedUserId });
+    .values({
+      referenceNo,
+      name: input.name,
+      assignedUserId: input.assignedUserId,
+      phone: input.phone?.trim() || null,
+      email: input.email?.trim() || null,
+      address: input.address?.trim() || null,
+    });
   return Number(result[0].insertId);
+}
+
+export async function updateClient(input: {
+  clientId: number;
+  actorUserId: number;
+  isManager: boolean;
+  permittedUserIds?: number[];
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  const scopedIds = input.permittedUserIds ?? [input.actorUserId];
+  const existing = (
+    await db.select().from(clients).where(eq(clients.id, input.clientId)).limit(1)
+  )[0];
+  if (!existing) throw new Error("Müşteri kaydı bulunamadı.");
+  if (!input.isManager && !scopedIds.includes(existing.assignedUserId ?? -1))
+    throw new Error("Bu müşteri kaydını düzenleme yetkiniz yok.");
+  const patch: Partial<typeof clients.$inferInsert> = {};
+  if (input.name !== undefined && input.name.trim()) patch.name = input.name.trim();
+  if (input.phone !== undefined) patch.phone = input.phone.trim() || null;
+  if (input.email !== undefined) patch.email = input.email.trim() || null;
+  if (input.address !== undefined) patch.address = input.address.trim() || null;
+  if (Object.keys(patch).length === 0) return input.clientId;
+  await db.update(clients).set(patch).where(eq(clients.id, input.clientId));
+  return input.clientId;
 }
 export async function createProperty(input: {
   referenceNo: string;

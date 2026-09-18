@@ -7,6 +7,7 @@ import {
   Eye,
   FileSpreadsheet,
   LoaderCircle,
+  Printer,
   RefreshCw,
   Upload,
 } from "lucide-react";
@@ -16,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import DocumentPrintPreview from "@/components/DocumentPrintPreview";
+import writeXlsxFile from "write-excel-file/browser";
 import {
   estimateRentalIncomeTax2026,
   type RentalExpenseMethod,
@@ -572,6 +575,55 @@ export default function ActiveRentalSummaries() {
       return;
     }
     setParsed(await parseActiveRentalWorkbook(file, team.data, { kt0: "KT1" }));
+  };
+
+  const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
+  const exportRows = (summaries.data ?? []).map(item => ({
+    clientName: item.clientName ?? "",
+    propertyLocation: `${item.propertyLocation}${item.unitInfo && item.unitInfo !== "—" ? ` / ${item.unitInfo}` : ""}`,
+    clientPhone: item.clientPhone || "—",
+    tenantName: item.tenantName,
+    tenantPhone: item.tenantPhone || "—",
+    contractDate: dateText(item.contractDate),
+    rentIncreaseDate: dateText(item.rentIncreaseDate ?? item.contractDate),
+    evictionDate: item.evictionDate ? dateText(item.evictionDate) : "",
+    monthlyRent: money(item.monthlyRent),
+    neighborhood: item.neighborhood,
+    consultantCode: item.consultantCode ?? "—",
+  }));
+  const EXPORT_HEADINGS = [
+    "Müşteri / malik adı",
+    "Portföy Adresi",
+    "Ev sahibi telefon",
+    "Kiracı adı",
+    "Kiracı telefonu",
+    "Sözleşme tarihi",
+    "Kira artış tarihi (boşsa sözleşme tarihi)",
+    "Tahliye tarihi (opsiyonel)",
+    "Güncel aylık kira",
+    "Mahalle",
+    "Danışman kodu",
+  ];
+  const exportActiveRentalsXlsx = async () => {
+    const rows = exportRows.map(row => [
+      row.clientName,
+      row.propertyLocation,
+      row.clientPhone,
+      row.tenantName,
+      row.tenantPhone,
+      row.contractDate,
+      row.rentIncreaseDate,
+      row.evictionDate,
+      row.monthlyRent,
+      row.neighborhood,
+      row.consultantCode,
+    ]);
+    const date = new Date().toISOString().slice(0, 10);
+    await writeXlsxFile([EXPORT_HEADINGS, ...rows] as any, {
+      sheet: "Aktif Kiralamalar",
+      stickyRowsCount: 1,
+      orientation: "landscape",
+    }).toFile(`Global1881-Aktif-Kiralamalar-${date}.xlsx`);
   };
 
   return (
@@ -1163,7 +1215,15 @@ export default function ActiveRentalSummaries() {
       </details>
       <details className="rounded-2xl border border-[#e5e8e3] bg-white p-5">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-[#173e39]">
-          Tüm aktif kira özetleri <ChevronDown className="h-4 w-4" />
+          <span className="flex items-center gap-3">Tüm aktif kira özetleri <ChevronDown className="h-4 w-4" /></span>
+          <span className="flex items-center gap-2">
+            <Button type="button" variant="outline" size="sm" disabled={!exportRows.length} onClick={(event) => { event.preventDefault(); setPrintPreviewOpen(true); }}>
+              <Printer className="mr-1.5 h-4 w-4" /> PDF
+            </Button>
+            <Button type="button" variant="outline" size="sm" disabled={!exportRows.length} onClick={(event) => { event.preventDefault(); void exportActiveRentalsXlsx(); }}>
+              <FileSpreadsheet className="mr-1.5 h-4 w-4" /> Excel
+            </Button>
+          </span>
         </summary>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[950px] text-sm">
@@ -1231,6 +1291,45 @@ export default function ActiveRentalSummaries() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <DocumentPrintPreview
+        open={printPreviewOpen}
+        onOpenChange={setPrintPreviewOpen}
+        title="Aktif Kiralamalar Listesi"
+        subtitle="Filtrelenmiş kayıtlar A4 yatay düzende yazdırılmadan önce burada incelenir."
+        fileName={`Global1881-Aktif-Kiralamalar-${new Date().toISOString().slice(0, 10)}.pdf`}
+        onPrint={() => window.print()}
+      >
+        <article className="authority-print-document active-rentals-print-document bg-white p-6 text-[#24322f]">
+          <div className="mb-4 border-b-2 border-[#173e39] pb-3">
+            <h1 className="font-serif text-2xl text-[#173e39]">GLOBAL 1881 — AKTİF KİRALAMALAR LİSTESİ</h1>
+            <p className="mt-1 text-xs text-[#64736e]">Oluşturulma tarihi: {new Date().toLocaleDateString("tr-TR")} · Kayıt sayısı: {exportRows.length}</p>
+          </div>
+          <table className="w-full border-collapse text-[8px]">
+            <thead>
+              <tr className="bg-[#eaf1ed]">
+                {EXPORT_HEADINGS.map(label => <th key={label} className="border border-[#b8c5bf] p-1.5 text-left font-semibold">{label}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {exportRows.map((row, index) => (
+                <tr key={`${row.clientName}-${row.propertyLocation}-${index}`}>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.clientName}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.propertyLocation}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.clientPhone}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.tenantName}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.tenantPhone}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.contractDate}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.rentIncreaseDate}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.evictionDate}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.monthlyRent}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.neighborhood}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.consultantCode}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </article>
+      </DocumentPrintPreview>
     </div>
   );
 }

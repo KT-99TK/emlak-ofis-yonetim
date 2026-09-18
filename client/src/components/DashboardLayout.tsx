@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { Archive, Banknote, CalendarClock, Cloud, FileSignature, FolderKanban, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
+import { Archive, Banknote, CalendarClock, Cloud, FileSignature, FolderKanban, KeyRound, LayoutDashboard, LogOut, PanelLeft, ShieldCheck, Users, UserRound } from "lucide-react";
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -55,6 +55,7 @@ const menuItems: MenuItem[] = [
   { icon: LayoutDashboard, label: "Genel Bakış", path: "/", group: "Günlük" },
   { icon: FolderKanban, label: "Portföy", path: "/properties", group: "Portföy & Müşteri" },
   { icon: UserRound, label: "Müşteriler", path: "/clients", group: "Portföy & Müşteri" },
+  { icon: KeyRound, label: "Aktif Kiralamalar", path: "/active-rentals", group: "Portföy & Müşteri" },
   { icon: FileSignature, label: "Yetki Sözleşmeleri", path: "/authority-contracts", group: "Sözleşmeler" },
   { icon: FileSignature, label: "Kira Sözleşmeleri", path: "/contracts", group: "Sözleşmeler" },
   { icon: FileSignature, label: "Satış ve Kat Karşılığı Formları", path: "/contract-form-templates", group: "Sözleşmeler" },

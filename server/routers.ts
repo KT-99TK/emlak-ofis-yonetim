@@ -16,6 +16,7 @@ import {
   configureFreshOnlineStart,
   createBrokerGuidanceNote,
   createClient,
+  updateClient,
   getClientFile,
   createContract,
   revealContractSensitive,
@@ -751,7 +752,12 @@ export const appRouter = router({
         );
       }),
     create: protectedProcedure
-      .input(z.object({ name: z.string().min(2) }))
+      .input(z.object({
+        name: z.string().min(2),
+        phone: z.string().trim().max(40).optional(),
+        email: z.string().trim().max(320).optional(),
+        address: z.string().trim().max(2000).optional(),
+      }))
       .mutation(async ({ ctx, input }) => {
         const scope = await getCentralAccessScope(
           ctx.user.id,
@@ -760,6 +766,26 @@ export const appRouter = router({
         if (scope.officeRole === "office_assistant")
           throw new Error("Ofis asistanı yeni müşteri kaydı oluşturamaz.");
         return createClient({ ...input, assignedUserId: ctx.user.id });
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        clientId: z.number().int().positive(),
+        name: z.string().trim().min(2).optional(),
+        phone: z.string().trim().max(40).optional(),
+        email: z.string().trim().max(320).optional(),
+        address: z.string().trim().max(2000).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const scope = await getCentralAccessScope(
+          ctx.user.id,
+          isManager(ctx.user)
+        );
+        return updateClient({
+          ...input,
+          actorUserId: ctx.user.id,
+          isManager: scope.isManager,
+          permittedUserIds: scope.permittedUserIds,
+        });
       }),
     revealSensitive: protectedProcedure
       .input(
