@@ -856,6 +856,7 @@ export const appRouter = router({
           ownerApprovalStatus: z
             .enum(["notRequired", "pending", "approved", "rejected"])
             .optional(),
+          ownerClientId: z.number().int().positive().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {

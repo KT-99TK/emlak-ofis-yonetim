@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import DocumentPrintPreview from "@/components/DocumentPrintPreview";
 import writeXlsxFile from "write-excel-file/browser";
+import { toTurkishUpperCase } from "@/lib/textFormatting";
 import {
   estimateRentalIncomeTax2026,
   type RentalExpenseMethod,
@@ -610,10 +611,10 @@ export default function ActiveRentalSummaries() {
 
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
   const exportRows = filteredSummaries.map(item => ({
-    clientName: item.clientName ?? "",
+    clientName: toTurkishUpperCase(item.clientName ?? ""),
     propertyLocation: `${item.propertyLocation}${item.unitInfo && item.unitInfo !== "—" ? ` / ${item.unitInfo}` : ""}`,
     clientPhone: item.clientPhone || "—",
-    tenantName: item.tenantName,
+    tenantName: toTurkishUpperCase(item.tenantName ?? ""),
     tenantPhone: item.tenantPhone || "—",
     contractDate: dateText(item.contractDate),
     rentIncreaseDate: dateText(item.rentIncreaseDate ?? item.contractDate),
@@ -623,40 +624,44 @@ export default function ActiveRentalSummaries() {
     neighborhood: item.neighborhood,
     consultantCode: item.consultantCode ?? "—",
   }));
+  // Sütun sırası ve başlıkları Kazım'ın paylaştığı örnek Excel ile birebir eşleşir;
+  // Mahalle ve Kira durumu, örnekte olmayan ek değer olarak sona eklenmiştir.
   const EXPORT_HEADINGS = [
-    "Müşteri / malik adı",
-    "Portföy Adresi",
-    "Ev sahibi telefon",
+    "Müşterinin adı/Soyadı",
+    "Telefonu",
     "Kiracı adı",
     "Kiracı telefonu",
     "Sözleşme tarihi",
     "Kira artış tarihi (boşsa sözleşme tarihi)",
     "Tahliye tarihi (opsiyonel)",
-    "Kira durumu",
-    "Güncel aylık kira",
-    "Mahalle",
+    "Güncel aylık kira (TL)",
+    "Portföy adresi",
     "Danışman kodu",
+    "Mahalle",
+    "Kira durumu",
   ];
+  const EXPORT_COLUMN_WIDTHS = [22, 16, 22, 16, 14, 20, 18, 16, 34, 14, 16, 20];
   const exportActiveRentalsXlsx = async () => {
     const rows = exportRows.map(row => [
       row.clientName,
-      row.propertyLocation,
       row.clientPhone,
       row.tenantName,
       row.tenantPhone,
       row.contractDate,
       row.rentIncreaseDate,
       row.evictionDate,
-      row.rentalStatus,
       row.monthlyRent,
-      row.neighborhood,
+      row.propertyLocation,
       row.consultantCode,
+      row.neighborhood,
+      row.rentalStatus,
     ]);
     const date = new Date().toISOString().slice(0, 10);
     await writeXlsxFile([EXPORT_HEADINGS, ...rows] as any, {
       sheet: "Aktif Kiralamalar",
       stickyRowsCount: 1,
       orientation: "landscape",
+      columns: EXPORT_COLUMN_WIDTHS.map(width => ({ width })),
     }).toFile(`Global1881-Aktif-Kiralamalar-${date}.xlsx`);
   };
 
@@ -1306,10 +1311,10 @@ export default function ActiveRentalSummaries() {
                 return <tr key={item.id} className="border-b border-[#edf1ed]">
                   <td className="px-3 py-3">
                     <div className="font-medium text-[#173e39]">
-                      {item.clientName}
+                      {toTurkishUpperCase(item.clientName ?? "")}
                     </div>
                     <div className="text-xs text-[#718079]">
-                      {item.tenantName}
+                      {toTurkishUpperCase(item.tenantName ?? "")}
                     </div>
                   </td>
                   <td className="px-3 py-3">
@@ -1381,17 +1386,17 @@ export default function ActiveRentalSummaries() {
                 {exportRows.map((row, index) => (
                 <tr key={`${row.clientName}-${row.propertyLocation}-${index}`}>
                   <td className="border border-[#b8c5bf] p-1.5">{row.clientName}</td>
-                  <td className="border border-[#b8c5bf] p-1.5">{row.propertyLocation}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.clientPhone}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.tenantName}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.tenantPhone}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.contractDate}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.rentIncreaseDate}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.evictionDate}</td>
-                  <td className="border border-[#b8c5bf] p-1.5">{row.rentalStatus}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.monthlyRent}</td>
-                  <td className="border border-[#b8c5bf] p-1.5">{row.neighborhood}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.propertyLocation}</td>
                   <td className="border border-[#b8c5bf] p-1.5">{row.consultantCode}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.neighborhood}</td>
+                  <td className="border border-[#b8c5bf] p-1.5">{row.rentalStatus}</td>
                 </tr>
               ))}
             </tbody>

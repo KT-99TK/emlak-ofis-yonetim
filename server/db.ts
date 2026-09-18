@@ -1711,6 +1711,7 @@ export async function createProperty(input: {
   listingType?: "sale" | "rent";
   ownerApprovalStatus?: "notRequired" | "pending" | "approved" | "rejected";
   assignedUserId: number;
+  ownerClientId?: number;
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -1726,6 +1727,7 @@ export async function createProperty(input: {
       listingType: input.listingType ?? "sale",
       ownerApprovalStatus: input.ownerApprovalStatus ?? "notRequired",
       assignedUserId: input.assignedUserId,
+      ownerClientId: input.ownerClientId ?? null,
     });
   return Number(result[0].insertId);
 }

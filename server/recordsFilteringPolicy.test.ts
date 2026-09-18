@@ -34,7 +34,7 @@ describe("central record filtering policy", () => {
     const records = read("client/src/pages/Records.tsx");
     expect(db).toContain("phone: row.client.phone");
     expect(db).toContain("phone: client.phone");
-    expect(records).toContain('Telefon: {item.phone || "Kayıtlı değil"}');
+    expect(records).toContain('Telefon: {item.phone ? displayPhone(item.phone) : "Kayıtlı değil"}');
     expect(records).not.toContain("Gerekçeyle aç");
     expect(records).not.toContain("Hassas bilgi erişimi");
   });
