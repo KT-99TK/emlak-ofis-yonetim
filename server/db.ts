@@ -1704,6 +1704,76 @@ export async function updateClient(input: {
   await db.update(clients).set(patch).where(eq(clients.id, input.clientId));
   return input.clientId;
 }
+
+async function countRows(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
+  table: any,
+  where: any
+): Promise<number> {
+  const rows = await db.select({ value: sql<number>`count(*)` }).from(table).where(where);
+  return Number((rows[0] as { value: number } | undefined)?.value ?? 0);
+}
+
+export async function deleteClient(input: { clientId: number; actorUserId: number }) {
+  const db = await getDb();
+  if (!db) return null;
+  const existing = (
+    await db.select().from(clients).where(eq(clients.id, input.clientId)).limit(1)
+  )[0];
+  if (!existing) throw new Error("Müşteri kaydı bulunamadı.");
+  const blockers: { label: string; count: number }[] = [
+    { label: "portföy", count: await countRows(db, properties, eq(properties.ownerClientId, input.clientId)) },
+    { label: "sözleşme", count: await countRows(db, contracts, eq(contracts.clientId, input.clientId)) },
+    { label: "finans hareketi", count: await countRows(db, ledgerEntries, eq(ledgerEntries.clientId, input.clientId)) },
+    { label: "kira/vergi yükümlülüğü", count: await countRows(db, rentalObligations, eq(rentalObligations.clientId, input.clientId)) },
+    { label: "aktif kiralama özeti", count: await countRows(db, activeRentalSummaries, eq(activeRentalSummaries.clientId, input.clientId)) },
+    { label: "sözleşme belgesi", count: await countRows(db, contractDocuments, eq(contractDocuments.clientId, input.clientId)) },
+    { label: "portföy yetki devri", count: await countRows(db, portfolioRightsTransfers, eq(portfolioRightsTransfers.clientId, input.clientId)) },
+    { label: "kira hizmet görevi", count: await countRows(db, rentalServiceTasks, eq(rentalServiceTasks.clientId, input.clientId)) },
+    { label: "gelir vergisi profili", count: await countRows(db, rentalIncomeTaxProfiles, eq(rentalIncomeTaxProfiles.clientId, input.clientId)) },
+  ].filter((item) => item.count > 0);
+  if (blockers.length)
+    throw new Error(
+      `Bu müşteri silinemedi: bağlı kayıtlar var (${blockers.map((item) => `${item.count} ${item.label}`).join(", ")}). Önce bu kayıtları silin veya başka bir müşteriye taşıyın.`
+    );
+  await db.delete(clients).where(eq(clients.id, input.clientId));
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "client_deleted",
+    entityType: "clients",
+    entityId: input.clientId,
+    summary: `Müşteri kaydı kalıcı olarak silindi: ${existing.name || existing.referenceNo || input.clientId}.`,
+  });
+  return input.clientId;
+}
+
+export async function deleteProperty(input: { propertyId: number; actorUserId: number }) {
+  const db = await getDb();
+  if (!db) return null;
+  const existing = (
+    await db.select().from(properties).where(eq(properties.id, input.propertyId)).limit(1)
+  )[0];
+  if (!existing) throw new Error("Portföy kaydı bulunamadı.");
+  const blockers: { label: string; count: number }[] = [
+    { label: "sözleşme", count: await countRows(db, contracts, eq(contracts.propertyId, input.propertyId)) },
+    { label: "kira/vergi yükümlülüğü", count: await countRows(db, rentalObligations, eq(rentalObligations.propertyId, input.propertyId)) },
+    { label: "portföy yetki devri", count: await countRows(db, portfolioRightsTransfers, eq(portfolioRightsTransfers.propertyId, input.propertyId)) },
+  ].filter((item) => item.count > 0);
+  if (blockers.length)
+    throw new Error(
+      `Bu portföy silinemedi: bağlı kayıtlar var (${blockers.map((item) => `${item.count} ${item.label}`).join(", ")}). Önce bu kayıtları silin.`
+    );
+  await db.delete(properties).where(eq(properties.id, input.propertyId));
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "property_deleted",
+    entityType: "properties",
+    entityId: input.propertyId,
+    summary: `Portföy kaydı kalıcı olarak silindi: ${existing.title || existing.referenceNo || input.propertyId}.`,
+  });
+  return input.propertyId;
+}
+
 export async function createProperty(input: {
   referenceNo: string;
   title: string;

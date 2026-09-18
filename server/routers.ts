@@ -17,6 +17,8 @@ import {
   createBrokerGuidanceNote,
   createClient,
   updateClient,
+  deleteClient,
+  deleteProperty,
   getClientFile,
   createContract,
   revealContractSensitive,
@@ -787,6 +789,11 @@ export const appRouter = router({
           permittedUserIds: scope.permittedUserIds,
         });
       }),
+    delete: adminProcedure
+      .input(z.object({ clientId: z.number().int().positive() }))
+      .mutation(({ ctx, input }) =>
+        deleteClient({ clientId: input.clientId, actorUserId: ctx.user.id })
+      ),
     revealSensitive: protectedProcedure
       .input(
         z.object({
@@ -868,6 +875,11 @@ export const appRouter = router({
           throw new Error("Ofis asistanı yeni portföy kaydı oluşturamaz.");
         return createProperty({ ...input, assignedUserId: ctx.user.id });
       }),
+    delete: adminProcedure
+      .input(z.object({ propertyId: z.number().int().positive() }))
+      .mutation(({ ctx, input }) =>
+        deleteProperty({ propertyId: input.propertyId, actorUserId: ctx.user.id })
+      ),
   }),
   obligations: router({
     list: protectedProcedure.query(async ({ ctx }) => {
