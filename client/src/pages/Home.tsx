@@ -313,14 +313,14 @@ export default function Home() {
       : "Merkezi veri";
   const liveStats = [
     {
-      label: "Aktif sözleşmeler",
-      value: dashboardSummary ? String(dashboardSummary.contracts) : "—",
+      label: "Aktif kiralamalar",
+      value: dashboardSummary ? String(dashboardSummary.activeRentals) : "—",
       note: dashboardSummary ? "Merkezi kayıt" : unavailableNote,
-      icon: FileSignature,
+      icon: CalendarClock,
       color: "text-[#2b786e]",
     },
     {
-      label: "Açık portföy",
+      label: "Mevcut portföyler",
       value: dashboardSummary ? String(dashboardSummary.portfolio) : "—",
       note: dashboardSummary ? "Merkezi kayıt" : unavailableNote,
       icon: FolderKanban,

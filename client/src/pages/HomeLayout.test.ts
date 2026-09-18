@@ -14,7 +14,8 @@ describe("dashboard office flow placement", () => {
     expect(home).toContain("Merkezi online başlangıç bekliyor.");
     expect(home).toContain("disabled={centralOperationsLocked}");
     expect(compact).toContain("const dashboardSummary = centralOperationsLocked ? undefined : summary");
-    expect(compact).toContain('value: dashboardSummary ? String(dashboardSummary.contracts) : "—"');
+    expect(compact).toContain('value: dashboardSummary ? String(dashboardSummary.activeRentals) : "—"');
+    expect(compact).toContain('label: "Mevcut portföyler"');
     expect(home).not.toContain('value: "24", note: "Örnek görünüm"');
     expect(home).not.toContain('value: "₺ 184.500", note: "Örnek görünüm"');
     expect(home).toContain("activeRentals.serviceTasks.list.useQuery");

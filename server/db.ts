@@ -326,6 +326,7 @@ export async function getDashboardSummary(
     return {
       contracts: 0,
       portfolio: 0,
+      activeRentals: 0,
       outstanding: "0",
       activeTeam: 0,
       recentContracts: [],
@@ -381,6 +382,7 @@ export async function getDashboardSummary(
   const [
     contractCount,
     portfolioCount,
+    activeRentalCount,
     outstanding,
     teamCount,
     recentContracts,
@@ -394,12 +396,19 @@ export async function getDashboardSummary(
       .select({ count: sql<number>`count(*)` })
       .from(properties)
       .where(
-        isManager
-          ? undefined
-          : scopedIds.length
-            ? inArray(properties.assignedUserId, scopedIds)
-            : sql`1 = 0`
+        and(
+          eq(properties.status, "active"),
+          isManager
+            ? undefined
+            : scopedIds.length
+              ? inArray(properties.assignedUserId, scopedIds)
+              : sql`1 = 0`
+        )
       ),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(activeRentalSummaries)
+      .where(activeRentalScope(userId, isManager, scopedIds)),
     db
       .select({
         total: sql<string>`coalesce(sum(${ledgerEntries.amount} - ${ledgerEntries.paidAmount}), 0)`,
@@ -443,6 +452,7 @@ export async function getDashboardSummary(
   return {
     contracts: Number(contractCount[0]?.count ?? 0),
     portfolio: Number(portfolioCount[0]?.count ?? 0),
+    activeRentals: Number(activeRentalCount[0]?.count ?? 0),
     outstanding: String(outstanding[0]?.total ?? "0"),
     activeTeam: Number(teamCount[0]?.count ?? 0),
     recentContracts,
