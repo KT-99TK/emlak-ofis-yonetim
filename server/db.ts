@@ -1724,35 +1724,68 @@ async function countRows(
   return Number((rows[0] as { value: number } | undefined)?.value ?? 0);
 }
 
+async function deleteCascadeRows(
+  db: any,
+  table: any,
+  column: any,
+  ids: number[]
+) {
+  if (ids.length) await db.delete(table).where(inArray(column, ids));
+}
+
 export async function deleteClient(input: { clientId: number; actorUserId: number }) {
   const db = await getDb();
   if (!db) return null;
-  const existing = (
-    await db.select().from(clients).where(eq(clients.id, input.clientId)).limit(1)
-  )[0];
+  const existing = (await db.select().from(clients).where(eq(clients.id, input.clientId)).limit(1))[0];
   if (!existing) throw new Error("Müşteri kaydı bulunamadı.");
-  const blockers: { label: string; count: number }[] = [
-    { label: "portföy", count: await countRows(db, properties, eq(properties.ownerClientId, input.clientId)) },
-    { label: "sözleşme", count: await countRows(db, contracts, eq(contracts.clientId, input.clientId)) },
-    { label: "finans hareketi", count: await countRows(db, ledgerEntries, eq(ledgerEntries.clientId, input.clientId)) },
-    { label: "kira/vergi yükümlülüğü", count: await countRows(db, rentalObligations, eq(rentalObligations.clientId, input.clientId)) },
-    { label: "aktif kiralama özeti", count: await countRows(db, activeRentalSummaries, eq(activeRentalSummaries.clientId, input.clientId)) },
-    { label: "sözleşme belgesi", count: await countRows(db, contractDocuments, eq(contractDocuments.clientId, input.clientId)) },
-    { label: "portföy yetki devri", count: await countRows(db, portfolioRightsTransfers, eq(portfolioRightsTransfers.clientId, input.clientId)) },
-    { label: "kira hizmet görevi", count: await countRows(db, rentalServiceTasks, eq(rentalServiceTasks.clientId, input.clientId)) },
-    { label: "gelir vergisi profili", count: await countRows(db, rentalIncomeTaxProfiles, eq(rentalIncomeTaxProfiles.clientId, input.clientId)) },
-  ].filter((item) => item.count > 0);
-  if (blockers.length)
-    throw new Error(
-      `Bu müşteri silinemedi: bağlı kayıtlar var (${blockers.map((item) => `${item.count} ${item.label}`).join(", ")}). Önce bu kayıtları silin veya başka bir müşteriye taşıyın.`
-    );
-  await db.delete(clients).where(eq(clients.id, input.clientId));
-  await db.insert(auditLogs).values({
-    actorUserId: input.actorUserId,
-    action: "client_deleted",
-    entityType: "clients",
-    entityId: input.clientId,
-    summary: `Müşteri kaydı kalıcı olarak silindi: ${existing.name || existing.referenceNo || input.clientId}.`,
+
+  const ownedProperties = await db
+    .select({ id: properties.id })
+    .from(properties)
+    .where(eq(properties.ownerClientId, input.clientId));
+  const propertyIds = ownedProperties.map(row => Number(row.id));
+  const relatedContracts = await db
+    .select({ id: contracts.id })
+    .from(contracts)
+    .where(or(eq(contracts.clientId, input.clientId), propertyIds.length ? inArray(contracts.propertyId, propertyIds) : sql`1 = 0`));
+  const contractIds = relatedContracts.map(row => Number(row.id));
+  const relatedDocuments = await db
+    .select({ id: contractDocuments.id })
+    .from(contractDocuments)
+    .where(or(eq(contractDocuments.clientId, input.clientId), contractIds.length ? inArray(contractDocuments.contractId, contractIds) : sql`1 = 0`));
+  const documentIds = relatedDocuments.map(row => Number(row.id));
+  const relatedCommissions = await db
+    .select({ id: commissionTransactions.id })
+    .from(commissionTransactions)
+    .where(or(eq(commissionTransactions.buyerClientId, input.clientId), eq(commissionTransactions.sellerClientId, input.clientId), contractIds.length ? inArray(commissionTransactions.contractId, contractIds) : sql`1 = 0`));
+  const commissionIds = relatedCommissions.map(row => Number(row.id));
+
+  await db.transaction(async tx => {
+    await deleteCascadeRows(tx, contractDocumentParticipants, contractDocumentParticipants.documentId, documentIds);
+    await deleteCascadeRows(tx, commissionParticipants, commissionParticipants.commissionTransactionId, commissionIds);
+    await deleteCascadeRows(tx, contractFormInstances, contractFormInstances.contractId, contractIds);
+    await deleteCascadeRows(tx, contractDocuments, contractDocuments.id, documentIds);
+    await deleteCascadeRows(tx, ledgerEntries, ledgerEntries.clientId, [input.clientId]);
+    await deleteCascadeRows(tx, ledgerEntries, ledgerEntries.contractId, contractIds);
+    await deleteCascadeRows(tx, commissionTransactions, commissionTransactions.id, commissionIds);
+    await deleteCascadeRows(tx, rentalObligations, rentalObligations.clientId, [input.clientId]);
+    await deleteCascadeRows(tx, rentalObligations, rentalObligations.propertyId, propertyIds);
+    await deleteCascadeRows(tx, rentalObligations, rentalObligations.contractId, contractIds);
+    await deleteCascadeRows(tx, rentalServiceTasks, rentalServiceTasks.clientId, [input.clientId]);
+    await deleteCascadeRows(tx, rentalIncomeTaxProfiles, rentalIncomeTaxProfiles.clientId, [input.clientId]);
+    await deleteCascadeRows(tx, activeRentalSummaries, activeRentalSummaries.clientId, [input.clientId]);
+    await deleteCascadeRows(tx, portfolioRightsTransfers, portfolioRightsTransfers.clientId, [input.clientId]);
+    await deleteCascadeRows(tx, portfolioRightsTransfers, portfolioRightsTransfers.propertyId, propertyIds);
+    await deleteCascadeRows(tx, contracts, contracts.id, contractIds);
+    await deleteCascadeRows(tx, properties, properties.id, propertyIds);
+    await tx.delete(clients).where(eq(clients.id, input.clientId));
+    await tx.insert(auditLogs).values({
+      actorUserId: input.actorUserId,
+      action: "client_deleted_cascade",
+      entityType: "clients",
+      entityId: input.clientId,
+      summary: `Müşteri ve bağlı kayıtları kalıcı olarak silindi: ${existing.name || existing.referenceNo || input.clientId}. Portföy: ${propertyIds.length}, sözleşme: ${contractIds.length}.`,
+    });
   });
   return input.clientId;
 }
@@ -1760,26 +1793,38 @@ export async function deleteClient(input: { clientId: number; actorUserId: numbe
 export async function deleteProperty(input: { propertyId: number; actorUserId: number }) {
   const db = await getDb();
   if (!db) return null;
-  const existing = (
-    await db.select().from(properties).where(eq(properties.id, input.propertyId)).limit(1)
-  )[0];
+  const existing = (await db.select().from(properties).where(eq(properties.id, input.propertyId)).limit(1))[0];
   if (!existing) throw new Error("Portföy kaydı bulunamadı.");
-  const blockers: { label: string; count: number }[] = [
-    { label: "sözleşme", count: await countRows(db, contracts, eq(contracts.propertyId, input.propertyId)) },
-    { label: "kira/vergi yükümlülüğü", count: await countRows(db, rentalObligations, eq(rentalObligations.propertyId, input.propertyId)) },
-    { label: "portföy yetki devri", count: await countRows(db, portfolioRightsTransfers, eq(portfolioRightsTransfers.propertyId, input.propertyId)) },
-  ].filter((item) => item.count > 0);
-  if (blockers.length)
-    throw new Error(
-      `Bu portföy silinemedi: bağlı kayıtlar var (${blockers.map((item) => `${item.count} ${item.label}`).join(", ")}). Önce bu kayıtları silin.`
-    );
-  await db.delete(properties).where(eq(properties.id, input.propertyId));
-  await db.insert(auditLogs).values({
-    actorUserId: input.actorUserId,
-    action: "property_deleted",
-    entityType: "properties",
-    entityId: input.propertyId,
-    summary: `Portföy kaydı kalıcı olarak silindi: ${existing.title || existing.referenceNo || input.propertyId}.`,
+  const relatedContracts = await db.select({ id: contracts.id }).from(contracts).where(eq(contracts.propertyId, input.propertyId));
+  const contractIds = relatedContracts.map(row => Number(row.id));
+  const relatedDocuments = contractIds.length
+    ? await db.select({ id: contractDocuments.id }).from(contractDocuments).where(inArray(contractDocuments.contractId, contractIds))
+    : [];
+  const documentIds = relatedDocuments.map(row => Number(row.id));
+  const relatedCommissions = contractIds.length
+    ? await db.select({ id: commissionTransactions.id }).from(commissionTransactions).where(inArray(commissionTransactions.contractId, contractIds))
+    : [];
+  const commissionIds = relatedCommissions.map(row => Number(row.id));
+
+  await db.transaction(async tx => {
+    await deleteCascadeRows(tx, contractDocumentParticipants, contractDocumentParticipants.documentId, documentIds);
+    await deleteCascadeRows(tx, commissionParticipants, commissionParticipants.commissionTransactionId, commissionIds);
+    await deleteCascadeRows(tx, contractFormInstances, contractFormInstances.contractId, contractIds);
+    await deleteCascadeRows(tx, contractDocuments, contractDocuments.id, documentIds);
+    await deleteCascadeRows(tx, ledgerEntries, ledgerEntries.contractId, contractIds);
+    await deleteCascadeRows(tx, commissionTransactions, commissionTransactions.id, commissionIds);
+    await deleteCascadeRows(tx, rentalObligations, rentalObligations.propertyId, [input.propertyId]);
+    await deleteCascadeRows(tx, rentalObligations, rentalObligations.contractId, contractIds);
+    await deleteCascadeRows(tx, portfolioRightsTransfers, portfolioRightsTransfers.propertyId, [input.propertyId]);
+    await deleteCascadeRows(tx, contracts, contracts.id, contractIds);
+    await tx.delete(properties).where(eq(properties.id, input.propertyId));
+    await tx.insert(auditLogs).values({
+      actorUserId: input.actorUserId,
+      action: "property_deleted_cascade",
+      entityType: "properties",
+      entityId: input.propertyId,
+      summary: `Portföy ve bağlı kayıtları kalıcı olarak silindi: ${existing.title || existing.referenceNo || input.propertyId}. Sözleşme: ${contractIds.length}.`,
+    });
   });
   return input.propertyId;
 }

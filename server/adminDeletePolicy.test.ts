@@ -13,6 +13,9 @@ describe("admin-only record deletion", () => {
     expect(records).toContain("Kalıcı olarak sil");
     expect(db).toContain("export async function deleteClient");
     expect(db).toContain("export async function deleteProperty");
+    expect(db).toContain("client_deleted_cascade");
+    expect(db).toContain("await db.transaction(async tx");
+    expect(db).toContain("Müşteri ve bağlı kayıtları kalıcı olarak silindi");
     expect(db).toContain("auditLogs");
   });
 });
