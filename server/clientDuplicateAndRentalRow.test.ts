@@ -8,6 +8,7 @@ describe("central client duplicate and rental row safeguards", () => {
     expect(source).toContain("Bu müşteri merkezi kayıtlarda zaten mevcut");
     expect(source).toContain("regexp_replace");
     expect(source).toContain("Sorumlu danışman");
+    expect(source).toContain("consultantCode: userProfiles.consultantCode");
   });
 
   it("renders the requested rental summary fields in one compact row", () => {
