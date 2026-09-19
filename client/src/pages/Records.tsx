@@ -132,25 +132,25 @@ export default function Records() {
     const isClientList = kind === "clients";
     const rows = visibleItems.map((item: any) => isClientList
       ? `<tr><td>${safe(item.referenceNo || item.id)}</td><td>${safe(toTurkishUpperCase(item.name || ""))}</td><td>${safe(item.consultantCode || "Atanmamış")}</td><td>${safe(item.status || "Aktif")}</td><td>${safe(item.phone ? displayPhone(item.phone) : "Maskeli")}</td><td>${safe(item.email || "-")}</td><td>${safe(item.address || "-")}</td><td>${safe(item.portfolioSummary ? `${item.portfolioSummary.active}/${item.portfolioSummary.total} aktif${item.portfolioSummary.titles?.length ? ` · ${item.portfolioSummary.titles.join(" · ")}` : ""}` : "0 kayıt")}</td></tr>`
-      : `<tr><td>${safe(item.referenceNo || item.id)}</td><td>${safe(item.name || item.title || item.description)}</td><td>${safe(item.consultantCode || "Atanmamış")}</td><td>${safe(item.status || "Aktif")}</td><td>${safe(item.amount)}</td><td>${safe(item.address || item.entryType || item.listingType)}</td></tr>`
+      : `<tr><td>${safe(item.clientReferenceNo || "—")}</td><td>${safe(item.referenceNo || item.id)}</td><td>${safe(item.name || item.title || item.description)}</td><td>${safe(item.consultantCode || "Atanmamış")}</td><td>${safe(item.status || "Aktif")}</td><td>${safe(item.amount)}</td><td>${safe(item.address || item.entryType || item.listingType)}</td></tr>`
     ).join("");
     const filterSummary = `${includeInactive ? "Aktif + pasif/arşiv" : "Yalnız aktif"} · Danışman: ${consultantCode.trim() || "kapsama göre"} · Merkezi no/ad araması: ${search.trim() || "yok"}`;
     const headings = isClientList
       ? "<th>Merkezi müşteri no</th><th>Müşteri adı</th><th>Sorumlu danışman</th><th>Durum</th><th>Telefon</th><th>E-posta</th><th>Adres</th><th>Portföy özeti</th>"
-      : "<th>Referans / ID</th><th>Kayıt</th><th>Danışman</th><th>Durum</th><th>Tutar</th><th>Detay</th>";
-    setPrintPreviewHtml(`<h1>GLOBAL 1881 — ${safe(config.title).toUpperCase()}</h1><p>Filtreler: ${safe(filterSummary)} · Kayıt sayısı: ${visibleItems.length}</p><table><thead><tr>${headings}</tr></thead><tbody>${rows || `<tr><td colspan="${isClientList ? 8 : 6}">Filtreye uyan kayıt bulunamadı.</td></tr>`}</tbody></table>`);
+      : "<th>Merkezi müşteri no</th><th>Kira / portföy kayıt no</th><th>Kayıt</th><th>Danışman</th><th>Durum</th><th>Tutar</th><th>Detay</th>";
+    setPrintPreviewHtml(`<h1>GLOBAL 1881 — ${safe(config.title).toUpperCase()}</h1><p>Filtreler: ${safe(filterSummary)} · Kayıt sayısı: ${visibleItems.length}</p><table><thead><tr>${headings}</tr></thead><tbody>${rows || `<tr><td colspan="${isClientList ? 8 : 7}">Filtreye uyan kayıt bulunamadı.</td></tr>`}</tbody></table>`);
   };
   const exportRecordsXlsx = async () => {
     const isClientList = kind === "clients";
     const headings = isClientList
       ? ["Merkezi müşteri no", "Müşteri adı", "Sorumlu danışman", "Durum", "Telefon", "E-posta", "Adres", "Portföy özeti"]
-      : ["Referans / ID", "Kayıt", "Danışman", "Durum", "Tutar", "Detay"];
+      : ["Merkezi müşteri no", "Kira / portföy kayıt no", "Kayıt", "Danışman", "Durum", "Tutar", "Detay"];
     const columnWidths = isClientList
       ? [16, 26, 16, 12, 18, 24, 34, 30]
-      : [16, 26, 16, 12, 14, 30];
+      : [16, 18, 26, 16, 12, 14, 30];
     const rows = visibleItems.map((item: any) => isClientList
       ? [item.referenceNo || item.id, toTurkishUpperCase(item.name || ""), item.consultantCode || "Atanmamış", item.status || "Aktif", item.phone ? displayPhone(item.phone) : "Kayıtlı değil", item.email || "", item.address || "", item.portfolioSummary ? `${item.portfolioSummary.active}/${item.portfolioSummary.total} aktif${item.portfolioSummary.titles?.length ? ` · ${item.portfolioSummary.titles.join(" · ")}` : ""}` : "0 kayıt"]
-      : [item.referenceNo || item.id, item.name || item.title || item.description || "", item.consultantCode || "Atanmamış", item.status || "Aktif", item.amount || "", item.address || item.entryType || item.listingType || ""]);
+      : [item.clientReferenceNo || "", item.referenceNo || item.id, item.name || item.title || item.description || "", item.consultantCode || "Atanmamış", item.status || "Aktif", item.amount || "", item.address || item.entryType || item.listingType || ""]);
     const date = new Date().toISOString().slice(0, 10);
     await writeXlsxFile([headings, ...rows] as any, { sheet: config.title, stickyRowsCount: 1, orientation: "landscape", columns: columnWidths.map(width => ({ width })) }).toFile(`global1881-${kind}-${date}.xlsx`);
   };

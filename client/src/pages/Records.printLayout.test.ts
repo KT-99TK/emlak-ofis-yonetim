@@ -14,4 +14,11 @@ describe("Records print layout", () => {
     expect(css).toContain("table-layout: fixed");
     expect(css).toContain("break-inside: avoid");
   });
+
+  it("prints the central customer number separately from the rental technical id", () => {
+    expect(records).toContain("item.clientReferenceNo || \"—\"");
+    expect(records).toContain("Merkezi müşteri no");
+    expect(records).toContain("Kira / portföy kayıt no");
+    expect(records).toContain("[item.clientReferenceNo || \"\", item.referenceNo || item.id");
+  });
 });
