@@ -16,4 +16,13 @@ describe("property list rental summaries", () => {
     expect(source).toContain("item.clientReferenceNo");
     expect(source).toContain("item.monthlyRent");
   });
+
+  it("groups portfolio rows by central customer number and shows list date", () => {
+    const dbSource = readFileSync(resolve(process.cwd(), "server/db.ts"), "utf8");
+    const recordsSource = readFileSync(resolve(process.cwd(), "client/src/pages/Records.tsx"), "utf8");
+    expect(dbSource).toContain("combinedResults.sort");
+    expect(dbSource).toContain("clientNo(a.clientReferenceNo)");
+    expect(recordsSource).toContain("Liste tarihi:");
+    expect(recordsSource).toContain('toLocaleDateString("tr-TR")');
+  });
 });

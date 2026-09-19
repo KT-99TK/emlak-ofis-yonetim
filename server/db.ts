@@ -1541,7 +1541,7 @@ export async function listProperties(
       isManager ? undefined : scopedIds.length ? inArray(activeRentalSummaries.assignedUserId, scopedIds) : sql`1 = 0`,
       isManager && filters.consultantCode ? eq(userProfiles.consultantCode, filters.consultantCode) : undefined
     ));
-  return [
+  const combinedResults = [
     ...propertyResults,
     ...rentalRows.map(row => ({
       id: -row.rental.id,
@@ -1570,6 +1570,21 @@ export async function listProperties(
       rentalSummaries: [row.rental],
     })),
   ];
+  return combinedResults.sort((a, b) => {
+    const clientNo = (value: unknown) => {
+      const match = String(value ?? "").match(/\d+/);
+      return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER;
+    };
+    const clientOrder = clientNo(a.clientReferenceNo) - clientNo(b.clientReferenceNo);
+    if (clientOrder !== 0) return clientOrder;
+    const clientNameOrder = String(a.clientName ?? "").localeCompare(String(b.clientName ?? ""), "tr");
+    if (clientNameOrder !== 0) return clientNameOrder;
+    const recordA = a as typeof a & { contractDate?: Date | string; createdAt?: Date | string };
+    const recordB = b as typeof b & { contractDate?: Date | string; createdAt?: Date | string };
+    const dateA = new Date(String(recordA.contractDate ?? recordA.createdAt ?? "")).getTime() || 0;
+    const dateB = new Date(String(recordB.contractDate ?? recordB.createdAt ?? "")).getTime() || 0;
+    return dateA - dateB;
+  });
 }
 export async function listLedger(
   userId: number,
