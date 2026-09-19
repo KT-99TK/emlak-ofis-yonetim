@@ -25,4 +25,14 @@ describe("central client duplicate and rental row safeguards", () => {
     expect(source).toContain("Mevcut müşteri profilini aç ve düzelt");
     expect(source).toContain("/clients?clientId=");
   });
+
+  it("offers manager-only merge for newly entered contact details", () => {
+    const dbSource = readFileSync(resolve(process.cwd(), "server/db.ts"), "utf8");
+    const routerSource = readFileSync(resolve(process.cwd(), "server/routers.ts"), "utf8");
+    const uiSource = readFileSync(resolve(process.cwd(), "client/src/pages/Records.tsx"), "utf8");
+    expect(dbSource).toContain("client_duplicate_merged");
+    expect(routerSource).toContain("mergeDuplicate: adminProcedure");
+    expect(uiSource).toContain("Yeni bilgileri birleştir");
+    expect(uiSource).toContain("mergeDuplicate.mutate");
+  });
 });

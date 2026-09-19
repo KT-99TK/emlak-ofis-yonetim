@@ -17,6 +17,7 @@ import {
   createBrokerGuidanceNote,
   createClient,
   updateClient,
+  mergeClientDetails,
   deleteClient,
   deleteProperty,
   getClientFile,
@@ -789,6 +790,14 @@ export const appRouter = router({
           permittedUserIds: scope.permittedUserIds,
         });
       }),
+    mergeDuplicate: adminProcedure
+      .input(z.object({
+        clientId: z.number().int().positive(),
+        phone: z.string().trim().max(40).optional(),
+        email: z.string().trim().max(320).optional(),
+        address: z.string().trim().max(2000).optional(),
+      }))
+      .mutation(({ ctx, input }) => mergeClientDetails({ ...input, actorUserId: ctx.user.id })),
     delete: adminProcedure
       .input(z.object({ clientId: z.number().int().positive() }))
       .mutation(({ ctx, input }) =>

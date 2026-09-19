@@ -1799,6 +1799,32 @@ export async function updateClient(input: {
   return input.clientId;
 }
 
+export async function mergeClientDetails(input: {
+  clientId: number;
+  actorUserId: number;
+  phone?: string;
+  email?: string;
+  address?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  const existing = (await db.select().from(clients).where(eq(clients.id, input.clientId)).limit(1))[0];
+  if (!existing) throw new Error("Birleştirilecek müşteri kaydı bulunamadı.");
+  const patch: Partial<typeof clients.$inferInsert> = {};
+  if (!existing.phone && input.phone?.trim()) patch.phone = input.phone.trim();
+  if (!existing.email && input.email?.trim()) patch.email = input.email.trim();
+  if (!existing.address && input.address?.trim()) patch.address = input.address.trim();
+  if (Object.keys(patch).length) await db.update(clients).set(patch).where(eq(clients.id, input.clientId));
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId,
+    action: "client_duplicate_merged",
+    entityType: "client",
+    entityId: input.clientId,
+    summary: `Mükerrer müşteri bilgileri mevcut ${existing.referenceNo} kaydına birleştirildi; yalnız boş alanlar dolduruldu.`,
+  });
+  return { clientId: input.clientId, referenceNo: existing.referenceNo, updatedFields: Object.keys(patch) };
+}
+
 async function countRows(
   db: NonNullable<Awaited<ReturnType<typeof getDb>>>,
   table: any,
