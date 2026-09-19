@@ -1564,6 +1564,7 @@ export async function listProperties(
       clientName: row.clientName,
       monthlyRent: row.rental.monthlyRent,
       tenantName: row.rental.tenantName,
+      contractDate: row.rental.contractDate,
       rentalSummaryId: row.rental.id,
       isRentalSummary: true,
       rentalSummaries: [row.rental],
@@ -1735,6 +1736,16 @@ export async function createClient(input: {
   const db = await getDb();
   if (!db) return null;
   await assertCentralOnlineStartAllowsRecord();
+  const normalizedName = input.name.trim().replace(/\s+/g, " ").toLocaleUpperCase("tr-TR");
+  const duplicate = (await db
+    .select({ id: clients.id, referenceNo: clients.referenceNo, name: clients.name, consultantCode: userProfiles.consultantCode })
+    .from(clients)
+    .leftJoin(userProfiles, eq(clients.assignedUserId, userProfiles.userId))
+    .where(sql`upper(trim(regexp_replace(${clients.name}, '[[:space:]]+', ' '))) = ${normalizedName}`)
+    .limit(1))[0];
+  if (duplicate) {
+    throw new Error(`Bu müşteri merkezi kayıtlarda zaten mevcut: ${duplicate.referenceNo} · ${duplicate.name}${duplicate.consultantCode ? ` · Sorumlu danışman: ${duplicate.consultantCode}` : ""}. Yeni kayıt açmak yerine mevcut müşteri kaydını kullanın.`);
+  }
   const referenceNo = await nextClientReferenceNo(db);
   const result = await db
     .insert(clients)
@@ -1770,6 +1781,15 @@ export async function updateClient(input: {
     throw new Error("Bu müşteri kaydını düzenleme yetkiniz yok.");
   const patch: Partial<typeof clients.$inferInsert> = {};
   if (input.name !== undefined && input.name.trim()) patch.name = input.name.trim();
+  if (patch.name) {
+    const normalizedName = String(patch.name).replace(/\s+/g, " ").toLocaleUpperCase("tr-TR");
+    const duplicate = (await db
+      .select({ referenceNo: clients.referenceNo, name: clients.name })
+      .from(clients)
+      .where(and(sql`upper(trim(regexp_replace(${clients.name}, '[[:space:]]+', ' '))) = ${normalizedName}`, ne(clients.id, input.clientId)))
+      .limit(1))[0];
+    if (duplicate) throw new Error(`Bu isimle merkezi müşteri kaydı zaten mevcut: ${duplicate.referenceNo} · ${duplicate.name}.`);
+  }
   if (input.phone !== undefined) patch.phone = input.phone.trim() || null;
   if (input.email !== undefined) patch.email = input.email.trim() || null;
   if (input.address !== undefined) patch.address = input.address.trim() || null;
