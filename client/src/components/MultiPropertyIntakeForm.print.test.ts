@@ -24,5 +24,15 @@ describe("multi-property PDF export", () => {
     expect(form).toContain("Global1881-Mulk-Portfoy-Listesi-");
     expect(form).toContain("Excel’e aktar");
     expect(form).toContain("PDF liste");
+    expect(form).toContain("stickyRowsCount: 1");
+    expect(form).toContain("orientation: \"landscape\"");
+    expect(form).toContain("columns: [10, 26, 12, 16, 40, 24, 16, 24, 16]");
+  });
+
+  it("uses a named landscape A4 page and fixed table widths for the PDF", () => {
+    const css = source("client/src/index.css");
+    expect(css).toContain(".property-portfolio-print-document { page: global1881-landscape; }");
+    expect(css).toContain("@page global1881-landscape { size: A4 landscape; margin: 10mm; }");
+    expect(css).toContain(".property-portfolio-print-document table { table-layout: fixed; }");
   });
 });

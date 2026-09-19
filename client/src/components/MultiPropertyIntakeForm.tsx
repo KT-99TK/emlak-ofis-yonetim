@@ -85,7 +85,12 @@ export default function MultiPropertyIntakeForm({ records, access, onRefresh }: 
       ["Sıra No", "Portföy Tanımı", "Tür", "İşlem Amacı", "Açık Adres", "Malik / Müşteri", "Bedel", "Yetki Tarihleri", "Danışman"],
       ...exportRows.map(row => [row.sequence, row.portfolioDescription, row.type, row.purpose, row.address, row.owner, row.price, row.authority, row.consultant]),
     ];
-    const workbook = writeXlsxFile(rows.map(row => row.map(value => ({ value }))), { sheet: "Mülk Portföy Listesi" });
+    const workbook = writeXlsxFile(rows.map(row => row.map(value => ({ value }))), {
+      sheet: "Mülk Portföy Listesi",
+      stickyRowsCount: 1,
+      orientation: "landscape",
+      columns: [10, 26, 12, 16, 40, 24, 16, 24, 16].map(width => ({ width })),
+    });
     const blob = await workbook.toBlob();
     downloadBlob(blob, `Global1881-Mulk-Portfoy-Listesi-${new Date().toISOString().slice(0, 10)}.xlsx`);
     setMessage(`${exportRows.length} mülk Excel dosyası olarak dışa aktarıldı.`);
