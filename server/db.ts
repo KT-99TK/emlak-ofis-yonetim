@@ -326,6 +326,7 @@ export async function getDashboardSummary(
     return {
       contracts: 0,
       portfolio: 0,
+      clients: 0,
       activeRentals: 0,
       outstanding: "0",
       activeTeam: 0,
@@ -382,6 +383,7 @@ export async function getDashboardSummary(
   const [
     contractCount,
     portfolioCount,
+    clientCount,
     activeRentalCount,
     outstanding,
     teamCount,
@@ -404,6 +406,16 @@ export async function getDashboardSummary(
               ? inArray(properties.assignedUserId, scopedIds)
               : sql`1 = 0`
         )
+      ),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(clients)
+      .where(
+        isManager
+          ? undefined
+          : scopedIds.length
+            ? inArray(clients.assignedUserId, scopedIds)
+            : sql`1 = 0`
       ),
     db
       .select({ count: sql<number>`count(*)` })
@@ -452,6 +464,7 @@ export async function getDashboardSummary(
   return {
     contracts: Number(contractCount[0]?.count ?? 0),
     portfolio: Number(portfolioCount[0]?.count ?? 0),
+    clients: Number(clientCount[0]?.count ?? 0),
     activeRentals: Number(activeRentalCount[0]?.count ?? 0),
     outstanding: String(outstanding[0]?.total ?? "0"),
     activeTeam: Number(teamCount[0]?.count ?? 0),

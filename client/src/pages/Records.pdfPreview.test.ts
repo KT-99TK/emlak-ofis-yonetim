@@ -5,9 +5,9 @@ describe("records PDF preview", () => {
   it("renders an in-page preview instead of depending on a popup", () => {
     const source = readFileSync(new URL("./Records.tsx", import.meta.url), "utf8");
     expect(source).toContain("setPrintPreviewHtml(");
-    expect(source).toContain('className="records-print-preview"');
-    expect(source).toContain('role="dialog" aria-label="PDF yazdırma önizlemesi"');
-    expect(source).toContain("Yazdır / PDF olarak kaydet");
+    expect(source).toContain("DocumentPrintPreview");
+    expect(source).toContain('aria-label="Liste önizleme"');
+    expect(source).toContain("Filtrelenmiş listeyi indirmeden");
     expect(source).toContain("window.print()");
   });
 
@@ -18,4 +18,3 @@ describe("records PDF preview", () => {
     expect(source).toContain("Kayıt sayısı:");
   });
 });
-

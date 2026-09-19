@@ -17,7 +17,10 @@ describe("search filters and dashboard totals", () => {
     expect(home).toContain('label: "Aktif kiralamalar"');
     expect(home).toContain("dashboardSummary.activeRentals");
     expect(home).toContain('label: "Mevcut portföyler"');
+    expect(home).toContain('label: "Toplam müşteriler"');
+    expect(home).toContain("dashboardSummary.clients");
     expect(db).toContain("activeRentalCount");
+    expect(db).toContain("clientCount");
     expect(db).toContain('eq(properties.status, "active")');
   });
 });

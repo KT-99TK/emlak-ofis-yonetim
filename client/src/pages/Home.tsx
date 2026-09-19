@@ -327,6 +327,13 @@ export default function Home() {
       color: "text-[#2b786e]",
     },
     {
+      label: "Toplam müşteriler",
+      value: dashboardSummary ? String(dashboardSummary.clients) : "—",
+      note: dashboardSummary ? "Merkezi kayıt" : unavailableNote,
+      icon: Users,
+      color: "text-[#1c675c]",
+    },
+    {
       label: "Mevcut portföyler",
       value: dashboardSummary ? String(dashboardSummary.portfolio) : "—",
       note: dashboardSummary ? "Merkezi kayıt" : unavailableNote,
