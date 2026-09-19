@@ -132,7 +132,7 @@ export default function Records() {
     const isClientList = kind === "clients";
     const rows = visibleItems.map((item: any) => isClientList
       ? `<tr><td>${safe(item.referenceNo || item.id)}</td><td>${safe(toTurkishUpperCase(item.name || ""))}</td><td>${safe(item.consultantCode || "Atanmamış")}</td><td>${safe(item.status || "Aktif")}</td><td>${safe(item.phone ? displayPhone(item.phone) : "Maskeli")}</td><td>${safe(item.email || "-")}</td><td>${safe(item.address || "-")}</td><td>${safe(item.portfolioSummary ? `${item.portfolioSummary.active}/${item.portfolioSummary.total} aktif${item.portfolioSummary.titles?.length ? ` · ${item.portfolioSummary.titles.join(" · ")}` : ""}` : "0 kayıt")}</td></tr>`
-      : `<tr><td>${safe(item.referenceNo || item.id)}</td><td>${safe(item.name || item.title || item.description)}</td><td>${safe(item.consultantCode || "Atanmamış")}</td><td>${safe(item.status || "Aktif")}</td><td>${safe(item.amount)}</td><td>${safe(item.address || item.entryType || item.listingType)}</td>`
+      : `<tr><td>${safe(item.referenceNo || item.id)}</td><td>${safe(item.name || item.title || item.description)}</td><td>${safe(item.consultantCode || "Atanmamış")}</td><td>${safe(item.status || "Aktif")}</td><td>${safe(item.amount)}</td><td>${safe(item.address || item.entryType || item.listingType)}</td></tr>`
     ).join("");
     const filterSummary = `${includeInactive ? "Aktif + pasif/arşiv" : "Yalnız aktif"} · Danışman: ${consultantCode.trim() || "kapsama göre"} · Merkezi no/ad araması: ${search.trim() || "yok"}`;
     const headings = isClientList
