@@ -1499,9 +1499,10 @@ export async function listProperties(
   if (!db) return [];
   const scopedIds = permittedUserIds ?? [userId];
   const rows = await db
-    .select({ property: properties, consultantCode: userProfiles.consultantCode })
+    .select({ property: properties, consultantCode: userProfiles.consultantCode, clientReferenceNo: clients.referenceNo, clientName: clients.name })
     .from(properties)
     .leftJoin(userProfiles, eq(properties.assignedUserId, userProfiles.userId))
+    .leftJoin(clients, eq(properties.ownerClientId, clients.id))
     .where(and(
       isManager
         ? undefined
@@ -1514,7 +1515,60 @@ export async function listProperties(
         : undefined
     ))
     .orderBy(desc(properties.createdAt));
-  return rows.map(row => ({ ...row.property, consultantCode: row.consultantCode }));
+  const clientIds = rows.map(row => row.property.ownerClientId).filter((id): id is number => Boolean(id));
+  const rentals = clientIds.length
+    ? await db.select().from(activeRentalSummaries).where(inArray(activeRentalSummaries.clientId, clientIds))
+    : [];
+  const rentalsByClient = new Map<number, typeof rentals>();
+  for (const rental of rentals) {
+    const existing = rentalsByClient.get(rental.clientId) ?? [];
+    existing.push(rental);
+    rentalsByClient.set(rental.clientId, existing);
+  }
+  const propertyResults = rows.map(row => ({
+    ...row.property,
+    consultantCode: row.consultantCode,
+    clientReferenceNo: row.clientReferenceNo,
+    clientName: row.clientName,
+    rentalSummaries: row.property.ownerClientId ? rentalsByClient.get(row.property.ownerClientId) ?? [] : [],
+  }));
+  const rentalRows = await db
+    .select({ rental: activeRentalSummaries, clientReferenceNo: clients.referenceNo, clientName: clients.name, consultantCode: userProfiles.consultantCode })
+    .from(activeRentalSummaries)
+    .innerJoin(clients, eq(activeRentalSummaries.clientId, clients.id))
+    .leftJoin(userProfiles, eq(activeRentalSummaries.assignedUserId, userProfiles.userId))
+    .where(and(
+      isManager ? undefined : scopedIds.length ? inArray(activeRentalSummaries.assignedUserId, scopedIds) : sql`1 = 0`,
+      isManager && filters.consultantCode ? eq(userProfiles.consultantCode, filters.consultantCode) : undefined
+    ));
+  return [
+    ...propertyResults,
+    ...rentalRows.map(row => ({
+      id: -row.rental.id,
+      referenceNo: `KIRA-${row.rental.id}`,
+      title: `${row.rental.unitInfo || row.rental.propertyLocation || "Kiralık portföy"} · ${row.rental.neighborhood}`,
+      name: `${row.rental.unitInfo || row.rental.propertyLocation || "Kiralık portföy"} · ${row.rental.neighborhood}`,
+      address: row.rental.propertyLocation || row.rental.neighborhood,
+      type: "residential" as const,
+      grossM2: null,
+      netM2: null,
+      roomCount: null,
+      price: row.rental.monthlyRent,
+      ownerApprovalStatus: "notRequired" as const,
+      listingType: "rent" as const,
+      status: "active" as const,
+      assignedUserId: row.rental.assignedUserId,
+      consultantCode: row.consultantCode,
+      ownerClientId: row.rental.clientId,
+      clientReferenceNo: row.clientReferenceNo,
+      clientName: row.clientName,
+      monthlyRent: row.rental.monthlyRent,
+      tenantName: row.rental.tenantName,
+      rentalSummaryId: row.rental.id,
+      isRentalSummary: true,
+      rentalSummaries: [row.rental],
+    })),
+  ];
 }
 export async function listLedger(
   userId: number,
