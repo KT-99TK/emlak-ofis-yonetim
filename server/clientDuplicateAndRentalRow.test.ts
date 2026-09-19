@@ -18,4 +18,11 @@ describe("central client duplicate and rental row safeguards", () => {
     expect(source).toContain("İlk sözleşme:");
     expect(source).toContain("Güncel kira:");
   });
+
+  it("renders a direct profile link for duplicate customer warnings", () => {
+    const source = readFileSync(resolve(process.cwd(), "client/src/pages/Records.tsx"), "utf8");
+    expect(source).toContain("DUPLICATE_CLIENT_ID");
+    expect(source).toContain("Mevcut müşteri profilini aç ve düzelt");
+    expect(source).toContain("/clients?clientId=");
+  });
 });

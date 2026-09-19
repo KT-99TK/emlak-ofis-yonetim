@@ -1744,7 +1744,7 @@ export async function createClient(input: {
     .where(sql`upper(trim(regexp_replace(${clients.name}, '[[:space:]]+', ' '))) = ${normalizedName}`)
     .limit(1))[0];
   if (duplicate) {
-    throw new Error(`Bu müşteri merkezi kayıtlarda zaten mevcut: ${duplicate.referenceNo} · ${duplicate.name}${duplicate.consultantCode ? ` · Sorumlu danışman: ${duplicate.consultantCode}` : ""}. Yeni kayıt açmak yerine mevcut müşteri kaydını kullanın.`);
+    throw new Error(`DUPLICATE_CLIENT_ID:${duplicate.id}|Bu müşteri merkezi kayıtlarda zaten mevcut: ${duplicate.referenceNo} · ${duplicate.name}${duplicate.consultantCode ? ` · Sorumlu danışman: ${duplicate.consultantCode}` : ""}. Yeni kayıt açmak yerine mevcut müşteri kaydını kullanın.`);
   }
   const referenceNo = await nextClientReferenceNo(db);
   const result = await db
@@ -1784,12 +1784,12 @@ export async function updateClient(input: {
   if (patch.name) {
     const normalizedName = String(patch.name).replace(/\s+/g, " ").toLocaleUpperCase("tr-TR");
     const duplicate = (await db
-      .select({ referenceNo: clients.referenceNo, name: clients.name, consultantCode: userProfiles.consultantCode })
+      .select({ id: clients.id, referenceNo: clients.referenceNo, name: clients.name, consultantCode: userProfiles.consultantCode })
       .from(clients)
       .leftJoin(userProfiles, eq(clients.assignedUserId, userProfiles.userId))
       .where(and(sql`upper(trim(regexp_replace(${clients.name}, '[[:space:]]+', ' '))) = ${normalizedName}`, ne(clients.id, input.clientId)))
       .limit(1))[0];
-    if (duplicate) throw new Error(`Bu isimle merkezi müşteri kaydı zaten mevcut: ${duplicate.referenceNo} · ${duplicate.name}${duplicate.consultantCode ? ` · Sorumlu danışman: ${duplicate.consultantCode}` : " · Sorumlu danışman bilgisi kayıtlı değil"}.`);
+    if (duplicate) throw new Error(`DUPLICATE_CLIENT_ID:${duplicate.id}|Bu isimle merkezi müşteri kaydı zaten mevcut: ${duplicate.referenceNo} · ${duplicate.name}${duplicate.consultantCode ? ` · Sorumlu danışman: ${duplicate.consultantCode}` : " · Sorumlu danışman bilgisi kayıtlı değil"}.`);
   }
   if (input.phone !== undefined) patch.phone = input.phone.trim() || null;
   if (input.email !== undefined) patch.email = input.email.trim() || null;
