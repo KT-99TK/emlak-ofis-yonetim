@@ -24,5 +24,7 @@ describe("property list rental summaries", () => {
     expect(dbSource).toContain("clientNo(a.clientReferenceNo)");
     expect(recordsSource).toContain("Liste tarihi:");
     expect(recordsSource).toContain('toLocaleDateString("tr-TR")');
+    expect(recordsSource).toContain("Yeni malik");
+    expect(recordsSource).toContain('role="separator"');
   });
 });
